@@ -7,9 +7,10 @@ require.config({
     // Core Libraries
     "jquery": "bower_components/jquery/jquery",
     "jquerymobile": "libs/jquery.mobile-1.4.2.min",
-    "underscore": "libs/lodash",
-    "backbone": "libs/backbone-min",
-    "handlebars": "libs/handlebars/handlebars.amd",
+    "underscore": "bower_components/lodash/dist/lodash",
+    "backbone": "bower_components/backbone-amd/backbone",
+    "handlebars": "bower_components/handlebars/handlebars.amd",
+    "moment": "bower_components/moment/moment",
     "jqmcal": "libs/jqm-cal.min",
 
   },
