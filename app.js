@@ -6,12 +6,12 @@ require.config({
 
     // Core Libraries
     "jquery": "bower_components/jquery/jquery",
-    "jquerymobile": "libs/jquery.mobile-1.4.2.min",
+    "jquerymobile": "libs/jquery.mobile-1.4.2.min", //bower build failed, so use this offical version
     "underscore": "bower_components/lodash/dist/lodash",
     "backbone": "bower_components/backbone-amd/backbone",
-    "handlebars": "bower_components/handlebars/handlebars.amd",
+    "handlebars": "bower_components/handlebars/handlebars",
     "moment": "bower_components/moment/moment",
-    "jqmcal": "libs/jqm-cal.min",
+    "jqmcal": "libs/jw-jqm-cal",
 
   },
 
@@ -22,21 +22,17 @@ require.config({
       "deps": ["underscore", "jquery"],
       "exports": "Backbone" //attaches "Backbone" to the window object
     },
-    // "handlebars": {
-    //   "deps": ["jquery"],
-    //   "exports": "Handlebars" //attaches "Backbone" to the window object
-    // },
-    "jqmcal": {
-      "deps": ["jquery"],
-      "exports": "jqmCalendar" //attaches "Backbone" to the window object
-    }
+    'handlebars': { //amd work strange, so use normal+exports
+      "exports": 'Handlebars'
+    },
+    "jqmcal": ["jquery"],
 
   } // end Shim Configuration
 
 });
 
 // Includes File Dependencies
-require(["jquery", "backbone", "routers/mobileRouter"], function($, Backbone, Mobile) {
+require(["jquery", "backbone", "routers/mobileRouter", "jqmcal"], function($, Backbone, Mobile) {
 
   $(document).on("mobileinit",
     // Set up the "mobileinit" handler before requiring jQuery Mobile's module
@@ -52,6 +48,6 @@ require(["jquery", "backbone", "routers/mobileRouter"], function($, Backbone, Mo
   require(["jquerymobile"], function() {
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
-    console.log('message');
+    console.log('message: router started!');
   });
 });
