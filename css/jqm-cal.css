@@ -1,0 +1,17 @@
+.jqm-cal-wrapper {padding: 0; margin: 0px; display: block;}
+.jqm-cal-wrapper table {margin:0; width: 100%; color: #333; border-collapse: collapse; table-layout: fixed;}
+.jqm-cal-wrapper th {padding: .3em 0; text-align: center;}
+.jqm-cal-wrapper th.header {line-height: 40px;border-left-width: 0;border-right-width: 0;border-top-width: 0;margin-top: 0;padding:0;}
+.jqm-cal-wrapper .previous-btn {float: left; margin: .3em .5em;}
+.jqm-cal-wrapper .next-btn {float: right; margin: .3em .5em;}
+.jqm-cal-wrapper .dayName {background:#bcbcbc;font-weight: normal;border-color:#ccc;text-shadow:none;}
+.jqm-cal-wrapper td {text-align:center; padding: 0;  }
+.jqm-cal-wrapper td.lowres, .jqm-cal-wrapper span.lowres { opacity: 0.3;}
+.jqm-cal-wrapper td a { padding: .5em 0; margin:0; border:0; }
+.jqm-cal-wrapper td span { position: absolute; top: 20px; left: 0; width: 100%; text-align: center; }
+.jqm-cal-wrapper .ui-body-b {border: 1px solid #ddd;}
+.jqm-cal-wrapper .ui-btn-up-b {background:#fff;color: #707070;font-weight: 400;text-shadow:none;}
+.jqm-cal-wrapper .ui-btn-today {background: #fcf8e3;}
+.jqm-cal-wrapper .ui-btn-active {color: #ffffff;text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);background-color: #faa732!important;background-image: -moz-linear-gradient(top, #fbb450, #f89406)!important;background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fbb450), to(#f89406))!important;background-image: -webkit-linear-gradient(top, #fbb450, #f89406)!important;background-image: -o-linear-gradient(top, #fbb450, #f89406)!important;background-image: linear-gradient(to bottom, #fbb450, #f89406)!important;background-repeat: repeat-x;}
+.jqm-cal-wrapper .hasEvent {color: #ffffff;text-shadow: 0 0 0 #ffffff;background: #89B814!important;}
+.jqm-cal-wrapper .ui-listview {margin:15px 0!important;}

@@ -1,0 +1,23 @@
+{
+  "name": "zhisiyun mobile",
+  "version": "0.0.1",
+  "main": "app.js",
+  "dependencies": {
+    "jquery": "latest",
+    "jquery-mobile": "latest",
+    "lodash": "latest",
+    "almond": "latest",
+    "requirejs": "latest",
+    "backbone-amd": "latest",
+    "backbone.marionette": "latest",
+    "backbone.wreqr": "latest",
+    "backbone.babysitter": "latest",
+    "backbone.marionette.handlebars": "latest",
+    "handlebars": "latest",
+    "moment": "latest",
+    "text": "latest",
+    "sprintf": "latest",
+    "jQuery-Mobile-Icon-Pack": "latest"
+
+  }
+}
