@@ -126,7 +126,9 @@ define(["jquery", "backbone",
         if (task_id == 'new') {
           var new_task = taskView.collection.add({
             'title': '新建任务',
-            'start': new Date()
+            'start': new Date(),
+            'end': new Date(),
+            'allDay': true
           });
           // new_task.save().done(function() {
           taskDetailView.model = new_task;
