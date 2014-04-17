@@ -1,135 +1,115 @@
-(function($) {
-  $.jqmCalendar = function(element, options) {
-
-    var defaults = {
-      // Array of events
-      events: [],
-      // Default properties for events
-      begin: "begin",
-      end: "end",
-      summary: "summary",
-      icon: "icon",
-      url: "url",
-      // Sting to use when event is all day
-      allDayTimeString: '',
-      // Theme
-      theme: "c",
-      // Date variable to determine which month to show and which date to select
-      date: new Date(),
-      // Version
-      version: "1.0.1",
-      // Array of month strings (calendar header)
-      months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-      // Array of day strings (calendar header)
-      days: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-      // Most months contain 5 weeks, some 6. Set this to six if you don't want the amount of rows to change when switching months.
-      weeksInMonth: undefined,
-      // Start the week at the day of your preference, 0 for sunday, 1 for monday, and so on.
-      startOfWeek: 0,
-      // List Item formatter, allows a callback to be passed to alter the contect of the list item
-      listItemFormatter: listItemFormatter,
-      route: ''
-    }
-
-    var plugin = this,
-      today = new Date();
-    plugin.settings = null;
-
-    var $element = $(element).addClass("jq-calendar-wrapper"),
-      element = element,
-      $table,
-      $header,
-      $tbody,
-      $listview;
-
-    function init() {
-      plugin.settings = $.extend({}, defaults, options);
-      plugin.settings.theme = $.mobile.getInheritedTheme($element, plugin.settings.theme);
-
-      $table = $("<table/>");
-
-      // Build the header
-      var $thead = $("<thead/>").appendTo($table),
-        $tr = $("<tr/>").appendTo($thead),
-        $th = $("<th class='ui-bar-" + plugin.settings.theme + " header' colspan='7'/>");
-
-      $previous = $("<a href='#" + plugin.settings.route + "' data-role='button' data-icon='arrow-l' data-iconpos='notext' class='previous-btn'>Previous</a>").click(function(event) {
-        refresh(new Date(plugin.settings.date.getFullYear(), plugin.settings.date.getMonth() - 1, plugin.settings.date.getDate()));
-      }).appendTo($th);
-
-      $header = $("<span/>").appendTo($th);
-
-      $previous = $("<a href='#" + plugin.settings.route + "' data-role='button' data-icon='arrow-r' data-iconpos='notext' class='next-btn'>Next</a>").click(function(event) {
-        refresh(new Date(plugin.settings.date.getFullYear(), plugin.settings.date.getMonth() + 1, plugin.settings.date.getDate()));
-      }).appendTo($th);
-
-      $th.appendTo($tr);
-
-      $tr = $("<tr/>").appendTo($thead);
-
-      // The way of determing the labels for the days is a bit awkward, but works.
-      for (var i = 0, days = [].concat(plugin.settings.days, plugin.settings.days).splice(plugin.settings.startOfWeek, 7); i < 7; i++) {
-        $tr.append("<th class='ui-bar-" + plugin.settings.theme + "'><span class='darker'>" + days[i] + "</span></th>");
+(function(e) {
+  e.jqmCalendar = function(t, n) {
+    function h() {
+      i.settings = e.extend({}, r, n);
+      o = e("<table/>");
+      var t = e("<thead/>").appendTo(o),
+        h = e("<tr/>").appendTo(t),
+        p = e("<th class='ui-bar-" + i.settings.headerTheme + " header' colspan='7'/>");
+      l = e("<a href='#" + i.settings.route + "' data-role='button' data-icon='arrow-l' data-iconpos='notext' class='previous-btn'>Previous</a>").data("date", d(i.settings.date, -1)).appendTo(p);
+      u = e("<span/>").appendTo(p);
+      c = e("<a href='#" + i.settings.route + "' data-role='button' data-icon='arrow-r' data-iconpos='notext' class='next-btn'>Next</a>").data("date", d(i.settings.date, 1)).appendTo(p);
+      l.click(function(t) {
+        var n = e(this).data("date");
+        S(n, true);
+        c.data("date", d(n, 1));
+        e(this).data("date", d(n, -1))
+      });
+      c.click(function(t) {
+        var n = e(this).data("date");
+        S(n, true);
+        l.data("date", d(n, -1));
+        e(this).data("date", d(n, 1))
+      });
+      p.appendTo(h);
+      h = e("<tr/>").appendTo(t);
+      for (var v = 0, m = [].concat(i.settings.days, i.settings.days).splice(i.settings.startOfWeek, 7); v < 7; v++) {
+        h.append("<th class='ui-bar-" + i.settings.theme + " dayName'>" + m[v] + "</th>")
       }
-
-      $tbody = $("<tbody/>").appendTo($table);
-
-      $table.appendTo($element);
-      $listview = $("<ul data-role='listview'/>").insertAfter($table);
-
-      // Call refresh to fill the calendar with dates
-      refresh(plugin.settings.date);
+      a = e("<tbody/>").appendTo(o);
+      o.appendTo(s);
+      f = e("<ul data-role='listview' data-theme='" + i.settings.dataTheme + "' data-divider-theme='" + i.settings.dividerTheme + "' />").insertAfter(o);
+      i.settings.transposeTimezone(i.settings.events);
+      S(i.settings.date, true)
     }
 
-    function _firstDayOfMonth(date) {
-      // [0-6] Sunday is 0, Monday is 1, and so on.
-      return (new Date(date.getFullYear(), date.getMonth(), 1)).getDay();
+    function p(e) {
+      for (var t = 0, n; n = i.settings.events[t]; t++) {
+        i.settings.events[t].start = new Date(i.settings.events[t].start.getTime() - i.settings.events[t].start.getTimezoneOffset() + (new Date).getTimezoneOffset() * 6e4);
+        i.settings.events[t].end = new Date(i.settings.events[t].end.getTime() - i.settings.events[t].end.getTimezoneOffset() + (new Date).getTimezoneOffset() * 6e4)
+      }
     }
 
-    function _daysBefore(date, fim) {
-      // Returns [0-6], 0 when firstDayOfMonth is equal to startOfWeek, else the amount of days of the previous month included in the week.
-      var firstDayInMonth = (fim || _firstDayOfMonth(date)),
-        diff = firstDayInMonth - plugin.settings.startOfWeek;
-      return (diff > 0) ? diff : (7 + diff);
+    function d(e, t) {
+      return new Date(e.getFullYear(), e.getMonth() + t, 1)
     }
 
-    function _daysInMonth(date) {
-      // [1-31]
-      return (new Date(date.getFullYear(), date.getMonth() + 1, 0)).getDate();
+    function v(e) {
+      return (new Date(e.getFullYear(), e.getMonth(), 1)).getDay()
     }
 
-    function _daysAfter(date, wim, dim, db) {
-      // Returns [0-6] amount of days from the next month
-      return ((wim || _weeksInMonth(date)) * 7) - (dim || _daysInMonth(date)) - (db || _daysBefore(date));
+    function m(e, t) {
+      var n = t || v(e),
+        r = n - i.settings.startOfWeek;
+      return r > 0 ? r : 7 + r
     }
 
-    function _weeksInMonth(date, dim, db) {
-      // Returns [5-6];
-      return (plugin.settings.weeksInMonth) ? plugin.settings.weeksInMonth : Math.ceil(((dim || _daysInMonth(date)) + (db || _daysBefore(date))) / 7);
+    function g(e) {
+      return (new Date(e.getFullYear(), e.getMonth() + 1, 0)).getDate()
     }
 
-    function addCell($row, date, darker, selected) {
-      var $td = $("<td class='ui-body-" + plugin.settings.theme + "'/>").appendTo($row),
-        $a = $("<a href='#" + plugin.settings.route + "' class='ui-btn ui-btn-up-" + plugin.settings.theme + "'/>")
+    function y(e, t, n, r) {
+      return (t || b(e)) * 7 - (n || g(e)) - (r || m(e))
+    }
+
+    function b(e, t, n) {
+      return i.settings.weeksInMonth ? i.settings.weeksInMonth : Math.ceil(((t || g(e)) + (n || m(e))) / 7)
+    }
+
+    function w($row, date, darker, selected) {
+      // var o = e("<td class='ui-body-" + i.settings.theme + "'/>").appendTo(t),
+      //     u = e("<a href='#' class='ui-btn ui-btn-up-" + i.settings.theme + "'/>").html(n.getDate().toString()).data("date", n).click(E).appendTo(o);
+      // if (s) u.click();
+      // if (r) {
+      //     o.addClass("lowres")
+      // } else {
+      //     var a = 0;
+      //     for (var f = 0, l, c = new Date(n.getFullYear(), n.getMonth(), n.getDate(), 0, 0, 0, 0), h = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1, 0, 0, 0, 0); l = i.settings.events[f]; f++) {
+      //         if (l[i.settings.end].getTime() >= c.getTime() && l[i.settings.begin].getTime() < h.getTime()) {
+      //             a++;
+      //             break
+      //         }
+      //     }
+      //     if (a > 0) {
+      //         u.addClass("hasEvent")
+      //     }
+      //     var p = new Date;
+      //     if (n.getFullYear() === p.getFullYear() && n.getMonth() === p.getMonth() && n.getDate() === p.getDate()) {
+      //         u.addClass("ui-btn-today")
+      //     }
+      // }
+
+      var $td = $("<td class='ui-body-" + i.settings.theme + "'/>").appendTo($row),
+        $a = $("<a href='#" + i.settings.route + "' class='ui-btn ui-btn-up-" + i.settings.theme + "'/>")
           .html(date.getDate().toString())
           .data('date', date)
-          .click(cellClickHandler)
+          .click(E)
           .appendTo($td);
 
       if (selected) $a.click();
 
-      if (darker) {
+      if (r) {
         $td.addClass("darker");
       }
 
       var importance = 0;
 
       // Find events for this date
-      for (var i = 0,
+      for (var f = 0,
           event,
           begin = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0),
-          end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0); event = plugin.settings.events[i]; i++) {
-        if (event[plugin.settings.end] >= begin && event[plugin.settings.begin] < end) {
+          end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0); event = i.settings.events[f]; f++) {
+        if (event[i.settings.end] >= begin && event[i.settings.begin] < end) {
           importance++;
           if (importance > 1) break;
         }
@@ -138,7 +118,7 @@
       if (importance > 0) {
         $a.append("<span>&bull;</span>");
       }
-
+      var today = new Date();
       if (date.getFullYear() === today.getFullYear() &&
         date.getMonth() === today.getMonth() &&
         date.getDate() === today.getDate()) {
@@ -148,119 +128,152 @@
       }
     }
 
-    function cellClickHandler(event) {
-      var $this = $(this),
-        date = $this.data('date');
-      $tbody.find("a.ui-btn-active").removeClass("ui-btn-active");
-      $this.addClass("ui-btn-active");
-
-      if (date.getMonth() !== plugin.settings.date.getMonth()) {
-        // Go to previous/next month
-        refresh(date);
+    function E(t) {
+      var n = e(this),
+        r = n.data("date");
+      a.find("a.ui-btn-active").removeClass("ui-btn-active");
+      n.addClass("ui-btn-active");
+      if (r.getMonth() !== i.settings.date.getMonth()) {
+        S(r, false);
+        l.data("date", d(r, -1));
+        c.data("date", d(r, 1))
       } else {
-        // Select new date
-        $element.trigger('change', date);
+        s.trigger("change", r)
       }
     }
 
-    function refresh(date) {
-      plugin.settings.date = date = date || plugin.settings.date || new Date();
-
-      var year = date.getFullYear(),
-        month = date.getMonth(),
-        daysBefore = _daysBefore(date),
-        daysInMonth = _daysInMonth(date),
-        weeksInMonth = plugin.settings.weeksInMonth || _weeksInMonth(date, daysInMonth, daysBefore);
-
-      if (((daysInMonth + daysBefore) / 7) - weeksInMonth === 0)
-        weeksInMonth++;
-
-      // Empty the table body, we start all over...
-      $tbody.empty();
-      // Change the header to match the current month
-      $header.html(plugin.settings.months[month] + " " + year.toString());
-
-      for (var weekIndex = 0,
-          daysInMonthCount = 1,
-          daysAfterCount = 1; weekIndex < weeksInMonth; weekIndex++) {
-
-        var daysInWeekCount = 0,
-          row = $("<tr/>").appendTo($tbody);
-
-        // Previous month
-        while (daysBefore > 0) {
-          addCell(row, new Date(year, month, 1 - daysBefore), true);
-          daysBefore--;
-          daysInWeekCount++;
+    function S(t, n) {
+      i.settings.date = t = t || i.settings.date || new Date;
+      var r = t.getFullYear(),
+        o = t.getMonth(),
+        f = m(t),
+        l = g(t),
+        c = i.settings.weeksInMonth || b(t, l, f);
+      if ((l + f) / 7 - c === 0) c++;
+      a.empty();
+      u.html(r.toString() + "年 " + i.settings.months[o]);
+      for (var h = 0, p = 1, d = 1; h < c; h++) {
+        var v = 0,
+          y = e("<tr/>").appendTo(a);
+        while (f > 0) {
+          w(y, new Date(r, o, 1 - f), true);
+          f--;
+          v++
         }
-
-        // Current month
-        while (daysInWeekCount < 7 && daysInMonthCount <= daysInMonth) {
-          addCell(row, new Date(year, month, daysInMonthCount), false, daysInMonthCount === date.getDate());
-          daysInWeekCount++;
-          daysInMonthCount++;
+        while (v < 7 && p <= l) {
+          w(y, new Date(r, o, p), false, !n && p === t.getDate());
+          v++;
+          p++
         }
-
-        // Next month
-        while (daysInMonthCount > daysInMonth && daysInWeekCount < 7) {
-          addCell(row, new Date(year, month, daysInMonth + daysAfterCount), true);
-          daysInWeekCount++;
-          daysAfterCount++;
+        while (p > l && v < 7) {
+          w(y, new Date(r, o, l + d), true);
+          v++;
+          d++
         }
       }
-
-      $element.trigger('create');
+      if (n) i.settings.monthItemsFormatter(x(t));
+      s.trigger("create")
     }
 
-    $element.bind('change', function(event, begin) {
-      var end = new Date(begin.getFullYear(), begin.getMonth(), begin.getDate() + 1, 0, 0, 0, 0);
-      // Empty the list
-      $listview.empty();
-
-      // Find events for this date
-      for (var i = 0, event; event = plugin.settings.events[i]; i++) {
-        if (event[plugin.settings.end] >= begin && event[plugin.settings.begin] < end) {
-          // Append matches to list
-          var summary = event[plugin.settings.summary],
-            beginTime = ((event[plugin.settings.begin] > begin) ? event[plugin.settings.begin] : begin).toTimeString().substr(0, 5),
-            endTime = ((event[plugin.settings.end] < end) ? event[plugin.settings.end] : end).toTimeString().substr(0, 5),
-            timeString = beginTime + "-" + endTime,
-            $listItem = $("<li></li>").appendTo($listview);
-
-          plugin.settings.listItemFormatter($listItem, timeString, summary, event);
-
+    function x(e) {
+      var t = [];
+      for (var n = 0, r, s = new Date(e.getFullYear(), e.getMonth(), 1, 0, 0, 0, 0), o = new Date(e.getFullYear(), e.getMonth(), g(e), 23, 59, 59, 999); r = i.settings.events[n]; n++) {
+        if (r[i.settings.end] >= s && r[i.settings.begin] < o) {
+          t.push(r)
         }
       }
+      t.sort(function(e, t) {
+        return e["start"] > t["start"] ? 1 : e["start"] < t["start"] ? -1 : 0
+      });
+      return t
+    }
 
-      $listview.trigger('create').filter(".ui-listview").listview('refresh');
-    });
-
-    function listItemFormatter($listItem, timeString, summary, event) {
-      var text = ((timeString != "00:00-00:00") ? timeString : plugin.settings.allDayTimeString) + " " + summary;
-      if (event[plugin.settings.icon]) {
-        $listItem.attr('data-icon', event.icon);
-      }
-      if (event[plugin.settings.url]) {
-        $('<a></a>').text(text).attr('href', event[plugin.settings.url]).appendTo($listItem);
+    function T(t, n) {
+      t.find("h3").append(n.name);
+      var r = e.format.date(n.start, i.settings.dateFormat);
+      var s = e.format.date(n.end, i.settings.dateFormat);
+      if (r == s) {
+        t.find("p").append("<strong>" + n[i.settings.title] + "</strong><br><small>" + n[i.settings.summary].replace("\n", "<br>") + "</small> </p><p>" + r)
       } else {
-        $listItem.text(text);
+        t.find("p").append("<strong>" + n[i.settings.title] + "</strong><br><small>" + n[i.settings.summary].replace("\n", "<br>") + "</small> </p><p>" + r + "&nbsp;&nbsp;&rarr;&nbsp;&nbsp;" + s)
+      } if (n[i.settings.icon]) {
+        t.attr("data-icon", n.icon)
       }
-
     }
 
-    $element.bind('refresh', function(event, date) {
-      refresh(date);
+    function N(t) {
+      f.empty();
+      if (t.length) {
+        var n = "";
+        for (var r = 0, s; s = t[r]; r++) {
+          if (n != e.format.date(s.start, "yyyyMMMMdd")) {
+            var o = e('<li data-role="list-divider">' + e.format.date(s.start, i.settings.dateFormatTitle) + "</li>").appendTo(f);
+            n = e.format.date(s.start, "yyyyMMMMdd")
+          }
+          var u = e("<li class='ui-event-item'><a href='#" + i.settings.route + "?" + s['_id'] + "' class='event-item-link' rel='" + s.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
+          i.settings.listItemFormatter(u, s)
+        }
+      } else {
+        var u = e("<li class='ui-event-item'><p style='padding-top:0.65em;'><strong>选定的月份没有安排任务</strong></p></li>").appendTo(f)
+      }
+      f.trigger("create").filter(".ui-listview").listview("refresh")
+    }
+    var r = {
+      events: [],
+      begin: "start",
+      end: "end",
+      title: "title",
+      summary: "description",
+      location: "location",
+      icon: "icon",
+      url: "url",
+      allDayTimeString: "",
+      headerTheme: "b",
+      theme: "b",
+      dataTheme: "d",
+      dividerTheme: "b",
+      date: new Date,
+      dateFormatTitle: "dd MMMM, yyyy",
+      dateFormat: "dd MMMM, yyyy",
+      version: "1.2.2",
+      months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+      days: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+      weeksInMonth: 6,
+      startOfWeek: 1,
+      listItemFormatter: T,
+      monthItemsFormatter: N,
+      transposeTimezone: p,
+      route: ''
+    };
+    var i = this;
+    i.settings = null;
+    var s = e(t).addClass("jq-calendar-wrapper"),
+      o, u, a, f, l, c;
+    s.bind("change", function(t, n) {
+      var r = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1, 0, 0, 0, 0);
+      var s = false;
+      f.empty();
+      e('<li data-role="list-divider">' + e.format.date(n, i.settings.dateFormatTitle) + "</li>").appendTo(f);
+      for (var o = 0, t; t = i.settings.events[o]; o++) {
+        if (t[i.settings.end] >= n && t[i.settings.begin] < r) {
+          var u = e("<li class='ui-event-item'><a href='#" + i.settings.route + "?" + t['_id'] + "' class='event-item-link' rel='" + t.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
+          i.settings.listItemFormatter(u, t);
+          s = true
+        }
+      }
+      if (!s) var u = e("<li class='ui-event-item'><p style='padding-top:0.65em;'><strong>选定的日期没有安排任务</strong></p></li>").appendTo(f);
+      f.trigger("create").filter(".ui-listview").listview("refresh")
     });
-
-    init();
-  }
-
-  $.fn.jqmCalendar = function(options) {
+    s.bind("refresh", function(e, t) {
+      S(t)
+    });
+    h()
+  };
+  e.fn.jqmCalendar = function(t) {
     return this.each(function() {
-      if (!$(this).data('jqmCalendar')) {
-        $(this).data('jqmCalendar', new $.jqmCalendar(this, options));
+      if (!e(this).data("jqmCalendar")) {
+        e(this).data("jqmCalendar", new e.jqmCalendar(this, t))
       }
-    });
+    })
   }
-
-})(jQuery);
+})(jQuery)

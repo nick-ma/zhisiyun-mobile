@@ -61,6 +61,7 @@ define(["jquery", "backbone",
         // When #category? is on the url, the category method is called
         "category?:type": "category",
         "task": "task",
+        "task?:task_id": "task_detail",
 
       },
 
@@ -135,6 +136,14 @@ define(["jquery", "backbone",
 
           });
         };
+      },
+
+      task_detail: function(task_id) {
+        console.log(task_id);
+        $.mobile.changePage("#task_detail", {
+          reverse: false,
+          changeHash: false
+        });
       }
 
     });

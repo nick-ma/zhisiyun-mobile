@@ -70,12 +70,28 @@
 
 <div id="task" data-role="page" data-title="工作任务">
 
+    <div data-role="header">
+        <a href="#" data-role="button" data-icon="arrow-l" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-arrow-l ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+        <h1>工作任务</h1>
+        <a href="#task?new" data-role="button" data-icon="plus" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-plus ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+    </div><!-- /header -->
+  
+    <div data-role="content">
+        <div id="jqm_cal"></div>
+        <ul data-role="listview" data-inset="true">
+        </ul>
+    </div><!-- /content -->
+
+</div>
+
+<div id="task_detail" data-role="page" data-title="工作任务详情">
+
       <div data-role="header">
-      <h1>工作任务</h1>
+      <h1>工作任务详情</h1>
       </div><!-- /header -->
   
       <div data-role="content">
-            <div id="jqm_cal"></div>
+            <div>this is task detail page</div>
             <ul data-role="listview" data-inset="true">
             </ul>
       </div><!-- /content -->
