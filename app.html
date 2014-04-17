@@ -1,122 +1,151 @@
 <!doctype html>
 <html class="no-js ui-mobile-rendering" lang="en">
+
 <head>
-      <title>Backbone.js, Require.js, and jQuery Mobile</title>
-      <meta name="description" content="">
+  <title>Backbone.js, Require.js, and jQuery Mobile</title>
+  <meta name="description" content="">
 
-      <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      <link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css" />
-      <link rel="stylesheet" href="css/jw-jqm-cal.ios7.css" />
-      <script src="bower_components/requirejs/require.js" data-main="app"></script>
+  <link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css" />
+  <link rel="stylesheet" href="css/jw-jqm-cal.ios7.css" />
+  <script src="bower_components/requirejs/require.js" data-main="app"></script>
 </head>
+
 <body>
+  <div data-role="page" id="home">
+    <div data-role="header">
+      <h1>我的首页</h1>
+    </div>
+    <div role="main" class="ui-content">
+      <!-- 自己的信息 通讯录-->
+      <ul data-role="listview" data-theme="a" data-divider-theme="b">
+        <li>领导</li>
+        <li data-role="list-divider"></li>
+        <li>自己</li>
+        <li data-role="list-divider">下属
+        </li>
+        <li>
+          <div data-role="collapsibleset" data-inset="false" data-theme="a">
+            <div data-role="collapsible">
+              <h2>下属部门</h2>
+              <ul data-role="listview" data-theme="a" data-divider-theme="b">
+                <li>下属1</li>
+                <li>下属2</li>
+                <li>下属3</li>
+                <li>
+                  <div data-role="collapsibleset" data-inset="false" data-theme="a">
+                    <div data-role="collapsible">
+                      <h2>下下级部门</h2>
+                      <ul data-role="listview" data-theme="a" data-divider-theme="b">
+                        <li>小兵甲</li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
 
-<div id="categories" data-role="page" data-title="Categories">
-  
-      <div data-role="header">
-            <h1>分类</h1>
-      </div><!-- /header -->
-  
-      <div data-role="content">
-            <h2>选择一个分类</h2>
-            <ul data-role="listview" data-inset="true">
-                  <li><a href="#task" class="task">工作任务</a></li>
-                  <li><a href="#category?animals" class="animals">动物</a></li>
-                  <li><a href="#category?colors" class="colors">Colors</a></li>
-                  <li><a href="#category?vehicles" class="vehicles">Vehicles</a></li>
-            </ul>
-      </div><!-- /content -->
+    </div>
+    <div data-role="footer" data-position="fixed" data-theme="a">
+      <div data-role="navbar" data-grid="c">
+        <ul>
+          <li><a href="#main" class="ui-btn-active ui-state-persist ui-icon-home ui-btn-icon-top">首页</a>
+          </li>
+          <li><a href="#task" class="ui-icon-calendar ui-btn-icon-top">日历</a>
+          </li>
+          <li><a href="#message" class="ui-icon-comment ui-btn-icon-top">消息</a>
+          </li>
+          <li><a href="#more" class="ui-icon-bars ui-btn-icon-top">更多</a>
+          </li>
+        </ul>
+      </div>
+      <!-- /navbar -->
+    </div>
+  </div>
 
-</div>
 
-<div id="animals" data-role="page" data-title="Animals">
-
-      <div data-role="header">
-      <h1>Animals</h1>
-      </div><!-- /header -->
-  
-      <div data-role="content">
-            <ul data-role="listview" data-inset="true">
-            </ul>
-      </div><!-- /content -->
-</div>
-
-<div id="colors" data-role="page" data-title="Colors">
-
-      <div data-role="header">
-      <h1>Colors</h1>
-      </div><!-- /header -->
-
-      <div data-role="content">
-            <ul data-role="listview" data-inset="true">
-            </ul>
-      </div><!-- /content -->
-
-</div>
-
-<div id="vehicles" data-role="page" data-title="Vehicles">
-
-      <div data-role="header">
-      <h1>Vehicles</h1>
-      </div><!-- /header -->
-  
-      <div data-role="content">
-            <ul data-role="listview" data-inset="true">
-            </ul>
-      </div><!-- /content -->
-
-</div>
-
-<div id="task" data-role="page" data-title="工作任务">
+  <div id="task" data-role="page" data-title="工作任务">
 
     <div data-role="header">
-        <a href="#" data-role="button" data-icon="arrow-l" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-arrow-l ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
-        <h1>工作任务</h1>
-        <a href="#task?new" data-role="button" data-icon="plus" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-plus ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
-    </div><!-- /header -->
-  
+      <a href="#" data-role="button" data-icon="home" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-home ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+      <h1>工作任务</h1>
+      <a href="#task?new" data-role="button" data-icon="plus" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-plus ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+    </div>
+    <!-- /header -->
+
     <div data-role="content">
-        <div id="jqm_cal"></div>
-        <ul data-role="listview" data-inset="true">
-        </ul>
-    </div><!-- /content -->
+      <div id="jqm_cal"></div>
+      <ul data-role="listview" data-inset="true">
+      </ul>
+    </div>
+    <!-- /content -->
 
-</div>
+  </div>
 
-<div id="task_detail" data-role="page" data-title="工作任务详情">
+  <div id="task_detail" data-role="page" data-title="工作任务详情">
 
-      <div data-role="header">
-      <h1>工作任务详情</h1>
-      </div><!-- /header -->
-  
-      <div data-role="content">
-            <div>this is task detail page</div>
-            <ul data-role="listview" data-inset="true">
-            </ul>
-      </div><!-- /content -->
+    <div data-role="header">
+      <a href="#task" data-role="button" data-icon="back" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-back ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+      <h1>任务详情</h1>
+      <a href="#task?new" data-role="button" data-icon="check" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-check ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+    </div>
+    <!-- /header -->
 
-</div>
+    <div data-role="content">
+      <form id="task-detail" action="">
+        <label for="task-title" class="ui-hidden-accessible">标题:</label>
+        <input type="text" name="task-title" id="task-title" placeholder="标题" value="">
+        <label for="task-location" class="ui-hidden-accessible">地点:</label>
+        <input type="text" name="task-location" id="task-location" placeholder="地点" value="">
+        <div class="ui-grid-a" style="height:55px">
+          <div class="ui-block-a" style="width:25%;vertical-align:middle;">
+            <label for="task-allday" style="margin-top:15px;">全天任务:</label>
+          </div>
+          <div class="ui-block-b" style="width:75%; vertical-align:middle; text-align:right">
+            <select name="task-allday" id="task-allday" data-role="slider">
+              <option value="0">否</option>
+              <option value="1">是</option>
+            </select>
+          </div>
 
-<!-- Underscore Template that is used to display all of the Category Models -->
-<script id="categoryItems" type="text/template">
+        </div>
+        <div class="ui-grid-a" style="height:55px">
 
-      <% _.each( collection.toJSON(), function( category, id ) { %>
+          <div class="ui-block-a" style="width:25%;vertical-align:middle;">
+            <label for="task-start" style="margin-top:15px;">开始:</label>
+          </div>
+          <div class="ui-block-b" style="width:75%; vertical-align:middle;">
+            <input type="datetime-local" name="task-start" id="task-start" value="">
+          </div>
 
-            <li class="ui-li ui-li-static ui-btn-up-c ui-corner-top">
-                  <%= category.type %>
-            </li>
+        </div>
+        <div class="ui-grid-a" style="height:55px">
 
-      <% }); %>
+          <div class="ui-block-a" style="width:25%;vertical-align:middle;">
+            <label for="task-end" style="margin-top:15px;">结束:</label>
+          </div>
+          <div class="ui-block-b" style="width:75%; vertical-align:middle;">
+            <input type="datetime-local" name="task-end" id="task-end" value="">
+          </div>
 
-</script>
+        </div>
 
-<script id="taskItems" type="text/template">
-      
-      <li class="ui-li ui-li-static ui-btn-up-c ui-corner-top">
-            {{title}}{{start}}{{end}}
-      </li>
-      
-</script>
+        <label for="task-description">描述:</label>
+        <textarea cols="40" rows="8" name="task-description" id="task-description"></textarea>
+
+      </form>
+
+      <ul data-role="listview" data-inset="true">
+      </ul>
+    </div>
+    <!-- /content -->
+
+  </div>
+
 </body>
+
 </html>

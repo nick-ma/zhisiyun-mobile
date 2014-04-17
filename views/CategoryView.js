@@ -19,10 +19,10 @@ define([ "jquery", "backbone","models/CategoryModel" ], function( $, Backbone, C
         render: function() {
 
             // Sets the view's template property
-            this.template = _.template( $( "script#categoryItems" ).html(), { "collection": this.collection } );
+            // this.template = _.template( $( "script#categoryItems" ).html(), { "collection": this.collection } );
 
-            // Renders the view's template inside of the current listview element
-            this.$el.find("ul").html(this.template);
+            // // Renders the view's template inside of the current listview element
+            // this.$el.find("ul").html(this.template);
 
             // Maintains chainability
             return this;

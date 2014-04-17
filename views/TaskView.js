@@ -13,7 +13,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
     var TaskView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
-            this.template = Handlebars.compile($("script#taskItems").html());
+            // this.template = Handlebars.compile($("script#taskItems").html());
 
             // The render method is called when Task Models are added to the Collection
             this.collection.on("sync", this.render, this);
@@ -45,7 +45,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
             // console.log(rendered);
             // Renders the view's template inside of the current listview element
             self.$el.find("ul").html(rendered.join(''));
-            console.log(this.collection.models);
+            // console.log(this.collection.models);
 
             //jqmCalendar test
             var $cal = $("#jqm_cal");
@@ -70,7 +70,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
 
             })
             $cal.trigger('refresh');
-            console.log(cal_events);
+            // console.log(cal_events);
 
             // Maintains chainability
             return this;

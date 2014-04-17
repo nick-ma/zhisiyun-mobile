@@ -3,13 +3,13 @@
 
 // Includes file dependencies
 define(["jquery", "backbone",
-    "../models/CategoryModel", "../collections/CategoriesCollection", "../views/CategoryView",
-    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView"
+
+    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView"
 
   ],
   function($, Backbone,
-    CategoryModel, CategoriesCollection, CategoryView,
-    TaskModel, TaskCollection, TaskView
+
+    TaskModel, TaskCollection, TaskView, TaskDetailView
   ) {
 
     // Extends Backbone.Router
@@ -18,33 +18,14 @@ define(["jquery", "backbone",
       // The Router constructor
       initialize: function() {
 
-        // Instantiates a new Animal Category View
-        this.animalsView = new CategoryView({
-          el: "#animals",
-          collection: new CategoriesCollection([], {
-            type: "animals"
-          })
-        });
-
-        // Instantiates a new Colors Category View
-        this.colorsView = new CategoryView({
-          el: "#colors",
-          collection: new CategoriesCollection([], {
-            type: "colors"
-          })
-        });
-
-        // Instantiates a new Vehicles Category View
-        this.vehiclesView = new CategoryView({
-          el: "#vehicles",
-          collection: new CategoriesCollection([], {
-            type: "vehicles"
-          })
-        });
 
         this.taskView = new TaskView({
           el: "#task",
           collection: new TaskCollection()
+        });
+        this.taskDetailView = new TaskDetailView({
+          el: "#task_detail",
+          // model: new TaskCollection()
         });
 
         // Tells Backbone to start watching for hashchange events
@@ -59,7 +40,7 @@ define(["jquery", "backbone",
         "": "home",
 
         // When #category? is on the url, the category method is called
-        "category?:type": "category",
+
         "task": "task",
         "task?:task_id": "task_detail",
 
@@ -69,7 +50,7 @@ define(["jquery", "backbone",
       home: function() {
 
         // Programatically changes to the categories page
-        $.mobile.changePage("#categories", {
+        $.mobile.changePage("#home", {
           reverse: false,
           changeHash: false
         });
@@ -140,6 +121,22 @@ define(["jquery", "backbone",
 
       task_detail: function(task_id) {
         console.log(task_id);
+        var taskView = this.taskView;
+        var taskDetailView = this.taskDetailView;
+        if (task_id == 'new') {
+          var new_task = taskView.collection.add({
+            'title': '新建任务',
+            'start': new Date()
+          });
+          // new_task.save().done(function() {
+          taskDetailView.model = new_task;
+          taskDetailView.render();
+          // })
+        } else {
+          taskDetailView.model = taskView.collection.get(task_id);
+          taskDetailView.render();
+        };
+
         $.mobile.changePage("#task_detail", {
           reverse: false,
           changeHash: false
