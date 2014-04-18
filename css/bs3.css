@@ -1,0 +1,40 @@
+/*
+
+@gray-darker:  lighten(#000, 13.5%); // #222
+@gray-dark:    lighten(#000, 20%);   // #333
+@gray:         lighten(#000, 33.5%); // #555
+@gray-light:   lighten(#000, 60%);   // #999
+@gray-lighter: lighten(#000, 93.5%); // #eee
+
+@brand-primary: #428bca;
+@brand-success: #5cb85c;
+@brand-info:    #5bc0de;
+@brand-warning: #f0ad4e;
+@brand-danger:  #d9534f;
+
+*/
+ .btn-primary {
+    background-color: #428bca!important;
+    color: #f3f3f3!important;
+    text-shadow: 0 1px 0 #333!important;
+}
+.btn-info {
+    background-color: #5bc0de!important;
+    color: #f3f3f3!important;
+    text-shadow: 0 1px 0 #333!important;
+}
+.btn-success {
+    background-color: #5cb85c!important;
+    color: #f3f3f3!important;
+    text-shadow: 0 1px 0 #333!important;
+}
+.btn-warning {
+    background-color: #f0ad4e!important;
+    color: #f3f3f3!important;
+    text-shadow: 0 1px 0 #333!important;
+}
+.btn-danger {
+    background-color: #d9534f!important;
+    color: #f3f3f3!important;
+    text-shadow: 0 1px 0 #333!important;
+}

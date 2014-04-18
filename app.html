@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css" />
+  <link rel="stylesheet" href="css/bs3.css" />
   <link rel="stylesheet" href="css/jw-jqm-cal.ios7.css" />
   <script src="bower_components/requirejs/require.js" data-main="app"></script>
 </head>
@@ -91,27 +92,26 @@
     <div data-role="header">
       <a href="#task" data-role="button" data-icon="back" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-back ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
       <h1>任务详情</h1>
-      <a href="#task?new" data-role="button" data-icon="check" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-check ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+      <a href="#task_forward" data-role="button" data-icon="action" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-action ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
     </div>
     <!-- /header -->
 
     <div data-role="content">
       <form id="task-detail" action="">
         <label for="task-title" class="ui-hidden-accessible">标题:</label>
-        <input type="text" name="task-title" id="task-title" placeholder="标题" value="">
+        <input type="text" name="task-title" id="task-title" placeholder="标题" data-field="title">
         <label for="task-location" class="ui-hidden-accessible">地点:</label>
-        <input type="text" name="task-location" id="task-location" placeholder="地点" value="">
+        <input type="text" name="task-location" id="task-location" placeholder="地点"  data-field="location">
         <div class="ui-grid-a" style="height:55px">
           <div class="ui-block-a" style="width:25%;vertical-align:middle;">
             <label for="task-allday" style="margin-top:15px;">全天任务:</label>
           </div>
           <div class="ui-block-b" style="width:75%; vertical-align:middle; text-align:right">
-            <select name="task-allday" id="task-allday" data-role="slider">
-              <option value="0">否</option>
-              <option value="1">是</option>
+            <select name="task-allday" id="task-allday" data-role="flipswitch" data-hash="task_detail">
+              <option value="false"></option>
+              <option value="true"></option>
             </select>
           </div>
-
         </div>
         <div class="ui-grid-a" style="height:55px">
 
@@ -119,7 +119,7 @@
             <label for="task-start" style="margin-top:15px;">开始:</label>
           </div>
           <div class="ui-block-b" style="width:75%; vertical-align:middle;">
-            <input type="datetime-local" name="task-start" id="task-start" value="">
+            <input type="datetime-local" name="task-start" id="task-start"  data-field="start">
           </div>
 
         </div>
@@ -129,18 +129,40 @@
             <label for="task-end" style="margin-top:15px;">结束:</label>
           </div>
           <div class="ui-block-b" style="width:75%; vertical-align:middle;">
-            <input type="datetime-local" name="task-end" id="task-end" value="">
+            <input type="datetime-local" name="task-end" id="task-end"  data-field="end">
           </div>
 
         </div>
 
         <label for="task-description">描述:</label>
-        <textarea cols="40" rows="8" name="task-description" id="task-description"></textarea>
+        <textarea name="task-description" id="task-description"></textarea>
 
+        <div class="ui-grid-a" style="height:55px">
+          <div class="ui-block-a" style="width:25%;vertical-align:middle;">
+            <label for="task-is_complete" style="margin-top:15px;">完成:</label>
+          </div>
+          <div class="ui-block-b" style="width:75%; vertical-align:middle; text-align:right">
+            <select name="task-is_complete" id="task-is_complete" data-role="flipswitch" data-hash="task_detail">
+              <option value="false"></option>
+              <option value="true"></option>
+            </select>
+          </div>
+        </div>
+
+
+        <div class="ui-grid-a">
+          <div class="ui-block-a">
+            <div class="button-wrap" style="margin:3px">
+              <button type="button" id="btn-task-remove" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-delete btn-danger">删 除</button>
+            </div>
+          </div>
+          <div class="ui-block-b">
+            <div class="button-wrap" style="margin:3px">
+              <button type="button" id="btn-task-save" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-check btn-success">保 存</button>
+            </div>
+          </div>
+        </div>
       </form>
-
-      <ul data-role="listview" data-inset="true">
-      </ul>
     </div>
     <!-- /content -->
 

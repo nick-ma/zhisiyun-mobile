@@ -3,15 +3,14 @@
 
 // Includes file dependencies
 define(["jquery", "backbone",
-
+    //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView"
-
+    //人员和组织相关
   ],
   function($, Backbone,
 
     TaskModel, TaskCollection, TaskView, TaskDetailView
   ) {
-
     // Extends Backbone.Router
     var CategoryRouter = Backbone.Router.extend({
 
@@ -143,6 +142,10 @@ define(["jquery", "backbone",
           reverse: false,
           changeHash: false
         });
+        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+        $(".ui-flipswitch a").each(function() {
+          $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>")
+        })
       }
 
     });

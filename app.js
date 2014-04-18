@@ -51,5 +51,6 @@ require(["jquery", "backbone", "routers/mobileRouter", "jqmcal"], function($, Ba
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.log('message: router started!');
+    
   });
 });
