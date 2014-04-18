@@ -68,13 +68,13 @@
     </div>
   </div>
 
-
+  <!-- 工作任务的日历 -->
   <div id="task" data-role="page" data-title="工作任务">
 
     <div data-role="header">
       <a href="#" data-role="button" data-icon="home" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-home ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
       <h1>工作任务</h1>
-      <a href="#task?new" data-role="button" data-icon="plus" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-plus ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+      <a href="#task_edit?new" data-role="button" data-icon="plus" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-plus ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
     </div>
     <!-- /header -->
 
@@ -86,28 +86,46 @@
     <!-- /content -->
 
   </div>
-
-  <div id="task_detail" data-role="page" data-title="工作任务详情">
-
+  <!-- 工作任务详情页面 -->
+  <div id="task_detail" data-role="page" data-title="任务详情">
     <div data-role="header">
       <a href="#task" data-role="button" data-icon="back" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-back ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
       <h1>任务详情</h1>
+      <a href="#task_edit" data-role="button" data-icon="edit" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-edit ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+    </div>
+    <div data-role="content">
+      <ul data-role="listview">
+        <li>{{title}}</li>
+        <li>Audi</li>
+        <li>BMW</li>
+        <li>Cadillac</li>
+        <li>Ferrari</li>
+      </ul>
+    </div>
+
+  </div>
+  <!-- 工作任务编辑界面 -->
+  <div id="task_edit" data-role="page" data-title="编辑任务">
+
+    <div data-role="header">
+      <a href="#task_detail" data-role="button" data-icon="back" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-back ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+      <h1>编辑任务</h1>
       <a href="#task_forward" data-role="button" data-icon="action" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-action ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
     </div>
     <!-- /header -->
 
     <div data-role="content">
-      <form id="task-detail" action="">
+      <form id="task-edit" action="">
         <label for="task-title" class="ui-hidden-accessible">标题:</label>
         <input type="text" name="task-title" id="task-title" placeholder="标题" data-field="title">
         <label for="task-location" class="ui-hidden-accessible">地点:</label>
-        <input type="text" name="task-location" id="task-location" placeholder="地点"  data-field="location">
+        <input type="text" name="task-location" id="task-location" placeholder="地点" data-field="location">
         <div class="ui-grid-a" style="height:55px">
           <div class="ui-block-a" style="width:25%;vertical-align:middle;">
             <label for="task-allday" style="margin-top:15px;">全天任务:</label>
           </div>
           <div class="ui-block-b" style="width:75%; vertical-align:middle; text-align:right">
-            <select name="task-allday" id="task-allday" data-role="flipswitch" data-hash="task_detail">
+            <select name="task-allday" id="task-allday" data-role="flipswitch" data-field="allDay">
               <option value="false"></option>
               <option value="true"></option>
             </select>
@@ -119,7 +137,7 @@
             <label for="task-start" style="margin-top:15px;">开始:</label>
           </div>
           <div class="ui-block-b" style="width:75%; vertical-align:middle;">
-            <input type="datetime-local" name="task-start" id="task-start"  data-field="start">
+            <input type="datetime-local" name="task-start" id="task-start" data-field="start">
           </div>
 
         </div>
@@ -129,20 +147,20 @@
             <label for="task-end" style="margin-top:15px;">结束:</label>
           </div>
           <div class="ui-block-b" style="width:75%; vertical-align:middle;">
-            <input type="datetime-local" name="task-end" id="task-end"  data-field="end">
+            <input type="datetime-local" name="task-end" id="task-end" data-field="end">
           </div>
 
         </div>
 
         <label for="task-description">描述:</label>
-        <textarea name="task-description" id="task-description"></textarea>
+        <textarea name="task-description" id="task-description" data-field="description"></textarea>
 
         <div class="ui-grid-a" style="height:55px">
           <div class="ui-block-a" style="width:25%;vertical-align:middle;">
             <label for="task-is_complete" style="margin-top:15px;">完成:</label>
           </div>
           <div class="ui-block-b" style="width:75%; vertical-align:middle; text-align:right">
-            <select name="task-is_complete" id="task-is_complete" data-role="flipswitch" data-hash="task_detail">
+            <select name="task-is_complete" id="task-is_complete" data-role="flipswitch" data-field="is_complete">
               <option value="false"></option>
               <option value="true"></option>
             </select>
@@ -167,6 +185,12 @@
     <!-- /content -->
 
   </div>
+
+
+  <!-- handlebars模版 -->
+  <script type="text/x-handlebars-template" id="tmp_task_view">
+  
+  </script>
 
 </body>
 

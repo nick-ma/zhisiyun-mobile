@@ -16,6 +16,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
             // this.template = Handlebars.compile($("script#taskItems").html());
 
             // The render method is called when Task Models are added to the Collection
+            // this.collection.on('remove', function() {
+            //     this.collection.fetch();
+            // });
             this.collection.on("sync", this.render, this);
             $("#jqm_cal").jqmCalendar({
                 events: [],

@@ -4,12 +4,12 @@
 // Includes file dependencies
 define(["jquery", "backbone",
     //工作日历相关
-    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView"
+    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView"
     //人员和组织相关
   ],
   function($, Backbone,
 
-    TaskModel, TaskCollection, TaskView, TaskDetailView
+    TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView
   ) {
     // Extends Backbone.Router
     var CategoryRouter = Backbone.Router.extend({
@@ -22,10 +22,17 @@ define(["jquery", "backbone",
           el: "#task",
           collection: new TaskCollection()
         });
+
+        this.taskEditView = new TaskDetailView({
+          el: "#task_edit",
+          // model: new TaskCollection()
+        });
+        this.taskEditView.bind_events();
         this.taskDetailView = new TaskDetailView({
           el: "#task_detail",
           // model: new TaskCollection()
         });
+        this.taskDetailView.bind_events();
 
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
@@ -42,6 +49,7 @@ define(["jquery", "backbone",
 
         "task": "task",
         "task?:task_id": "task_detail",
+        "task_edit?:task_id": "task_edit",
 
       },
 
@@ -119,26 +127,37 @@ define(["jquery", "backbone",
       },
 
       task_detail: function(task_id) {
-        console.log(task_id);
         var taskView = this.taskView;
         var taskDetailView = this.taskDetailView;
+        taskDetailView.model = taskView.collection.get(task_id);
+        taskDetailView.render();
+        $.mobile.changePage("#task_detail", {
+          reverse: false,
+          changeHash: false
+        });
+      },
+
+      task_edit: function(task_id) {
+        var taskView = this.taskView;
+        var taskEditView = this.taskEditView;
         if (task_id == 'new') {
           var new_task = taskView.collection.add({
             'title': '新建任务',
             'start': new Date(),
             'end': new Date(),
-            'allDay': true
+            'allDay': true,
+            'is_complete': false,
           });
           // new_task.save().done(function() {
-          taskDetailView.model = new_task;
-          taskDetailView.render();
+          taskEditView.model = new_task;
+          taskEditView.render();
           // })
         } else {
-          taskDetailView.model = taskView.collection.get(task_id);
-          taskDetailView.render();
+          taskEditView.model = taskView.collection.get(task_id);
+          taskEditView.render();
         };
 
-        $.mobile.changePage("#task_detail", {
+        $.mobile.changePage("#task_edit", {
           reverse: false,
           changeHash: false
         });
