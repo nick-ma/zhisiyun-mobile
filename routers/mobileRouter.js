@@ -3,12 +3,14 @@
 
 // Includes file dependencies
 define(["jquery", "backbone",
+    //首页
+    "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView"
     //人员和组织相关
   ],
   function($, Backbone,
-
+    HomeObjectiveView, ObjectiveCollection,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView
   ) {
     // Extends Backbone.Router
@@ -16,7 +18,10 @@ define(["jquery", "backbone",
 
       // The Router constructor
       initialize: function() {
-
+        this.homeObjectiveView = new HomeObjectiveView({
+          el: "#home-objective-list",
+          collection: new ObjectiveCollection()
+        });
 
         this.taskView = new TaskView({
           el: "#task",
@@ -55,12 +60,29 @@ define(["jquery", "backbone",
 
       // Home method
       home: function() {
+        console.log('message: home route');
+        var homeObjectiveView = this.homeObjectiveView;
+        if (homeObjectiveView.collection.length) {
+          $.mobile.changePage("#home", {
+            reverse: false,
+            changeHash: false
+          });
+        } else {
+          // Show's the jQuery Mobile loading icon
+          $.mobile.loading("show");
 
-        // Programatically changes to the categories page
-        $.mobile.changePage("#home", {
-          reverse: false,
-          changeHash: false
-        });
+          // Fetches the Collection of Category Models for the current Category View
+          homeObjectiveView.collection.fetch().done(function() {
+            $.mobile.loading("hide");
+            // Programatically changes to the home page
+            $.mobile.changePage("#home", {
+              reverse: false,
+              changeHash: false
+            });
+
+          });
+        };
+
 
       },
 
@@ -115,7 +137,7 @@ define(["jquery", "backbone",
 
           // Fetches the Collection of Category Models for the current Category View
           taskView.collection.fetch().done(function() {
-
+            $.mobile.loading("hide");
             // Programatically changes to the task page
             $.mobile.changePage("#task", {
               reverse: false,
@@ -135,7 +157,7 @@ define(["jquery", "backbone",
           reverse: false,
           changeHash: false
         });
-        
+
       },
 
       task_edit: function(task_id) {
