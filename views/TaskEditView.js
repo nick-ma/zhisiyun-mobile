@@ -18,7 +18,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
-            var $form = $("#task-detail");
+            var $form = $("#task-edit");
             this.$form = $form;
             $form.find("#task-title").val(self.model.get('title'));
             $form.find("#task-location").val(self.model.get('location'));
@@ -63,7 +63,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                 })
             }).on('change', '#task-allday', function(event) {
                 var value = $(this).val();
-                if (value == 'true') {
+                if (value === 'true') {
                     self.$form.find("#task-start").attr('type', 'date').val(moment(self.model.get('start')).format('YYYY-MM-DD'));
                     self.$form.find("#task-end").attr('type', 'date').val(moment(self.model.get('end')).format('YYYY-MM-DD'));
                 } else {
@@ -74,12 +74,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                 var $this = $(this);
                 var field = $this.data('field');
                 var value = $this.val();
-                if (field == 'start' || field == 'end') {
+                if (field === 'start' || field === 'end') {
                     value = value.replace('T', ' '); //把T换掉，保存UCT的时间
                 };
-                if (field == 'is_complete' || field == 'allDay') {
-                    value = (value == 'true') ? true : false;
-                };
+                if (field === 'is_complete' || field === 'allDay') {
+                    value = (value === 'true') ? true : false;
+                }
                 self.model.set(field, value);
             });
 

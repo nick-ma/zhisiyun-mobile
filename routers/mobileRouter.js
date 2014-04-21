@@ -23,7 +23,7 @@ define(["jquery", "backbone",
           collection: new TaskCollection()
         });
 
-        this.taskEditView = new TaskDetailView({
+        this.taskEditView = new TaskEditView({
           el: "#task_edit",
           // model: new TaskCollection()
         });
@@ -135,6 +135,7 @@ define(["jquery", "backbone",
           reverse: false,
           changeHash: false
         });
+        
       },
 
       task_edit: function(task_id) {

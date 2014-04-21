@@ -8,7 +8,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
     var TaskDetailView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
-            // this.template = Handlebars.compile($("script#taskItems").html());
+            this.template = Handlebars.compile($("#hbtmp_task_view").html());
 
             // The render method is called when Task Models are added to the Collection
             // this.model.on("sync", this.render, this);
@@ -35,8 +35,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
 
             // console.log(self.model);
 
-
-
+            $("#btn-task-edit").attr('href', "#task_edit?" + self.model.get('_id'));
+            $("#task_detail-content").html(self.template(self.model.attributes));
+            $("#task_detail-content").trigger('create');
             // Maintains chainability
             return this;
 
@@ -44,7 +45,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
 
         bind_events: function() {
             var self = this;
-
+            
             // self.$el.on('click', '#btn-task-save', function(event) {
             //     event.preventDefault();;
 

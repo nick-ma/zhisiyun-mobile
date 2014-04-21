@@ -2,7 +2,7 @@
 <html class="no-js ui-mobile-rendering" lang="en">
 
 <head>
-  <title>Backbone.js, Require.js, and jQuery Mobile</title>
+  <title>智思云</title>
   <meta name="description" content="">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css" />
   <link rel="stylesheet" href="css/bs3.css" />
   <link rel="stylesheet" href="css/jw-jqm-cal.ios7.css" />
-  <script src="bower_components/requirejs/require.js" data-main="app"></script>
+  <script src="bower_components/requirejs/require.js" data-main="_static/app"></script>
 </head>
 
 <body>
@@ -91,16 +91,10 @@
     <div data-role="header">
       <a href="#task" data-role="button" data-icon="back" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-back ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
       <h1>任务详情</h1>
-      <a href="#task_edit" data-role="button" data-icon="edit" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-edit ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+      <a id="btn-task-edit" href="#task_edit" data-role="button" data-icon="edit" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-edit ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
     </div>
-    <div data-role="content">
-      <ul data-role="listview">
-        <li>{{title}}</li>
-        <li>Audi</li>
-        <li>BMW</li>
-        <li>Cadillac</li>
-        <li>Ferrari</li>
-      </ul>
+    <div data-role="content" id="task_detail-content">
+
     </div>
 
   </div>
@@ -110,7 +104,8 @@
     <div data-role="header">
       <a href="#task_detail" data-role="button" data-icon="back" data-iconpos="notext" class="ui-btn-left next-btn ui-link ui-btn ui-icon-back ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
       <h1>编辑任务</h1>
-      <a href="#task_forward" data-role="button" data-icon="action" data-iconpos="notext" class="ui-btn-right next-btn ui-link ui-btn ui-icon-action ui-btn-icon-notext ui-shadow ui-corner-all" role="button"></a>
+      <button type="button" id="btn-task-save" class="ui-btn-right next-btn ui-link ui-btn ui-icon-check ui-btn-icon-notext ui-shadow ui-corner-all"></button>
+
     </div>
     <!-- /header -->
 
@@ -167,19 +162,10 @@
           </div>
         </div>
 
-
-        <div class="ui-grid-a">
-          <div class="ui-block-a">
-            <div class="button-wrap" style="margin:3px">
-              <button type="button" id="btn-task-remove" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-delete btn-danger">删 除</button>
-            </div>
-          </div>
-          <div class="ui-block-b">
-            <div class="button-wrap" style="margin:3px">
-              <button type="button" id="btn-task-save" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-check btn-success">保 存</button>
-            </div>
-          </div>
+        <div class="button-wrap" style="margin:3px">
+          <button type="button" id="btn-task-remove" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-delete btn-danger">删 除</button>
         </div>
+
       </form>
     </div>
     <!-- /content -->
@@ -188,8 +174,16 @@
 
 
   <!-- handlebars模版 -->
-  <script type="text/x-handlebars-template" id="tmp_task_view">
-  
+  <div id="hbtmp_task_view" style="display:none">
+    <ul data-role="listview">
+      <li>{{title}}</li>
+      <li>{{location}}</li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
+  <script type="text/x-handlebars-template">
   </script>
 
 </body>

@@ -1,0 +1,25 @@
+{
+    "name": "zhisiyun-mobile",
+    "version": "0.1.0",
+    "main": "./app",
+    "devDependencies": {
+        "pkginfo": "0.2.x",
+        "underscore": "*",
+        "async": "*",
+        "gulp": "*",
+        "gulp-util": "^2.2.0",
+        "gulp-jshint": "^1.4.0",
+        "gulp-changed": "*",
+        "gulp-cached": "*",
+        "gulp-newer": "*",
+        "gulp-mocha": "*",
+        "gulp-minify-css": "*",
+        "superagent": "*",
+        "chai": "*",
+        "requirejs": "~2.1.11"
+    },
+
+    "scripts": {
+        "test": "make test"
+    }
+}

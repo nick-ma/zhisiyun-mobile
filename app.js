@@ -5,14 +5,14 @@ require.config({
   paths: {
 
     // Core Libraries
-    "jquery": "bower_components/jquery/jquery",
-    "jquerymobile": "libs/jquery.mobile-1.4.2.min", //bower build failed, so use this offical version
-    "underscore": "bower_components/lodash/dist/lodash",
-    "backbone": "bower_components/backbone-amd/backbone",
-    "handlebars": "bower_components/handlebars/handlebars",
-    "moment": "bower_components/moment/moment",
-    "formatdate": "libs/formatdate",
-    "jqmcal": "libs/jw-jqm-cal",
+    "jquery": "./bower_components/jquery/jquery",
+    "jquerymobile": "./libs/jquery.mobile-1.4.2", //bower build failed, so use this offical version
+    "underscore": "./bower_components/lodash/dist/lodash",
+    "backbone": "./bower_components/backbone-amd/backbone",
+    "handlebars": "./bower_components/handlebars/handlebars",
+    "moment": "./bower_components/moment/moment",
+    "formatdate": "./libs/formatdate",
+    "jqmcal": "./libs/jw-jqm-cal",
 
   },
 
@@ -28,6 +28,7 @@ require.config({
     },
     "formatdate": ["jquery"],
     "jqmcal": ["jquery"],
+    // "jquerymobile": ["jquery"],
 
   } // end Shim Configuration
 
@@ -51,6 +52,6 @@ require(["jquery", "backbone", "routers/mobileRouter", "jqmcal"], function($, Ba
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.log('message: router started!');
-    
+
   });
 });
