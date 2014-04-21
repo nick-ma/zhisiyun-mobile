@@ -14,6 +14,8 @@
         "gulp-newer": "*",
         "gulp-mocha": "*",
         "gulp-minify-css": "*",
+        "gulp-concat": "*",
+        "gulp-clean": "*",
         "superagent": "*",
         "chai": "*",
         "requirejs": "~2.1.11"

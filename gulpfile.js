@@ -4,6 +4,8 @@ var jshint = require('gulp-jshint');
 var gutil = require('gulp-util');
 var mocha = require('gulp-mocha');
 var minifycss = require('gulp-minify-css');
+var clean = require('gulp-clean');
+var concat = require('gulp-concat');
 var rjs = require('requirejs');
 
 var watching = false;
@@ -45,7 +47,7 @@ gulp.task('js', function(cb) {
         mainConfigFile: './app.js',
         enforceDefine: true,
         name: './bower_components/almond/almond',
-        generateSourceMaps: true,
+        generateSourceMaps: false,
         preserveLicenseComments: false,
         optimize: "uglify2",
         wrap: {
@@ -78,11 +80,24 @@ gulp.task('js', function(cb) {
     });
 });
 gulp.task('css', function() {
-
-  gulp.src('./css/jw-jqm-cal.ios7.css')
-    .pipe(minifycss())
-    .pipe(gulp.dest('./_static/'))
+    gulp.src(['./css/jquery.mobile-1.4.2.css', './css/bs3.css', './css/jw-jqm-cal.ios7.css'])
+        .pipe(concat('main.css'))
+        .pipe(minifycss())
+        .pipe(gulp.dest('./_static/'));
     // .pipe(notify({ message: 'Styles task complete' }));
 });
-gulp.task('build',['js','css']);
+gulp.task('copy', function() {
+    gulp.src('./css/images/**')
+        .pipe(gulp.dest('./_static/images/'));
+})
+gulp.task('clean', function() {
+    gulp.src('./_static/**', {
+        read: false
+    })
+        .pipe(clean({
+            force: true
+        }));
+
+});
+gulp.task('build', ['js', 'css', 'copy']);
 gulp.task('default', ['watch']);
