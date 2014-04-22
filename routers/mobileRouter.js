@@ -104,6 +104,8 @@ define(["jquery", "backbone", "handlebars",
 
         // When there is no hash bang on the url, the home method is called
         "": "home",
+        
+        "more_functions": "more_functions",
 
         "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
         // When #category? is on the url, the category method is called
@@ -112,6 +114,8 @@ define(["jquery", "backbone", "handlebars",
         "task/:task_id": "task_detail",
         "task_edit/:task_id": "task_edit",
 
+        //默认的路由。当找不到路由的时候，转到首页。
+        "*path": "home",
       },
 
       // Home method
@@ -135,7 +139,13 @@ define(["jquery", "backbone", "handlebars",
           transition: "flip",
         });
       },
-
+      more_functions:function  () {
+        $.mobile.changePage("#more_functions", {
+          reverse: false,
+          changeHash: false,
+          transition: "flip",
+        });
+      },
       task: function() { //任务日历
         $.mobile.changePage("#task", {
           reverse: false,
