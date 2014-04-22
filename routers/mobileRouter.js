@@ -2,17 +2,45 @@
 // =============
 
 // Includes file dependencies
-define(["jquery", "backbone",
+define(["jquery", "backbone", "handlebars",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
+    "../views/HomeAssessmentView", "../collections/AssessmentCollection",
     //工作日历相关
-    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView"
+    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView",
     //人员和组织相关
+
+    //其他jquery插件
+    "moment",
   ],
-  function($, Backbone,
+  function($, Backbone, Handlebars,
     HomeObjectiveView, ObjectiveCollection,
+    HomeAssessmentView, AssessmentCollection,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView
+
   ) {
+    //注册handlebars的helper
+    Handlebars.registerHelper('sprintf', function(sf, data) {
+      return sprintf(sf, data);
+    });
+    Handlebars.registerHelper('fromNow', function(data) {
+      return moment(data).fromNow();
+    });
+    Handlebars.registerHelper('Avatar', function(data) {
+      return (data) ? '/gridfs/get/' + data : '/img/no-avatar.jpg';
+    });
+    Handlebars.registerHelper('toISOMD', function(date) {
+      return (date) ? moment(date).format('MM/DD') : '';
+    });
+    Handlebars.registerHelper('toISODate', function(date) {
+      return (date) ? moment(date).format('YYYY-MM-DD') : '';
+    });
+    Handlebars.registerHelper('toISOTime', function(date) {
+      return (date) ? moment(date).format('HH:mm') : '';
+    });
+    Handlebars.registerHelper('toISODatetime', function(date) {
+      return (date) ? moment(date).format('YYYY-MM-DD HH:mm') : '';
+    });
     // Extends Backbone.Router
     var CategoryRouter = Backbone.Router.extend({
 
@@ -22,7 +50,10 @@ define(["jquery", "backbone",
           el: "#home-objective-list",
           collection: new ObjectiveCollection()
         });
-
+        this.homeAssessmentView = new HomeAssessmentView({
+          el: "#home-assessment-list",
+          collection: new AssessmentCollection()
+        });
         this.taskView = new TaskView({
           el: "#task",
           collection: new TaskCollection()
@@ -50,6 +81,7 @@ define(["jquery", "backbone",
         // When there is no hash bang on the url, the home method is called
         "": "home",
 
+        "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
         // When #category? is on the url, the category method is called
 
         "task": "task",
@@ -61,29 +93,39 @@ define(["jquery", "backbone",
       // Home method
       home: function() {
         console.log('message: home route');
-        var homeObjectiveView = this.homeObjectiveView;
-        if (homeObjectiveView.collection.length) {
-          $.mobile.changePage("#home", {
-            reverse: false,
-            changeHash: false
-          });
-        } else {
-          // Show's the jQuery Mobile loading icon
+        // var homeObjectiveView = this.homeObjectiveView;
+        // if (homeObjectiveView.collection.length) {
+        //   $.mobile.changePage("#home", {
+        //     reverse: false,
+        //     changeHash: false
+        //   });
+        // } else {
+        //   // Show's the jQuery Mobile loading icon
+        //   $.mobile.loading("show");
+
+        //   // Fetches the Collection of Category Models for the current Category View
+        //   homeObjectiveView.collection.fetch().done(function() {
+        //     $.mobile.loading("hide");
+        //     // Programatically changes to the home page
+        //     $.mobile.changePage("#home", {
+        //       reverse: false,
+        //       changeHash: false
+        //     });
+
+        //   });
+        // };
+
+        var homeAssessmentView = this.homeAssessmentView;
+        if (!homeAssessmentView.collection.length) {
           $.mobile.loading("show");
-
-          // Fetches the Collection of Category Models for the current Category View
-          homeObjectiveView.collection.fetch().done(function() {
+          homeAssessmentView.collection.fetch().done(function() {
             $.mobile.loading("hide");
-            // Programatically changes to the home page
-            $.mobile.changePage("#home", {
-              reverse: false,
-              changeHash: false
-            });
-
-          });
+          })
         };
-
-
+        $.mobile.changePage("#home", {
+          reverse: false,
+          changeHash: false
+        });
       },
 
       // Category method that passes in the type that is appended to the url hash
@@ -188,6 +230,9 @@ define(["jquery", "backbone",
         $(".ui-flipswitch a").each(function() {
           $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>")
         })
+      },
+      assessment_detail: function(ai_id, lx, pi, ol) {
+        console.log(ai_id, lx, pi, ol);
       }
 
     });

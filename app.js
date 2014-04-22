@@ -11,7 +11,9 @@ require.config({
     "backbone": "./bower_components/backbone-amd/backbone",
     "handlebars": "./bower_components/handlebars/handlebars",
     "moment": "./bower_components/moment/moment",
+    "sprintf": "./bower_components/sprintf/src/sprintf",
     "formatdate": "./libs/formatdate",
+    
     "jqmcal": "./libs/jw-jqm-cal",
 
   },
@@ -26,6 +28,7 @@ require.config({
     'handlebars': { //amd work strange, so use normal+exports
       "exports": 'Handlebars'
     },
+    "sprintf": ["jquery"],
     "formatdate": ["jquery"],
     "jqmcal": ["jquery"],
     // "jquerymobile": ["jquery"],

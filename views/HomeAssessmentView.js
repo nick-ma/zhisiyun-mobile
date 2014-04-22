@@ -1,37 +1,41 @@
-// Category View
+// Assessment View
 // =============
 
 // Includes file dependencies
-define([ "jquery", "backbone","models/CategoryModel" ], function( $, Backbone, CategoryModel ) {
+define(["jquery", "underscore", "backbone", "handlebars", "models/AssessmentModel", "sprintf"],
+    function($, _, Backbone, Handlebars, AssessmentModel) {
+        
+        // Extends Backbone.View
+        var AssessmentView = Backbone.View.extend({
 
-    // Extends Backbone.View
-    var CategoryView = Backbone.View.extend( {
+            // The View Constructor
+            initialize: function() {
+                this.template = Handlebars.compile($("#hbtmp_home_assessment_view").html());
+                // The render method is called when Assessment Models are added to the Collection
+                this.collection.on("sync", this.render, this);
 
-        // The View Constructor
-        initialize: function() {
+            },
 
-            // The render method is called when Category Models are added to the Collection
-            this.collection.on( "added", this.render, this );
+            // Renders all of the Assessment models on the UI
+            render: function() {
 
-        },
+                var self = this;
 
-        // Renders all of the Category models on the UI
-        render: function() {
+                var rendered = [];
+                _.each(this.collection.models, function(x) {
+                    x.attributes.pi_count = x.attributes.qualitative_pis.items.length + x.attributes.quantitative_pis.items.length;
+                    rendered.push(self.template(x.attributes));
+                })
 
-            // Sets the view's template property
-            // this.template = _.template( $( "script#categoryItems" ).html(), { "collection": this.collection } );
+                $("#home-assessment-list").html(rendered.join(''));
+                $("#home-assessment-list").trigger('create');
+                return this;
 
-            // // Renders the view's template inside of the current listview element
-            // this.$el.find("ul").html(this.template);
+            }
 
-            // Maintains chainability
-            return this;
+        });
 
-        }
+        // Returns the View class
+        return AssessmentView;
 
-    } );
-
-    // Returns the View class
-    return CategoryView;
-
-} );
+    });
