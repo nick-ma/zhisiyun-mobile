@@ -210,7 +210,7 @@
             var o = e('<li data-role="list-divider">' + e.format.date(s.start, i.settings.dateFormatTitle) + "</li>").appendTo(f);
             n = e.format.date(s.start, "yyyyMMMMdd")
           }
-          var u = e("<li class='ui-event-item'><a href='#" + i.settings.route + "?" + s['_id'] + "' class='event-item-link' rel='" + s.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
+          var u = e("<li class='ui-event-item'><a href='#" + i.settings.route + "/" + s['_id'] + "' class='event-item-link' rel='" + s.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
           i.settings.listItemFormatter(u, s)
         }
       } else {
@@ -256,7 +256,7 @@
       e('<li data-role="list-divider">' + e.format.date(n, i.settings.dateFormatTitle) + "</li>").appendTo(f);
       for (var o = 0, t; t = i.settings.events[o]; o++) {
         if (t[i.settings.end] >= n && t[i.settings.begin] < r) {
-          var u = e("<li class='ui-event-item'><a href='#" + i.settings.route + "?" + t['_id'] + "' class='event-item-link' rel='" + t.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
+          var u = e("<li class='ui-event-item'><a href='#" + i.settings.route + "/" + t['_id'] + "' class='event-item-link' rel='" + t.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
           i.settings.listItemFormatter(u, t);
           s = true
         }

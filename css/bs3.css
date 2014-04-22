@@ -50,3 +50,14 @@ grab from bootstrap 3
 .text-danger {
     color:#d9534f;
 }
+.ar35px {
+    right: 35px;
+    position: absolute;
+}
+.m-ud-0p2em {
+    margin: 0.2em 0;
+}
+.ui-li-aside2 {
+    margin-top:-5px!important;
+    right: 1.3em!important;
+}

@@ -6,6 +6,7 @@ define(["jquery", "backbone", "handlebars",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
     "../views/HomeAssessmentView", "../collections/AssessmentCollection",
+    "../views/HomeTaskView", 
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView",
     //人员和组织相关
@@ -16,6 +17,7 @@ define(["jquery", "backbone", "handlebars",
   function($, Backbone, Handlebars,
     HomeObjectiveView, ObjectiveCollection,
     HomeAssessmentView, AssessmentCollection,
+    HomeTaskView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView
 
   ) {
@@ -61,6 +63,11 @@ define(["jquery", "backbone", "handlebars",
           el: "#home-assessment-list",
           collection: self.c_assessment
         });
+        this.homeTaskView = new HomeTaskView({
+          el: "#home-task-list",
+          collection: self.c_task
+        });
+
         this.taskView = new TaskView({
           el: "#task",
           collection: self.c_task
@@ -92,7 +99,7 @@ define(["jquery", "backbone", "handlebars",
         // When #category? is on the url, the category method is called
 
         "task": "task",
-        "task?:task_id": "task_detail",
+        "task/:task_id": "task_detail",
         "task_edit?:task_id": "task_edit",
 
       },
@@ -164,7 +171,9 @@ define(["jquery", "backbone", "handlebars",
       },
       assessment_detail: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的查看界面
         console.log(ai_id, lx, pi, ol);
-      }
+
+      },
+
 
     });
 
