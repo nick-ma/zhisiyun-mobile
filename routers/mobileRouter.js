@@ -11,7 +11,7 @@ define(["jquery", "backbone", "handlebars",
     //人员和组织相关
 
     //其他jquery插件
-    "moment",
+    "moment","sprintf",
   ],
   function($, Backbone, Handlebars,
     HomeObjectiveView, ObjectiveCollection,
@@ -42,33 +42,40 @@ define(["jquery", "backbone", "handlebars",
       return (date) ? moment(date).format('YYYY-MM-DD HH:mm') : '';
     });
     // Extends Backbone.Router
-    var CategoryRouter = Backbone.Router.extend({
+    var MainRouter = Backbone.Router.extend({
 
       // The Router constructor
       initialize: function() {
+        var self = this;
+        //init collections
+        this.c_objectives = new ObjectiveCollection(); //目标计划
+        this.c_assessment = new AssessmentCollection(); //考核计划
+        this.c_task = new TaskCollection(); //工作任务
+
+        //init views
         this.homeObjectiveView = new HomeObjectiveView({
           el: "#home-objective-list",
-          collection: new ObjectiveCollection()
+          collection: self.c_objectives
         });
         this.homeAssessmentView = new HomeAssessmentView({
           el: "#home-assessment-list",
-          collection: new AssessmentCollection()
+          collection: self.c_assessment
         });
         this.taskView = new TaskView({
           el: "#task",
-          collection: new TaskCollection()
+          collection: self.c_task
         });
 
         this.taskEditView = new TaskEditView({
           el: "#task_edit",
           // model: new TaskCollection()
         });
-        this.taskEditView.bind_events();
+        // this.taskEditView.bind_events();
         this.taskDetailView = new TaskDetailView({
           el: "#task_detail",
           // model: new TaskCollection()
         });
-        this.taskDetailView.bind_events();
+        // this.taskDetailView.bind_events();
 
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
@@ -91,34 +98,17 @@ define(["jquery", "backbone", "handlebars",
       },
 
       // Home method
-      home: function() {
-        console.log('message: home route');
-        // var homeObjectiveView = this.homeObjectiveView;
-        // if (homeObjectiveView.collection.length) {
-        //   $.mobile.changePage("#home", {
-        //     reverse: false,
-        //     changeHash: false
-        //   });
-        // } else {
-        //   // Show's the jQuery Mobile loading icon
-        //   $.mobile.loading("show");
+      home: function() { //首页
 
-        //   // Fetches the Collection of Category Models for the current Category View
-        //   homeObjectiveView.collection.fetch().done(function() {
-        //     $.mobile.loading("hide");
-        //     // Programatically changes to the home page
-        //     $.mobile.changePage("#home", {
-        //       reverse: false,
-        //       changeHash: false
-        //     });
-
-        //   });
-        // };
-
-        var homeAssessmentView = this.homeAssessmentView;
-        if (!homeAssessmentView.collection.length) {
+        if (!this.c_assessment.length) { //lazy load 绩效合同
           $.mobile.loading("show");
-          homeAssessmentView.collection.fetch().done(function() {
+          this.c_assessment.fetch().done(function() {
+            $.mobile.loading("hide");
+          })
+        };
+        if (!this.c_task.length) { //lazy load 工作任务
+          $.mobile.loading("show");
+          this.c_task.fetch().done(function() {
             $.mobile.loading("hide");
           })
         };
@@ -128,82 +118,23 @@ define(["jquery", "backbone", "handlebars",
         });
       },
 
-      // Category method that passes in the type that is appended to the url hash
-      category: function(type) {
-
-        // Stores the current Category View  inside of the currentView variable
-        var currentView = this[type + "View"];
-
-        // If there are no collections in the current Category View
-        if (!currentView.collection.length) {
-
-          // Show's the jQuery Mobile loading icon
-          $.mobile.loading("show");
-
-          // Fetches the Collection of Category Models for the current Category View
-          currentView.collection.fetch().done(function() {
-
-            // Programatically changes to the current categories page
-            $.mobile.changePage("#" + type, {
-              reverse: false,
-              changeHash: false
-            });
-
-          });
-
-        }
-
-        // If there already collections in the current Category View
-        else {
-
-          // Programatically changes to the current categories page
-          $.mobile.changePage("#" + type, {
-            reverse: false,
-            changeHash: false
-          });
-
-        }
-
+      task: function() { //任务日历
+        $.mobile.changePage("#task", {
+          reverse: false,
+          changeHash: false
+        });
       },
 
-      task: function() {
-        var taskView = this.taskView;
-        if (taskView.collection.length) {
-          $.mobile.changePage("#task", {
-            reverse: false,
-            changeHash: false
-          });
-        } else {
-          // Show's the jQuery Mobile loading icon
-          $.mobile.loading("show");
-
-          // Fetches the Collection of Category Models for the current Category View
-          taskView.collection.fetch().done(function() {
-            $.mobile.loading("hide");
-            // Programatically changes to the task page
-            $.mobile.changePage("#task", {
-              reverse: false,
-              changeHash: false
-            });
-
-          });
-        };
-      },
-
-      task_detail: function(task_id) {
-        var taskView = this.taskView;
-        var taskDetailView = this.taskDetailView;
-        taskDetailView.model = taskView.collection.get(task_id);
-        taskDetailView.render();
+      task_detail: function(task_id) { //查看任务详情
+        this.taskDetailView.model = this.c_task.get(task_id);
+        this.taskDetailView.render();
         $.mobile.changePage("#task_detail", {
           reverse: false,
           changeHash: false
         });
-
       },
 
-      task_edit: function(task_id) {
-        var taskView = this.taskView;
+      task_edit: function(task_id) { //编辑任务详情
         var taskEditView = this.taskEditView;
         if (task_id == 'new') {
           var new_task = taskView.collection.add({
@@ -218,7 +149,7 @@ define(["jquery", "backbone", "handlebars",
           taskEditView.render();
           // })
         } else {
-          taskEditView.model = taskView.collection.get(task_id);
+          taskEditView.model = this.c_task.get(task_id);;
           taskEditView.render();
         };
 
@@ -231,13 +162,13 @@ define(["jquery", "backbone", "handlebars",
           $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>")
         })
       },
-      assessment_detail: function(ai_id, lx, pi, ol) {
+      assessment_detail: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的查看界面
         console.log(ai_id, lx, pi, ol);
       }
 
     });
 
     // Returns the Router class
-    return CategoryRouter;
+    return MainRouter;
 
   });
