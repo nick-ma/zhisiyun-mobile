@@ -33,6 +33,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                 $form.find("#task-end").val(moment(self.model.get('end')).format('YYYY-MM-DDTHH:mm'));
             };
             $form.find("#task-is_complete").val(self.model.get('is_complete').toString()).trigger('change');
+            if (self.model.isNew()) {
+                $("#btn-back-from-task-edit").attr('href', '#task');
+            } else {
+                $("#btn-back-from-task-edit").attr('href', '#task/' + self.model.get('_id'));
+            };
             // Maintains chainability
             return this;
 
@@ -47,6 +52,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
 
                     self.model.save().done(function() {
                         console.log('message: save task')
+                        $.mobile.changePage("#task", {
+                            reverse: false,
+                            changeHash: false,
+                            transition: "flip",
+                        });
                     });
                 })
                 .on('click', '#btn-task-remove', function(event) {
@@ -56,7 +66,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                         col.fetch(); //删除后重新获取collection
                         $.mobile.changePage("#task", {
                             reverse: false,
-                            changeHash: false
+                            changeHash: false,
+                            transition: "flip",
                         });
                     })
                 })

@@ -193,9 +193,9 @@
       var r = e.format.date(n.start, i.settings.dateFormat);
       var s = e.format.date(n.end, i.settings.dateFormat);
       if (r == s) {
-        t.find("p").append("<strong>" + n[i.settings.title] + "</strong><br><small>" + n[i.settings.summary].replace("\n", "<br>") + "</small> </p><p>" + r)
+        t.find("p").append("<strong " + (n.is_complete ? "style='text-decoration: line-through;'" : "") + ">" + n[i.settings.title] + "</strong><br><small>" + ((n[i.settings.summary]) ? n[i.settings.summary].replace("\n", "<br>") : '') + "</small> </p><p>" + r)
       } else {
-        t.find("p").append("<strong>" + n[i.settings.title] + "</strong><br><small>" + n[i.settings.summary].replace("\n", "<br>") + "</small> </p><p>" + r + "&nbsp;&nbsp;&rarr;&nbsp;&nbsp;" + s)
+        t.find("p").append("<strong " + (n.is_complete ? "style='text-decoration: line-through;'" : "") + ">" + n[i.settings.title] + "</strong><br><small>" + ((n[i.settings.summary]) ? n[i.settings.summary].replace("\n", "<br>") : '') + "</small> </p><p>" + r + "&nbsp;&nbsp;&rarr;&nbsp;&nbsp;" + s)
       } if (n[i.settings.icon]) {
         t.attr("data-icon", n.icon)
       }

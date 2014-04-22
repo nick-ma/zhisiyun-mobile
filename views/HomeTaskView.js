@@ -24,10 +24,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                     return x.toJSON();
                 })
-                tasks = _.sortBy(tasks,function  (x) {
+                var today = moment().startOf('day').toDate();
+                var future = moment().add('d', 7).endOf('day').toDate();
+                tasks = _.filter(tasks, function(x) {
+                    var start_d = new Date(x.start);
+                    var end_d = new Date(x.end);
+                    //选出来，列在首页。（7天以内的任务，并且是未完成的）
+                    var flag = !x.is_complete && (start_d < today && end_d >= today) || (start_d>=today && start_d<=future);
+                    return flag;
+                })
+                tasks = _.sortBy(tasks, function(x) {
                     return x.start;
                 })
-                $("#home-task-num").html(this.collection.length);
+                $("#home-task-num").html(tasks.length);
                 $("#home-task-list").html(self.template({
                     tasks: tasks
                 }));

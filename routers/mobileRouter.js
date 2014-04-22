@@ -6,13 +6,13 @@ define(["jquery", "backbone", "handlebars",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
     "../views/HomeAssessmentView", "../collections/AssessmentCollection",
-    "../views/HomeTaskView", 
+    "../views/HomeTaskView",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView",
     //人员和组织相关
 
     //其他jquery插件
-    "moment","sprintf",
+    "moment", "sprintf",
   ],
   function($, Backbone, Handlebars,
     HomeObjectiveView, ObjectiveCollection,
@@ -42,6 +42,16 @@ define(["jquery", "backbone", "handlebars",
     });
     Handlebars.registerHelper('toISODatetime', function(date) {
       return (date) ? moment(date).format('YYYY-MM-DD HH:mm') : '';
+    });
+    Handlebars.registerHelper('toISODateRange', function(start, end) {
+      var s = moment(start);
+      var e = moment(end);
+      if (s.format('YYYY-MM-DD') == e.format('YYYY-MM-DD')) {
+        return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('HH:mm');
+      } else {
+        return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('YYYY-MM-DD HH:mm');
+      };
+
     });
     // Extends Backbone.Router
     var MainRouter = Backbone.Router.extend({
@@ -100,7 +110,7 @@ define(["jquery", "backbone", "handlebars",
 
         "task": "task",
         "task/:task_id": "task_detail",
-        "task_edit?:task_id": "task_edit",
+        "task_edit/:task_id": "task_edit",
 
       },
 
@@ -121,14 +131,16 @@ define(["jquery", "backbone", "handlebars",
         };
         $.mobile.changePage("#home", {
           reverse: false,
-          changeHash: false
+          changeHash: false,
+          transition: "flip",
         });
       },
 
       task: function() { //任务日历
         $.mobile.changePage("#task", {
           reverse: false,
-          changeHash: false
+          changeHash: false,
+          transition: "flip",
         });
       },
 
@@ -137,14 +149,15 @@ define(["jquery", "backbone", "handlebars",
         this.taskDetailView.render();
         $.mobile.changePage("#task_detail", {
           reverse: false,
-          changeHash: false
+          changeHash: false,
+          transition: "slide",
         });
       },
 
       task_edit: function(task_id) { //编辑任务详情
         var taskEditView = this.taskEditView;
         if (task_id == 'new') {
-          var new_task = taskView.collection.add({
+          var new_task = this.c_task.add({
             'title': '新建任务',
             'start': new Date(),
             'end': new Date(),
@@ -162,7 +175,8 @@ define(["jquery", "backbone", "handlebars",
 
         $.mobile.changePage("#task_edit", {
           reverse: false,
-          changeHash: false
+          changeHash: false,
+          transition: "slide",
         });
         //把 a 换成 span， 避免点那个滑块的时候页面跳走。
         $(".ui-flipswitch a").each(function() {

@@ -9,7 +9,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
         // The View Constructor
         initialize: function() {
             this.template = Handlebars.compile($("#hbtmp_task_detail_view").html());
-
+            this.bind_events();
             // The render method is called when Task Models are added to the Collection
             // this.model.on("sync", this.render, this);
 
@@ -19,7 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
         render: function() {
             var self = this;
 
-            $("#btn-task-edit").attr('href', "#task_edit?" + self.model.get('_id'));
+            $("#btn-task-edit").attr('href', "#task_edit/" + self.model.get('_id'));
             $("#task_detail-content").html(self.template(self.model.attributes));
             $("#task_detail-content").trigger('create');
             // Maintains chainability
@@ -29,7 +29,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
 
         bind_events: function() {
             var self = this;
-            
+            self.$el
+                .on('click', '#btn-task-markcomplete', function(event) {
+                    event.preventDefault();;
+                    self.model.set('is_complete', true);
+                    self.model.save().done(function() {
+                        $.mobile.changePage("#task", {
+                            reverse: false,
+                            changeHash: false,
+                            transition: "flip",
+                        });
+                    });
+                })
         }
 
 
