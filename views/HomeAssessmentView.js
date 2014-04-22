@@ -25,7 +25,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/AssessmentMode
                 _.each(this.collection.models, function(x) {
                     x.attributes.pi_count = x.attributes.qualitative_pis.items.length + x.attributes.quantitative_pis.items.length;
                     rendered.push(self.template(x.attributes));
-                })
+                });
 
                 $("#home-assessment-list").html(rendered.join(''));
                 $("#home-assessment-list").trigger('create');

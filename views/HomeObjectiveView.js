@@ -16,16 +16,12 @@ define(["jquery", "underscore", "backbone", "handlebars",
                 var rendered = '';
                 var render_data = _.map(this.collection.models, function(x) {
                     return x.toJSON();
-                })
+                });
                 // console.log(render_data);
                 rendered = self.template({
                     ols: render_data
                 });
-                // console.log(rendered);
-                // _.each(this.collection.models,function  (x) {
-                //     // console.log(x);
-                //     rendered.push(self.template(x.attributes));
-                // })
+                
                 // console.log(rendered);
                 $("#home-objective-num").html(this.collection.length);
                 $("#home-objective-list").html(rendered);

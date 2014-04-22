@@ -6,6 +6,7 @@ var mocha = require('gulp-mocha');
 var minifycss = require('gulp-minify-css');
 var clean = require('gulp-clean');
 var concat = require('gulp-concat');
+var shell = require('gulp-shell');
 var rjs = require('requirejs');
 
 var watching = false;
@@ -101,5 +102,6 @@ gulp.task('clean', function() {
         }));
 
 });
+gulp.task('deploy', shell.task(['./deploy.sh']));
 gulp.task('build', ['js', 'css', 'copy']);
 gulp.task('default', ['watch']);

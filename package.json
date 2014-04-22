@@ -16,6 +16,7 @@
         "gulp-minify-css": "*",
         "gulp-concat": "*",
         "gulp-clean": "*",
+        "gulp-shell": "*",
         "superagent": "*",
         "chai": "*",
         "requirejs": "~2.1.11"

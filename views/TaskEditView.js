@@ -1,5 +1,5 @@
-// Task View
-// =============
+// Task Edit View
+// =================
 
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/TaskModel", "jqmcal", "formatdate"], function($, _, Backbone, Handlebars, moment, TaskModel) {
@@ -26,18 +26,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             $form.find("#task-description").val(self.model.get('description'));
             $form.find("#task-allday").val(self.model.get('allDay').toString()).trigger('change');
             if (self.model.get('allDay')) { //对于全天类型的任务，不显示时间字段部分。
-                $form.find("#task-start").attr('type', 'date').val(moment(self.model.get('start')).format('YYYY-MM-DD'))
-                $form.find("#task-end").attr('type', 'date').val(moment(self.model.get('end')).format('YYYY-MM-DD'))
+                $form.find("#task-start").attr('type', 'date').val(moment(self.model.get('start')).format('YYYY-MM-DD'));
+                $form.find("#task-end").attr('type', 'date').val(moment(self.model.get('end')).format('YYYY-MM-DD'));
             } else {
                 $form.find("#task-start").val(moment(self.model.get('start')).format('YYYY-MM-DDTHH:mm'));
                 $form.find("#task-end").val(moment(self.model.get('end')).format('YYYY-MM-DDTHH:mm'));
-            };
+            }
             $form.find("#task-is_complete").val(self.model.get('is_complete').toString()).trigger('change');
             if (self.model.isNew()) {
                 $("#btn-back-from-task-edit").attr('href', '#task');
             } else {
                 $("#btn-back-from-task-edit").attr('href', '#task/' + self.model.get('_id'));
-            };
+            }
             // Maintains chainability
             return this;
 
@@ -48,10 +48,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
 
             self.$el
                 .on('click', '#btn-task-save', function(event) {
-                    event.preventDefault();;
+                    event.preventDefault();
 
                     self.model.save().done(function() {
-                        console.log('message: save task')
+                        // console.log('message: save task')
                         $.mobile.changePage("#task", {
                             reverse: false,
                             changeHash: false,
@@ -69,7 +69,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                             changeHash: false,
                             transition: "flip",
                         });
-                    })
+                    });
                 })
                 .on('change', '#task-allday', function(event) {
                     var value = $(this).val();
@@ -79,7 +79,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     } else {
                         self.$form.find("#task-start").attr('type', 'datetime-local').val(moment(self.model.get('start')).format('YYYY-MM-DDTHH:mm'));
                         self.$form.find("#task-end").attr('type', 'datetime-local').val(moment(self.model.get('end')).format('YYYY-MM-DDTHH:mm'));
-                    };
+                    }
                 })
                 .on('change', 'input, textarea, select', function(event) {
                     var $this = $(this);
@@ -87,7 +87,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     var value = $this.val();
                     if (field === 'start' || field === 'end') {
                         value = value.replace('T', ' '); //把T换掉，保存UCT的时间
-                    };
+                    }
                     if (field === 'is_complete' || field === 'allDay') {
                         value = (value === 'true') ? true : false;
                     }

@@ -71,7 +71,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
                 tmp.icon = "carat-r";
                 cal_events.push(tmp);
 
-            })
+            });
             $cal.trigger('refresh');
             // console.log(cal_events);
 

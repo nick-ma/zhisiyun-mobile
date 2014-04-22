@@ -55,7 +55,7 @@ grab from bootstrap 3
     position: absolute;
 }
 .m-ud-0p2em {
-    margin: 0.2em 0;
+    margin: 0.2em 0!important;
 }
 .ui-li-aside2 {
     margin-top:-5px!important;

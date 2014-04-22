@@ -20,6 +20,8 @@ define(["jquery", "backbone", "handlebars",
     HomeTaskView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView
 
+    
+
   ) {
     //注册handlebars的helper
     Handlebars.registerHelper('sprintf', function(sf, data) {
@@ -104,7 +106,7 @@ define(["jquery", "backbone", "handlebars",
 
         // When there is no hash bang on the url, the home method is called
         "": "home",
-        
+
         "more_functions": "more_functions",
 
         "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
@@ -139,7 +141,7 @@ define(["jquery", "backbone", "handlebars",
           transition: "flip",
         });
       },
-      more_functions:function  () {
+      more_functions: function() {
         $.mobile.changePage("#more_functions", {
           reverse: false,
           changeHash: false,
@@ -179,9 +181,9 @@ define(["jquery", "backbone", "handlebars",
           taskEditView.render();
           // })
         } else {
-          taskEditView.model = this.c_task.get(task_id);;
+          taskEditView.model = this.c_task.get(task_id);
           taskEditView.render();
-        };
+        }
 
         $.mobile.changePage("#task_edit", {
           reverse: false,
@@ -190,8 +192,8 @@ define(["jquery", "backbone", "handlebars",
         });
         //把 a 换成 span， 避免点那个滑块的时候页面跳走。
         $(".ui-flipswitch a").each(function() {
-          $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>")
-        })
+          $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+        });
       },
       assessment_detail: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的查看界面
         console.log(ai_id, lx, pi, ol);

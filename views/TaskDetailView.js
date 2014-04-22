@@ -31,7 +31,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             var self = this;
             self.$el
                 .on('click', '#btn-task-markcomplete', function(event) {
-                    event.preventDefault();;
+                    event.preventDefault();
                     self.model.set('is_complete', true);
                     self.model.save().done(function() {
                         $.mobile.changePage("#task", {
@@ -40,7 +40,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                             transition: "flip",
                         });
                     });
-                })
+                });
         }
 
 
