@@ -24,6 +24,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             $form.find("#task-title").val(self.model.get('title'));
             $form.find("#task-location").val(self.model.get('location'));
             $form.find("#task-description").val(self.model.get('description'));
+            $form.find("#task-comments").val(self.model.get('comments'));
             $form.find("#task-allday").val(self.model.get('allDay').toString()).trigger('change');
             if (self.model.get('allDay')) { //对于全天类型的任务，不显示时间字段部分。
                 $form.find("#task-start").attr('type', 'date').val(moment(self.model.get('start')).format('YYYY-MM-DD'));

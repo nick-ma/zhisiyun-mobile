@@ -32,7 +32,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             self.$el
                 .on('click', '#btn-task-markcomplete', function(event) {
                     event.preventDefault();
+
                     self.model.set('is_complete', true);
+                    self.model.save().done(function() {
+                        $("#task_detail_msg").popup('open', { //弹出打分的对话框
+                            transition: 'slidedown'
+                        });
+                    });
+                })
+                .on('click', '#btn-task-rate', function(event) {
+                    event.preventDefault();
+                    var rank = $("#task_rank").val();
+                    self.model.set('rank', rank);
                     self.model.save().done(function() {
                         $.mobile.changePage("#task", {
                             reverse: false,

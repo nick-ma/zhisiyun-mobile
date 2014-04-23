@@ -27,6 +27,12 @@ define(["jquery", "backbone", "handlebars",
     Handlebars.registerHelper('sprintf', function(sf, data) {
       return sprintf(sf, data);
     });
+    Handlebars.registerHelper('plus1', function(data) {
+      return parseInt(data) + 1;
+    });
+    Handlebars.registerHelper('cr2br', function(data) {
+      return (data) ? data.replace(/\n/g, '<br>') : '';
+    });
     Handlebars.registerHelper('fromNow', function(data) {
       return moment(data).fromNow();
     });
@@ -45,16 +51,39 @@ define(["jquery", "backbone", "handlebars",
     Handlebars.registerHelper('toISODatetime', function(date) {
       return (date) ? moment(date).format('YYYY-MM-DD HH:mm') : '';
     });
-    Handlebars.registerHelper('toISODateRange', function(start, end) {
+    Handlebars.registerHelper('rateStar', function(data) {
+      var ret = '';
+      for (var i = 0; i < data; i++) {
+        ret += '&#9733;';
+      };
+      for (var i = data; i < 5; i++) {
+        ret += '&#9734;';
+      };
+      return ret;
+    });
+    Handlebars.registerHelper('toISODateRange', function(allday, start, end) {
       var s = moment(start);
       var e = moment(end);
-      if (s.format('YYYY-MM-DD') == e.format('YYYY-MM-DD')) {
-        return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('HH:mm');
+      if (allday) {
+        if (s.format('YYYY-MM-DD') == e.format('YYYY-MM-DD')) {
+          return s.format('YYYY-MM-DD');
+        } else if (s.format('YYYY') == e.format('YYYY')) {
+          return s.format('YYYY-MM-DD') + '&rarr;' + e.format('MM-DD');
+        } else {
+          return s.format('YYYY-MM-DD') + '&rarr;' + e.format('YYYY-MM-DD');
+        };
       } else {
-        return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('YYYY-MM-DD HH:mm');
+        if (s.format('YYYY-MM-DD') == e.format('YYYY-MM-DD')) {
+          return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('HH:mm');
+        } else if (s.format('YYYY') == e.format('YYYY')) {
+          return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('MM-DD HH:mm');
+        } else {
+          return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('YYYY-MM-DD HH:mm');
+        };
       };
 
     });
+
     // Extends Backbone.Router
     var MainRouter = Backbone.Router.extend({
 
@@ -189,6 +218,9 @@ define(["jquery", "backbone", "handlebars",
             'end': new_task_date,
             'allDay': true,
             'is_complete': false,
+            'startEditable': true,
+            'durationEditable': true,
+            'editable': true,
           });
           // new_task.save().done(function() {
           taskEditView.model = new_task;
