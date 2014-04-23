@@ -173,7 +173,7 @@ define(["jquery", "backbone", "handlebars",
         $.mobile.changePage("#home", {
           reverse: false,
           changeHash: false,
-          transition: "flip",
+          // transition: "flip",
         });
       },
       more_functions: function() {
@@ -187,7 +187,7 @@ define(["jquery", "backbone", "handlebars",
         $.mobile.changePage("#task", {
           reverse: false,
           changeHash: false,
-          transition: "flip",
+          // transition: "flip",
         });
       },
       task_refresh: function() { //刷新任务数据
@@ -215,7 +215,7 @@ define(["jquery", "backbone", "handlebars",
       task_edit: function(task_id) { //编辑任务详情
         var taskEditView = this.taskEditView;
         if (task_id == 'new') {
-          var new_task_date = $("#jqm_cal a.ui-btn-active").data('date');
+          var new_task_date = $("#jqm_cal a.ui-btn-active").data('date') || new Date();
           var new_task = this.c_task.add({
             'title': '新建任务',
             'start': new_task_date,
