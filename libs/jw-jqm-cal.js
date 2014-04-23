@@ -6,9 +6,9 @@
       var t = e("<thead/>").appendTo(o),
         h = e("<tr/>").appendTo(t),
         p = e("<th class='ui-bar-" + i.settings.headerTheme + " header' colspan='7'/>");
-      l = e("<a href='#" + i.settings.route + "' data-role='button' data-icon='arrow-l' data-iconpos='notext' class='previous-btn'>Previous</a>").data("date", d(i.settings.date, -1)).appendTo(p);
+      l = e("<a href='#" + i.settings.route + "' data-role='button' data-icon='carat-l' data-iconpos='notext' class='previous-btn'>Previous</a>").data("date", d(i.settings.date, -1)).appendTo(p);
       u = e("<span/>").appendTo(p);
-      c = e("<a href='#" + i.settings.route + "' data-role='button' data-icon='arrow-r' data-iconpos='notext' class='next-btn'>Next</a>").data("date", d(i.settings.date, 1)).appendTo(p);
+      c = e("<a href='#" + i.settings.route + "' data-role='button' data-icon='carat-r' data-iconpos='notext' class='next-btn'>Next</a>").data("date", d(i.settings.date, 1)).appendTo(p);
       l.click(function(t) {
         var n = e(this).data("date");
         S(n, true);
@@ -202,6 +202,7 @@
     }
 
     function N(t) {
+
       f.empty();
       if (t.length) {
         var n = "";
@@ -252,6 +253,7 @@
     s.bind("change", function(t, n) {
       var r = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1, 0, 0, 0, 0);
       var s = false;
+      // console.log(f);
       f.empty();
       e('<li data-role="list-divider">' + e.format.date(n, i.settings.dateFormatTitle) + "</li>").appendTo(f);
       for (var o = 0, t; t = i.settings.events[o]; o++) {
@@ -264,8 +266,9 @@
       if (!s) var u = e("<li class='ui-event-item'><p style='padding-top:0.65em;'><strong>选定的日期没有安排任务</strong></p></li>").appendTo(f);
       f.trigger("create").filter(".ui-listview").listview("refresh")
     });
-    s.bind("refresh", function(e, t) {
-      S(t)
+    s.bind("refresh", function(e, t, flag) {
+      //console.log(t, flag);
+      S(t, flag)
     });
     h()
   };

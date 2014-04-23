@@ -20,7 +20,7 @@ define(["jquery", "backbone", "handlebars",
     HomeTaskView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView
 
-    
+
 
   ) {
     //注册handlebars的helper
@@ -104,15 +104,18 @@ define(["jquery", "backbone", "handlebars",
       // Backbone.js Routes
       routes: {
 
-        // When there is no hash bang on the url, the home method is called
+        //首页
         "": "home",
-
+        // 更多功能的导航页面
         "more_functions": "more_functions",
-
+        // 绩效合同相关页面
         "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
         // When #category? is on the url, the category method is called
-
+        //任务日历相关的routes
         "task": "task",
+        "task/refresh": "task_refresh",
+        "task/cm": "task_cm",
+        "task/cd": "task_cd",
         "task/:task_id": "task_detail",
         "task_edit/:task_id": "task_edit",
 
@@ -122,7 +125,6 @@ define(["jquery", "backbone", "handlebars",
 
       // Home method
       home: function() { //首页
-
         if (!this.c_assessment.length) { //lazy load 绩效合同
           $.mobile.loading("show");
           this.c_assessment.fetch().done(function() {
@@ -155,7 +157,18 @@ define(["jquery", "backbone", "handlebars",
           transition: "flip",
         });
       },
-
+      task_refresh: function() { //刷新任务数据
+        $.mobile.loading("show");
+        this.c_task.fetch().done(function() {
+          $.mobile.loading("hide");
+        })
+      },
+      task_cm: function() { //转到当前月
+        $("#jqm_cal").trigger('refresh', [new Date(), true]);
+      },
+      task_cd: function() { //转到当天
+        $("#jqm_cal").trigger('refresh', [new Date()]);
+      },
       task_detail: function(task_id) { //查看任务详情
         this.taskDetailView.model = this.c_task.get(task_id);
         this.taskDetailView.render();
@@ -169,10 +182,11 @@ define(["jquery", "backbone", "handlebars",
       task_edit: function(task_id) { //编辑任务详情
         var taskEditView = this.taskEditView;
         if (task_id == 'new') {
+          var new_task_date = $("#jqm_cal a.ui-btn-active").data('date');
           var new_task = this.c_task.add({
             'title': '新建任务',
-            'start': new Date(),
-            'end': new Date(),
+            'start': new_task_date,
+            'end': new_task_date,
             'allDay': true,
             'is_complete': false,
           });

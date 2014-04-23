@@ -49,15 +49,26 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             self.$el
                 .on('click', '#btn-task-save', function(event) {
                     event.preventDefault();
-
-                    self.model.save().done(function() {
-                        // console.log('message: save task')
-                        $.mobile.changePage("#task", {
-                            reverse: false,
-                            changeHash: false,
-                            transition: "flip",
+                    //check valid
+                    if (self.model.isValid()) {
+                        self.model.save().done(function() {
+                            // console.log('message: save task')
+                            $.mobile.changePage("#task", {
+                                reverse: false,
+                                changeHash: false,
+                                transition: "flip",
+                            });
                         });
-                    });
+                    } else { //显示错误提示信息
+                        if (!$("#task_edit_msg").hasClass('text-danger')) {
+                            $("#task_edit_msg").addClass('text-danger');
+                        };
+                        $("#task_edit_msg").html(self.model.validationError)
+                            .popup('open', {
+                                transition: 'slidedown'
+                            });
+                    };
+
                 })
                 .on('click', '#btn-task-remove', function(event) {
                     event.preventDefault();

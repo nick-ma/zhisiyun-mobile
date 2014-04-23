@@ -38,33 +38,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
-            // Sets the view's template property
-            // console.log(self.collection);
-            var rendered = [];
-            // rendered = _.map(this.collection.models, function(x) {
-            //     // console.log(x);
-            //     return self.template(x.attributes);
-            // })
-            // console.log(rendered);
-            // Renders the view's template inside of the current listview element
-            self.$el.find("ul").html(rendered.join(''));
-            // console.log(this.collection.models);
-
             //jqmCalendar test
             var $cal = $("#jqm_cal");
             var cal_events = $cal.data('jqmCalendar').settings.events;
             cal_events.length = 0;
             _.each(this.collection.models, function(x) {
-                // cal_events.push({
-                //     eid: x.get("_id"),
-                //     end: new Date(x.get("end")),
-                //     icon: "bars",
-                //     location: x.get("place"),
-                //     start: new Date(x.get("start")),
-                //     summary: x.get("description"),
-                //     title: x.get("title"),
-                //     url: x.get("url"),
-                // });
                 var tmp = x.toJSON();
                 tmp.start = new Date(tmp.start);
                 tmp.end = new Date(tmp.end);

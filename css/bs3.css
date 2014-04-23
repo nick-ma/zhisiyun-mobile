@@ -61,3 +61,8 @@ grab from bootstrap 3
     margin-top:-5px!important;
     right: 1.3em!important;
 }
+.img-rounded {
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
