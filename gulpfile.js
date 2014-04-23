@@ -90,7 +90,7 @@ gulp.task('css', function() {
 gulp.task('copy', function() {
     gulp.src('./css/images/**')
         .pipe(gulp.dest('./_static/images/'));
-    gulp.src('./bower_components/requirejs/require.js')
+    gulp.src('./libs/require.js')
         .pipe(gulp.dest('./_static/'));
 })
 gulp.task('clean', function() {

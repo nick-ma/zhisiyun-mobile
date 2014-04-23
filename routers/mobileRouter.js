@@ -11,6 +11,8 @@ define(["jquery", "backbone", "handlebars",
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView",
     //人员和组织相关
 
+    //绩效考核合同相关
+    "../views/AssessmentDetailView",
     //其他jquery插件
     "moment", "sprintf",
   ],
@@ -18,9 +20,9 @@ define(["jquery", "backbone", "handlebars",
     HomeObjectiveView, ObjectiveCollection,
     HomeAssessmentView, AssessmentCollection,
     HomeTaskView,
-    TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView
+    TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
 
-
+    AssessmentDetailView
 
   ) {
     //注册handlebars的helper
@@ -116,13 +118,15 @@ define(["jquery", "backbone", "handlebars",
 
         this.taskEditView = new TaskEditView({
           el: "#task_edit",
-          // model: new TaskCollection()
         });
-        // this.taskEditView.bind_events();
+
         this.taskDetailView = new TaskDetailView({
           el: "#task_detail",
-          // model: new TaskCollection()
         });
+
+        this.assessmentDetailView = new AssessmentDetailView({
+          el: "#assessment_detail"
+        })
         // this.taskDetailView.bind_events();
 
         // Tells Backbone to start watching for hashchange events
@@ -242,7 +246,13 @@ define(["jquery", "backbone", "handlebars",
         });
       },
       assessment_detail: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的查看界面
-        console.log(ai_id, lx, pi, ol);
+        this.assessmentDetailView.model = this.c_assessment.get(ai_id);
+        this.assessmentDetailView.render(lx, pi, ol);
+        $.mobile.changePage("#assessment_detail", {
+          reverse: false,
+          changeHash: false,
+          transition: "slide",
+        });
 
       },
 

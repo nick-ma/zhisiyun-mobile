@@ -8,41 +8,44 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
     var AssessmentDetailView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
-            this.template = Handlebars.compile($("#hbtmp_task_detail_view").html());
-            this.bind_events();
+            this.template = Handlebars.compile($("#hbtmp_assessment_detail_view").html());
+            // this.bind_events();
             // The render method is called when Assessment Models are added to the Collection
             // this.model.on("sync", this.render, this);
 
         },
 
         // Renders all of the Assessment models on the UI
-        render: function() {
+        render: function(lx, pi, ol) {
             var self = this;
-
-            $("#btn-task-edit").attr('href', "#task_edit/" + self.model.get('_id'));
-            $("#task_detail-content").html(self.template(self.model.attributes));
-            $("#task_detail-content").trigger('create');
+            // console.log('render: ', lx, pi, ol);
+            var render_data = {};
+            if (lx == 'dl') { //定量指标
+                var dl_items = self.model.get('quantitative_pis').items;
+                render_data = _.find(dl_items, function(x) {
+                    if (ol) {
+                        return (x.pi == pi && x.ol == ol);
+                    } else {
+                        return (x.pi == pi);
+                    }
+                })
+            } else if (lx == 'dx') { //定性指标
+                var dx_items = self.model.get('qualitative_pis').items;
+                render_data = _.find(dx_items, function(x) {
+                    if (ol) {
+                        return (x.pi == pi && x.ol == ol);
+                    } else {
+                        return (x.pi == pi);
+                    }
+                })
+            };
+            // console.log(render_data);
+            $("#assessment_detail-content").html(self.template(render_data));
+            $("#assessment_detail-content").trigger('create');
             // Maintains chainability
             return this;
 
         },
-
-        bind_events: function() {
-            var self = this;
-            self.$el
-                .on('click', '#btn-task-markcomplete', function(event) {
-                    event.preventDefault();
-                    self.model.set('is_complete', true);
-                    self.model.save().done(function() {
-                        $.mobile.changePage("#task", {
-                            reverse: false,
-                            changeHash: false,
-                            transition: "flip",
-                        });
-                    });
-                });
-        }
-
 
     });
 
