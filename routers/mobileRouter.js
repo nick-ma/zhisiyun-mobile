@@ -10,7 +10,7 @@ define(["jquery", "backbone", "handlebars",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView",
     //人员和组织相关
-
+    "../models/PeopleModel", "../collections/PeopleCollection", "../views/ContactListView", "../views/ContactDetailView",
     //绩效考核合同相关
     "../views/AssessmentDetailView",
     //其他jquery插件
@@ -21,7 +21,7 @@ define(["jquery", "backbone", "handlebars",
     HomeAssessmentView, AssessmentCollection,
     HomeTaskView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
-
+    PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     AssessmentDetailView
 
   ) {
@@ -96,6 +96,7 @@ define(["jquery", "backbone", "handlebars",
         this.c_objectives = new ObjectiveCollection(); //目标计划
         this.c_assessment = new AssessmentCollection(); //考核计划
         this.c_task = new TaskCollection(); //工作任务
+        this.c_people = new PeopleCollection(); //人员
 
         //init views
         this.homeObjectiveView = new HomeObjectiveView({
@@ -127,7 +128,14 @@ define(["jquery", "backbone", "handlebars",
         this.assessmentDetailView = new AssessmentDetailView({
           el: "#assessment_detail"
         })
-        // this.taskDetailView.bind_events();
+
+        this.contactListlView = new ContactListView({
+          el: "#contact_list-content",
+          collection: self.c_people
+        })
+        this.contactDetaillView = new ContactDetailView({
+          el: "#contact_detail-content"
+        })
 
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
@@ -151,7 +159,9 @@ define(["jquery", "backbone", "handlebars",
         "task/cd": "task_cd",
         "task/:task_id": "task_detail",
         "task_edit/:task_id": "task_edit",
-
+        //人员相关
+        "contact_list": "contact_list",
+        "contact_detail/:people_id": "contact_detail",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -256,7 +266,28 @@ define(["jquery", "backbone", "handlebars",
 
       },
 
-
+      contact_list: function() { //企业通讯录，列表
+        $.mobile.changePage("#contact_list", {
+          reverse: false,
+          changeHash: false,
+          transition: "slide",
+        });
+        if (!this.c_people.length) {
+          $.mobile.loading("show");
+          this.c_people.fetch().done(function() {
+            $.mobile.loading("hide");
+          })
+        };
+      },
+      contact_detail: function(people_id) { //企业通讯录，单人详情
+        this.contactDetaillView.model = this.c_people.get(people_id);
+        this.contactDetaillView.render();
+        $.mobile.changePage("#contact_detail", {
+          reverse: false,
+          changeHash: false,
+          transition: "slide",
+        });
+      }
     });
 
     // Returns the Router class
