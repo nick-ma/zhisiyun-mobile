@@ -14,7 +14,7 @@ define(["jquery", "backbone", "handlebars",
     //绩效考核合同相关
     "../views/AssessmentDetailView",
     //其他jquery插件
-    "moment", "sprintf",
+    "async", "moment", "sprintf",
   ],
   function($, Backbone, Handlebars,
     HomeObjectiveView, ObjectiveCollection,
@@ -22,7 +22,8 @@ define(["jquery", "backbone", "handlebars",
     HomeTaskView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
-    AssessmentDetailView
+    AssessmentDetailView,
+    async
 
   ) {
     //注册handlebars的helper
@@ -295,25 +296,38 @@ define(["jquery", "backbone", "handlebars",
         }
         localStorage.setItem('login_people', JSON.stringify(login_peoples));
         $.mobile.loading("show");
-        // 刷新目标计划数据
-        self.c_objectives.fetch().done(function() {
-          localStorage.setItem('objectives_' + login_people, JSON.stringify(self.c_objectives))
+        async.parallel({
+          objective: function(cb) {
+            // 刷新目标计划数据
+            self.c_objectives.fetch().done(function() {
+              localStorage.setItem('objectives_' + login_people, JSON.stringify(self.c_objectives))
+              cb(null, 'OK');
+            });
+          },
+          assessment: function(cb) {
+            // 刷新考核数据
+            self.c_assessment.fetch().done(function() {
+              localStorage.setItem('assessment_' + login_people, JSON.stringify(self.c_assessment))
+              cb(null, 'OK');
+            })
+          },
+          task: function(cb) {
+            // 刷新日历数据
+            self.c_task.fetch().done(function() {
+              localStorage.setItem('task_' + login_people, JSON.stringify(self.c_task))
+              cb(null, 'OK');
+            })
+          },
+          people: function(cb) {
+            // 刷新通讯录数据
+            self.c_people.fetch().done(function() {
+              localStorage.setItem('people_' + login_people, JSON.stringify(self.c_people))
+              cb(null, 'OK');
+            })
+          }
+        }, function(err, result) {
           $.mobile.loading("hide");
-        });
-        // 刷新考核数据
-        self.c_assessment.fetch().done(function() {
-          localStorage.setItem('assessment_' + login_people, JSON.stringify(self.c_assessment))
-          $.mobile.loading("hide");
-        })
-        // 刷新日历数据
-        self.c_task.fetch().done(function() {
-          localStorage.setItem('task_' + login_people, JSON.stringify(self.c_task))
-          $.mobile.loading("hide");
-        })
-        // 刷新通讯录数据
-        self.c_people.fetch().done(function() {
-          localStorage.setItem('people_' + login_people, JSON.stringify(self.c_people))
-          $.mobile.loading("hide");
+          alert('同步完成');
         })
       },
       clear_local_storage: function() {

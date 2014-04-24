@@ -17,6 +17,7 @@
     "moment": "latest",
     "text": "latest",
     "sprintf": "latest",
+    "async": "latest",
     "jQuery-Mobile-Icon-Pack": "latest"
 
   }

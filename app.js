@@ -12,6 +12,7 @@ require.config({
     "handlebars": "./bower_components/handlebars/handlebars",
     "moment": "./bower_components/moment/moment",
     "sprintf": "./bower_components/sprintf/src/sprintf",
+    "async": "./bower_components/async/lib/async",
     "formatdate": "./libs/formatdate",
 
     "jqmcal": "./libs/jw-jqm-cal",
