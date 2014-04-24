@@ -197,7 +197,10 @@ define(["jquery", "backbone", "handlebars",
       },
       task_refresh: function() { //刷新任务数据
         $.mobile.loading("show");
-        this.c_task.fetch().done(function() {
+        var self = this;
+        self.c_task.fetch().done(function() {
+          var login_people = $("#login_people").val();
+          localStorage.setItem('task_' + login_people, JSON.stringify(self.c_task))
           $.mobile.loading("hide");
         })
       },
@@ -304,7 +307,7 @@ define(["jquery", "backbone", "handlebars",
         })
         // 刷新日历数据
         self.c_task.fetch().done(function() {
-          localStorage.setItem('c_task_' + login_people, JSON.stringify(self.c_task))
+          localStorage.setItem('task_' + login_people, JSON.stringify(self.c_task))
           $.mobile.loading("hide");
         })
         // 刷新通讯录数据
@@ -321,32 +324,18 @@ define(["jquery", "backbone", "handlebars",
       },
       init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
         var self = this;
-        var login_people = $("#login_people").val();
         self.load_data(self.c_people, 'people');
         self.load_data(self.c_objectives, 'objectives');
         self.load_data(self.c_assessment, 'assessment');
         self.load_data(self.c_task, 'task');
-        // $.mobile.loading("show");
-        // if (localStorage.getItem('people_' + login_people)) {
-        //   var l_people = JSON.parse(localStorage.getItem('people_' + login_people));
-        //   console.log(l_people);
-        //   _.each(l_people, function(x) {
-        //     self.c_people.add(x);
-        //   })
-        //   console.log(self.c_people);
-        //   self.c_people.trigger('sync');
-        //   $.mobile.loading("hide");
-        // } else {
-        //   self.c_people.fetch().done(function() {
-        //     localStorage.setItem('people_' + login_people, JSON.stringify(self.c_people))
-        //     $.mobile.loading("hide");
-        //   })
-        // };
+
       },
       load_data: function(col_obj, col_name) { //加载数据
         $.mobile.loading("show");
-        if (localStorage.getItem(col_name + '_' + login_people)) {
-          var local_tmp = JSON.parse(localStorage.getItem(col_name + '_' + login_people));
+        var login_people = $("#login_people").val();
+        var local_data = localStorage.getItem(col_name + '_' + login_people);
+        if (local_data && local_data != 'undefined') {
+          var local_tmp = JSON.parse(local_data);
           _.each(local_tmp, function(x) {
             col_obj.add(x);
           })
