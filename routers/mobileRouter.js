@@ -98,6 +98,8 @@ define(["jquery", "backbone", "handlebars",
         this.c_task = new TaskCollection(); //工作任务
         this.c_people = new PeopleCollection(); //人员
 
+
+
         //init views
         this.homeObjectiveView = new HomeObjectiveView({
           el: "#home-objective-list",
@@ -137,6 +139,7 @@ define(["jquery", "backbone", "handlebars",
           el: "#contact_detail-content"
         })
 
+        this.init_data();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
 
@@ -147,8 +150,6 @@ define(["jquery", "backbone", "handlebars",
 
         //首页
         "": "home",
-        // 更多功能的导航页面
-        "more_functions": "more_functions",
         // 绩效合同相关页面
         "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
         // When #category? is on the url, the category method is called
@@ -162,24 +163,18 @@ define(["jquery", "backbone", "handlebars",
         //人员相关
         "contact_list": "contact_list",
         "contact_detail/:people_id": "contact_detail",
+
+        // 更多功能的导航页面
+        "more_functions": "more_functions",
+        "more_functions/refresh_local_storage": "refresh_local_storage",
+        "more_functions/clear_local_storage": "clear_local_storage",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
 
       // Home method
       home: function() { //首页
-        if (!this.c_assessment.length) { //lazy load 绩效合同
-          $.mobile.loading("show");
-          this.c_assessment.fetch().done(function() {
-            $.mobile.loading("hide");
-          })
-        };
-        if (!this.c_task.length) { //lazy load 工作任务
-          $.mobile.loading("show");
-          this.c_task.fetch().done(function() {
-            $.mobile.loading("hide");
-          })
-        };
+
         $.mobile.changePage("#home", {
           reverse: false,
           changeHash: false,
@@ -190,7 +185,7 @@ define(["jquery", "backbone", "handlebars",
         $.mobile.changePage("#more_functions", {
           reverse: false,
           changeHash: false,
-          transition: "flip",
+          // transition: "flip",
         });
       },
       task: function() { //任务日历
@@ -272,12 +267,6 @@ define(["jquery", "backbone", "handlebars",
           changeHash: false,
           transition: "slide",
         });
-        if (!this.c_people.length) {
-          $.mobile.loading("show");
-          this.c_people.fetch().done(function() {
-            $.mobile.loading("hide");
-          })
-        };
       },
       contact_detail: function(people_id) { //企业通讯录，单人详情
         this.contactDetaillView.model = this.c_people.get(people_id);
@@ -287,6 +276,88 @@ define(["jquery", "backbone", "handlebars",
           changeHash: false,
           transition: "slide",
         });
+      },
+      refresh_local_storage: function() {
+        var self = this;
+        var login_people = $("#login_people").val();
+        //刷新登录用户
+        var login_peoples = JSON.parse(localStorage.getItem('login_people')) || [];
+        var found = _.find(login_peoples, function(x) {
+          return x._id == $("#login_people").val();
+        })
+        if (!found) {
+          login_peoples.push({
+            _id: $("#login_people").val()
+          });
+        }
+        localStorage.setItem('login_people', JSON.stringify(login_peoples));
+        $.mobile.loading("show");
+        // 刷新目标计划数据
+        self.c_objectives.fetch().done(function() {
+          localStorage.setItem('objectives_' + login_people, JSON.stringify(self.c_objectives))
+          $.mobile.loading("hide");
+        });
+        // 刷新考核数据
+        self.c_assessment.fetch().done(function() {
+          localStorage.setItem('assessment_' + login_people, JSON.stringify(self.c_assessment))
+          $.mobile.loading("hide");
+        })
+        // 刷新日历数据
+        self.c_task.fetch().done(function() {
+          localStorage.setItem('c_task_' + login_people, JSON.stringify(self.c_task))
+          $.mobile.loading("hide");
+        })
+        // 刷新通讯录数据
+        self.c_people.fetch().done(function() {
+          localStorage.setItem('people_' + login_people, JSON.stringify(self.c_people))
+          $.mobile.loading("hide");
+        })
+      },
+      clear_local_storage: function() {
+        if (confirm('此操作将清空所有本地缓存数据，为了提高访问速度，建议保留缓存数据。\n如需要刷新缓存数据，请使用“同步数据”功能。')) {
+          localStorage.clear();
+          alert('缓存清空完成')
+        };
+      },
+      init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
+        var self = this;
+        var login_people = $("#login_people").val();
+        self.load_data(self.c_people, 'people');
+        self.load_data(self.c_objectives, 'objectives');
+        self.load_data(self.c_assessment, 'assessment');
+        self.load_data(self.c_task, 'task');
+        // $.mobile.loading("show");
+        // if (localStorage.getItem('people_' + login_people)) {
+        //   var l_people = JSON.parse(localStorage.getItem('people_' + login_people));
+        //   console.log(l_people);
+        //   _.each(l_people, function(x) {
+        //     self.c_people.add(x);
+        //   })
+        //   console.log(self.c_people);
+        //   self.c_people.trigger('sync');
+        //   $.mobile.loading("hide");
+        // } else {
+        //   self.c_people.fetch().done(function() {
+        //     localStorage.setItem('people_' + login_people, JSON.stringify(self.c_people))
+        //     $.mobile.loading("hide");
+        //   })
+        // };
+      },
+      load_data: function(col_obj, col_name) { //加载数据
+        $.mobile.loading("show");
+        if (localStorage.getItem(col_name + '_' + login_people)) {
+          var local_tmp = JSON.parse(localStorage.getItem(col_name + '_' + login_people));
+          _.each(local_tmp, function(x) {
+            col_obj.add(x);
+          })
+          col_obj.trigger('sync');
+          $.mobile.loading("hide");
+        } else {
+          col_obj.fetch().done(function() {
+            localStorage.setItem(col_name + '_' + login_people, JSON.stringify(col_obj))
+            $.mobile.loading("hide");
+          })
+        };
       }
     });
 

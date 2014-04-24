@@ -13,7 +13,7 @@ require.config({
     "moment": "./bower_components/moment/moment",
     "sprintf": "./bower_components/sprintf/src/sprintf",
     "formatdate": "./libs/formatdate",
-    
+
     "jqmcal": "./libs/jw-jqm-cal",
 
   },
@@ -38,7 +38,7 @@ require.config({
 });
 
 // Includes File Dependencies
-require(["jquery", "backbone", "routers/mobileRouter", "jqmcal"], function($, Backbone, Mobile) {
+require(["jquery", "underscore", "backbone", "routers/mobileRouter", "jqmcal"], function($, _, Backbone, Mobile) {
 
   $(document).on("mobileinit",
     // Set up the "mobileinit" handler before requiring jQuery Mobile's module
@@ -48,6 +48,18 @@ require(["jquery", "backbone", "routers/mobileRouter", "jqmcal"], function($, Ba
 
       // Disabling this will prevent jQuery Mobile from handling hash changes
       $.mobile.hashListeningEnabled = false;
+
+      //把当前的登录用户的people id保存到local storage里面
+      var login_people = JSON.parse(localStorage.getItem('login_people')) || [];
+      var found = _.find(login_people, function(x) {
+        return x._id == $("#login_people").val();
+      })
+      if (!found) {
+        login_people.push({
+          _id: $("#login_people").val()
+        });
+      }
+      localStorage.setItem('login_people', JSON.stringify(login_people));
     }
   )
 
