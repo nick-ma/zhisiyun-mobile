@@ -11,7 +11,7 @@ define(["jquery", "backbone", "models/TaskModel"], function($, Backbone, TaskMod
         initialize: function(models, options) {
             
         },
-        url: '/admin/pm/work_plan/bb',
+        url: '/admin/pm/work_plan/bb4m',
         // Sets the Collection model property to be a Task Model
         model: TaskModel,
     });

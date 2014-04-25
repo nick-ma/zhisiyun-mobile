@@ -1,4 +1,4 @@
-// Task View
+// MyTeam Task View
 // =============
 
 // Includes file dependencies
@@ -10,7 +10,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
 
     // console.log(jqmcal);
     // Extends Backbone.View
-    var TaskView = Backbone.View.extend({
+    var MyTeamTaskView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
             // this.template = Handlebars.compile($("script#taskItems").html());
@@ -20,7 +20,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
             //     this.collection.fetch();
             // });
             this.collection.on("sync", this.render, this);
-            $("#jqm_cal").jqmCalendar({
+            $("#jqm_cal_myteam").jqmCalendar({
                 events: [],
                 months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
                 days: ["日", "一", "二", "三", "四", "五", "六"],
@@ -31,7 +31,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
                 dividerTheme: 'a',
                 dateFormatTitle: "yyyy-MM-dd",
                 dateFormat: "yyyy-MM-dd HH:mm",
-                route: '#task' //pass current page route to widget, to avoid page change when click date.
+                route: 'myteam_detail' //pass current page route to widget, to avoid page change when click date.
             });
         },
 
@@ -39,7 +39,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
         render: function() {
             var self = this;
             //jqmCalendar test
-            var $cal = $("#jqm_cal");
+            var $cal = $("#jqm_cal_myteam");
             var cal_events = $cal.data('jqmCalendar').settings.events;
             cal_events.length = 0;
             _.each(this.collection.models, function(x) {
@@ -61,6 +61,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
     });
 
     // Returns the View class
-    return TaskView;
+    return MyTeamTaskView;
 
 });

@@ -6,9 +6,9 @@
       var t = e("<thead/>").appendTo(o),
         h = e("<tr/>").appendTo(t),
         p = e("<th class='ui-bar-" + i.settings.headerTheme + " header' colspan='7'/>");
-      l = e("<a href='#" + i.settings.route + "' data-role='button' data-icon='carat-l' data-iconpos='notext' class='previous-btn'>Previous</a>").data("date", d(i.settings.date, -1)).appendTo(p);
+      l = e("<a href='" + i.settings.route + "' data-role='button' data-icon='carat-l' data-iconpos='notext' class='previous-btn'>Previous</a>").data("date", d(i.settings.date, -1)).appendTo(p);
       u = e("<span/>").appendTo(p);
-      c = e("<a href='#" + i.settings.route + "' data-role='button' data-icon='carat-r' data-iconpos='notext' class='next-btn'>Next</a>").data("date", d(i.settings.date, 1)).appendTo(p);
+      c = e("<a href='" + i.settings.route + "' data-role='button' data-icon='carat-r' data-iconpos='notext' class='next-btn'>Next</a>").data("date", d(i.settings.date, 1)).appendTo(p);
       l.click(function(t) {
         var n = e(this).data("date");
         S(n, true);
@@ -90,7 +90,7 @@
       // }
 
       var $td = $("<td class='ui-body-" + i.settings.theme + "'/>").appendTo($row),
-        $a = $("<a href='#" + i.settings.route + "' class='ui-btn ui-btn-up-" + i.settings.theme + "'/>")
+        $a = $("<a href='" + i.settings.route + "' class='ui-btn ui-btn-up-" + i.settings.theme + "'/>")
           .html(date.getDate().toString())
           .data('date', date)
           .click(E)
@@ -211,7 +211,7 @@
             var o = e('<li data-role="list-divider">' + e.format.date(s.start, i.settings.dateFormatTitle) + "</li>").appendTo(f);
             n = e.format.date(s.start, "yyyyMMMMdd")
           }
-          var u = e("<li class='ui-event-item'><a href='#" + i.settings.route + "/" + s['_id'] + "' class='event-item-link' rel='" + s.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
+          var u = e("<li class='ui-event-item'><a href='" + i.settings.route + "/" + s['_id'] + "' class='event-item-link' rel='" + s.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
           i.settings.listItemFormatter(u, s)
         }
       } else {
@@ -258,7 +258,7 @@
       e('<li data-role="list-divider">' + e.format.date(n, i.settings.dateFormatTitle) + "</li>").appendTo(f);
       for (var o = 0, t; t = i.settings.events[o]; o++) {
         if (t[i.settings.end] >= n && t[i.settings.begin] < r) {
-          var u = e("<li class='ui-event-item'><a href='#" + i.settings.route + "/" + t['_id'] + "' class='event-item-link' rel='" + t.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
+          var u = e("<li class='ui-event-item'><a href='" + i.settings.route + "/" + t['_id'] + "' class='event-item-link' rel='" + t.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
           i.settings.listItemFormatter(u, t);
           s = true
         }
@@ -268,6 +268,11 @@
     });
     s.bind("refresh", function(e, t, flag) {
       //console.log(t, flag);
+      //重新指定外面的按钮的hash bang
+      // console.log(l);
+      l.attr('href',i.settings.route)
+      c.attr('href',i.settings.route)
+      // console.log(l);
       S(t, flag)
     });
     h()
