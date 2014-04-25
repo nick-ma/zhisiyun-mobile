@@ -6,7 +6,7 @@ define(["jquery", "backbone", "handlebars",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
     "../views/HomeAssessmentView", "../collections/AssessmentCollection",
-    "../views/HomeTaskView",
+    "../views/HomeTaskView", "../views/HomeMyTeamView",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView",
     //人员和组织相关
@@ -19,7 +19,7 @@ define(["jquery", "backbone", "handlebars",
   function($, Backbone, Handlebars,
     HomeObjectiveView, ObjectiveCollection,
     HomeAssessmentView, AssessmentCollection,
-    HomeTaskView,
+    HomeTaskView, HomeMyTeamView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     AssessmentDetailView,
@@ -113,6 +113,10 @@ define(["jquery", "backbone", "handlebars",
         this.homeTaskView = new HomeTaskView({
           el: "#home-task-list",
           collection: self.c_task
+        });
+        this.homeMyTeamView = new HomeMyTeamView({
+          el: "#home-myteam-list",
+          collection: self.c_people
         });
 
         this.taskView = new TaskView({
