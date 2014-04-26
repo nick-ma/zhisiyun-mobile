@@ -12,7 +12,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //人员和组织相关
     "../models/PeopleModel", "../collections/PeopleCollection", "../views/ContactListView", "../views/ContactDetailView",
     //我的团队相关
-    "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView",
+    "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView",
     //绩效考核合同相关
     "../views/AssessmentDetailView",
     //其他jquery插件
@@ -24,7 +24,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     HomeTaskView, HomeMyTeamView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
-    MyTeamListView, MyTeamDetailView, MyTeamTaskView,
+    MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView,
     AssessmentDetailView,
     async
 
@@ -98,15 +98,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         //init collections
         this.init_cols();
-
         //init views
         this.init_views(self)
-
         //load data
         this.init_data();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
-
       },
 
       // Backbone.js Routes
@@ -131,6 +128,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "myteam": "myteam_list",
         "myteam_detail/:people_id/:tab": "myteam_detail",
         "myteam_detail/:people_id/calendar/:task_id": "myteam_detail_calendar",
+        "myteam_detail/:people_id/calendar/:task_id/edit": "myteam_detail_calendar_edit",
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -267,27 +265,26 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
           });
         } else if (tab == 'calendar') {
+          // console.log('message in: myteam_detail::calendar');
+          //重新指定route
+          var $cal = $("#jqm_cal_myteam");
+          $cal.data('jqmCalendar').settings.route = '#myteam_detail/' + people_id + '/calendar';
 
           //获取日历数据
           $.mobile.loading("show");
+          this.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id;
           var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('task_' + people_id)) || null)
           if (local_data) {
-            _.each(local_data, function(x) {
-              self.c_task_myteam.add(x);
-            })
+            self.c_task_myteam.reset(local_data);
             self.c_task_myteam.trigger('sync');
             $.mobile.loading("hide");
           } else {
-            this.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id;
             self.c_task_myteam.fetch().done(function() {
               localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)));
               $.mobile.loading("hide");
             })
           };
           // this.c_task_myteam.fetch().done();
-          //重新指定route
-          var $cal = $("#jqm_cal_myteam");
-          $cal.data('jqmCalendar').settings.route = '#myteam_detail/' + people_id + '/calendar';
           $("#myteam_detail-task")
             .find("#myteam_detail-task-h1").html(this.c_people.get(people_id).get('people_name')).end()
             .find("#btn-myteam_detail-task-1").attr('href', '#myteam_detail/' + people_id + '/basic').end()
@@ -307,9 +304,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
       },
       myteam_detail_calendar: function(people_id, task_id) { //我的团队，日历操作功能
+        var self = this;
         if (task_id == 'refresh') { //刷新数据
           $.mobile.loading("show");
-          var self = this;
           self.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id;
           self.c_task_myteam.fetch().done(function() {
             localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)))
@@ -320,10 +317,60 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         } else if (task_id == 'cd') { //转到今天
           $("#jqm_cal_myteam").trigger('refresh', [new Date()]);
         } else if (task_id == 'new') { //为下属新建一条
-          alert('TODO: 为下属新建一条任务')
+          var new_task_date = $("#jqm_cal_myteam a.ui-btn-active").data('date') || new Date();
+          var new_task = this.c_task_myteam.add({
+            'creator': $("#login_people").val(),
+            'people': people_id, //为这个人创建的工作任务
+            'title': '新建任务',
+            'start': new_task_date,
+            'end': new_task_date,
+            'allDay': true,
+            'is_complete': false,
+            'startEditable': true,
+            'durationEditable': true,
+            'editable': true,
+          });
+          self.myteamTaskEditView.model = new_task;
+          self.myteamTaskEditView.render();
+          $.mobile.changePage("#myteam_task_edit", {
+            reverse: false,
+            changeHash: false,
+            transition: "slide",
+          });
+          //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+          $(".ui-flipswitch a").each(function() {
+            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+          });
         } else { //跳到任务详情界面
-          alert('TODO: 查看任务细节')
+          self.myteamTaskDetailView.model = self.c_task_myteam.get(task_id);
+          self.myteamTaskDetailView.render();
+          $("#btn-myteam_task_detail-back").attr('href', '#myteam_detail/' + people_id + '/calendar')
+          //只有当前用户创建的才可以更改（显示更改按钮）
+          if (self.myteamTaskDetailView.model.get('creator') == $("#login_people").val()) {
+            $("#btn-myteam_task_detail-task-edit").attr('href', '#myteam_detail/' + people_id + '/calendar/' + task_id + '/edit').show();
+          } else {
+            $("#btn-myteam_task_detail-task-edit").hide();
+          };
+          $.mobile.changePage("#myteam_task_detail", {
+            reverse: false,
+            changeHash: false,
+            transition: "slide",
+          });
         };
+      },
+      myteam_detail_calendar_edit: function(people_id, task_id) {
+        var self = this;
+        self.myteamTaskEditView.model = self.c_task_myteam.get(task_id);
+        self.myteamTaskEditView.render();
+        $.mobile.changePage("#myteam_task_edit", {
+          reverse: false,
+          changeHash: false,
+          transition: "slide",
+        });
+        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+        $(".ui-flipswitch a").each(function() {
+          $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+        });
       },
       //-----------------init---------------------//
       get_local_storage_size: function() {
@@ -347,7 +394,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         var login_people = $("#login_people").val();
         //刷新登录用户
-        // var login_peoples = JSON.parse(localStorage.getItem('login_people')) || [];
         var login_peoples = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('login_people')) || null) || [];
         var found = _.find(login_peoples, function(x) {
           return x._id == $("#login_people").val();
@@ -417,9 +463,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
         // var local_data = localStorage.getItem(cn);
         if (local_data) {
-          _.each(local_data, function(x) {
-            col_obj.add(x);
-          })
+          col_obj.reset(local_data);
           col_obj.trigger('sync');
           $.mobile.loading("hide");
         } else {
@@ -483,6 +527,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           el: "#myteam_detail-basic-calendar",
           collection: self.c_task_myteam
         })
+        this.myteamTaskDetailView = new MyTeamTaskDetailView({
+          el: "#myteam_task_detail-content",
+        })
+        this.myteamTaskEditView = new MyTeamTaskEditView({
+          el: "#myteam_task_edit",
+        })
 
       },
       init_cols: function() {
@@ -491,7 +541,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_task = new TaskCollection(); //工作任务
         this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_people = new PeopleCollection(); //人员
-
       }
     });
 
