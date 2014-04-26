@@ -46,7 +46,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     self.model.set('rank', rank);
                     self.model.save().done(function() {
                         var login_people = $("#login_people").val();
-                        localStorage.setItem('task_' + login_people, JSON.stringify(self.model.collection))
+                        localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.model.collection)))
                         $.mobile.changePage("#task", {
                             reverse: false,
                             changeHash: false,

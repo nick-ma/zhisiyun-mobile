@@ -2,7 +2,7 @@
 // =============
 
 // Includes file dependencies
-define(["jquery", "backbone", "handlebars",
+define(["jquery", "backbone", "handlebars", "lzstring",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
     "../views/HomeAssessmentView", "../collections/AssessmentCollection",
@@ -18,7 +18,7 @@ define(["jquery", "backbone", "handlebars",
     //其他jquery插件
     "async", "moment", "sprintf",
   ],
-  function($, Backbone, Handlebars,
+  function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
     HomeAssessmentView, AssessmentCollection,
     HomeTaskView, HomeMyTeamView,
@@ -136,6 +136,7 @@ define(["jquery", "backbone", "handlebars",
         "more_functions": "more_functions",
         "more_functions/refresh_local_storage": "refresh_local_storage",
         "more_functions/clear_local_storage": "clear_local_storage",
+        "more_functions/get_local_storage_size": "get_local_storage_size",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -168,7 +169,7 @@ define(["jquery", "backbone", "handlebars",
         var self = this;
         self.c_task.fetch().done(function() {
           var login_people = $("#login_people").val();
-          localStorage.setItem('task_' + login_people, JSON.stringify(self.c_task))
+          localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_task)))
           $.mobile.loading("hide");
         })
       },
@@ -269,10 +270,9 @@ define(["jquery", "backbone", "handlebars",
 
           //获取日历数据
           $.mobile.loading("show");
-          var local_data = localStorage.getItem('task_' + people_id);
-          if (local_data && local_data != 'undefined') {
-            var local_tmp = JSON.parse(local_data);
-            _.each(local_tmp, function(x) {
+          var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('task_' + people_id)) || null)
+          if (local_data) {
+            _.each(local_data, function(x) {
               self.c_task_myteam.add(x);
             })
             self.c_task_myteam.trigger('sync');
@@ -280,7 +280,7 @@ define(["jquery", "backbone", "handlebars",
           } else {
             this.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id;
             self.c_task_myteam.fetch().done(function() {
-              localStorage.setItem('task_' + people_id, JSON.stringify(self.c_task_myteam));
+              localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)));
               $.mobile.loading("hide");
             })
           };
@@ -312,7 +312,7 @@ define(["jquery", "backbone", "handlebars",
           var self = this;
           self.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id;
           self.c_task_myteam.fetch().done(function() {
-            localStorage.setItem('task_' + people_id, JSON.stringify(self.c_task_myteam))
+            localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)))
             $.mobile.loading("hide");
           })
         } else if (task_id == 'cm') { //转到当月
@@ -326,11 +326,29 @@ define(["jquery", "backbone", "handlebars",
         };
       },
       //-----------------init---------------------//
+      get_local_storage_size: function() {
+        var ls_size = 0;
+        for (var i = 0; i < localStorage.length; i++) {
+          ls_size += localStorage.getItem(localStorage.key(i)).length;
+        };
+        var msg = ''
+        if (ls_size < 100) {
+          msg = ls_size + ' B';
+        } else if (ls_size >= 100 && ls_size <= 1024 * 1024) {
+          msg = Math.round(ls_size / 1024 * 10) / 10 + ' KB';
+        } else {
+          msg = Math.round(ls_size / 1024 / 1024 * 10) / 10 + ' MB';
+        };
+        $("#more_functions_msg").html(msg).popup('open', {
+          transition: 'slidedown'
+        });
+      },
       refresh_local_storage: function() {
         var self = this;
         var login_people = $("#login_people").val();
         //刷新登录用户
-        var login_peoples = JSON.parse(localStorage.getItem('login_people')) || [];
+        // var login_peoples = JSON.parse(localStorage.getItem('login_people')) || [];
+        var login_peoples = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('login_people')) || null) || [];
         var found = _.find(login_peoples, function(x) {
           return x._id == $("#login_people").val();
         })
@@ -339,34 +357,34 @@ define(["jquery", "backbone", "handlebars",
             _id: $("#login_people").val()
           });
         }
-        localStorage.setItem('login_people', JSON.stringify(login_peoples));
+        localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_peoples)));
         $.mobile.loading("show");
         async.parallel({
           objective: function(cb) {
             // 刷新目标计划数据
             self.c_objectives.fetch().done(function() {
-              localStorage.setItem('objectives_' + login_people, JSON.stringify(self.c_objectives))
+              localStorage.setItem('objectives_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_objectives)))
               cb(null, 'OK');
             });
           },
           assessment: function(cb) {
             // 刷新考核数据
             self.c_assessment.fetch().done(function() {
-              localStorage.setItem('assessment_' + login_people, JSON.stringify(self.c_assessment))
+              localStorage.setItem('assessment_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_assessment)))
               cb(null, 'OK');
             })
           },
           task: function(cb) {
             // 刷新日历数据
             self.c_task.fetch().done(function() {
-              localStorage.setItem('task_' + login_people, JSON.stringify(self.c_task))
+              localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_task)))
               cb(null, 'OK');
             })
           },
           people: function(cb) {
             // 刷新通讯录数据
             self.c_people.fetch().done(function() {
-              localStorage.setItem('people_' + login_people, JSON.stringify(self.c_people))
+              localStorage.setItem('people_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_people)))
               cb(null, 'OK');
             })
           }
@@ -377,7 +395,9 @@ define(["jquery", "backbone", "handlebars",
       },
       clear_local_storage: function() {
         if (confirm('此操作将清空所有本地缓存数据，为了提高访问速度，建议保留缓存数据。\n如需要刷新缓存数据，请使用“同步数据”功能。')) {
+          var ldv = parseFloat(localStorage.getItem('data_version')) || 0;
           localStorage.clear();
+          localStorage.setItem('data_version', ldv);
           alert('缓存清空完成')
         };
       },
@@ -393,17 +413,19 @@ define(["jquery", "backbone", "handlebars",
       load_data: function(col_obj, col_name) { //加载数据
         $.mobile.loading("show");
         var login_people = $("#login_people").val();
-        var local_data = localStorage.getItem(col_name + '_' + login_people);
-        if (local_data && local_data != 'undefined') {
-          var local_tmp = JSON.parse(local_data);
-          _.each(local_tmp, function(x) {
+        var cn = col_name + '_' + login_people
+        var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
+        // var local_data = localStorage.getItem(cn);
+        if (local_data) {
+          _.each(local_data, function(x) {
             col_obj.add(x);
           })
           col_obj.trigger('sync');
           $.mobile.loading("hide");
         } else {
           col_obj.fetch().done(function() {
-            localStorage.setItem(col_name + '_' + login_people, JSON.stringify(col_obj))
+
+            localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(col_obj)));
             $.mobile.loading("hide");
           })
         };

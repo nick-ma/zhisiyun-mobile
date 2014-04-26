@@ -55,7 +55,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                         self.model.save().done(function() {
                             // console.log('message: save task')
                             var login_people = $("#login_people").val();
-                            localStorage.setItem('task_' + login_people, JSON.stringify(self.model.collection))
+                            localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.model.collection)))
                             $.mobile.changePage("#task", {
                                 reverse: false,
                                 changeHash: false,
@@ -79,7 +79,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     self.model.destroy().done(function() {
                         col.fetch().done(function() {
                             var login_people = $("#login_people").val();
-                            localStorage.setItem('task_' + login_people, JSON.stringify(col))
+                            localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(col)))
                         }); //删除后重新获取collection
                         $.mobile.changePage("#task", {
                             reverse: false,
