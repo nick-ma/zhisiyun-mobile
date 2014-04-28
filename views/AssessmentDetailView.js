@@ -39,6 +39,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     }
                 })
             };
+            $("#btn-assessment_detail-back").attr('href', '#assessment_pi_list/' + self.model.get('_id'));
             // console.log(render_data);
             $("#assessment_detail-content").html(self.template(render_data));
             $("#assessment_detail-content").trigger('create');
