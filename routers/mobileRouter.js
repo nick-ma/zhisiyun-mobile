@@ -17,6 +17,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/AssessmentDetailView",
     // 人才盘点相关
     "../collections/TalentCollection", "../views/MyTeamTalentView",
+    // 能力素质相关
+    "../collections/CompetencyCollection",
+    // 工资相关
+    "../collections/PayrollCollection", "../views/PayrollListView", "../views/PayrollDetailView",
+    // 个人档案
+    "../views/MyProfileView",
     //其他jquery插件
     "async", "moment", "sprintf",
   ],
@@ -29,6 +35,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView,
     AssessmentDetailView,
     TalentCollection, MyTeamTalentView,
+    CompetencyCollection,
+    PayrollCollection, PayrollListView, PayrollDetailView,
+    MyProfileView,
     async
 
   ) {
@@ -155,6 +164,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "more_functions/refresh_local_storage": "refresh_local_storage",
         "more_functions/clear_local_storage": "clear_local_storage",
         "more_functions/get_local_storage_size": "get_local_storage_size",
+        // 个人薪酬报表－工资条
+        "salary_list": "salary_list",
+        "salary_detail/:pay_time": "salary_detail",
+        // 我的资料
+        "myprofile": "myprofile",
+
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -263,7 +278,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         $.mobile.changePage("#contact_list", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
+          // transition: "slide",
         });
       },
       contact_detail: function(people_id) { //企业通讯录，单人详情
@@ -272,7 +287,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         $.mobile.changePage("#contact_detail", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
+          // transition: "slide",
         });
       },
       myteam_list: function() { //我的团队，列表界面
@@ -286,7 +301,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         if (tab == 'basic') {
           this.myteamDetailView.model = this.c_people.get(people_id);
-          this.myteamDetailView.render();
+
+          this.myteamDetailView.render(this.c_competency.get(people_id));
           $.mobile.changePage("#myteam_detail-basic", {
             reverse: false,
             changeHash: false,
@@ -330,7 +346,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           });
         } else if (tab == 'assessment') {} else if (tab == 'talent') {
           // console.log('message: in talent tab');
-          
+
           self.myteamTalentView.model = self.c_talent.get(people_id);
           self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
           $.mobile.changePage("#myteam_detail-talent", {
@@ -409,6 +425,34 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
         });
       },
+      // ------工资相关------ //
+      salary_list: function() {
+
+        $.mobile.changePage("#salary_list", {
+          reverse: false,
+          changeHash: false,
+          transition: "slide",
+        });
+      },
+      salary_detail: function(pay_time) {
+        this.payrollDetailView.model = this.c_payroll.get(pay_time);
+        this.payrollDetailView.render();
+        $.mobile.changePage("#salary_detail", {
+          reverse: false,
+          changeHash: false,
+          transition: "slide",
+        });
+      },
+      myprofile: function() {
+        var login_people = $("#login_people").val();
+        this.myProfileView.model = this.c_people.get(login_people);
+        this.myProfileView.render(this.c_competency.get(login_people));
+        $.mobile.changePage("#myprofile_basic", {
+          reverse: false,
+          changeHash: false,
+          transition: "slide",
+        });
+      },
       //-----------------init---------------------//
       get_local_storage_size: function() {
         var ls_size = 0;
@@ -477,8 +521,24 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               localStorage.setItem('talent_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_talent)))
               cb(null, 'OK');
             })
+          },
+          competency: function(cb) {
+            // 刷新通讯录数据
+            self.c_competency.fetch().done(function() {
+              localStorage.setItem('competency_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_competency)))
+              cb(null, 'OK');
+            })
+          },
+          payroll: function(cb) {
+            // 刷新通讯录数据
+            self.c_payroll.fetch().done(function() {
+              localStorage.setItem('payroll_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_payroll)))
+              cb(null, 'OK');
+            })
           }
+
         }, function(err, result) {
+          console.log(result);
           $.mobile.loading("hide");
           alert('同步完成');
         })
@@ -499,6 +559,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         self.load_data(self.c_assessment, 'assessment');
         self.load_data(self.c_task, 'task');
         self.load_data(self.c_talent, 'talent');
+        self.load_data(self.c_competency, 'competency');
+        self.load_data(self.c_payroll, 'payroll');
 
       },
       load_data: function(col_obj, col_name) { //加载数据
@@ -587,6 +649,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.myteamTalentView = new MyTeamTalentView({
           el: "#myteam_detail-talent-content",
         })
+        this.payrollListView = new PayrollListView({
+          el: "#salary_list-content",
+          collection: self.c_payroll
+        })
+        this.payrollDetailView = new PayrollDetailView({
+          el: "#salary_detail-content",
+        })
+        this.myProfileView = new MyProfileView({
+          el: "#myprofile_basic-content",
+        })
 
       },
       init_cols: function() {
@@ -596,6 +668,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_people = new PeopleCollection(); //人员
         this.c_talent = new TalentCollection(); //人才
+        this.c_competency = new CompetencyCollection(); //能力素质
+        this.c_payroll = new PayrollCollection(); //工资
       }
     });
 

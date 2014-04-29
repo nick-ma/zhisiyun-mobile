@@ -1,4 +1,4 @@
-// MyTeam Detail View
+// MyProfile  View
 // ===================
 
 // Includes file dependencies
@@ -6,11 +6,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
     function($, _, Backbone, Handlebars, PeopleModel) {
 
         // Extends Backbone.View
-        var MyTeamDetailView = Backbone.View.extend({
+        var MyProfileView = Backbone.View.extend({
 
             // The View Constructor
             initialize: function() {
-                this.template = Handlebars.compile($("#hbtmp_myteam_detail_basic_view").html());
+                this.template = Handlebars.compile($("#hbtmp_myprofile_basic_view").html());
                 // The render method is called when People Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
 
@@ -21,14 +21,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 var self = this;
                 var render_data = self.model.toJSON();
                 render_data.competencies = m_competenty.get('competencies')
-                $("#myteam_detail-basic-content").html(self.template(render_data));
-                $("#myteam_detail-basic-content").trigger('create');
+                $("#myprofile_basic-content").html(self.template(render_data));
+                $("#myprofile_basic-content").trigger('create');
                 return this;
             }
 
         });
 
         // Returns the View class
-        return MyTeamDetailView;
+        return MyProfileView;
 
     });
