@@ -15,6 +15,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView",
     //绩效考核合同相关
     "../views/AssessmentDetailView",
+    // 人才盘点相关
+    "../collections/TalentCollection", "../views/MyTeamTalentView",
     //其他jquery插件
     "async", "moment", "sprintf",
   ],
@@ -26,6 +28,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView,
     AssessmentDetailView,
+    TalentCollection, MyTeamTalentView,
     async
 
   ) {
@@ -39,8 +42,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     Handlebars.registerHelper('cr2br', function(data) {
       return (data) ? data.replace(/\n/g, '<br>') : '';
     });
-    Handlebars.registerHelper('fromNow', function(data) {
-      return moment(data).fromNow();
+    Handlebars.registerHelper('fromNow', function(data, flag) {
+      return moment(data).fromNow( !! flag);
+    });
+    Handlebars.registerHelper('fromStart2End', function(start, end, flag) {
+      if (moment(end).format('YYYY-MM-DD') == '9999-12-31') {
+        return moment(start).fromNow( !! flag);
+      } else {
+        return moment(start).from(moment(end), !! flag);
+      };
     });
     Handlebars.registerHelper('Avatar', function(data) {
       return (data) ? '/gridfs/get/' + data : '/img/no-avatar.jpg';
@@ -89,7 +99,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       };
 
     });
+    Handlebars.registerHelper('toISODateRange2', function(start, end) {
+      var s = moment(start);
+      var e = moment(end);
+      if (e.format('YYYY-MM-DD') == '9999-12-31') {
+        return s.format('YYYY-MM-DD') + '&rarr;至今';
+      } else {
+        return s.format('YYYY-MM-DD') + '&rarr;' + e.format('YYYY-MM-DD');
+      };
 
+    });
     // Extends Backbone.Router
     var MainRouter = Backbone.Router.extend({
 
@@ -309,6 +328,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             reverse: false,
             changeHash: false,
           });
+        } else if (tab == 'assessment') {} else if (tab == 'talent') {
+          // console.log('message: in talent tab');
+          
+          self.myteamTalentView.model = self.c_talent.get(people_id);
+          self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
+          $.mobile.changePage("#myteam_detail-talent", {
+            reverse: false,
+            changeHash: false,
+          });
         };
 
       },
@@ -442,6 +470,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               localStorage.setItem('people_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_people)))
               cb(null, 'OK');
             })
+          },
+          talent: function(cb) {
+            // 刷新通讯录数据
+            self.c_talent.fetch().done(function() {
+              localStorage.setItem('talent_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_talent)))
+              cb(null, 'OK');
+            })
           }
         }, function(err, result) {
           $.mobile.loading("hide");
@@ -463,6 +498,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         self.load_data(self.c_objectives, 'objectives');
         self.load_data(self.c_assessment, 'assessment');
         self.load_data(self.c_task, 'task');
+        self.load_data(self.c_talent, 'talent');
 
       },
       load_data: function(col_obj, col_name) { //加载数据
@@ -477,7 +513,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           $.mobile.loading("hide");
         } else {
           col_obj.fetch().done(function() {
-
             localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(col_obj)));
             $.mobile.loading("hide");
           })
@@ -549,6 +584,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.myteamTaskEditView = new MyTeamTaskEditView({
           el: "#myteam_task_edit",
         })
+        this.myteamTalentView = new MyTeamTalentView({
+          el: "#myteam_detail-talent-content",
+        })
 
       },
       init_cols: function() {
@@ -557,6 +595,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_task = new TaskCollection(); //工作任务
         this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_people = new PeopleCollection(); //人员
+        this.c_talent = new TalentCollection(); //人才
       }
     });
 

@@ -11,6 +11,7 @@ require.config({
     "backbone": "./bower_components/backbone-amd/backbone",
     "handlebars": "./bower_components/handlebars/handlebars",
     "moment": "./bower_components/moment/moment",
+    "moment_lang_zh-cn": "./bower_components/moment/lang/zh-cn",
     "sprintf": "./bower_components/sprintf/src/sprintf",
     "async": "./bower_components/async/lib/async",
     "lzstring": "./bower_components/lz-string/libs/lz-string-1.3.3",
@@ -36,6 +37,7 @@ require.config({
     "sprintf": ["jquery"],
     "formatdate": ["jquery"],
     "jqmcal": ["jquery"],
+    "moment_lang_zh-cn": ["moment"],
     // "jquerymobile": ["jquery"],
 
   } // end Shim Configuration
@@ -43,7 +45,7 @@ require.config({
 });
 
 // Includes File Dependencies
-require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring", "jqmcal"], function($, _, Backbone, Mobile, LZString) {
+require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring", "jqmcal", "moment_lang_zh-cn"], function($, _, Backbone, Mobile, LZString) {
 
   $(document).on("mobileinit",
     // Set up the "mobileinit" handler before requiring jQuery Mobile's module
