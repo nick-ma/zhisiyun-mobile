@@ -18,7 +18,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // 人才盘点相关
     "../collections/TalentCollection", "../views/MyTeamTalentView",
     // 能力素质相关
-    "../collections/CompetencyCollection",
+    "../collections/CompetencyCollection", "../views/CompetencyScoresView",
     // 工资相关
     "../collections/PayrollCollection", "../views/PayrollListView", "../views/PayrollDetailView",
     // 个人档案
@@ -35,7 +35,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView,
     AssessmentDetailView,
     TalentCollection, MyTeamTalentView,
-    CompetencyCollection,
+    CompetencyCollection, CompetencyScoresView,
     PayrollCollection, PayrollListView, PayrollDetailView,
     MyProfileView,
     async
@@ -158,6 +158,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "myteam_detail/:people_id/:tab": "myteam_detail",
         "myteam_detail/:people_id/calendar/:task_id": "myteam_detail_calendar",
         "myteam_detail/:people_id/calendar/:task_id/edit": "myteam_detail_calendar_edit",
+        "myteam_competency_scores/:people_id/:cid": "myteam_competency_scores",
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -169,6 +170,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "salary_detail/:pay_time": "salary_detail",
         // 我的资料
         "myprofile": "myprofile",
+        // 能力测评明细
+        "competency_scores/:cid": "competency_scores",
 
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
@@ -450,7 +453,23 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         $.mobile.changePage("#myprofile_basic", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
+        });
+      },
+      competency_scores: function(cid) {
+        var login_people = $("#login_people").val();
+        this.competencyScoresView.model = this.c_competency.get(login_people);
+        this.competencyScoresView.render('self', cid);
+        $.mobile.changePage("#competency_scores", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      myteam_competency_scores: function(people_id, cid) {
+        this.competencyScoresView.model = this.c_competency.get(people_id);
+        this.competencyScoresView.render(people_id, cid);
+        $.mobile.changePage("#competency_scores", {
+          reverse: false,
+          changeHash: false,
         });
       },
       //-----------------init---------------------//
@@ -658,6 +677,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         this.myProfileView = new MyProfileView({
           el: "#myprofile_basic-content",
+        })
+        this.competencyScoresView = new CompetencyScoresView({
+          el: "#competency_scores-content",
         })
 
       },
