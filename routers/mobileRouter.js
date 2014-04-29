@@ -159,6 +159,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "myteam_detail/:people_id/calendar/:task_id": "myteam_detail_calendar",
         "myteam_detail/:people_id/calendar/:task_id/edit": "myteam_detail_calendar_edit",
         "myteam_competency_scores/:people_id/:cid": "myteam_competency_scores",
+        "myteam_salary_detail/:people_id/:pay_time": "myteam_salary_detail",
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -303,9 +304,26 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       myteam_detail: function(people_id, tab) { //我的团队，详情界面
         var self = this;
         if (tab == 'basic') {
-          this.myteamDetailView.model = this.c_people.get(people_id);
+          //获取工资
+          $.mobile.loading("show");
+          this.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id;
+          var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('payroll_' + people_id)) || null)
+          if (local_data) {
+            self.c_payroll_myteam.reset(local_data);
+            self.c_payroll_myteam.trigger('sync');
+            $.mobile.loading("hide");
+            self.myteamDetailView.model = self.c_people.get(people_id);
+            self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
+          } else {
+            self.c_payroll_myteam.fetch().done(function() {
+              localStorage.setItem('payroll_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_payroll_myteam)));
+              $.mobile.loading("hide");
+              self.myteamDetailView.model = self.c_people.get(people_id);
+              self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
+            })
+          };
 
-          this.myteamDetailView.render(this.c_competency.get(people_id));
+
           $.mobile.changePage("#myteam_detail-basic", {
             reverse: false,
             changeHash: false,
@@ -440,10 +458,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       salary_detail: function(pay_time) {
         this.payrollDetailView.model = this.c_payroll.get(pay_time);
         this.payrollDetailView.render();
+        $("#btn-salary_detail-back").attr('href', '#salary_list');
         $.mobile.changePage("#salary_detail", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
+        });
+      },
+      myteam_salary_detail: function(people_id, pay_time) {
+        this.payrollDetailView.model = this.c_payroll_myteam.get(pay_time);
+        this.payrollDetailView.render();
+        $("#btn-salary_detail-back").attr('href', '#myteam_detail/' + people_id + '/basic');
+        $.mobile.changePage("#salary_detail", {
+          reverse: false,
+          changeHash: false,
         });
       },
       myprofile: function() {
@@ -692,6 +719,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_talent = new TalentCollection(); //人才
         this.c_competency = new CompetencyCollection(); //能力素质
         this.c_payroll = new PayrollCollection(); //工资
+        this.c_payroll_myteam = new PayrollCollection(); //团队成员的工资－获取的时候需要修改url，把下属的people id拼进去再fetch。
       }
     });
 
