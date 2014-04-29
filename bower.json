@@ -19,6 +19,7 @@
     "sprintf": "latest",
     "async": "latest",
     "lz-string": "latest",
+    "highcharts": "latest",
     "jQuery-Mobile-Icon-Pack": "latest"
 
   }

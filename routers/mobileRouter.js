@@ -24,7 +24,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // 个人档案
     "../views/MyProfileView",
     //其他jquery插件
-    "async", "moment", "sprintf",
+    "async", "moment", "sprintf", "highcharts"
   ],
   function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
@@ -473,6 +473,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
+      // ------个人相关------ //
       myprofile: function() {
         var login_people = $("#login_people").val();
         this.myProfileView.model = this.c_people.get(login_people);

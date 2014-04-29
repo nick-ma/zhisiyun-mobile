@@ -15,6 +15,7 @@ require.config({
     "sprintf": "./bower_components/sprintf/src/sprintf",
     "async": "./bower_components/async/lib/async",
     "lzstring": "./bower_components/lz-string/libs/lz-string-1.3.3",
+    "highcharts": "./bower_components/highcharts/highcharts-all",
     "formatdate": "./libs/formatdate",
 
     "jqmcal": "./libs/jw-jqm-cal",
@@ -33,6 +34,9 @@ require.config({
     },
     'lzstring': { //amd work strange, so use normal+exports
       "exports": 'LZString'
+    },
+    'highcharts': { //amd work strange, so use normal+exports
+      "exports": 'Highcharts'
     },
     "sprintf": ["jquery"],
     "formatdate": ["jquery"],
