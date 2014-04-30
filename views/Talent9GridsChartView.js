@@ -22,8 +22,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 var self = this;
                 // console.log(self.model);
                 // console.log(Highcharts); //test if Highcharts inplace
-
-
+                
                 // console.log($.highcharts);
                 function filter_color(type_val, horo) {
                     var found = _.find(horo, function(temp) {
@@ -86,9 +85,22 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         shared: true,
                         useHTML: true
                     },
+                    plotOptions: {
+
+                        scatter: {
+                            marker: {
+                                // fillColor: '#FF0000',
+                                // lineColor: '#FFFFFF',
+                                lineWidth: 1,
+                                radius: 7,
+                                symbol: 'diamond'
+                            }
+                        },
+                    },
                     series: [{
                         data: [{
                             name: '能力得分',
+                            // color: Highcharts.getOptions().colors[2],
                             x: parseFloat(ai_score),
                             y: parseFloat(score)
                         }, ]
