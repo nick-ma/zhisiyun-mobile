@@ -18,7 +18,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             },
 
             // Renders all of the People models on the UI
-            render: function(horoscope, ai_score, score,people_id) {
+            render: function(horoscope, ai_score, score, people_id) {
                 var self = this;
                 // console.log(self.model);
                 // console.log(Highcharts); //test if Highcharts inplace
@@ -80,16 +80,18 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     },
 
                     tooltip: {
-                        headerFormat: '<span style="color:{series.color};font-size:10px">{series.name}</span><table>',
-                        pointFormat: '<tr><td  style="padding:0"><b>绩效得分: {point.x}</b> </td></tr><tr><td style="padding:0"><b>能力得分: {point.y} </b></td></tr>',
-                        footerFormat: '</table>',
+                        formatter: function() {
+                            return '绩效得分:' + this.x + '<br>潜能得分:' + this.y
+                        },
                         shared: true,
                         useHTML: true
                     },
                     series: [{
-                        data: [
-                            [parseFloat(ai_score), parseFloat(score)],
-                        ]
+                        data: [{
+                            name: '能力得分',
+                            x: parseFloat(ai_score),
+                            y: parseFloat(score)
+                        }, ]
                     }]
 
                 };
@@ -195,9 +197,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 // };
 
                 // $("#spider_chart_score").html(score_ret.join(''));
-                if (people_id=='self') {
+                if (people_id == 'self') {
                     $("#btn-talent_9_grids_chart-back").attr('href', '#goto/myprofile_basic')
-                }else{
+                } else {
                     $("#btn-talent_9_grids_chart-back").attr('href', '#goto/myteam_detail-talent')
                 };
 
