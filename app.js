@@ -36,6 +36,7 @@ require.config({
       "exports": 'LZString'
     },
     'highcharts': { //amd work strange, so use normal+exports
+      "deps": ["jquery"],
       "exports": 'Highcharts'
     },
     "sprintf": ["jquery"],

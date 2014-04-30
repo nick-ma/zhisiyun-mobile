@@ -22,12 +22,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 var render_data = _.find(self.model.get('competencies'), function(x) {
                     return x._id == cid;
                 });
-                if (people_id == 'self') {
+                if (people_id == 'self') { //根据不同的来源设置返回的页面
                     $("#btn-competency_scores-back").attr('href', '#myprofile');
                 } else {
                     $("#btn-competency_scores-back").attr('href', '#myteam_detail/' + people_id + '/basic');
 
                 };
+                render_data.people_id = people_id;
                 $("#competency_scores-content").html(self.template(render_data));
                 $("#competency_scores-content").trigger('create');
                 return this;
