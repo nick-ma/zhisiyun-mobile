@@ -16,7 +16,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //绩效考核合同相关
     "../views/AssessmentDetailView",
     // 人才盘点相关
-    "../collections/TalentCollection", "../views/MyTeamTalentView",
+    "../collections/TalentCollection", "../views/MyTeamTalentView", "../collections/HoroscopeCollection", "../views/Talent9GridsChartView",
     // 能力素质相关
     "../collections/CompetencyCollection", "../views/CompetencyScoresView", "../views/CompetencySpiderChartView", "../models/Q360Model",
     // 工资相关
@@ -34,7 +34,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView,
     AssessmentDetailView,
-    TalentCollection, MyTeamTalentView,
+    TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView,
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
     PayrollCollection, PayrollListView, PayrollDetailView,
     MyProfileView,
@@ -140,6 +140,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         //首页
         "": "home",
+        // 返回上一个
+        "goto/:pagename": "goto",
         // 绩效合同相关页面
         "assessment_pi_list/:ai_id": "assessment_pi_list",
         "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
@@ -175,7 +177,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 能力测评明细
         "competency_scores/:cid": "competency_scores",
         "competency_spider_chart/:people_id/:qi_id": "competency_spider_chart",
-
+        //人才九宫图
+        "talent9grides/:people_id/:ai_score/:score": "talent9grides",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -187,6 +190,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           reverse: false,
           changeHash: false,
           // transition: "flip",
+        });
+      },
+      goto: function(pagename) {
+        $("body").pagecontainer("change", "#" + pagename, {
+          reverse: false,
+          changeHash: false,
         });
       },
       more_functions: function() {
@@ -367,7 +376,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             reverse: false,
             changeHash: false,
           });
-        } else if (tab == 'assessment') {} else if (tab == 'talent') {
+        } else if (tab == 'assessment') { //下属的绩效
+
+        } else if (tab == 'talent') {
           // console.log('message: in talent tab');
 
           self.myteamTalentView.model = self.c_talent.get(people_id);
@@ -479,8 +490,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       myprofile: function() {
         var login_people = $("#login_people").val();
         this.myProfileView.model = this.c_people.get(login_people);
-        this.myProfileView.render(this.c_competency.get(login_people));
-        $.mobile.changePage("#myprofile_basic", {
+        this.myProfileView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
+        // $.mobile.changePage("#myprofile_basic", {
+        //   reverse: false,
+        //   changeHash: false,
+        // });
+        $("body").pagecontainer("change", "#myprofile_basic", {
           reverse: false,
           changeHash: false,
         });
@@ -489,7 +504,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var login_people = $("#login_people").val();
         this.competencyScoresView.model = this.c_competency.get(login_people);
         this.competencyScoresView.render('self', cid);
-        $.mobile.changePage("#competency_scores", {
+        // $.mobile.changePage("#competency_scores", {
+        //   reverse: false,
+        //   changeHash: false,
+        // });
+        $("body").pagecontainer("change", "#competency_scores", {
           reverse: false,
           changeHash: false,
         });
@@ -497,7 +516,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       myteam_competency_scores: function(people_id, cid) {
         this.competencyScoresView.model = this.c_competency.get(people_id);
         this.competencyScoresView.render(people_id, cid);
-
+        $("body").pagecontainer("change", "#competency_scores", {
+          reverse: false,
+          changeHash: false,
+        });
       },
       competency_spider_chart: function(people_id, qi_id) { //测评问卷的蜘蛛网图
         console.log(people_id, qi_id);
@@ -508,17 +530,30 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('q360_' + qi_id)) || null)
         if (local_data) {
           self.m_Q360.set(local_data);
-          self.m_Q360.trigger('sync');
+          // self.m_Q360.trigger('sync');
           $.mobile.loading("hide");
+          self.competencySpiderChartView.model = self.m_Q360;
+          self.competencySpiderChartView.render(people_id, qi_id);
         } else {
           self.m_Q360.fetch().done(function() {
             localStorage.setItem('q360_' + qi_id, LZString.compressToUTF16(JSON.stringify(self.m_Q360)));
             $.mobile.loading("hide");
+            self.competencySpiderChartView.model = self.m_Q360;
+            self.competencySpiderChartView.render(people_id, qi_id);
           })
         };
-        self.competencySpiderChartView.model = self.m_Q360;
-        self.competencySpiderChartView.render(people_id, qi_id);
+
         $.mobile.changePage("#competency_spider_chart", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      talent9grides: function(people_id, ai_score, score) {
+        var self = this;
+        var horoscope = self.c_horoscope.models[0];
+        self.talent9GridsChartView.render(horoscope.toJSON(), ai_score, score, people_id);
+        console.log(horoscope, ai_score, score);
+        $("body").pagecontainer("change", "#talent_9_grids_chart", {
           reverse: false,
           changeHash: false,
         });
@@ -592,6 +627,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               cb(null, 'OK');
             })
           },
+          horoscope: function(cb) {
+            // 刷新通讯录数据
+            self.c_horoscope.fetch().done(function() {
+              localStorage.setItem('horoscope_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_horoscope)))
+              cb(null, 'OK');
+            })
+          },
           competency: function(cb) {
             // 刷新通讯录数据
             self.c_competency.fetch().done(function() {
@@ -629,6 +671,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         self.load_data(self.c_assessment, 'assessment');
         self.load_data(self.c_task, 'task');
         self.load_data(self.c_talent, 'talent');
+        self.load_data(self.c_horoscope, 'horoscope');
         self.load_data(self.c_competency, 'competency');
         self.load_data(self.c_payroll, 'payroll');
 
@@ -735,6 +778,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.competencySpiderChartView = new CompetencySpiderChartView({
           el: "#competency_spider_chart-content",
         })
+        this.talent9GridsChartView = new Talent9GridsChartView({
+          el: "#talent_9_grids_chart_container",
+        })
 
       },
       init_cols: function() {
@@ -744,6 +790,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_people = new PeopleCollection(); //人员
         this.c_talent = new TalentCollection(); //人才
+        this.c_horoscope = new HoroscopeCollection(); //人才九宫图配置
         this.c_competency = new CompetencyCollection(); //能力素质
         this.c_payroll = new PayrollCollection(); //工资
         this.c_payroll_myteam = new PayrollCollection(); //团队成员的工资－获取的时候需要修改url，把下属的people id拼进去再fetch。

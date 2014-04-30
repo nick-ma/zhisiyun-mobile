@@ -77,7 +77,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                     tooltip: {
                         shared: true,
-                        pointFormat: '<span style="color:{series.color}">{series.name}: <b>${point.y:,.0f}</b><br/>'
+                        pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}分</b><br/>'
                     },
 
                     legend: {
@@ -110,7 +110,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 };
 
                 $("#spider_chart_score").html(score_ret.join(''));
-
+                
+                // $("#btn-competency_spider_chart-back").attr('href', '#competency_scores/531a772d5c2bdffd710000b9')
+                
 
                 // console.log($("#spider_chart_container").width());
                 return this;
