@@ -14,7 +14,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //我的团队相关
     "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView",
     //绩效考核合同相关
-    "../views/AssessmentDetailView",
+    "../views/AssessmentDetailView", "../views/MyTeamAssessmentView",
     // 人才盘点相关
     "../collections/TalentCollection", "../views/MyTeamTalentView", "../collections/HoroscopeCollection", "../views/Talent9GridsChartView",
     // 能力素质相关
@@ -33,7 +33,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView,
-    AssessmentDetailView,
+    AssessmentDetailView, MyTeamAssessmentView,
     TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView,
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
     PayrollCollection, PayrollListView, PayrollDetailView,
@@ -178,6 +178,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "myteam_detail/:people_id/calendar/:task_id/edit": "myteam_detail_calendar_edit",
         "myteam_competency_scores/:people_id/:cid": "myteam_competency_scores",
         "myteam_salary_detail/:people_id/:pay_time": "myteam_salary_detail",
+        "myteam_assessment_pi_list/:ai_id": "myteam_assessment_pi_list",
+        "myteam_assessment_detail/:ai_id/:lx/:pi/:ol": "myteam_assessment_detail",
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -392,16 +394,36 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             changeHash: false,
           });
         } else if (tab == 'assessment') { //下属的绩效
-
+          //获取绩效数据
+          $.mobile.loading("show");
+          this.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id;
+          var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('assessment_' + people_id)) || null)
+          if (local_data) {
+            self.c_assessment_myteam.reset(local_data);
+            // self.c_assessment_myteam.trigger('sync');
+            $.mobile.loading("hide");
+            self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
+          } else {
+            self.c_assessment_myteam.fetch().done(function() {
+              localStorage.setItem('assessment_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_assessment_myteam)));
+              $.mobile.loading("hide");
+              self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
+            })
+          };
+          $("body").pagecontainer("change", "#myteam_detail-assessment", {
+            reverse: false,
+            changeHash: false,
+          });
         } else if (tab == 'talent') {
           // console.log('message: in talent tab');
 
           self.myteamTalentView.model = self.c_talent.get(people_id);
           self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
-          $.mobile.changePage("#myteam_detail-talent", {
+          $("body").pagecontainer("change", "#myteam_detail-talent", {
             reverse: false,
             changeHash: false,
           });
+          
         };
 
       },
@@ -567,7 +589,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         var horoscope = self.c_horoscope.models[0];
         self.talent9GridsChartView.render(horoscope.toJSON(), ai_score, score, people_id);
-        console.log(horoscope, ai_score, score);
+        // console.log(horoscope, ai_score, score);
         $("body").pagecontainer("change", "#talent_9_grids_chart", {
           reverse: false,
           changeHash: false,
@@ -796,11 +818,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.talent9GridsChartView = new Talent9GridsChartView({
           el: "#talent_9_grids_chart_container",
         })
+        this.myTeamAssessmentView = new MyTeamAssessmentView({
+          el: "#myteam_detail-assessment-content",
+          collection: self.c_assessment_myteam
+        })
 
       },
       init_cols: function() {
         this.c_objectives = new ObjectiveCollection(); //目标计划
         this.c_assessment = new AssessmentCollection(); //考核计划
+        this.c_assessment_myteam = new AssessmentCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_task = new TaskCollection(); //工作任务
         this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_people = new PeopleCollection(); //人员
