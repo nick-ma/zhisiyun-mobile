@@ -30,3 +30,5 @@ gulp js
 clean
 -----
 gulp clean
+
+moment should not use global
