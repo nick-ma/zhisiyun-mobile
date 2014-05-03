@@ -38,7 +38,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
     PayrollCollection, PayrollListView, PayrollDetailView,
     MyProfileView,
-    async
+    async, moment
 
   ) {
     // Give the points a 3D feel by adding a radial gradient
@@ -423,7 +423,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             reverse: false,
             changeHash: false,
           });
-          
+
         };
 
       },
