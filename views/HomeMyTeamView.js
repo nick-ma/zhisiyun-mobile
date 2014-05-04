@@ -20,11 +20,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             render: function() {
                 var self = this;
                 // var rendered = [];
-                var people = _.compact(_.map(this.collection.models, function(x) {
+                var people = _.sortBy(_.compact(_.map(this.collection.models, function(x) {
                     if (x.get('myteam')) {
                         return x.toJSON();
                     }
-                }));
+                })), function(x) {
+                    return x.people_no;
+                });
 
                 $("#home-myteam-num").html(people.length);
                 $("#home-myteam-list").html(self.template({

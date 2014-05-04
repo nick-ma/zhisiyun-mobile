@@ -1,4 +1,4 @@
-// Contact List View
+// MyTeamAll List View
 // =================
 
 // Includes file dependencies
@@ -6,26 +6,28 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
     function($, _, Backbone, Handlebars, PeopleModel) {
 
         // Extends Backbone.View
-        var ContactListView = Backbone.View.extend({
+        var MyTeamAllListView = Backbone.View.extend({
 
             // The View Constructor
             initialize: function() {
-                this.template = Handlebars.compile($("#hbtmp_contact_list_view").html());
-                // The render method is called when Contact Models are added to the Collection
+                this.template = Handlebars.compile($("#hbtmp_myteam_all_list_view").html());
+                // The render method is called when MyTeamAll Models are added to the Collection
                 this.collection.on("sync", this.render, this);
 
             },
 
-            // Renders all of the Contact models on the UI
+            // Renders all of the MyTeamAll models on the UI
             render: function() {
 
                 var self = this;
 
                 // var rendered = ;
                 var render_data = {
-                    people: _.sortBy(_.map(this.collection.models, function(x) {
-                        return x.toJSON();
-                    }), function(x) {
+                    people: _.sortBy(_.compact(_.map(this.collection.models, function(x) {
+                        if (x.get('myteama')) {
+                            return x.toJSON();
+                        }
+                    })), function(x) {
                         return x.fl;
                     })
                 }
@@ -34,8 +36,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 //     rendered.push(self.template(x.attributes));
                 // });
                 // self.template(render_data);
-                $("#contact_list-content").html(self.template(render_data));
-                $("#contact_list-content").trigger('create');
+                $("#myteam_all_list-content").html(self.template(render_data));
+                $("#myteam_all_list-content").trigger('create');
                 return this;
 
             }
@@ -43,6 +45,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
         });
 
         // Returns the View class
-        return ContactListView;
+        return MyTeamAllListView;
 
     });

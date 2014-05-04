@@ -99,10 +99,24 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         });
       }
       localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_people)));
+
+
     }
   )
 
   require(["jquerymobile"], function() {
+    $.mobile.listview.prototype.options.autodividersSelector = function(elt) {
+      var text = $.trim(elt.data('dvdc')) || null;
+      if (!text) {
+        return null;
+      }
+      if (!isNaN(parseFloat(text))) {
+        return "0-9";
+      } else {
+        text = text.slice(0, 1).toUpperCase();
+        return text;
+      }
+    };
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.log('message: backbone router started!');

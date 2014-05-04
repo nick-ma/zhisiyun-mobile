@@ -12,7 +12,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //人员和组织相关
     "../models/PeopleModel", "../collections/PeopleCollection", "../views/ContactListView", "../views/ContactDetailView",
     //我的团队相关
-    "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView",
+    "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView", "../views/MyTeamAllListView",
     //绩效考核合同相关
     "../views/AssessmentDetailView", "../views/MyTeamAssessmentView", "../views/MyTeamAssessmentPIListView", "../views/MyTeamAssessmentDetailView",
     // 人才盘点相关
@@ -32,7 +32,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     HomeTaskView, HomeMyTeamView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
-    MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView,
+    MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView, MyTeamAllListView,
     AssessmentDetailView, MyTeamAssessmentView, MyTeamAssessmentPIListView, MyTeamAssessmentDetailView,
     TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView,
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
@@ -172,6 +172,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "contact_list": "contact_list",
         "contact_detail/:people_id": "contact_detail",
         //我的团队相关
+        "myteamall": "myteam_all_list",
         "myteam": "myteam_list",
         "myteam_detail/:people_id/:tab": "myteam_detail",
         "myteam_detail/:people_id/calendar/:task_id": "myteam_detail_calendar",
@@ -322,27 +323,33 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       contact_list: function() { //企业通讯录，列表
-        $.mobile.changePage("#contact_list", {
+        $("body").pagecontainer("change", "#contact_list", {
           reverse: false,
           changeHash: false,
-          // transition: "slide",
         });
+
       },
       contact_detail: function(people_id) { //企业通讯录，单人详情
         this.contactDetaillView.model = this.c_people.get(people_id);
         this.contactDetaillView.render();
-        $.mobile.changePage("#contact_detail", {
+        $("body").pagecontainer("change", "#contact_detail", {
           reverse: false,
           changeHash: false,
-          // transition: "slide",
+        });
+
+      },
+      myteam_all_list: function() {
+        $("body").pagecontainer("change", "#myteam_all_list", {
+          reverse: false,
+          changeHash: false,
         });
       },
       myteam_list: function() { //我的团队，列表界面
-        $.mobile.changePage("#myteam_list", {
+        $("body").pagecontainer("change", "#myteam_list", {
           reverse: false,
           changeHash: false,
-
         });
+
       },
       myteam_detail: function(people_id, tab) { //我的团队，详情界面
         var self = this;
@@ -366,12 +373,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             })
           };
 
-
-          $.mobile.changePage("#myteam_detail-basic", {
+          $("body").pagecontainer("change", "#myteam_detail-basic", {
             reverse: false,
             changeHash: false,
-
           });
+
         } else if (tab == 'calendar') {
           // console.log('message in: myteam_detail::calendar');
           //重新指定route
@@ -404,7 +410,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             .find("#btn-myteam_detail-task-7").attr('href', '#myteam_detail/' + people_id + '/calendar/cd').end()
             .find("#btn-myteam_detail-task-8").attr('href', '#myteam_detail/' + people_id + '/calendar/new').end()
 
-          $.mobile.changePage("#myteam_detail-task", {
+          $("body").pagecontainer("change", "#myteam_detail-task", {
             reverse: false,
             changeHash: false,
           });
@@ -840,9 +846,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         this.myteamAssessmentPIListView = new MyTeamAssessmentPIListView({
           el: "#myteam_assessment_pi-list-content",
-        }) 
+        })
         this.myteamAssessmentDetailView = new MyTeamAssessmentDetailView({
           el: "#myteam_assessment_detail-content",
+        })
+        this.myteamAllListView = new MyTeamAllListView({
+          el: "#myteam_all_list-content",
+          collection: self.c_people
         })
 
       },
