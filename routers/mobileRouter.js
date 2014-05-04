@@ -167,6 +167,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "task/cm": "task_cm",
         "task/cd": "task_cd",
         "task/:task_id": "task_detail",
+        "task_forward/:task_id": "task_forward",
         "task_edit/:task_id": "task_edit",
         //人员相关
         "contact_list": "contact_list",
@@ -248,13 +249,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       task_detail: function(task_id) { //查看任务详情
         this.taskDetailView.model = this.c_task.get(task_id);
         this.taskDetailView.render();
-        $.mobile.changePage("#task_detail", {
+        $("body").pagecontainer("change", "#task_detail", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
+        });
+        
+      },
+      task_forward:function  (task_id) { //转发任务
+        
+        $("body").pagecontainer("change", "#task_forward", {
+          reverse: false,
+          changeHash: false,
         });
       },
-
       task_edit: function(task_id) { //编辑任务详情
         var taskEditView = this.taskEditView;
         if (task_id == 'new') {

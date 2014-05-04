@@ -30,6 +30,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
         bind_events: function() {
             var self = this;
             self.$el
+                
                 .on('click', '#btn-task-markcomplete', function(event) {
                     event.preventDefault();
 
