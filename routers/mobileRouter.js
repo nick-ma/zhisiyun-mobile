@@ -14,7 +14,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //我的团队相关
     "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView",
     //绩效考核合同相关
-    "../views/AssessmentDetailView", "../views/MyTeamAssessmentView",
+    "../views/AssessmentDetailView", "../views/MyTeamAssessmentView", "../views/MyTeamAssessmentPIListView", "../views/MyTeamAssessmentDetailView",
     // 人才盘点相关
     "../collections/TalentCollection", "../views/MyTeamTalentView", "../collections/HoroscopeCollection", "../views/Talent9GridsChartView",
     // 能力素质相关
@@ -33,7 +33,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView,
-    AssessmentDetailView, MyTeamAssessmentView,
+    AssessmentDetailView, MyTeamAssessmentView, MyTeamAssessmentPIListView, MyTeamAssessmentDetailView,
     TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView,
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
     PayrollCollection, PayrollListView, PayrollDetailView,
@@ -178,8 +178,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "myteam_detail/:people_id/calendar/:task_id/edit": "myteam_detail_calendar_edit",
         "myteam_competency_scores/:people_id/:cid": "myteam_competency_scores",
         "myteam_salary_detail/:people_id/:pay_time": "myteam_salary_detail",
-        "myteam_assessment_pi_list/:ai_id": "myteam_assessment_pi_list",
-        "myteam_assessment_detail/:ai_id/:lx/:pi/:ol": "myteam_assessment_detail",
+        "myteam_assessment_pi_list/:people_id/:ai_id": "myteam_assessment_pi_list",
+        "myteam_assessment_detail/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_detail",
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -290,22 +290,37 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       assessment_pi_list: function(ai_id) {
         this.homeAssessmentPIListView.model = this.c_assessment.get(ai_id);
         this.homeAssessmentPIListView.render();
-        $.mobile.changePage("#assessment_pi-list", {
+        $("body").pagecontainer("change", "#assessment_pi-list", {
           reverse: false,
           changeHash: false,
         });
+
       },
       assessment_detail: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的查看界面
         this.assessmentDetailView.model = this.c_assessment.get(ai_id);
         this.assessmentDetailView.render(lx, pi, ol);
-        $.mobile.changePage("#assessment_detail", {
+        $("body").pagecontainer("change", "#assessment_detail", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
+        });
+      },
+      myteam_assessment_pi_list: function(people_id, ai_id) { //团队成员的绩效合同－指标清单
+        this.myteamAssessmentPIListView.model = this.c_assessment_myteam.get(ai_id);
+        this.myteamAssessmentPIListView.render(people_id);
+        $("body").pagecontainer("change", "#myteam_assessment_pi-list", {
+          reverse: false,
+          changeHash: false,
         });
 
       },
-
+      myteam_assessment_detail: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－指标详情
+        this.myteamAssessmentDetailView.model = this.c_assessment_myteam.get(ai_id);
+        this.myteamAssessmentDetailView.render(people_id, lx, pi, ol);
+        $("body").pagecontainer("change", "#myteam_assessment_detail", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
       contact_list: function() { //企业通讯录，列表
         $.mobile.changePage("#contact_list", {
           reverse: false,
@@ -688,6 +703,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         }, function(err, result) {
           console.log(result);
+          localStorage.setItem('last_sync', (new Date()).getTime());
           $.mobile.loading("hide");
           alert('同步完成');
         })
@@ -821,6 +837,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.myTeamAssessmentView = new MyTeamAssessmentView({
           el: "#myteam_detail-assessment-content",
           collection: self.c_assessment_myteam
+        })
+        this.myteamAssessmentPIListView = new MyTeamAssessmentPIListView({
+          el: "#myteam_assessment_pi-list-content",
+        }) 
+        this.myteamAssessmentDetailView = new MyTeamAssessmentDetailView({
+          el: "#myteam_assessment_detail-content",
         })
 
       },

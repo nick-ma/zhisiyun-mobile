@@ -79,6 +79,13 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         localStorage.clear();
         localStorage.setItem('data_version', DATA_VERSION);
       };
+      //判断上次数据刷新的时间
+      var lsy = localStorage.getItem('last_sync') || 0;
+      if (new Date() > new Date(lsy + 1000 * 60 * 60 * 24)) {
+        localStorage.clear();
+        localStorage.setItem('data_version', DATA_VERSION);
+        localStorage.setItem('last_sync', (new Date()).getTime());
+      };
 
       //把当前的登录用户的people id保存到local storage里面
 
