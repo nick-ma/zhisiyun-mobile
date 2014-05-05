@@ -8,7 +8,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection",
     "../views/HomeTaskView", "../views/HomeMyTeamView",
     //工作日历相关
-    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView",
+    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView",
     //人员和组织相关
     "../models/PeopleModel", "../collections/PeopleCollection", "../views/ContactListView", "../views/ContactDetailView",
     //我的团队相关
@@ -30,7 +30,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     HomeObjectiveView, ObjectiveCollection,
     HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection,
     HomeTaskView, HomeMyTeamView,
-    TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView,
+    TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView, MyTeamAllListView,
     AssessmentDetailView, MyTeamAssessmentView, MyTeamAssessmentPIListView, MyTeamAssessmentDetailView,
@@ -59,6 +59,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //注册handlebars的helper
     Handlebars.registerHelper('sprintf', function(sf, data) {
       return sprintf(sf, data);
+    });
+    Handlebars.registerHelper('eq', function(data1, data2, options) {
+      if (data1 == data2) {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      };
     });
     Handlebars.registerHelper('plus1', function(data) {
       return parseInt(data) + 1;
@@ -253,10 +260,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           reverse: false,
           changeHash: false,
         });
-        
+
       },
-      task_forward:function  (task_id) { //转发任务
-        
+      task_forward: function(task_id) { //转发任务
+        var self = this;
+        self.taskForwardView.model = self.c_task.get(task_id);
+        self.taskForwardView.render(self.c_people);
         $("body").pagecontainer("change", "#task_forward", {
           reverse: false,
           changeHash: false,
@@ -860,6 +869,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.myteamAllListView = new MyTeamAllListView({
           el: "#myteam_all_list-content",
           collection: self.c_people
+        })
+        this.taskForwardView = new TaskForwardView({
+          el: "#task_forward-content",
         })
 
       },

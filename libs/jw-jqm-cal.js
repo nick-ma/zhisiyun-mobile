@@ -192,11 +192,37 @@
       t.find("h3").append(n.name);
       var r = e.format.date(n.start, i.settings.dateFormat);
       var s = e.format.date(n.end, i.settings.dateFormat);
+      var item = [];
+      item.push(n['origin'] == '3' ? '<span class="text-danger">&#10136;</span>' : '');
+      item.push("<strong " + (n.is_complete ? "style='text-decoration: line-through;'" : "") + ">");
+      item.push(n[i.settings.title]);
+      item.push("</strong>");
+      item.push(n['forward_people'].length ? '<span class="text-info">&#10138;</span>' : '');
+      if (n['location']) {
+        item.push("<br>");
+        item.push("<small>")
+        item.push('地点:' + n['location']);
+        item.push("</small>")
+      };
+      if (n[i.settings.summary]) {
+        item.push("<br>");
+        item.push("<small>")
+        item.push(n[i.settings.summary].replace(/\n/g, "<br>"));
+        item.push("</small>")
+      };
+      item.push("<p>")
+      if (n['allDay']) { //如果是全天任务，则只保留到日期
+        r = e.format.date(n.start, 'yyyy-MM-dd');
+        s = e.format.date(n.end, 'yyyy-MM-dd');
+      };
       if (r == s) {
-        t.find("p").append("<strong " + (n.is_complete ? "style='text-decoration: line-through;'" : "") + ">" + n[i.settings.title] + "</strong><br><small>" + ((n[i.settings.summary]) ? n[i.settings.summary].replace("\n", "<br>") : '') + "</small> </p><p>" + r)
+        item.push(r)
       } else {
-        t.find("p").append("<strong " + (n.is_complete ? "style='text-decoration: line-through;'" : "") + ">" + n[i.settings.title] + "</strong><br><small>" + ((n[i.settings.summary]) ? n[i.settings.summary].replace("\n", "<br>") : '') + "</small> </p><p>" + r + "&nbsp;&nbsp;&rarr;&nbsp;&nbsp;" + s)
-      } if (n[i.settings.icon]) {
+        item.push(r + "&nbsp;&nbsp;&rarr;&nbsp;&nbsp;" + s)
+      }
+      item.push("</p>")
+      t.find("p").append(item.join(''));
+      if (n[i.settings.icon]) {
         t.attr("data-icon", n.icon)
       }
     }
@@ -270,8 +296,8 @@
       //console.log(t, flag);
       //重新指定外面的按钮的hash bang
       // console.log(l);
-      l.attr('href',i.settings.route)
-      c.attr('href',i.settings.route)
+      l.attr('href', i.settings.route)
+      c.attr('href', i.settings.route)
       // console.log(l);
       S(t, flag)
     });
