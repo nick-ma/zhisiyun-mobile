@@ -8,7 +8,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection",
     "../views/HomeTaskView", "../views/HomeMyTeamView",
     //工作日历相关
-    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView",
+    "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView", "../views/TaskForwardSelectPeoplePanelView",
     //人员和组织相关
     "../models/PeopleModel", "../collections/PeopleCollection", "../views/ContactListView", "../views/ContactDetailView",
     //我的团队相关
@@ -30,7 +30,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     HomeObjectiveView, ObjectiveCollection,
     HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection,
     HomeTaskView, HomeMyTeamView,
-    TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView,
+    TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView, MyTeamAllListView,
     AssessmentDetailView, MyTeamAssessmentView, MyTeamAssessmentPIListView, MyTeamAssessmentDetailView,
@@ -266,6 +266,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         self.taskForwardView.model = self.c_task.get(task_id);
         self.taskForwardView.render(self.c_people);
+        $("#panel-fwd-people input[type=checkbox]:checked").removeAttr('checked').checkboxradio("refresh");; //把选择框都清空
+        $("#people-for-forward").val(''); //清空隐藏域，避免发到错误的人。
         $("body").pagecontainer("change", "#task_forward", {
           reverse: false,
           changeHash: false,
@@ -872,6 +874,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         this.taskForwardView = new TaskForwardView({
           el: "#task_forward-content",
+        })
+        this.taskForwardSelectPeoplePanelView = new TaskForwardSelectPeoplePanelView({
+          el: "#panel-fwd-people",
+          collection: self.c_people
         })
 
       },

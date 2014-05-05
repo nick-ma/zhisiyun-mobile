@@ -30,16 +30,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
         bind_events: function() {
             var self = this;
             self.$el
-                
                 .on('click', '#btn-task-markcomplete', function(event) {
                     event.preventDefault();
-
-                    self.model.set('is_complete', true);
-                    self.model.save().done(function() {
-                        $("#task_detail_msg").popup('open', { //弹出打分的对话框
-                            transition: 'slidedown'
+                    if (confirm('确认完成任务吗？')) {
+                        self.model.set('is_complete', true);
+                        self.model.save().done(function() {
+                            $("#task_detail_msg").popup('open', { //弹出打分的对话框
+                                transition: 'slidedown'
+                            });
                         });
-                    });
+                    };
+
                 })
                 .on('click', '#btn-task-rate', function(event) {
                     event.preventDefault();

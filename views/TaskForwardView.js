@@ -19,7 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
         render: function(people) {
             var self = this;
             self.c_people = people;
-            var people_template = Handlebars.compile($("#hbtmp_people_select_view").html());
+            // var people_template = Handlebars.compile($("#hbtmp_people_select_view").html());
             // var people_panel_content = '<ul data-role="listview" data-theme="a" data-divider-theme="b" data-filter="true" data-autodividers="true" data-filter-placeholder="工号、姓名、职位、部门、公司">' + _.map(people.models, function(x) {
             //     var ret = [];
             //     // ret.push('<li data-role="controlgroup">')
@@ -29,17 +29,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
 
             //     return ret.join('');
             // }).join('') + '</ul>';
-            var people_data = _.sortBy(_.map(people.models, function(x) {
-                return x.toJSON();
-            }), function(x) {
-                return x.fl;
-            })
-            $("#panel-fwd-people").html(people_template({
-                people: people_data
-            })).trigger('create');
+            // var people_data = _.sortBy(_.map(people.models, function(x) {
+            //     return x.toJSON();
+            // }), function(x) {
+            //     return x.fl;
+            // })
+            // $("#panel-fwd-people").html(people_template({
+            //     people: people_data
+            // })).trigger('create');
             // $("#btn-task-edit").attr('href', "#task_edit/" + self.model.get('_id'));
             $("#task_forward-content").html(self.template(self.model.attributes));
             $("#task_forward-content").trigger('create');
+
+            $("#btn-task_forward-back").attr('href', '#task/' + self.model.get('_id'));
             // Maintains chainability
             return this;
 
@@ -57,7 +59,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                 // console.log(self.model, $("#people-for-forward").val(), $("#task-comments").val());
                 // $("#people-for-forward").val();
                 // $("#task-comments").val();
-                if ($("#people-for-forward").val()) {
+
+                if ($("#people-for-forward").val() && confirm('确认转发吗？')) {
                     var people = $("#people-for-forward").val().split(',');
                     async.times(people.length, function(n, next) {
                         var new_task = self.model.clone();
@@ -66,7 +69,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                         new_task.attributes.people = people[n]; //对象
                         new_task.attributes.origin = '3'; //转发
                         new_task.attributes.forward_people = []; //truncate
-                        new_task.attributes.comments = '来自' + $("#login_people_name").val() + '的转发留言:\n' + $("#task-comments").val();
+                        if ($("#task-comments").val()) { //留言
+                            new_task.attributes.comments = '来自' + $("#login_people_name").val() + '的转发留言:\n' + $("#task-comments").val();
+                        };
                         // console.log(new_task);
                         new_task.save().done(function() {
                             next(null, 'ok');

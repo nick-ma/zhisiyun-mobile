@@ -52,14 +52,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     event.preventDefault();
                     //check valid
                     if (self.model.isValid()) {
+                        self.model.set('forward_people', []); //避免在下一次sync前cal渲染出错。
                         self.model.save().done(function() {
-                            // console.log('message: save task')
                             var login_people = $("#login_people").val();
                             localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.model.collection)))
-                            $.mobile.changePage("#task", {
+                            $("body").pagecontainer("change", "#task", {
                                 reverse: false,
                                 changeHash: false,
-                                transition: "flip",
                             });
                         });
                     } else { //显示错误提示信息
@@ -75,18 +74,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                 })
                 .on('click', '#btn-task-remove', function(event) {
                     event.preventDefault();
-                    var col = self.model.collection;
-                    self.model.destroy().done(function() {
-                        col.fetch().done(function() {
-                            var login_people = $("#login_people").val();
-                            localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(col)))
-                        }); //删除后重新获取collection
-                        $.mobile.changePage("#task", {
-                            reverse: false,
-                            changeHash: false,
-                            transition: "flip",
+                    if (confirm('确认删除任务吗？')) {
+                        var col = self.model.collection;
+                        self.model.destroy().done(function() {
+                            col.fetch().done(function() {
+                                var login_people = $("#login_people").val();
+                                localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(col)))
+                            }); //删除后重新获取collection
+                            $.mobile.changePage("#task", {
+                                reverse: false,
+                                changeHash: false,
+                                transition: "flip",
+                            });
                         });
-                    });
+                    };
                 })
                 .on('change', '#task-allday', function(event) {
                     var value = $(this).val();
