@@ -29,11 +29,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
 
             //     return ret.join('');
             // }).join('') + '</ul>';
-            var people_data = _.sortBy(_.map(self.collection.models, function(x) {
+            var people_data = _.map(self.collection.models, function(x) {
                 return x.toJSON();
-            }), function(x) {
-                return x.fl;
+            });
+            people_data = _.sortBy(people_data, function(x) {
+                return x.myteam && x.fl && x.people_no;
             })
+            // people_data = _.sortBy(people_data, function(x) {
+            //     return x.fl;
+            // })
+            // var people_data = _.sortBy(_.map(self.collection.models, function(x) {
+            //     return x.toJSON();
+            // }), function(x) {
+            //     return x.myteam;
+            // })
             $("#panel-fwd-people").html(self.template({
                 people: people_data
             })).trigger('create');

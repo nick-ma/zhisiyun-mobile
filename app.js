@@ -100,11 +100,25 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       }
       localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_people)));
 
+      $("body").on("pagecontainershow", function(event, ui) {
+        // console.log('message: page show->', ui.prevPage.length);
+        
+        if (!ui.prevPage.length) { //首页第一次load
+          $.mobile.loading("hide");
+        };
+      }).on('pagecontainerbeforetransition', function(event) {
+        // event.preventDefault();
+        $("#loading").show();
+      }).on('pagecontainertransition', function(event) {
+        $("#loading").hide();
+        /* Act on the event */
+      });;
 
     }
   )
 
   require(["jquerymobile"], function() {
+    $.mobile.loading("show");
     $.mobile.listview.prototype.options.autodividersSelector = function(elt) {
       var text = $.trim(elt.data('dvdc')) || null;
       if (!text) {
@@ -117,6 +131,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         return text;
       }
     };
+
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.log('message: backbone router started!');

@@ -153,6 +153,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.init_views(self)
         //load data
         this.init_data();
+
+
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -211,12 +213,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
       // Home method
       home: function() { //首页
-
-        $.mobile.changePage("#home", {
+        $("body").pagecontainer("change", "#home", {
           reverse: false,
           changeHash: false,
-          // transition: "flip",
         });
+        // $.mobile.changePage("#home", {
+        //   reverse: false,
+        //   changeHash: false,
+        //   // transition: "flip",
+        // });
+        $.mobile.loading("hide");
       },
       goto: function(pagename) {
         $("body").pagecontainer("change", "#" + pagename, {
@@ -225,17 +231,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       more_functions: function() {
-        $.mobile.changePage("#more_functions", {
+        $("body").pagecontainer("change", "#more_functions", {
           reverse: false,
           changeHash: false,
-          // transition: "flip",
         });
       },
       task: function() { //任务日历
-        $.mobile.changePage("#task", {
+        $("body").pagecontainer("change", "#task", {
           reverse: false,
           changeHash: false,
-          // transition: "flip",
         });
       },
       task_refresh: function() { //刷新任务数据
@@ -295,12 +299,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           taskEditView.model = this.c_task.get(task_id);
           taskEditView.render();
         }
-
-        $.mobile.changePage("#task_edit", {
+        $("body").pagecontainer("change", "#task_edit", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
         });
+
         //把 a 换成 span， 避免点那个滑块的时候页面跳走。
         $(".ui-flipswitch a").each(function() {
           $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
@@ -495,11 +498,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           });
           self.myteamTaskEditView.model = new_task;
           self.myteamTaskEditView.render();
-          $.mobile.changePage("#myteam_task_edit", {
+          $("body").pagecontainer("change", "#myteam_task_edit", {
             reverse: false,
             changeHash: false,
-            transition: "slide",
           });
+
           //把 a 换成 span， 避免点那个滑块的时候页面跳走。
           $(".ui-flipswitch a").each(function() {
             $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
@@ -514,10 +517,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           } else {
             $("#btn-myteam_task_detail-task-edit").hide();
           };
-          $.mobile.changePage("#myteam_task_detail", {
+          $("body").pagecontainer("change", "#myteam_task_detail", {
             reverse: false,
             changeHash: false,
-            transition: "slide",
           });
         };
       },
@@ -525,11 +527,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         self.myteamTaskEditView.model = self.c_task_myteam.get(task_id);
         self.myteamTaskEditView.render();
-        $.mobile.changePage("#myteam_task_edit", {
+        $("body").pagecontainer("change", "#myteam_task_edit", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
         });
+
         //把 a 换成 span， 避免点那个滑块的时候页面跳走。
         $(".ui-flipswitch a").each(function() {
           $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
@@ -537,18 +539,17 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       // ------工资相关------ //
       salary_list: function() {
-
-        $.mobile.changePage("#salary_list", {
+        $("body").pagecontainer("change", "#salary_list", {
           reverse: false,
           changeHash: false,
-          transition: "slide",
         });
+
       },
       salary_detail: function(pay_time) {
         this.payrollDetailView.model = this.c_payroll.get(pay_time);
         this.payrollDetailView.render();
         $("#btn-salary_detail-back").attr('href', '#salary_list');
-        $.mobile.changePage("#salary_detail", {
+        $("body").pagecontainer("change", "#salary_detail", {
           reverse: false,
           changeHash: false,
         });
@@ -557,7 +558,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.payrollDetailView.model = this.c_payroll_myteam.get(pay_time);
         this.payrollDetailView.render();
         $("#btn-salary_detail-back").attr('href', '#myteam_detail/' + people_id + '/basic');
-        $.mobile.changePage("#salary_detail", {
+        $("body").pagecontainer("change", "#salary_detail", {
           reverse: false,
           changeHash: false,
         });
@@ -598,7 +599,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       competency_spider_chart: function(people_id, qi_id) { //测评问卷的蜘蛛网图
-        console.log(people_id, qi_id);
+        // console.log(people_id, qi_id);
         var self = this;
         //获取蜘蛛网图数据
         $.mobile.loading("show");
@@ -618,11 +619,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.competencySpiderChartView.render(people_id, qi_id);
           })
         };
-
-        $.mobile.changePage("#competency_spider_chart", {
+        $("body").pagecontainer("change", "#competency_spider_chart", {
           reverse: false,
           changeHash: false,
         });
+
       },
       talent9grides: function(people_id, ai_score, score) {
         var self = this;
@@ -726,7 +727,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           }
 
         }, function(err, result) {
-          console.log(result);
+          // console.log(result);
           localStorage.setItem('last_sync', (new Date()).getTime());
           $.mobile.loading("hide");
           alert('同步完成');
