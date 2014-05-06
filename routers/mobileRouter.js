@@ -72,6 +72,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "assessment_pi_list/:ai_id": "assessment_pi_list",
         "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
         "assessment_comment/:ai_id/:lx/:pi/:ol": "assessment_comment",
+        "assessment_update_value/:ai_id/:lx/:pi/:ol": "assessment_update_value",
+        "assessment_improve_plan/:ai_id/:lx/:pi/:ol": "assessment_improve_plan",
         // When #category? is on the url, the category method is called
         //任务日历相关的routes
         "task": "task",
@@ -234,6 +236,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.assessmentCommentView.model = this.c_assessment.get(ai_id);
         this.assessmentCommentView.render(lx, pi, ol);
         $("body").pagecontainer("change", "#assessment_comment", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      assessment_update_value: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
+        // this.assessmentCommentView.model = this.c_assessment.get(ai_id);
+        // this.assessmentCommentView.render(lx, pi, ol);
+        $("body").pagecontainer("change", "#assessment_update_value", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      assessment_improve_plan: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
+        // this.assessmentCommentView.model = this.c_assessment.get(ai_id);
+        // this.assessmentCommentView.render(lx, pi, ol);
+        $("body").pagecontainer("change", "#assessment_improve_plan", {
           reverse: false,
           changeHash: false,
         });
