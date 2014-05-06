@@ -107,10 +107,13 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
           $.mobile.loading("hide");
         };
       }).on('pagecontainerbeforetransition', function(event) {
-        // event.preventDefault();
-        $("#loading").show();
+        // do nothing
+        // $("#loading").show();
+        // $.mobile.loading("show");
       }).on('pagecontainertransition', function(event) {
-        $("#loading").hide();
+        // do nothing
+        // $("#loading").hide();
+        // $.mobile.loading("hide");
         /* Act on the event */
       });;
 

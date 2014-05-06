@@ -7,7 +7,7 @@ define(["jquery", "backbone"], function($, Backbone) {
     // The Model constructor
     var Model = Backbone.Model.extend({
         idAttribute: "_id",
-        rootUrl: '',
+        rootUrl: '/admin/pm/assessment_instance/bb_4m',
         url: function() {
             return this.rootUrl + '/' + this.id;
         },

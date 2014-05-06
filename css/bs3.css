@@ -50,6 +50,38 @@ grab from bootstrap 3
 .text-danger {
     color:#d9534f;
 }
+.label-info {
+    color:#ffffff !important;
+    background-color:#5bc0de;
+    border-radius: 3px;
+    font-size: 12px !important;
+    padding: 3px;
+    text-shadow:none;
+}
+.label-success {
+    color:#ffffff !important;
+    background-color:#5cb85c;
+    border-radius: 3px;
+    font-size: 12px !important;
+    padding: 3px;
+    text-shadow:none;
+}
+.label-warning {
+    color:#ffffff !important;
+    background-color:#f0ad4e;
+    border-radius: 3px;
+    font-size: 12px !important;
+    padding: 3px;
+    text-shadow:none;
+}
+.label-danger {
+    color:#ffffff !important;
+    background-color:#d9534f;
+    border-radius: 3px;
+    font-size: 12px !important;
+    padding: 3px;
+    text-shadow:none;
+}
 .ar35px {
     right: 35px;
     position: absolute;
@@ -65,4 +97,143 @@ grab from bootstrap 3
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
+}
+/***
+Chats
+***/
+ .chats {
+    margin:0;
+    padding: 0;
+    margin-top: -15px;
+}
+.chats li {
+    list-style: none;
+    padding: 5px 0;
+    margin: 10px auto;
+    font-size: 12px;
+}
+.chats li img.avatar {
+    height: 45px;
+    width: 45px;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    border-radius: 50% !important;
+}
+.chats li.in img.avatar {
+    float: left;
+    margin-right: 10px;
+}
+.chats li .name {
+    color:#3590c1;
+    font-size: 13px;
+    font-weight: 400;
+}
+.chats li.in .datetime {
+    color:#333;
+    font-size: 13px;
+    font-weight: 400;
+    float:right;
+}
+.chats li.out .datetime {
+    color:#333;
+    font-size: 13px;
+    font-weight: 400;
+    float:left;
+}
+.chats li.out img.avatar {
+    float: right;
+    margin-left: 10px;
+}
+.chats li .message {
+    display: block;
+    padding: 5px;
+    position: relative;
+}
+.chats li.in .message {
+    text-align: left;
+    border-left: 2px solid #35aa47;
+    margin-left: 65px;
+    background: #fafafa
+}
+.chats li.in .message .arrow {
+    display: block;
+    position: absolute;
+    top: 5px;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid #35aa47;
+}
+.chats li.out .message .arrow {
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: -8px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #da4a38;
+}
+.chats li.out .message {
+    border-right: 2px solid #da4a38;
+    margin-right: 65px;
+    background: #fafafa;
+    text-align: right;
+}
+.chats li.out .name, .chats li.out .datetime {
+    text-align: right;
+}
+.chats li .message .body {
+    display: block;
+}
+.chat-form {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #e9eff3;
+    overflow: hidden;
+    clear: both;
+}
+.chat-form .input-cont {
+    margin-right: 55px;
+}
+.chat-form .input-cont .m-wrap {
+    margin-bottom: 0px;
+}
+.chat-form .input-cont input {
+    border: 1px solid #ddd;
+    width: 100%;
+    margin-top: 0;
+}
+.chat-form .input-cont input {
+    background-color: #fff !important;
+}
+.chat-form .input-cont input:focus {
+    border: 1px solid #4b8df9 !important;
+}
+.chat-form .btn-cont {
+    margin-top: -42px;
+    position: relative;
+    float: right;
+    width:44px;
+}
+.chat-form .btn-cont .arrow {
+    position: absolute;
+    top: 17px;
+    right: 43px;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid #4d90fe;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.chat-form .btn-cont:hover .arrow {
+    border-right-color: #0362fd;
+}
+.chat-form .btn-cont:hover .btn {
+    background-color: #0362fd;
+}
+.chat-form .btn-cont .btn {
+    margin-top: 8px;
 }

@@ -5,7 +5,7 @@
 define(["jquery", "backbone", "handlebars", "lzstring",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
-    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection",
+    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView",
     "../views/HomeTaskView", "../views/HomeMyTeamView",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView", "../views/TaskForwardSelectPeoplePanelView",
@@ -28,7 +28,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
   ],
   function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
-    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection,
+    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView,
     HomeTaskView, HomeMyTeamView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
@@ -41,105 +41,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     async, moment
 
   ) {
-    // Give the points a 3D feel by adding a radial gradient
-    Highcharts.getOptions().colors = $.map(Highcharts.getOptions().colors, function(color) {
-      return {
-        radialGradient: {
-          cx: 0.4,
-          cy: 0.3,
-          r: 0.5
-        },
-        stops: [
-          [0, color],
-          [1, Highcharts.Color(color).brighten(-0.2).get('rgb')]
-        ]
-      };
-    });
-
-    //注册handlebars的helper
-    Handlebars.registerHelper('sprintf', function(sf, data) {
-      return sprintf(sf, data);
-    });
-    Handlebars.registerHelper('eq', function(data1, data2, options) {
-      if (data1 == data2) {
-        return options.fn(this);
-      } else {
-        return options.inverse(this);
-      };
-    });
-    Handlebars.registerHelper('plus1', function(data) {
-      return parseInt(data) + 1;
-    });
-    Handlebars.registerHelper('cr2br', function(data) {
-      return (data) ? data.replace(/\n/g, '<br>') : '';
-    });
-    Handlebars.registerHelper('fromNow', function(data, flag) {
-      return moment(data).fromNow( !! flag);
-    });
-    Handlebars.registerHelper('fromStart2End', function(start, end, flag) {
-      if (moment(end).format('YYYY-MM-DD') == '9999-12-31') {
-        return moment(start).fromNow( !! flag);
-      } else {
-        return moment(start).from(moment(end), !! flag);
-      };
-    });
-    Handlebars.registerHelper('Avatar', function(data) {
-      return (data) ? '/gridfs/get/' + data : '/img/no-avatar.jpg';
-    });
-    Handlebars.registerHelper('toISOMD', function(date) {
-      return (date) ? moment(date).format('MM/DD') : '';
-    });
-    Handlebars.registerHelper('toISODate', function(date) {
-      return (date) ? moment(date).format('YYYY-MM-DD') : '';
-    });
-    Handlebars.registerHelper('toISOTime', function(date) {
-      return (date) ? moment(date).format('HH:mm') : '';
-    });
-    Handlebars.registerHelper('toISODatetime', function(date) {
-      return (date) ? moment(date).format('YYYY-MM-DD HH:mm') : '';
-    });
-    Handlebars.registerHelper('rateStar', function(data) {
-      var ret = '';
-      for (var i = 0; i < data; i++) {
-        ret += '&#9733;';
-      };
-      for (var i = data; i < 5; i++) {
-        ret += '&#9734;';
-      };
-      return ret;
-    });
-    Handlebars.registerHelper('toISODateRange', function(allday, start, end) {
-      var s = moment(start);
-      var e = moment(end);
-      if (allday) {
-        if (s.format('YYYY-MM-DD') == e.format('YYYY-MM-DD')) {
-          return s.format('YYYY-MM-DD');
-        } else if (s.format('YYYY') == e.format('YYYY')) {
-          return s.format('YYYY-MM-DD') + '&rarr;' + e.format('MM-DD');
-        } else {
-          return s.format('YYYY-MM-DD') + '&rarr;' + e.format('YYYY-MM-DD');
-        };
-      } else {
-        if (s.format('YYYY-MM-DD') == e.format('YYYY-MM-DD')) {
-          return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('HH:mm');
-        } else if (s.format('YYYY') == e.format('YYYY')) {
-          return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('MM-DD HH:mm');
-        } else {
-          return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('YYYY-MM-DD HH:mm');
-        };
-      };
-
-    });
-    Handlebars.registerHelper('toISODateRange2', function(start, end) {
-      var s = moment(start);
-      var e = moment(end);
-      if (e.format('YYYY-MM-DD') == '9999-12-31') {
-        return s.format('YYYY-MM-DD') + '&rarr;至今';
-      } else {
-        return s.format('YYYY-MM-DD') + '&rarr;' + e.format('YYYY-MM-DD');
-      };
-
-    });
     // Extends Backbone.Router
     var MainRouter = Backbone.Router.extend({
 
@@ -153,7 +54,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.init_views(self)
         //load data
         this.init_data();
-
 
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
@@ -169,6 +69,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 绩效合同相关页面
         "assessment_pi_list/:ai_id": "assessment_pi_list",
         "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
+        "assessment_comment/:ai_id/:lx/:pi/:ol": "assessment_comment",
         // When #category? is on the url, the category method is called
         //任务日历相关的routes
         "task": "task",
@@ -322,6 +223,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.assessmentDetailView.model = this.c_assessment.get(ai_id);
         this.assessmentDetailView.render(lx, pi, ol);
         $("body").pagecontainer("change", "#assessment_detail", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      assessment_comment: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
+        this.assessmentCommentView.model = this.c_assessment.get(ai_id);
+        this.assessmentCommentView.render(lx, pi, ol);
+        $("body").pagecontainer("change", "#assessment_comment", {
           reverse: false,
           changeHash: false,
         });
@@ -810,7 +719,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
 
         this.assessmentDetailView = new AssessmentDetailView({
-          el: "#assessment_detail"
+          el: "#assessment_detail-content"
+        })
+        this.assessmentCommentView = new AssessmentCommentView({
+          el: "#assessment_comment-content"
         })
 
         this.contactListlView = new ContactListView({
@@ -899,6 +811,107 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.m_Q360 = new Q360Model(); //360问卷的数据
       }
     });
+    //注册全局的帮助函数
+    (function() {
+      // Give the points a 3D feel by adding a radial gradient
+      Highcharts.getOptions().colors = $.map(Highcharts.getOptions().colors, function(color) {
+        return {
+          radialGradient: {
+            cx: 0.4,
+            cy: 0.3,
+            r: 0.5
+          },
+          stops: [
+            [0, color],
+            [1, Highcharts.Color(color).brighten(-0.2).get('rgb')]
+          ]
+        };
+      });
+      //注册handlebars的helper
+      Handlebars.registerHelper('sprintf', function(sf, data) {
+        return sprintf(sf, data);
+      });
+      Handlebars.registerHelper('eq', function(data1, data2, options) {
+        if (data1 == data2) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('plus1', function(data) {
+        return parseInt(data) + 1;
+      });
+      Handlebars.registerHelper('cr2br', function(data) {
+        return (data) ? data.replace(/\n/g, '<br>') : '';
+      });
+      Handlebars.registerHelper('fromNow', function(data, flag) {
+        return moment(data).fromNow( !! flag);
+      });
+      Handlebars.registerHelper('fromStart2End', function(start, end, flag) {
+        if (moment(end).format('YYYY-MM-DD') == '9999-12-31') {
+          return moment(start).fromNow( !! flag);
+        } else {
+          return moment(start).from(moment(end), !! flag);
+        };
+      });
+      Handlebars.registerHelper('Avatar', function(data) {
+        return (data) ? '/gridfs/get/' + data : '/img/no-avatar.jpg';
+      });
+      Handlebars.registerHelper('toISOMD', function(date) {
+        return (date) ? moment(date).format('MM/DD') : '';
+      });
+      Handlebars.registerHelper('toISODate', function(date) {
+        return (date) ? moment(date).format('YYYY-MM-DD') : '';
+      });
+      Handlebars.registerHelper('toISOTime', function(date) {
+        return (date) ? moment(date).format('HH:mm') : '';
+      });
+      Handlebars.registerHelper('toISODatetime', function(date) {
+        return (date) ? moment(date).format('YYYY-MM-DD HH:mm') : '';
+      });
+      Handlebars.registerHelper('rateStar', function(data) {
+        var ret = '';
+        for (var i = 0; i < data; i++) {
+          ret += '&#9733;';
+        };
+        for (var i = data; i < 5; i++) {
+          ret += '&#9734;';
+        };
+        return ret;
+      });
+      Handlebars.registerHelper('toISODateRange', function(allday, start, end) {
+        var s = moment(start);
+        var e = moment(end);
+        if (allday) {
+          if (s.format('YYYY-MM-DD') == e.format('YYYY-MM-DD')) {
+            return s.format('YYYY-MM-DD');
+          } else if (s.format('YYYY') == e.format('YYYY')) {
+            return s.format('YYYY-MM-DD') + '&rarr;' + e.format('MM-DD');
+          } else {
+            return s.format('YYYY-MM-DD') + '&rarr;' + e.format('YYYY-MM-DD');
+          };
+        } else {
+          if (s.format('YYYY-MM-DD') == e.format('YYYY-MM-DD')) {
+            return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('HH:mm');
+          } else if (s.format('YYYY') == e.format('YYYY')) {
+            return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('MM-DD HH:mm');
+          } else {
+            return s.format('YYYY-MM-DD HH:mm') + '&rarr;' + e.format('YYYY-MM-DD HH:mm');
+          };
+        };
+
+      });
+      Handlebars.registerHelper('toISODateRange2', function(start, end) {
+        var s = moment(start);
+        var e = moment(end);
+        if (e.format('YYYY-MM-DD') == '9999-12-31') {
+          return s.format('YYYY-MM-DD') + '&rarr;至今';
+        } else {
+          return s.format('YYYY-MM-DD') + '&rarr;' + e.format('YYYY-MM-DD');
+        };
+
+      });
+    })();
 
     // Returns the Router class
     return MainRouter;
