@@ -5,7 +5,7 @@
 define(["jquery", "backbone", "handlebars", "lzstring",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
-    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView",
+    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../collections/AssessmentVCollection",
     "../views/HomeTaskView", "../views/HomeMyTeamView",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView", "../views/TaskForwardSelectPeoplePanelView",
@@ -28,7 +28,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
   ],
   function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
-    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView,
+    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView, AssessmentVCollection,
     HomeTaskView, HomeMyTeamView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
@@ -54,7 +54,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.init_views(self)
         //load data
         this.init_data();
-
+        //
+        this.start_auto_fetch(parseInt(localStorage.getItem('refresh_interval') || 0) * 60 * 1000);
+        this.bind_events();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -96,6 +98,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 更多功能的导航页面
         "more_functions": "more_functions",
         "more_functions/refresh_local_storage": "refresh_local_storage",
+        "more_functions/config_refresh_interval": "config_refresh_interval",
         "more_functions/clear_local_storage": "clear_local_storage",
         "more_functions/get_local_storage_size": "get_local_storage_size",
         // 个人薪酬报表－工资条
@@ -642,11 +645,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           alert('同步完成');
         })
       },
+      config_refresh_interval: function() { //设置自动刷新的时间间隔
+
+        $("body").pagecontainer("change", "#config_refresh_interval", {
+          reverse: false,
+          changeHash: false,
+        });
+        $("input[type=radio][name=config_refresh_interval_option]").prop('checked', false).checkboxradio('refresh');
+        $("input[type=radio][name=config_refresh_interval_option][value=" + parseInt(localStorage.getItem('refresh_interval') || 0) + "]").prop('checked', true).checkboxradio('refresh');
+      },
       clear_local_storage: function() {
         if (confirm('此操作将清空所有本地缓存数据，为了提高访问速度，建议保留缓存数据。\n如需要刷新缓存数据，请使用“同步数据”功能。')) {
           var ldv = parseFloat(localStorage.getItem('data_version')) || 0;
+          var ri = parseInt(localStorage.getItem('refresh_interval') || 0);
           localStorage.clear();
           localStorage.setItem('data_version', ldv);
+          localStorage.setItem('refresh_interval', ri);
           alert('缓存清空完成')
         };
       },
@@ -797,7 +811,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       init_cols: function() {
         this.c_objectives = new ObjectiveCollection(); //目标计划
         this.c_assessment = new AssessmentCollection(); //考核计划
+        this.c_assessment_v = new AssessmentVCollection(); //考核计划-版本
         this.c_assessment_myteam = new AssessmentCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。
+        this.c_assessment_v_myteam = new AssessmentVCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。 －版本
         this.c_task = new TaskCollection(); //工作任务
         this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_people = new PeopleCollection(); //人员
@@ -809,6 +825,72 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       init_models: function() {
         this.m_Q360 = new Q360Model(); //360问卷的数据
+      },
+      start_auto_fetch: function(interval) { //启动定时坚持并刷新数据的计时器
+        var self = this;
+        if (interval) {
+          self.interval_id = setInterval(function() {
+            //绩效数据 －－ 检查localstorage里面的内容。
+            var assessments = [];
+            for (i = 0; i < localStorage.length; i++) {
+              if (localStorage.key(i).split('_')[0] == 'assessment') {
+                assessments.push(localStorage.key(i).split('_'))
+              }
+            }
+            var tmp_assessment_col = new AssessmentCollection();
+            async.times(assessments.length, function(n, next) {
+              self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1];
+              async.waterfall([
+
+                function(cb) {
+                  self.c_assessment_v.fetch().done(function() { //获取版本
+                    cb(null, self.c_assessment_v);
+                  })
+                },
+                function(c, cb) { //取得本地数据版本，并与之前获取的版本进行比对
+                  var cn = assessments[n].join('_'); //本地localStorage使用的key
+                  var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
+                  var change_flag = false;
+                  for (var i = 0; i < local_data.length; i++) {
+                    change_flag = !(local_data[i].lastModified == c.get(local_data[i]._id).get('lastModified'));
+                    if (change_flag) {
+                      break;
+                    };
+                  };
+                  if (change_flag) { //发现有变化，重新fetch
+                    tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1];
+                    tmp_assessment_col.fetch().done(function() {
+                      localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_assessment_col)));
+                      // $.mobile.loading("hide");
+                      if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
+                        self.load_data(self.c_assessment, 'assessment');
+                      };
+                      cb(null, 'fetch new version ok');
+                    })
+                  } else {
+                    cb(null, 'no new version.')
+                  };
+                  // cb(null, 'fetch ok->' + assessments[n][1]);
+                }
+              ], next);
+            }, function(err, result) {
+              console.log(result);
+            })
+          }, interval); //10 seconds for test
+        };
+      },
+      bind_events: function() {
+        var self = this;
+        // 设定自动同步数据的间隔，并重新启动计时器
+        $("#config_refresh_interval").on('change', 'input[type=radio][name=config_refresh_interval_option]', function(event) {
+          var $this = $(this);
+          localStorage.setItem('refresh_interval', $this.val());
+          clearInterval(self.interval_id);
+          if ($this.val() != '0') { //重新启动计时器
+            // console.log('timer stoped');
+            self.start_auto_fetch(parseInt($this.val()) * 60 * 1000);
+          }
+        });
       }
     });
     //注册全局的帮助函数
@@ -830,6 +912,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       //注册handlebars的helper
       Handlebars.registerHelper('sprintf', function(sf, data) {
         return sprintf(sf, data);
+      });
+      Handlebars.registerHelper('inout', function(s, c) {
+        return (s == c) ? 'in' : 'out';
       });
       Handlebars.registerHelper('eq', function(data1, data2, options) {
         if (data1 == data2) {

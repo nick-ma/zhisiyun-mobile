@@ -19,7 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                 var lx = $this.data('lx');
                 var pi = $this.data('pi');
                 var ol = $this.data('ol');
-                console.log($this.val());
+                // console.log($this.val());
                 var tmp_data = self.get_pi(lx, pi, ol);
                 //增加一条新留言
                 tmp_data.comments.push({
@@ -30,8 +30,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     creator: $("#login_people").val(),
                     createDate: new Date()
                 })
+                tmp_data.comments = _.sortBy(tmp_data.comments, function(x) {
+                    return (new Date(x.createDate));
+                })
                 $this.val('');
-                self.render(lx, pi, ol);
+                self.model.save().done(function() {
+                    self.render(lx, pi, ol);
+                })
             });
         },
 
@@ -44,6 +49,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             render_data.lx = lx;
             render_data.pi = pi;
             render_data.ol = ol;
+            render_data.login_people = $("#login_people").val();
             render_data.comments = _.sortBy(render_data.comments, function(x) {
                 return -(new Date(x.createDate));
             })

@@ -81,12 +81,14 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       };
       //判断上次数据刷新的时间
       var lsy = localStorage.getItem('last_sync') || 0;
-      if (new Date() > new Date(lsy + 1000 * 60 * 60 * 24)) {
+      if (new Date() > new Date(lsy + 1000 * 60 * 60 * 24)) { //暂定一天
         localStorage.clear();
         localStorage.setItem('data_version', DATA_VERSION);
         localStorage.setItem('last_sync', (new Date()).getTime());
       };
-
+      if (localStorage.getItem('refresh_interval') == null) {
+        localStorage.setItem('refresh_interval', '15'); //如果没设置过，则默认给15分钟
+      };
       //把当前的登录用户的people id保存到local storage里面
 
       var login_people = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('login_people')) || null) || [];
@@ -102,7 +104,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
 
       $("body").on("pagecontainershow", function(event, ui) {
         // console.log('message: page show->', ui.prevPage.length);
-        
+
         if (!ui.prevPage.length) { //首页第一次load
           $.mobile.loading("hide");
         };
