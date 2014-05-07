@@ -1043,6 +1043,45 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return options.inverse(this);
         };
       });
+      Handlebars.registerHelper('genReviseSparklineVal', function(data) {
+        var values = [];
+        _.each(data, function(x) {
+          values.push(x.revised_value);
+        })
+        return values.join(',');
+      });
+      Handlebars.registerHelper('genReviseSparklineValC', function(data, data_t, target_value) { //根据实际值的时间去找对应的目标值，然后返回包含目标值的数组
+        var values = [];
+        if (data_t.length) {
+          _.each(data, function(x) {
+            var tmp = _.filter(data_t, function(y) {
+              return moment(x.timestamp).diff(moment(y.timestamp)) >= 0;
+            })
+            // console.log(tmp);
+            if (tmp.length) {
+              var t_val = _.max(tmp, function(y) {
+                return (new Date(y.timestamp))
+              });
+              values.push(t_val.revised_value);
+            } else {
+              values.push(target_value);
+            };
+
+          })
+        } else {
+          values = _.map(data, function(x) {
+            return target_value
+          })
+        };
+        return values.join(',');
+      });
+      Handlebars.registerHelper('genReviseSparklineDate', function(data) {
+        var revise_date = [];
+        _.each(data, function(x) {
+          revise_date.push(moment(x.timestamp).format('YYYY-MM-DD HH:mm'));
+        })
+        return revise_date.join(',');
+      });
     })();
 
     // Returns the Router class
