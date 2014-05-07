@@ -86,6 +86,10 @@ grab from bootstrap 3
     right: 35px;
     position: absolute;
 }
+.ar10px {
+    right: 10px;
+    position: absolute;
+}
 .m-ud-0p2em {
     margin: 0.2em 0!important;
 }

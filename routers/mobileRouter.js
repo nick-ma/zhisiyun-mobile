@@ -137,6 +137,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       more_functions: function() {
+        if (navigator.onLine) {
+          $("#online_status").removeClass('label-danger').addClass('label-success').text('在线');
+        } else {
+          $("#online_status").removeClass('label-success').addClass('label-danger').text('断网');
+        };
         $("body").pagecontainer("change", "#more_functions", {
           reverse: false,
           changeHash: false,
@@ -585,83 +590,89 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       refresh_local_storage: function() {
         var self = this;
-        var login_people = $("#login_people").val();
-        //刷新登录用户
-        var login_peoples = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('login_people')) || null) || [];
-        var found = _.find(login_peoples, function(x) {
-          return x._id == $("#login_people").val();
-        })
-        if (!found) {
-          login_peoples.push({
-            _id: $("#login_people").val()
-          });
-        }
-        localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_peoples)));
-        $.mobile.loading("show");
-        async.parallel({
-          objective: function(cb) {
-            // 刷新目标计划数据
-            self.c_objectives.fetch().done(function() {
-              localStorage.setItem('objectives_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_objectives)))
-              cb(null, 'OK');
-            });
-          },
-          assessment: function(cb) {
-            // 刷新考核数据
-            self.c_assessment.fetch().done(function() {
-              localStorage.setItem('assessment_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_assessment)))
-              cb(null, 'OK');
-            })
-          },
-          task: function(cb) {
-            // 刷新日历数据
-            self.c_task.fetch().done(function() {
-              localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_task)))
-              cb(null, 'OK');
-            })
-          },
-          people: function(cb) {
-            // 刷新通讯录数据
-            self.c_people.fetch().done(function() {
-              localStorage.setItem('people_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_people)))
-              cb(null, 'OK');
-            })
-          },
-          talent: function(cb) {
-            // 刷新通讯录数据
-            self.c_talent.fetch().done(function() {
-              localStorage.setItem('talent_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_talent)))
-              cb(null, 'OK');
-            })
-          },
-          horoscope: function(cb) {
-            // 刷新通讯录数据
-            self.c_horoscope.fetch().done(function() {
-              localStorage.setItem('horoscope_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_horoscope)))
-              cb(null, 'OK');
-            })
-          },
-          competency: function(cb) {
-            // 刷新通讯录数据
-            self.c_competency.fetch().done(function() {
-              localStorage.setItem('competency_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_competency)))
-              cb(null, 'OK');
-            })
-          },
-          payroll: function(cb) {
-            // 刷新通讯录数据
-            self.c_payroll.fetch().done(function() {
-              localStorage.setItem('payroll_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_payroll)))
-              cb(null, 'OK');
-            })
-          }
+        if (navigator.onLine) {
 
-        }, function(err, result) {
-          // console.log(result);
-          localStorage.setItem('last_sync', (new Date()).getTime());
-          $.mobile.loading("hide");
-          alert('同步完成');
-        })
+
+          var login_people = $("#login_people").val();
+          //刷新登录用户
+          var login_peoples = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('login_people')) || null) || [];
+          var found = _.find(login_peoples, function(x) {
+            return x._id == $("#login_people").val();
+          })
+          if (!found) {
+            login_peoples.push({
+              _id: $("#login_people").val()
+            });
+          }
+          localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_peoples)));
+          $.mobile.loading("show");
+          async.parallel({
+            objective: function(cb) {
+              // 刷新目标计划数据
+              self.c_objectives.fetch().done(function() {
+                localStorage.setItem('objectives_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_objectives)))
+                cb(null, 'OK');
+              });
+            },
+            assessment: function(cb) {
+              // 刷新考核数据
+              self.c_assessment.fetch().done(function() {
+                localStorage.setItem('assessment_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_assessment)))
+                cb(null, 'OK');
+              })
+            },
+            task: function(cb) {
+              // 刷新日历数据
+              self.c_task.fetch().done(function() {
+                localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_task)))
+                cb(null, 'OK');
+              })
+            },
+            people: function(cb) {
+              // 刷新通讯录数据
+              self.c_people.fetch().done(function() {
+                localStorage.setItem('people_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_people)))
+                cb(null, 'OK');
+              })
+            },
+            talent: function(cb) {
+              // 刷新通讯录数据
+              self.c_talent.fetch().done(function() {
+                localStorage.setItem('talent_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_talent)))
+                cb(null, 'OK');
+              })
+            },
+            horoscope: function(cb) {
+              // 刷新通讯录数据
+              self.c_horoscope.fetch().done(function() {
+                localStorage.setItem('horoscope_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_horoscope)))
+                cb(null, 'OK');
+              })
+            },
+            competency: function(cb) {
+              // 刷新通讯录数据
+              self.c_competency.fetch().done(function() {
+                localStorage.setItem('competency_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_competency)))
+                cb(null, 'OK');
+              })
+            },
+            payroll: function(cb) {
+              // 刷新通讯录数据
+              self.c_payroll.fetch().done(function() {
+                localStorage.setItem('payroll_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_payroll)))
+                cb(null, 'OK');
+              })
+            }
+
+          }, function(err, result) {
+            // console.log(result);
+            localStorage.setItem('last_sync', (new Date()).getTime());
+            $.mobile.loading("hide");
+            alert('同步完成');
+          })
+        } else {
+          alert('当前处于断网状态，不能同步数据。');
+        };
       },
       config_refresh_interval: function() { //设置自动刷新的时间间隔
 
@@ -848,52 +859,54 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         if (interval) {
           self.interval_id = setInterval(function() {
-            //绩效数据 －－ 检查localstorage里面的内容。
-            var assessments = [];
-            for (i = 0; i < localStorage.length; i++) {
-              if (localStorage.key(i).split('_')[0] == 'assessment') {
-                assessments.push(localStorage.key(i).split('_'))
-              }
-            }
-            var tmp_assessment_col = new AssessmentCollection();
-            async.times(assessments.length, function(n, next) {
-              self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1];
-              async.waterfall([
-
-                function(cb) {
-                  self.c_assessment_v.fetch().done(function() { //获取版本
-                    cb(null, self.c_assessment_v);
-                  })
-                },
-                function(c, cb) { //取得本地数据版本，并与之前获取的版本进行比对
-                  var cn = assessments[n].join('_'); //本地localStorage使用的key
-                  var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
-                  var change_flag = false;
-                  for (var i = 0; i < local_data.length; i++) {
-                    change_flag = !(local_data[i].lastModified == c.get(local_data[i]._id).get('lastModified'));
-                    if (change_flag) {
-                      break;
-                    };
-                  };
-                  if (change_flag) { //发现有变化，重新fetch
-                    tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1];
-                    tmp_assessment_col.fetch().done(function() {
-                      localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_assessment_col)));
-                      // $.mobile.loading("hide");
-                      if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
-                        self.load_data(self.c_assessment, 'assessment');
-                      };
-                      cb(null, 'fetch new version ok');
-                    })
-                  } else {
-                    cb(null, 'no new version.')
-                  };
-                  // cb(null, 'fetch ok->' + assessments[n][1]);
+            if (navigator.onLine) { //只有浏览器在线的情况下才执行获取数据的动作。
+              //绩效数据 －－ 检查localstorage里面的内容。
+              var assessments = [];
+              for (i = 0; i < localStorage.length; i++) {
+                if (localStorage.key(i).split('_')[0] == 'assessment') {
+                  assessments.push(localStorage.key(i).split('_'))
                 }
-              ], next);
-            }, function(err, result) {
-              console.log(result);
-            })
+              }
+              var tmp_assessment_col = new AssessmentCollection();
+              async.times(assessments.length, function(n, next) {
+                self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1];
+                async.waterfall([
+
+                  function(cb) {
+                    self.c_assessment_v.fetch().done(function() { //获取版本
+                      cb(null, self.c_assessment_v);
+                    })
+                  },
+                  function(c, cb) { //取得本地数据版本，并与之前获取的版本进行比对
+                    var cn = assessments[n].join('_'); //本地localStorage使用的key
+                    var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
+                    var change_flag = false;
+                    for (var i = 0; i < local_data.length; i++) {
+                      change_flag = !(local_data[i].lastModified == c.get(local_data[i]._id).get('lastModified'));
+                      if (change_flag) {
+                        break;
+                      };
+                    };
+                    if (change_flag) { //发现有变化，重新fetch
+                      tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1];
+                      tmp_assessment_col.fetch().done(function() {
+                        localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_assessment_col)));
+                        // $.mobile.loading("hide");
+                        if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
+                          self.load_data(self.c_assessment, 'assessment');
+                        };
+                        cb(null, 'fetch new version ok');
+                      })
+                    } else {
+                      cb(null, 'no new version.')
+                    };
+                    // cb(null, 'fetch ok->' + assessments[n][1]);
+                  }
+                ], next);
+              }, function(err, result) {
+                console.log(result);
+              })
+            };
           }, interval); //10 seconds for test
         };
       },
