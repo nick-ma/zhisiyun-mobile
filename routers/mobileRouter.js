@@ -5,7 +5,7 @@
 define(["jquery", "backbone", "handlebars", "lzstring",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
-    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../collections/AssessmentVCollection",
+    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../views/AssessmentUpdateValueView", "../views/AssessmentImprovePlanView", "../collections/AssessmentVCollection",
     "../views/HomeTaskView", "../views/HomeMyTeamView",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView", "../views/TaskForwardSelectPeoplePanelView",
@@ -28,7 +28,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
   ],
   function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
-    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView, AssessmentVCollection,
+    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView, AssessmentUpdateValueView, AssessmentImprovePlanView, AssessmentVCollection,
     HomeTaskView, HomeMyTeamView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
@@ -246,16 +246,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       assessment_update_value: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
-        // this.assessmentCommentView.model = this.c_assessment.get(ai_id);
-        // this.assessmentCommentView.render(lx, pi, ol);
+        this.assessmentUpdateValueView.model = this.c_assessment.get(ai_id);
+        this.assessmentUpdateValueView.render(lx, pi, ol);
         $("body").pagecontainer("change", "#assessment_update_value", {
           reverse: false,
           changeHash: false,
         });
       },
       assessment_improve_plan: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
-        // this.assessmentCommentView.model = this.c_assessment.get(ai_id);
-        // this.assessmentCommentView.render(lx, pi, ol);
+        this.assessmentImprovePlanView.model = this.c_assessment.get(ai_id);
+        this.assessmentImprovePlanView.render(lx, pi, ol);
         $("body").pagecontainer("change", "#assessment_improve_plan", {
           reverse: false,
           changeHash: false,
@@ -767,6 +767,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.assessmentCommentView = new AssessmentCommentView({
           el: "#assessment_comment-content"
         })
+        this.assessmentUpdateValueView = new AssessmentUpdateValueView({
+          el: "#assessment_update_value-content"
+        })
+        this.assessmentImprovePlanView = new AssessmentImprovePlanView({
+          el: "#assessment_improve_plan-content"
+        })
 
         this.contactListlView = new ContactListView({
           el: "#contact_list-content",
@@ -1026,6 +1032,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return s.format('YYYY-MM-DD') + '&rarr;' + e.format('YYYY-MM-DD');
         };
 
+      });
+      Handlebars.registerHelper('nowInRange', function(start, end, options) {
+        var now = moment();
+        var s = moment(start);
+        var e = moment(end);
+        if (now >= s && now <= e) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
       });
     })();
 

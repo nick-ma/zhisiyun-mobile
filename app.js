@@ -17,6 +17,7 @@ require.config({
     "lzstring": "./bower_components/lz-string/libs/lz-string-1.3.3",
     "highcharts": "./bower_components/highcharts/highcharts-all",
     "formatdate": "./libs/formatdate",
+    "sparkline": "./libs/jquery.sparkline",
 
     "jqmcal": "./libs/jw-jqm-cal",
 
@@ -40,6 +41,7 @@ require.config({
       "exports": 'Highcharts'
     },
     "sprintf": ["jquery"],
+    "sparkline": ["jquery"],
     "formatdate": ["jquery"],
     "jqmcal": ["jquery"],
     "moment_lang_zh-cn": ["moment"],
@@ -50,7 +52,7 @@ require.config({
 });
 
 // Includes File Dependencies
-require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring", "jqmcal", "moment_lang_zh-cn"], function($, _, Backbone, Mobile, LZString) {
+require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring", "jqmcal", "moment_lang_zh-cn","sparkline"], function($, _, Backbone, Mobile, LZString) {
 
   $(document).on("mobileinit",
     // Set up the "mobileinit" handler before requiring jQuery Mobile's module
