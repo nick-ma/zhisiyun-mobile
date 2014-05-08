@@ -23,6 +23,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../collections/PayrollCollection", "../views/PayrollListView", "../views/PayrollDetailView",
     // 个人档案
     "../views/MyProfileView",
+    // 计分公式和等级组
+    "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -38,6 +40,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
     PayrollCollection, PayrollListView, PayrollDetailView,
     MyProfileView,
+    ScoringFormulaCollection, GradeGroupCollection,
     async, moment
 
   ) {
@@ -247,6 +250,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       assessment_update_value: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
         this.assessmentUpdateValueView.model = this.c_assessment.get(ai_id);
+        this.assessmentUpdateValueView.scoringformula = this.c_scoringformula;
+        this.assessmentUpdateValueView.gradegroup = this.c_gradegroup;
         this.assessmentUpdateValueView.render(lx, pi, ol);
         $("body").pagecontainer("change", "#assessment_update_value", {
           reverse: false,
@@ -662,6 +667,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 localStorage.setItem('payroll_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_payroll)))
                 cb(null, 'OK');
               })
+            },
+            scoringformula: function(cb) {
+              // 刷新通讯录数据
+              self.c_scoringformula.fetch().done(function() {
+                localStorage.setItem('scoringformula_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_scoringformula)))
+                cb(null, 'OK');
+              })
+            },
+            gradegroup: function(cb) {
+              // 刷新通讯录数据
+              self.c_gradegroup.fetch().done(function() {
+                localStorage.setItem('gradegroup_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_gradegroup)))
+                cb(null, 'OK');
+              })
             }
 
           }, function(err, result) {
@@ -704,7 +723,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         self.load_data(self.c_horoscope, 'horoscope');
         self.load_data(self.c_competency, 'competency');
         self.load_data(self.c_payroll, 'payroll');
-
+        self.load_data(self.c_scoringformula, 'scoringformula');
+        self.load_data(self.c_gradegroup, 'gradegroup');
       },
       load_data: function(col_obj, col_name) { //加载数据
         $.mobile.loading("show");
@@ -857,6 +877,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_competency = new CompetencyCollection(); //能力素质
         this.c_payroll = new PayrollCollection(); //工资
         this.c_payroll_myteam = new PayrollCollection(); //团队成员的工资－获取的时候需要修改url，把下属的people id拼进去再fetch。
+        this.c_scoringformula = new ScoringFormulaCollection(); //计分公式
+        this.c_gradegroup = new GradeGroupCollection(); //等级组
       },
       init_models: function() {
         this.m_Q360 = new Q360Model(); //360问卷的数据

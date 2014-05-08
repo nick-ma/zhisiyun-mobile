@@ -77,7 +77,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                             })
                                         };
                                         // 重新算分 -TODO
-
+                                        self.calc_score();
                                         //save & render
                                         self.model.save().done(function() {
                                             self.render(lx, pi, ol, cur_seg);
@@ -91,10 +91,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                             timestamp: new Date(),
                                         })
                                         // 重新算分 -TODO
-
+                                        self.calc_score();
                                         //save & render
                                         self.model.save().done(function() {
-                                            self.render(lx, pi, ol, cur_seg);
+                                            self.render(lx, pi, ol, null);
                                         })
                                     }
                                 };
@@ -109,6 +109,72 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                         };
                     };
 
+                })
+                .on('change', '#pi_f_score', function(event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    if ($this.val()) {
+                        if (self.number_pattern.test($this.val())) {
+                            var lx = $this.data('lx');
+                            var pi = $this.data('pi');
+                            var ol = $this.data('ol');
+                            var pi_data = self.get_pi(lx, pi, ol);
+                            // console.log($this.val());
+                            if (pi_data.segments.length) { //有小周期
+                                var cur_seg = pi_data.segments[$("#assessment_update_value-content #segment_select").val()];
+                                if ($this.val() != cur_seg.self_score) { //不想等，才认为是新值，保存
+                                    var new_rv = {
+                                        revised_value: parseFloat($this.val()),
+                                        timestamp: new Date(),
+                                    };
+                                    // 付新值
+                                    cur_seg.self_score = parseFloat($this.val());
+                                    cur_seg.actual_value_revise.push(new_rv);
+                                    // 根据汇总规则，更新pi_data的数据
+                                    //根据当前时间点求均值
+                                    var now = moment();
+                                    var ff = _.filter(pi_data.segments, function(x) { //只对有效的期间进行计算
+                                        return now.diff(moment(x.start)) >= 0;
+                                    });
+                                    if (ff.length) {
+                                        pi_data.f_score = Math.round((_.reduce(ff, function(memo, n) {
+                                            return memo += parseFloat(n.self_score);
+                                        }, 0)) / ff.length * 100) / 100;
+                                    } else {
+                                        pi_data.f_score = 0;
+                                    };
+                                    pi_data.actual_value_revise.push({
+                                        revised_value: pi_data.f_score,
+                                        timestamp: new Date(),
+                                    })
+
+                                    // 重新算分 -TODO
+                                    self.calc_score();
+                                    //save & render
+                                    self.model.save().done(function() {
+                                        self.render(lx, pi, ol, cur_seg);
+                                    })
+                                };
+                            } else {
+                                if ($this.val() != pi_data.f_score) { //不想等，才认为是新值，保存
+                                    pi_data.f_score = parseFloat($this.val());
+                                    pi_data.actual_value_revise.push({
+                                        revised_value: pi_data.f_score,
+                                        timestamp: new Date(),
+                                    })
+                                    // 重新算分 -TODO
+                                    self.calc_score();
+                                    //save & render
+                                    self.model.save().done(function() {
+                                        self.render(lx, pi, ol, null);
+                                    })
+                                }
+                            }
+                            $this.val(''); //用完后清空
+                        } else {
+                            alert('自评分为数字类型，请重新输入。');
+                        };
+                    }
                 });
         },
 
@@ -129,6 +195,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                 })
                 render_data.now_seg = now_seg || render_data.segments[0]; //如果没找到当前期间，则给出第一个段。
             };
+            if (lx == 'dx') { //定性指标，判断评分方式
+                render_data.grade_way = self.model.attributes.qualitative_pis.grade_way;
+                if (render_data.grade_way == 'G') { //取出等级组
+                    var gg = self.gradegroup.get(self.model.attributes.qualitative_pis.grade_group);
+                    // console.log(gg);
+                    render_data.gg = gg.attributes;
+                };
+            };
+            // console.log(render_data);
             // render_data.comments
             $("#btn-assessment_update_value-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);
             // console.log(render_data);
@@ -139,7 +214,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             window.setTimeout(function() { //must have this line to ensure the line over bars
                 $.sparkline_display_visible();
             }, 500);
+
+            // console.log(self.scoringformula, self.gradegroup);
             // Maintains chainability
+
             return this;
 
         },
@@ -167,7 +245,168 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             };
         },
         calc_score: function() { //对当前的model重新算分， 大活啊，shit！
+            var self = this;
+            if (self.scoringformula) { //确保计分公式的数据是穿进来的
+                //根据计分公式来计算定量指标的得分
+                self.model.attributes.quantitative_pis.sum_score = 0;
+                _.each(self.model.attributes.quantitative_pis.items, function(x) {
+                    var sf = self.scoringformula.get(x.scoringformula) //计分公式
+                    // x.weight
+                    // x.actual_value
+                    // x.target_value
+                    //记分
+                    x['f_score'] = Math.round(self.scoring_func(sf.toJSON(), parseFloat(x['actual_value']), parseFloat(x['target_value'])) * 100) / 100;
+                    // 得分
+                    x['score'] = Math.round(x['f_score'] * x['weight']) / 100;
+                    self.model.attributes.quantitative_pis.sum_score += x.score; //累加到定量指标的总得分
+                    // console.log(x.f_score, x.score);
+                    _.each(x.segments, function(y) { //对下面的小周期也进行计算
+                        //记分
+                        y['f_score'] = Math.round(self.scoring_func(sf.toJSON(), parseFloat(y['actual_value']), parseFloat(y['target_value'])) * 100) / 100;
+                        // 得分
+                        y['score'] = Math.round(y['f_score'] * x['weight']) / 100;
+                        // console.log('   -> ', y.f_score, y.score);
+                    })
+                })
+                // console.log(self.model.attributes.qualitative_pis);
+                // console.log(self.scoring_func(self.scoringformula.models[0], 28));
+            };
+            // 计算定性指标的得分
+            self.model.attributes.qualitative_pis.sum_score = 0;
+            _.each(self.model.attributes.qualitative_pis.items, function(x) {
+                x.score = Math.round(x.f_score * x.weight) / 100;
+                // console.log('定性指标：：',x.f_score, x.weight, x.score);
+                self.model.attributes.qualitative_pis.sum_score += x.score;
+                _.each(x.segments, function(y) { //对下面的小周期也进行计算
+                    // 得分
+                    y['score'] = Math.round(y['self_score'] * x['weight']) / 100; //使用self_score字段
+                })
+            })
+            // console.log('xxx->', self.model.attributes.qualitative_pis.sum_score);
+            //整体合同的得分
+            self.model.attributes.ai_score = Math.round(self.model.attributes.quantitative_pis.sum_score * self.model.attributes.quantitative_pis.weight + self.model.attributes.qualitative_pis.sum_score * self.model.attributes.qualitative_pis.weight) / 100;
+            // console.log('ai_score:', self.model.attributes.ai_score)
+        },
+        scoring_func: function(formula, x, r1, r2) {
+            //-- 定义计算函数
+            // 第一步函数，设：
+            // x：实际值，a：目标值（下限），b：目标值（上限），c：封顶分
+            var F_0 = function(x) {
+                return x;
+            };
+            var F_A01 = function(x, a) {
+                return x / a * 100;
+            };
+            var F_A02 = function(x, a, b, c) {
+                return c / (b - a) * (x - a);
+            };
+            var F_A03 = function(x, a) {
+                return x - a;
+            };
+            var F_B01 = function(x, a) {
+                return a / x * 100;
+            };
+            var F_B02 = function(x, a) {
+                return ((a - x) / a + 1) * 100;
+            };
+            var F_B03 = function(x, a, b, c) {
+                return c / (a - b) * (a - x);
+            };
+            var F_B04 = function(x, a) {
+                return a - x;
+            };
 
+            // 第二步函数，
+            var F2 = function(x, ss) {
+                var s = _.find(ss, function(s) {
+                    return (x >= s.r1 && x < s.r2);
+                })
+                // console.log(s);
+                if (s) { //找到所对应的区间
+                    if (s.ftype == 'F') {
+                        x = F2_F(x, s.fbody);
+                    } else if (s.ftype == 'L') {
+                        x = F2_L(x, s.fbody);
+                    };
+                };
+                return x;
+            }
+            var F2_L = function(x, fbody) { //线性函数
+                return fbody.a * x + fbody.b;
+            };
+            var F2_F = function(x, fbody) { //固定值
+                return fbody.y;
+            };
+            var F2_T = function(x, fbody) { //数值表
+                var T = _.find(fbody, function(t) {
+                    return (t.x == x);
+                });
+                // console.log(T);
+                return (T) ? T.y : null;
+            };
+
+            // 第三步函数
+            var F3 = function(x, min, max, zero) { //判断上下限限制以及低于zero后归0
+                x = parseFloat(x);
+                min = parseFloat(min);
+
+                if (_.isNumber(x) && !_.isNaN(x)) {
+                    x = (!_.isNumber(min) && x <= min) ? min : x;
+                    if (max != null && x >= max) { //为null就是不控制
+                        x = max;
+                    };
+                    if (zero != null && x < zero) { //为null就是不控制
+                        x = 0;
+                    };
+                };
+                return x;
+            };
+            //--- 开始计算逻辑
+            x = parseFloat(x);
+            r1 = parseFloat(r1);
+            r2 = parseFloat(r2);
+            var dt = formula.data_table; //准备数值表的数据
+
+            var ss = formula.subsection; //准备分段函数的数据
+
+            ss = _.sortBy(ss, function(s) {
+                return s.r1
+            }); //按照区间从小到大排序
+            // x：实际值，
+            // 第一步
+            if (formula.sf_type == '0') {
+                x = F_0(x);
+            } else if (formula.sf_type == 'A01') {
+                x = F_A01(x, r1);
+            } else if (formula.sf_type == 'A02') {
+                x = F_A02(x, r1, r2, formula.max);
+            } else if (formula.sf_type == 'A03') {
+                x = F_A03(x, r1);
+            } else if (formula.sf_type == 'B01') {
+                x = F_B01(x, r1);
+            } else if (formula.sf_type == 'B02') {
+                x = F_B02(x, r1);
+            } else if (formula.sf_type == 'B03') {
+                x = F_B03(x, r1, r2, formula.max);
+            } else if (formula.sf_type == 'B04') {
+                x = F_B04(x, r1);
+            };
+            x = x * formula.magnification; //放大倍率
+            // console.log(x);
+            // 第二步
+            if (formula.s_method == 'T') { //数值表
+                var T = _.find(dt, function(t) {
+                    return (t.x == x);
+                });
+                // console.log(T);
+                x = (T) ? T.y : null;
+            } else if (formula.s_method == 'S') { //线性分段
+                x = F2(x, ss);
+            };
+            // 第三步
+            // base_score:最低分 caps_score:最高分 score_to_zero:低于归0
+
+            return F3(x, formula.base_score, formula.caps_score, formula.score_to_zero);
         },
         redraw_sparkline: function() {
             _.each($(".sparkline-revise-history"), function(x) {
