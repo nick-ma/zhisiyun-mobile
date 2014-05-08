@@ -887,10 +887,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     var cn = assessments[n].join('_'); //本地localStorage使用的key
                     var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
                     var change_flag = false;
-                    for (var i = 0; i < local_data.length; i++) {
-                      change_flag = !(local_data[i].lastModified == c.get(local_data[i]._id).get('lastModified'));
-                      if (change_flag) {
-                        break;
+                    change_flag = (local_data.length != c.length);
+                    if (!change_flag) { //没发现长度不一致，继续往下判断
+                      //应该以云端的数据为准
+                      for (var i = 0; i < c.length; i++) {
+                        var found = _.find(local_data, function(x) {
+                          return x._id == c.models[i].get('_id');
+                        })
+                        if (!found) { //云端有，本地没找到，说明有变化。
+                          change_flag = true;
+                          break;
+                        } else {
+                          if (found.lastModified != c.models[i].get('lastModified')) { //找到了，但是最后更改时间戳不一致，说明有变化。
+                            change_flag = true;
+                            break;
+                          };
+                        };
                       };
                     };
                     if (change_flag) { //发现有变化，重新fetch
