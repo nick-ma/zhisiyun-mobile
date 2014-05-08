@@ -110,7 +110,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     };
 
                 })
-                .on('change', '#pi_f_score', function(event) {
+                .on('change', '#pi_self_score', function(event) { //定性指标的自评
                     event.preventDefault();
                     var $this = $(this);
                     if ($this.val()) {
@@ -137,14 +137,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                         return now.diff(moment(x.start)) >= 0;
                                     });
                                     if (ff.length) {
-                                        pi_data.f_score = Math.round((_.reduce(ff, function(memo, n) {
+                                        pi_data.self_score = Math.round((_.reduce(ff, function(memo, n) {
                                             return memo += parseFloat(n.self_score);
                                         }, 0)) / ff.length * 100) / 100;
                                     } else {
-                                        pi_data.f_score = 0;
+                                        pi_data.self_score = 0;
                                     };
+                                    // pi_data.f_score = pi_data.self_score;
                                     pi_data.actual_value_revise.push({
-                                        revised_value: pi_data.f_score,
+                                        revised_value: pi_data.self_score,
                                         timestamp: new Date(),
                                     })
 
@@ -156,10 +157,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                     })
                                 };
                             } else {
-                                if ($this.val() != pi_data.f_score) { //不想等，才认为是新值，保存
-                                    pi_data.f_score = parseFloat($this.val());
+                                if ($this.val() != pi_data.self_score) { //不想等，才认为是新值，保存
+                                    pi_data.self_score = parseFloat($this.val());
                                     pi_data.actual_value_revise.push({
-                                        revised_value: pi_data.f_score,
+                                        revised_value: pi_data.self_score,
                                         timestamp: new Date(),
                                     })
                                     // 重新算分 -TODO
@@ -255,14 +256,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     // x.actual_value
                     // x.target_value
                     //记分
-                    x['f_score'] = Math.round(self.scoring_func(sf.toJSON(), parseFloat(x['actual_value']), parseFloat(x['target_value'])) * 100) / 100;
+                    x['f_score'] = Math.round(self.scoring_func(sf.toJSON(), parseFloat(x['actual_value'] || 0), parseFloat(x['target_value'])) * 100) / 100;
                     // 得分
                     x['score'] = Math.round(x['f_score'] * x['weight']) / 100;
                     self.model.attributes.quantitative_pis.sum_score += x.score; //累加到定量指标的总得分
                     // console.log(x.f_score, x.score);
                     _.each(x.segments, function(y) { //对下面的小周期也进行计算
                         //记分
-                        y['f_score'] = Math.round(self.scoring_func(sf.toJSON(), parseFloat(y['actual_value']), parseFloat(y['target_value'])) * 100) / 100;
+                        y['f_score'] = Math.round(self.scoring_func(sf.toJSON(), parseFloat(y['actual_value'] || 0), parseFloat(y['target_value'])) * 100) / 100;
                         // 得分
                         y['score'] = Math.round(y['f_score'] * x['weight']) / 100;
                         // console.log('   -> ', y.f_score, y.score);
@@ -274,17 +275,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             // 计算定性指标的得分
             self.model.attributes.qualitative_pis.sum_score = 0;
             _.each(self.model.attributes.qualitative_pis.items, function(x) {
-                x.score = Math.round(x.f_score * x.weight) / 100;
-                // console.log('定性指标：：',x.f_score, x.weight, x.score);
+                x.f_score = x.self_score / x.target_value * 100; // 计分＝自评分/目标分 **过程管理的时候，只认自评分。
+                x.score = Math.round(x.f_score * x.weight) / 100; //
+                // console.log('定性指标：：',x.self_score, x.weight, x.score);
                 self.model.attributes.qualitative_pis.sum_score += x.score;
                 _.each(x.segments, function(y) { //对下面的小周期也进行计算
+                    // 计分
+                    y['f_score'] = Math.round(y['self_score'] / x['target_value'] * 10000) / 100; //使用self_score字段
                     // 得分
-                    y['score'] = Math.round(y['self_score'] * x['weight']) / 100; //使用self_score字段
+                    y['score'] = Math.round(y['f_score'] * x['weight']) / 100; //使用self_score字段
                 })
             })
             // console.log('xxx->', self.model.attributes.qualitative_pis.sum_score);
             //整体合同的得分
-            self.model.attributes.ai_score = Math.round(self.model.attributes.quantitative_pis.sum_score * self.model.attributes.quantitative_pis.weight + self.model.attributes.qualitative_pis.sum_score * self.model.attributes.qualitative_pis.weight) / 100;
+            self.model.attributes.ai_score = self.model.attributes.quantitative_pis.sum_score + self.model.attributes.qualitative_pis.sum_score;
             // console.log('ai_score:', self.model.attributes.ai_score)
         },
         scoring_func: function(formula, x, r1, r2) {

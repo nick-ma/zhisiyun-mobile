@@ -981,8 +981,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
       });
       //注册handlebars的helper
-      Handlebars.registerHelper('sprintf', function(sf, data) {
-        return sprintf(sf, data);
+      Handlebars.registerHelper('sprintf', function(sf, data, default_value) {
+        return data ? sprintf(sf, data) : default_value;
       });
       Handlebars.registerHelper('inout', function(s, c) {
         return (s == c) ? 'in' : 'out';
