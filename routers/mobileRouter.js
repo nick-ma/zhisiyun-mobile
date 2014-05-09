@@ -1001,7 +1001,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return (data) ? data.replace(/\n/g, '<br>') : '';
       });
       Handlebars.registerHelper('fromNow', function(data, flag) {
-        return moment(data).fromNow( !! flag);
+        return (data)?moment(data).fromNow( !! flag):'';
       });
       Handlebars.registerHelper('fromStart2End', function(start, end, flag) {
         if (moment(end).format('YYYY-MM-DD') == '9999-12-31') {

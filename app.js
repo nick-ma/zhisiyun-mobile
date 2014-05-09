@@ -52,7 +52,7 @@ require.config({
 });
 
 // Includes File Dependencies
-require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring", "jqmcal", "moment_lang_zh-cn","sparkline"], function($, _, Backbone, Mobile, LZString) {
+require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring", "jqmcal", "moment_lang_zh-cn", "sparkline"], function($, _, Backbone, Mobile, LZString) {
 
   $(document).on("mobileinit",
     // Set up the "mobileinit" handler before requiring jQuery Mobile's module
@@ -73,6 +73,10 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
 
       // string = LZString.decompressFromUTF16(localStorage.getItem("myData"));
       // console.log("Sample is: " + string);
+      if (typeof(Storage) == "undefined") {
+        alert('您当前的浏览器不支持本地存储特性！\n智思云移动版无法正常运行！\n请使用最新版的现代浏览器，或者打开浏览器的本地存储的选项，或者关闭浏览器的私密浏览功能。');
+        return window.location.href = '/login';
+      }
       //hard code data version
       var DATA_VERSION = 1.0;
       //check local storage data version, if data version > local data version, then clear all.

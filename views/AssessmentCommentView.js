@@ -50,9 +50,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             render_data.pi = pi;
             render_data.ol = ol;
             render_data.login_people = $("#login_people").val();
-            render_data.comments = _.sortBy(render_data.comments, function(x) {
+            render_data.comments_all = _.clone(render_data.comments);
+            // 把下面小周期的留言也加进来
+            if (render_data.segments.length) { //
+                _.each(render_data.segments, function(x) {
+                    if (x.comments.length) {
+                        _.each(x.comments, function(y) {
+                            var y2 = _.clone(y);
+
+                            y2.comment = '[' + x.segment_name + ']' + y2.comment;
+                            render_data.comments_all.push(y2);
+                        })
+                    };
+                })
+            };
+            render_data.comments_all = _.sortBy(render_data.comments_all, function(x) { //安时间倒叙排
                 return -(new Date(x.createDate));
             })
+            // console.log(render_data);
             $("#btn-assessment_comment-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);
             // console.log(render_data);
             $("#assessment_comment-content").html(self.template(render_data));

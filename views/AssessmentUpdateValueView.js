@@ -176,6 +176,33 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                             alert('自评分为数字类型，请重新输入。');
                         };
                     }
+                })
+                .on('change', '#pi_new_comment', function(event) { //小周期的沟通记录
+                    event.preventDefault();
+                    var $this = $(this);
+                    console.log($this.val());
+                    if ($this.val()) {
+                        var lx = $this.data('lx');
+                        var pi = $this.data('pi');
+                        var ol = $this.data('ol');
+                        var pi_data = self.get_pi(lx, pi, ol);
+                        var cur_seg = pi_data.segments[$("#assessment_update_value-content #segment_select").val()];
+                        var new_message = {
+                            comment: $this.val(),
+                            people_name: $("#login_people_name").val(),
+                            position_name: $("#login_position_name").val(),
+                            avatar: $("#login_avatar").val(),
+                            creator: $("#login_people").val(),
+                            createDate: new Date()
+                        }
+                        cur_seg.comments.push(new_message);
+                        cur_seg.comments = _.sortBy(cur_seg.comments, function(x) {
+                            return (new Date(x.createDate));
+                        })
+                        self.model.save().done(function() {
+                            self.render(lx, pi, ol, cur_seg);
+                        })
+                    }
                 });
         },
 
@@ -195,6 +222,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     return (now >= moment(x.start) && now <= moment(x.end))
                 })
                 render_data.now_seg = now_seg || render_data.segments[0]; //如果没找到当前期间，则给出第一个段。
+                render_data.now_seg.comments = _.sortBy(render_data.now_seg.comments, function(x) { //按时间倒叙
+                    return -(new Date(x.createDate));
+                })
             };
             if (lx == 'dx') { //定性指标，判断评分方式
                 render_data.grade_way = self.model.attributes.qualitative_pis.grade_way;
@@ -275,7 +305,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             // 计算定性指标的得分
             self.model.attributes.qualitative_pis.sum_score = 0;
             _.each(self.model.attributes.qualitative_pis.items, function(x) {
-                x.f_score = x.self_score / x.target_value * 100; // 计分＝自评分/目标分 **过程管理的时候，只认自评分。
+                x.f_score = Math.round(x.self_score / x.target_value * 10000) / 100; // 计分＝自评分/目标分 **过程管理的时候，只认自评分。
                 x.score = Math.round(x.f_score * x.weight) / 100; //
                 // console.log('定性指标：：',x.self_score, x.weight, x.score);
                 self.model.attributes.qualitative_pis.sum_score += x.score;
