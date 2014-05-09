@@ -50,10 +50,29 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             render_data.pi = pi;
             render_data.ol = ol;
             render_data.login_people = $("#login_people").val();
-            render_data.comments = _.sortBy(render_data.comments, function(x) {
+            // render_data.comments = _.sortBy(render_data.comments, function(x) {
+            //     return -(new Date(x.createDate));
+            // })
+            render_data.wip_summary_all = _.clone(render_data.wip_summary);
+            if (render_data.segments.length) {
+                _.each(render_data.segments, function(x) {
+                    if (x.segment_summary.length) {
+                        _.each(x.segment_summary, function(y) {
+                            render_data.wip_summary_all.push(_.clone(y));
+                        })
+                    };
+                })
+            };
+            render_data.wip_summary_all = _.sortBy(render_data.wip_summary_all, function(x) { //安时间倒叙排
                 return -(new Date(x.createDate));
             })
+            // if (render_data.wip_summary_all.length) {
+            //     render_data.improve_plan_last_update = render_data.wip_summary_all[0].createDate;
+            // };
+            // render_data.improve_plan_nums = render_data.wip_summary_all.length;
+            console.log(render_data.wip_summary_all);
             $("#btn-assessment_improve_plan-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);
+            $("#btn-assessment_improve_plan-add").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol + '/new/-');
             // console.log(render_data);
             $("#assessment_improve_plan-content").html(self.template(render_data));
             $("#assessment_improve_plan-content").trigger('create');

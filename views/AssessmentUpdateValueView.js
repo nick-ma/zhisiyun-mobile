@@ -180,7 +180,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                 .on('change', '#pi_new_comment', function(event) { //小周期的沟通记录
                     event.preventDefault();
                     var $this = $(this);
-                    console.log($this.val());
+                    // console.log($this.val());
                     if ($this.val()) {
                         var lx = $this.data('lx');
                         var pi = $this.data('pi');
@@ -200,14 +200,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                             return (new Date(x.createDate));
                         })
                         self.model.save().done(function() {
-                            self.render(lx, pi, ol, cur_seg);
+                            self.render(lx, pi, ol, cur_seg, 'comment_pane');
                         })
                     }
                 });
         },
 
         // Renders all of the Assessment models on the UI
-        render: function(lx, pi, ol, current_seg) {
+        render: function(lx, pi, ol, current_seg, opened_pane) {
             var self = this;
             // console.log('render: ', lx, pi, ol);
             var render_data = {};
@@ -234,6 +234,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     render_data.gg = gg.attributes;
                 };
             };
+            render_data.comment_pane_collapsed = (opened_pane == 'comment_pane') ? 'false' : 'true';
             // console.log(render_data);
             // render_data.comments
             $("#btn-assessment_update_value-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);

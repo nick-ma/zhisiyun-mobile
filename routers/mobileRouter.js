@@ -5,7 +5,7 @@
 define(["jquery", "backbone", "handlebars", "lzstring",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
-    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../views/AssessmentUpdateValueView", "../views/AssessmentImprovePlanView", "../collections/AssessmentVCollection",
+    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../views/AssessmentUpdateValueView", "../views/AssessmentImprovePlanView", "../views/AssessmentImprovePlanEditView", "../collections/AssessmentVCollection",
     "../views/HomeTaskView", "../views/HomeMyTeamView",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView", "../views/TaskForwardSelectPeoplePanelView",
@@ -30,7 +30,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
   ],
   function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
-    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView, AssessmentUpdateValueView, AssessmentImprovePlanView, AssessmentVCollection,
+    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView, AssessmentUpdateValueView, AssessmentImprovePlanView, AssessmentImprovePlanEditView, AssessmentVCollection,
     HomeTaskView, HomeMyTeamView,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
@@ -77,6 +77,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "assessment_comment/:ai_id/:lx/:pi/:ol": "assessment_comment",
         "assessment_update_value/:ai_id/:lx/:pi/:ol": "assessment_update_value",
         "assessment_improve_plan/:ai_id/:lx/:pi/:ol": "assessment_improve_plan",
+        "assessment_improve_plan/:ai_id/:lx/:pi/:ol/:ip_id/:seg_name": "assessment_improve_plan_edit",
         // When #category? is on the url, the category method is called
         //任务日历相关的routes
         "task": "task",
@@ -262,6 +263,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.assessmentImprovePlanView.model = this.c_assessment.get(ai_id);
         this.assessmentImprovePlanView.render(lx, pi, ol);
         $("body").pagecontainer("change", "#assessment_improve_plan", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      assessment_improve_plan_edit: function(ai_id, lx, pi, ol, ip_id, seg_name) { //新增／修改改进措施
+        this.assessmentImprovePlanEditView.model = this.c_assessment.get(ai_id);
+        this.assessmentImprovePlanEditView.render(lx, pi, ol, ip_id, seg_name);
+        $("body").pagecontainer("change", "#assessment_improve_plan_edit", {
           reverse: false,
           changeHash: false,
         });
@@ -793,6 +802,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.assessmentImprovePlanView = new AssessmentImprovePlanView({
           el: "#assessment_improve_plan-content"
         })
+        this.assessmentImprovePlanEditView = new AssessmentImprovePlanEditView({
+          el: "#assessment_improve_plan_edit-content"
+        })
 
         this.contactListlView = new ContactListView({
           el: "#contact_list-content",
@@ -1001,7 +1013,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return (data) ? data.replace(/\n/g, '<br>') : '';
       });
       Handlebars.registerHelper('fromNow', function(data, flag) {
-        return (data)?moment(data).fromNow( !! flag):'';
+        return (data) ? moment(data).fromNow( !! flag) : '';
       });
       Handlebars.registerHelper('fromStart2End', function(start, end, flag) {
         if (moment(end).format('YYYY-MM-DD') == '9999-12-31') {
