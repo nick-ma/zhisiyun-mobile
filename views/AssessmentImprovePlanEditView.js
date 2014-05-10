@@ -13,62 +13,121 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             // The render method is called when Assessment Models are added to the Collection
             // this.model.on("sync", this.render, this);
             var self = this;
-            $("#assessment_improve_plan_edit-content").on('click', '#btn-pi_ip-save', function(event) {
-                event.preventDefault();
-                var $this = $(this);
-                var $C = $("#assessment_improve_plan_edit-content");
-                //从表单取值
-                var tmp_ws = {};
-                tmp_ws.gap_analysis = $C.find("#pi_gap_analysis").val();
-                tmp_ws.improvement_plan = $C.find("#pi_improvement_plan").val();
-                tmp_ws.start = $C.find("#pi_start").val();
-                tmp_ws.end = $C.find("#pi_end").val();
-                tmp_ws.finished = $C.find("#pi_finished").val() == 'true' ? true : false;
-                tmp_ws.createDate = new Date();
-                // console.log(tmp_ws);
-                //保存
-                if (self.ip_id == 'new') { //新加的一条，push进去
-                    self.pi_data.wip_summary.push(tmp_ws);
-                } else {
-                    var tmp = self.get_pi(self.lx, self.pi, self.ol);
-                    var found;
-                    if (self.seg_name == '-') { //在指标层级来找
-                        found = _.find(tmp.wip_summary, function(x) {
-                            return x._id == self.ip_id;
-                        })
-
-                    } else { //在小周期层级来找
-                        //先找到小周期
-                        var seg = _.find(tmp.segments, function(x) {
-                            return x.segment_name == self.seg_name;
-                        })
-                        if (seg) {
-                            found = _.find(seg.segment_summary, function(x) {
+            $("#assessment_improve_plan_edit-content")
+                .on('click', '#btn-pi_ip-save', function(event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    var $C = $("#assessment_improve_plan_edit-content");
+                    //从表单取值
+                    var tmp_ws = {};
+                    tmp_ws.gap_analysis = $C.find("#pi_gap_analysis").val();
+                    tmp_ws.improvement_plan = $C.find("#pi_improvement_plan").val();
+                    tmp_ws.start = $C.find("#pi_start").val();
+                    tmp_ws.end = $C.find("#pi_end").val();
+                    tmp_ws.finished = $C.find("#pi_finished").val() == 'true' ? true : false;
+                    tmp_ws.createDate = new Date();
+                    //validate form data
+                    if (!tmp_ws.gap_analysis) {
+                        alert('请输入偏差分析的内容');
+                        return;
+                    };
+                    if (!tmp_ws.improvement_plan) {
+                        alert('请输入改进措施的内容');
+                        return;
+                    };
+                    if (new Date(tmp_ws.start) > new Date(tmp_ws.end)) {
+                        alert('开始时间不能大于结束时间');
+                        return;
+                    };
+                    // console.log(tmp_ws);
+                    //保存
+                    if (self.ip_id == 'new') { //新加的一条，push进去
+                        self.pi_data.wip_summary.push(tmp_ws);
+                    } else {
+                        var tmp = self.get_pi(self.lx, self.pi, self.ol);
+                        var found;
+                        if (self.seg_name == '-') { //在指标层级来找
+                            found = _.find(tmp.wip_summary, function(x) {
                                 return x._id == self.ip_id;
+                            })
+
+                        } else { //在小周期层级来找
+                            //先找到小周期
+                            var seg = _.find(tmp.segments, function(x) {
+                                return x.segment_name == self.seg_name;
+                            })
+                            if (seg) {
+                                found = _.find(seg.segment_summary, function(x) {
+                                    return x._id == self.ip_id;
+                                })
+                            };
+                        };
+                        if (found) {
+                            found.gap_analysis = tmp_ws.gap_analysis;
+                            found.improvement_plan = tmp_ws.improvement_plan;
+                            found.start = tmp_ws.start;
+                            found.end = tmp_ws.end;
+                            found.finished = tmp_ws.finished;
+                        };
+                        // console.log(found);
+                    };
+
+                    // console.log(self.model.attributes.quantitative_pis);
+                    self.model.save().done(function() {
+                        $("#assessment_improve_plan_edit_msg_content").html('保存成功！')
+                        $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi + '/' + self.ol)
+                        $("#assessment_improve_plan_edit_msg").popup('open', {
+                            transition: 'slidedown'
+                        });
+                        // self.render(self.lx, self.pi, self.ol, self.ip_id, self.seg_name);
+
+                    })
+                })
+                .on('click', '#btn-pi_ip-remove', function(event) {
+                    event.preventDefault();
+                    if (self.ip_id == 'new') {
+                        alert('新建时不能删除！\n如果要取消新建，请点击左上角的后退按钮。')
+                    } else {
+                        if (confirm('确认删除吗？')) {
+                            var tmp = self.get_pi(self.lx, self.pi, self.ol);
+                            var found;
+                            if (self.seg_name == '-') { //在指标层级来找
+                                found = _.find(tmp.wip_summary, function(x) {
+                                    return x._id == self.ip_id;
+                                })
+                                if (found) { //找到了，删掉
+                                    tmp.wip_summary.splice(tmp.wip_summary.indexOf(found), 1);
+                                };
+
+                            } else { //在小周期层级来找
+                                //先找到小周期
+                                var seg = _.find(tmp.segments, function(x) {
+                                    return x.segment_name == self.seg_name;
+                                })
+                                if (seg) {
+                                    found = _.find(seg.segment_summary, function(x) {
+                                        return x._id == self.ip_id;
+                                    })
+                                    if (found) { //找到了，删掉
+                                        seg.segment_summary.splice(seg.segment_summary.indexOf(found), 1);
+                                    };
+                                };
+                            };
+
+                            // console.log(self.model.attributes.quantitative_pis);
+                            self.model.save().done(function() {
+                                $("#assessment_improve_plan_edit_msg_content").html('删除成功！')
+                                $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi + '/' + self.ol)
+                                $("#assessment_improve_plan_edit_msg").popup('open', {
+                                    transition: 'slidedown'
+                                });
+                                // self.render(self.lx, self.pi, self.ol, self.ip_id, self.seg_name);
+
                             })
                         };
                     };
-                    if (found) {
-                        found.gap_analysis = tmp_ws.gap_analysis;
-                        found.improvement_plan = tmp_ws.improvement_plan;
-                        found.start = tmp_ws.start;
-                        found.end = tmp_ws.end;
-                        found.finished = tmp_ws.finished;
-                    };
-                    // console.log(found);
-                };
 
-                // console.log(self.model.attributes.quantitative_pis);
-                self.model.save().done(function() {
-                    $("#assessment_improve_plan_edit_msg_content").html('保存成功！')
-                    $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi + '/' + self.ol)
-                    $("#assessment_improve_plan_edit_msg").popup('open', {
-                        transition: 'slidedown'
-                    });
-                    // self.render(self.lx, self.pi, self.ol, self.ip_id, self.seg_name);
-
-                })
-            });
+                });
 
         },
 

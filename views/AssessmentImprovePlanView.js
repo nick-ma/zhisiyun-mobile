@@ -50,6 +50,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             render_data.pi = pi;
             render_data.ol = ol;
             render_data.login_people = $("#login_people").val();
+            render_data.ai_id = self.model.get('_id');
             // render_data.comments = _.sortBy(render_data.comments, function(x) {
             //     return -(new Date(x.createDate));
             // })
