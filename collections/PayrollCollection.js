@@ -9,9 +9,11 @@ define(["jquery", "backbone", "models/PayrollModel"], function($, Backbone, Payr
 
         // The Collection constructor
         initialize: function(models, options) {
-            
+
         },
-        url: '/admin/py/payroll_people/get_payroll_instances',
+        url: function() {
+            return '/admin/py/payroll_people/get_payroll_instances' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a Payroll Model
         model: PayrollModel,
     });

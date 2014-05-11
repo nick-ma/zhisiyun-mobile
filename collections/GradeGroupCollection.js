@@ -11,7 +11,10 @@ define(["jquery", "backbone", "models/GradeGroupModel"], function($, Backbone, G
         initialize: function(models, options) {
 
         },
-        url: '/admin/pm/performance_grade/gg_4m',
+        url: function() {
+
+            return '/admin/pm/performance_grade/gg_4m' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a GradeGroup Model
         model: GradeGroupModel,
     });

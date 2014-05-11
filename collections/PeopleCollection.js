@@ -9,9 +9,12 @@ define(["jquery", "backbone", "models/PeopleModel"], function($, Backbone, Peopl
 
         // The Collection constructor
         initialize: function(models, options) {
-            
+
         },
-        url: '/admin/masterdata/people/people_list4m',
+        url: function() {
+            return '/admin/masterdata/people/people_list4m' + '?ct=' + (new Date()).getTime();
+        },
+
         // Sets the Collection model property to be a People Model
         model: PeopleModel,
     });

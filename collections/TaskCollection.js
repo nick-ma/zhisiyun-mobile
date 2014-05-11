@@ -9,9 +9,11 @@ define(["jquery", "backbone", "models/TaskModel"], function($, Backbone, TaskMod
 
         // The Collection constructor
         initialize: function(models, options) {
-            
+
         },
-        url: '/admin/pm/work_plan/bb4m',
+        url: function() {
+            return '/admin/pm/work_plan/bb4m' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a Task Model
         model: TaskModel,
     });

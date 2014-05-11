@@ -11,7 +11,10 @@ define(["jquery", "backbone", "models/ScoringFormulaModel"], function($, Backbon
         initialize: function(models, options) {
 
         },
-        url: '/admin/pm/scoring_formula_client/get_data_4m',
+        url: function() {
+
+            return '/admin/pm/scoring_formula_client/get_data_4m' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a ScoringFormula Model
         model: ScoringFormulaModel,
     });

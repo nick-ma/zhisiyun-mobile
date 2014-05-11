@@ -9,9 +9,11 @@ define(["jquery", "backbone", "models/TalentModel"], function($, Backbone, Talen
 
         // The Collection constructor
         initialize: function(models, options) {
-            
+
         },
-        url: '/user/report/lambda_data4m',
+        url: function() {
+            return '/user/report/lambda_data4m' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a Talent Model
         model: TalentModel,
     });

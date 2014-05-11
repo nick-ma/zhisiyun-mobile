@@ -326,7 +326,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         if (tab == 'basic') {
           //获取工资
           $.mobile.loading("show");
-          this.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id;
+          this.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
           var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('payroll_' + people_id)) || null)
           if (local_data) {
             self.c_payroll_myteam.reset(local_data);
@@ -356,7 +356,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
           //获取日历数据
           $.mobile.loading("show");
-          this.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id;
+          this.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id + '&ct=' + (new Date()).getTime();
           var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('task_' + people_id)) || null)
           if (local_data) {
             self.c_task_myteam.reset(local_data);
@@ -387,7 +387,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         } else if (tab == 'assessment') { //下属的绩效
           //获取绩效数据
           $.mobile.loading("show");
-          this.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id;
+          this.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id + '&ct=' + (new Date()).getTime();
           var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('assessment_' + people_id)) || null)
           if (local_data) {
             self.c_assessment_myteam.reset(local_data);
@@ -422,7 +422,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         if (task_id == 'refresh') { //刷新数据
           $.mobile.loading("show");
-          self.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id;
+          self.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id + '&ct=' + (new Date()).getTime();
           self.c_task_myteam.fetch().done(function() {
             localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)))
             $.mobile.loading("hide");
@@ -909,7 +909,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               }
               var tmp_assessment_col = new AssessmentCollection();
               async.times(assessments.length, function(n, next) {
-                self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1];
+                self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
                 async.waterfall([
 
                   function(cb) {
@@ -940,7 +940,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                       };
                     };
                     if (change_flag) { //发现有变化，重新fetch
-                      tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1];
+                      tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
                       tmp_assessment_col.fetch().done(function() {
                         localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_assessment_col)));
                         // $.mobile.loading("hide");

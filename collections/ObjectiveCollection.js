@@ -9,9 +9,12 @@ define(["jquery", "backbone", "models/ObjectiveModel"], function($, Backbone, Ob
 
         // The Collection constructor
         initialize: function(models, options) {
-            
+
         },
-        url: '/admin/pm/target_planning/get_target_planning_json_4m',
+        url: function() {
+
+            return '/admin/pm/target_planning/get_target_planning_json_4m' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a Task Model
         model: ObjectiveModel,
     });

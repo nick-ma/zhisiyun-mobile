@@ -12,7 +12,10 @@ define(["jquery", "backbone", "models/AssessmentModel"], function($, Backbone, A
 
 
         },
-        url: '/admin/pm/assessment_instance/get_my_assessments_4m',
+        url: function() {
+
+            return '/admin/pm/assessment_instance/get_my_assessments_4m' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a Assessment Model
         model: AssessmentModel,
     });

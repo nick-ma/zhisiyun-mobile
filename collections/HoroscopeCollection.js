@@ -9,9 +9,11 @@ define(["jquery", "backbone", "models/HoroscopeModel"], function($, Backbone, Ho
 
         // The Collection constructor
         initialize: function(models, options) {
-            
+
         },
-        url: '/user/report/horoscope4m',
+        url: function() {
+            return '/user/report/horoscope4m' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a Horoscope Model
         model: HoroscopeModel,
     });

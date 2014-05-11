@@ -9,9 +9,11 @@ define(["jquery", "backbone", "models/CompetencyModel"], function($, Backbone, C
 
         // The Collection constructor
         initialize: function(models, options) {
-            
+
         },
-        url: '/admin/om/competency_client/get_peoples_competency_json',
+        url: function() {
+            return '/admin/om/competency_client/get_peoples_competency_json' + '?ct=' + (new Date()).getTime();
+        },
         // Sets the Collection model property to be a Competency Model
         model: CompetencyModel,
     });
