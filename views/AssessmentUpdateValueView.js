@@ -237,7 +237,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             };
             render_data.comment_pane_collapsed = (opened_pane == 'comment_pane') ? 'false' : 'true';
             render_data.improve_plan_pane_collapsed = (opened_pane == 'improve_plan_pane') ? 'false' : 'true';
-            console.log(render_data);
+            // console.log(render_data);
             // render_data.comments
             $("#btn-assessment_update_value-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);
             // console.log(render_data);

@@ -66,6 +66,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                 render_data.improve_plan_last_update = render_data.wip_summary_all[0].createDate;
             };
             render_data.improve_plan_nums = render_data.wip_summary_all.length;
+            // 计分公式或者评分标准
+            // console.log(self.scoringformula);
+            if (lx == 'dl') { //只有定量指标才有计分公式
+                var found = _.find(self.scoringformula.models, function(x) {
+                    return x.get('_id') == render_data.scoringformula;
+                })
+                render_data.pf = (found) ? found.get('sf_description') : '';
+            } else if (lx == 'dx') {
+                if (self.model.attributes.qualitative_pis.grade_way == 'G') { //手工打分
+                    var found = _.find(self.gradegroup.models, function(x) {
+                        // console.log(x.get('_id'), self.model.attributes.qualitative_pis.grade_group);
+                        return x.get('_id') == self.model.attributes.qualitative_pis.grade_group;
+                    })
+                    render_data.pf = (found) ? found.get('gg_description') : '';
+                } else {
+                    render_data.pf = render_data.pi_sc_description;
+                };
+            };
             $("#btn-assessment_detail-back").attr('href', '#assessment_pi_list/' + self.model.get('_id'));
             // console.log(render_data);
             $("#assessment_detail-content").html(self.template(render_data));

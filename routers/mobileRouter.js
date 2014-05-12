@@ -13,6 +13,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../models/PeopleModel", "../collections/PeopleCollection", "../views/ContactListView", "../views/ContactDetailView",
     //我的团队相关
     "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView", "../views/MyTeamAllListView",
+    //团队考核相关
+    "../views/MyTeamAssessmentCommentView", "../views/MyTeamAssessmentUpdateValueView","../views/MyTeamAssessmentImprovePlanView",
     //绩效考核合同相关
     "../views/AssessmentDetailView", "../views/MyTeamAssessmentView", "../views/MyTeamAssessmentPIListView", "../views/MyTeamAssessmentDetailView",
     // 人才盘点相关
@@ -35,6 +37,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView, MyTeamAllListView,
+    MyTeamAssessmentCommentView,MyTeamAssessmentUpdateValueView,MyTeamAssessmentImprovePlanView,
     AssessmentDetailView, MyTeamAssessmentView, MyTeamAssessmentPIListView, MyTeamAssessmentDetailView,
     TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView,
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
@@ -100,6 +103,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "myteam_salary_detail/:people_id/:pay_time": "myteam_salary_detail",
         "myteam_assessment_pi_list/:people_id/:ai_id": "myteam_assessment_pi_list",
         "myteam_assessment_detail/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_detail",
+        "myteam_assessment_comment/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_comment",
+        "myteam_assessment_update_value/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_update_value",
+        "myteam_assessment_improve_plan/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_improve_plan",
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -235,6 +241,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       assessment_detail: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的查看界面
         this.assessmentDetailView.model = this.c_assessment.get(ai_id);
+        this.assessmentDetailView.scoringformula = this.c_scoringformula;
+        this.assessmentDetailView.gradegroup = this.c_gradegroup;
         this.assessmentDetailView.render(lx, pi, ol);
         $("body").pagecontainer("change", "#assessment_detail", {
           reverse: false,
@@ -286,8 +294,40 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       myteam_assessment_detail: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－指标详情
         this.myteamAssessmentDetailView.model = this.c_assessment_myteam.get(ai_id);
+        this.myteamAssessmentDetailView.scoringformula = this.c_scoringformula;
+        this.myteamAssessmentDetailView.gradegroup = this.c_gradegroup;
         this.myteamAssessmentDetailView.render(people_id, lx, pi, ol);
         $("body").pagecontainer("change", "#myteam_assessment_detail", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      myteam_assessment_comment: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－沟通与记录（读写）
+        this.myteamAssessmentCommentView.model = this.c_assessment_myteam.get(ai_id);
+        this.myteamAssessmentCommentView.scoringformula = this.c_scoringformula;
+        this.myteamAssessmentCommentView.gradegroup = this.c_gradegroup;
+        this.myteamAssessmentCommentView.render(people_id, lx, pi, ol);
+        $("body").pagecontainer("change", "#myteam_assessment_comment", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      myteam_assessment_update_value: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－数据更新（只读）
+        this.myteamAssessmentUpdateValueView.model = this.c_assessment_myteam.get(ai_id);
+        this.myteamAssessmentUpdateValueView.scoringformula = this.c_scoringformula;
+        this.myteamAssessmentUpdateValueView.gradegroup = this.c_gradegroup;
+        this.myteamAssessmentUpdateValueView.render(people_id, lx, pi, ol);
+        $("body").pagecontainer("change", "#myteam_assessment_update_value", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      myteam_assessment_improve_plan: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－分析与改进（只读）
+        this.myteamAssessmentImprovePlanView.model = this.c_assessment_myteam.get(ai_id);
+        this.myteamAssessmentImprovePlanView.scoringformula = this.c_scoringformula;
+        this.myteamAssessmentImprovePlanView.gradegroup = this.c_gradegroup;
+        this.myteamAssessmentImprovePlanView.render(people_id, lx, pi, ol);
+        $("body").pagecontainer("change", "#myteam_assessment_improve_plan", {
           reverse: false,
           changeHash: false,
         });
@@ -862,6 +902,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.myteamAssessmentDetailView = new MyTeamAssessmentDetailView({
           el: "#myteam_assessment_detail-content",
         })
+        this.myteamAssessmentCommentView = new MyTeamAssessmentCommentView({
+          el: "#myteam_assessment_comment-content",
+        })
+        this.myteamAssessmentUpdateValueView = new MyTeamAssessmentUpdateValueView({
+          el: "#myteam_assessment_update_value-content",
+        })
+        this.myteamAssessmentImprovePlanView = new MyTeamAssessmentImprovePlanView({
+          el: "#myteam_assessment_improve_plan-content",
+        })
         this.myteamAllListView = new MyTeamAllListView({
           el: "#myteam_all_list-content",
           collection: self.c_people
@@ -958,6 +1007,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               }, function(err, result) {
                 console.log(result);
               })
+              //工作任务数据
+
             };
           }, interval); //10 seconds for test
         };
