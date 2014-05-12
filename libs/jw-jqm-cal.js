@@ -206,7 +206,7 @@
       };
       if (n[i.settings.summary]) {
         item.push("<br>");
-        item.push("<small>")
+        item.push("<small style='white-space: normal;' >")
         item.push(n[i.settings.summary].replace(/\n/g, "<br>"));
         item.push("</small>")
       };

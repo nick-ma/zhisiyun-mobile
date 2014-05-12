@@ -2,7 +2,7 @@
 // =============================================================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/AssessmentModel"], function($, _, Backbone, Handlebars, moment, AssessmentModel) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "models/AssessmentModel", "models/TaskModel"], function($, _, Backbone, Handlebars, moment, async, AssessmentModel, TaskModel) {
 
     // Extends Backbone.View
     var AssessmentImprovePlanEditView = Backbone.View.extend({
@@ -42,7 +42,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     // console.log(tmp_ws);
                     //保存
                     if (self.ip_id == 'new') { //新加的一条，push进去
-                        self.pi_data.wip_summary.push(tmp_ws);
+                        if (self.seg_name == '-') { //在指标层级来找
+                            self.pi_data.wip_summary.push(tmp_ws);
+                        } else { //在小周期层级来找
+                            var tmp = self.get_pi(self.lx, self.pi, self.ol);
+                            //先找到小周期
+                            var seg = _.find(tmp.segments, function(x) {
+                                return x.segment_name == self.seg_name;
+                            })
+                            if (seg) {
+                                seg.segment_summary.push(tmp_ws);
+                            };
+                        };
                     } else {
                         var tmp = self.get_pi(self.lx, self.pi, self.ol);
                         var found;
@@ -73,15 +84,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     };
 
                     // console.log(self.model.attributes.quantitative_pis);
-                    self.model.save().done(function() {
+                    async.series({
+                        save_ip: function(cb) {
+                            self.model.save().done(function() {
+                                cb(null, 'OK')
+                            })
+                        },
+                        save_task: function(cb) {
+                            self.post_to_work_plan(cb);
+                        },
+                    }, function(err, result) {
                         $("#assessment_improve_plan_edit_msg_content").html('保存成功！')
                         $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi + '/' + self.ol)
                         $("#assessment_improve_plan_edit_msg").popup('open', {
                             transition: 'slidedown'
                         });
-                        // self.render(self.lx, self.pi, self.ol, self.ip_id, self.seg_name);
-
                     })
+                    // self.model.save().done(function() {
+
+                    //     // self.render(self.lx, self.pi, self.ol, self.ip_id, self.seg_name);
+
+                    // })
                 })
                 .on('click', '#btn-pi_ip-remove', function(event) {
                     event.preventDefault();
@@ -218,8 +241,109 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     }
                 })
             };
-        }
-
+        },
+        post_to_work_plan: function(cb) { //同步到个人工作计划中。
+            var self = this;
+            var post_data = {
+                origin_oid: self.model.get('_id'),
+                origin_cat: 'wip'
+            };
+            $.post('/admin/pm/work_plan/remove_by_origin', post_data, function(data, textStatus, xhr) {
+                if (data.code == 'OK') { //删除成功
+                    // return;
+                    var create_event = function(title, description, start, end, finished) {
+                        var new_event = {
+                            creator: $("#login_people").val(),
+                            people: self.model.get('people'),
+                            title: title,
+                            allDay: true,
+                            start: moment(start).format('YYYY-MM-DD'),
+                            end: moment(end).format('YYYY-MM-DD'),
+                            tags: '绩效过程,改进措施,' + self.model.get('ai_name'),
+                            url: '/admin/pm/assessment_instance/wip/bbform?ai_id=' + self.model.get('_id'),
+                            origin_oid: self.model.get('_id'),
+                            origin_cat: 'wip',
+                            editable: false,
+                            startEditable: false,
+                            durationEditable: false,
+                            origin: '1',
+                            is_complete: finished,
+                        };
+                        new_event.description = description;
+                        new TaskModel(new_event).save(); //<- need todo
+                    }
+                    //定量指标
+                    _.each(self.model.attributes.quantitative_pis.items, function(x) {
+                        if (x.wip_summary.length) { //单指标，整体的改进措施
+                            _.each(x.wip_summary, function(y) {
+                                var title = '改进措施:' + y.improvement_plan;
+                                var description = [
+                                    '偏差分析:' + y.gap_analysis,
+                                    '改进措施:' + y.improvement_plan,
+                                    '考核指标:' + x.pi_name,
+                                    '支撑目标:' + x.ol_name,
+                                    '绩效合同:' + self.model.get('ai_name'),
+                                ];
+                                create_event(title, description.join('\n'), y.start, y.end, y.finished);
+                            })
+                        };
+                        if (x.segments.length) { //对于有小周期的情况
+                            _.each(x.segments, function(y) {
+                                if (y.segment_summary.length) {
+                                    _.each(y.segment_summary, function(z) {
+                                        var title = '改进措施:' + z.improvement_plan;
+                                        var description = [
+                                            '偏差分析:' + z.gap_analysis,
+                                            '改进措施:' + z.improvement_plan,
+                                            '小周期名:' + y.segment_name,
+                                            '考核指标:' + x.pi_name,
+                                            '支撑目标:' + x.ol_name,
+                                            '绩效合同:' + self.model.get('ai_name'),
+                                        ];
+                                        create_event(title, description.join('\n'), z.start, z.end, z.finished);
+                                    })
+                                };
+                            })
+                        };
+                    })
+                    //定量指标
+                    _.each(self.model.attributes.qualitative_pis.items, function(x) {
+                        if (x.wip_summary.length) { //单指标，整体的改进措施
+                            _.each(x.wip_summary, function(y) {
+                                var title = '改进措施:' + y.improvement_plan;
+                                var description = [
+                                    '偏差分析:' + y.gap_analysis,
+                                    '改进措施:' + y.improvement_plan,
+                                    '考核指标:' + x.pi_name,
+                                    '支撑目标:' + x.ol_name,
+                                    '绩效合同:' + self.model.get('ai_name'),
+                                ];
+                                create_event(title, description.join('\n'), y.start, y.end, y.finished);
+                            })
+                        };
+                        if (x.segments.length) { //对于有小周期的情况
+                            _.each(x.segments, function(y) {
+                                if (y.segment_summary.length) {
+                                    _.each(y.segment_summary, function(z) {
+                                        var title = '改进措施:' + z.improvement_plan;
+                                        var description = [
+                                            '偏差分析:' + z.gap_analysis,
+                                            '改进措施:' + z.improvement_plan,
+                                            '小周期名:' + y.segment_name,
+                                            '考核指标:' + x.pi_name,
+                                            '支撑目标:' + x.ol_name,
+                                            '绩效合同:' + self.model.get('ai_name'),
+                                        ];
+                                        create_event(title, description.join('\n'), z.start, z.end, z.finished);
+                                    })
+                                };
+                            })
+                        };
+                    })
+                    cb(null, 'OK');
+                };
+            });
+        },
     });
 
     // Returns the View class

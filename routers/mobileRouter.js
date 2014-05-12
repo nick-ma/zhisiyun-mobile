@@ -1006,6 +1006,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return options.inverse(this);
         };
       });
+      Handlebars.registerHelper('segname', function(data) {
+        return (data == '-') ? '' : '[' + data + ']';
+      });
       Handlebars.registerHelper('plus1', function(data) {
         return parseInt(data) + 1;
       });

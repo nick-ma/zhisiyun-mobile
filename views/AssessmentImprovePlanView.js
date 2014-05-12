@@ -55,11 +55,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             //     return -(new Date(x.createDate));
             // })
             render_data.wip_summary_all = _.clone(render_data.wip_summary);
+            render_data.wip_summary_all = _.map(render_data.wip_summary_all, function(x) {
+                x.segment_name = '-';
+                return x;
+            })
             if (render_data.segments.length) {
                 _.each(render_data.segments, function(x) {
                     if (x.segment_summary.length) {
                         _.each(x.segment_summary, function(y) {
-                            render_data.wip_summary_all.push(_.clone(y));
+                            var yy = _.clone(y);
+                            yy.segment_name = x.segment_name;
+                            render_data.wip_summary_all.push(yy);
                         })
                     };
                 })
