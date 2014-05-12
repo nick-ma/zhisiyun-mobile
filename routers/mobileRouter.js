@@ -6,7 +6,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
     "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../views/AssessmentUpdateValueView", "../views/AssessmentImprovePlanView", "../views/AssessmentImprovePlanEditView", "../collections/AssessmentVCollection",
-    "../views/HomeTaskView", "../views/HomeMyTeamView",
+    "../views/HomeTaskView", "../views/HomeMyTeamView", "../collections/TaskVCollection",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView", "../views/TaskForwardSelectPeoplePanelView",
     //人员和组织相关
@@ -14,7 +14,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //我的团队相关
     "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView", "../views/MyTeamAllListView",
     //团队考核相关
-    "../views/MyTeamAssessmentCommentView", "../views/MyTeamAssessmentUpdateValueView","../views/MyTeamAssessmentImprovePlanView",
+    "../views/MyTeamAssessmentCommentView", "../views/MyTeamAssessmentUpdateValueView", "../views/MyTeamAssessmentImprovePlanView",
     //绩效考核合同相关
     "../views/AssessmentDetailView", "../views/MyTeamAssessmentView", "../views/MyTeamAssessmentPIListView", "../views/MyTeamAssessmentDetailView",
     // 人才盘点相关
@@ -33,11 +33,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
   function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
     HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView, AssessmentUpdateValueView, AssessmentImprovePlanView, AssessmentImprovePlanEditView, AssessmentVCollection,
-    HomeTaskView, HomeMyTeamView,
+    HomeTaskView, HomeMyTeamView, TaskVCollection,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
     MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView, MyTeamAllListView,
-    MyTeamAssessmentCommentView,MyTeamAssessmentUpdateValueView,MyTeamAssessmentImprovePlanView,
+    MyTeamAssessmentCommentView, MyTeamAssessmentUpdateValueView, MyTeamAssessmentImprovePlanView,
     AssessmentDetailView, MyTeamAssessmentView, MyTeamAssessmentPIListView, MyTeamAssessmentDetailView,
     TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView,
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
@@ -931,6 +931,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_assessment_myteam = new AssessmentCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_assessment_v_myteam = new AssessmentVCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。 －版本
         this.c_task = new TaskCollection(); //工作任务
+        this.c_task_v = new TaskVCollection(); //工作任务
         this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_people = new PeopleCollection(); //人员
         this.c_talent = new TalentCollection(); //人才
@@ -996,10 +997,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
                           self.load_data(self.c_assessment, 'assessment');
                         };
-                        cb(null, 'fetch new version ok');
+                        cb(null, 'assessment: fetch new version ok');
                       })
                     } else {
-                      cb(null, 'no new version.')
+                      cb(null, 'assessment: no new version.')
                     };
                     // cb(null, 'fetch ok->' + assessments[n][1]);
                   }
@@ -1008,7 +1009,63 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 console.log(result);
               })
               //工作任务数据
+              var tasks = [];
+              for (i = 0; i < localStorage.length; i++) {
+                if (localStorage.key(i).split('_')[0] == 'task') {
+                  tasks.push(localStorage.key(i).split('_'))
+                }
+              }
+              var tmp_task_col = new TaskCollection();
+              async.times(tasks.length, function(n, next) {
+                self.c_task_v.url = '/admin/pm/work_plan/bb_v_4m?people=' + tasks[n][1] + '&ct=' + (new Date()).getTime();
+                async.waterfall([
 
+                  function(cb) {
+                    self.c_task_v.fetch().done(function() { //获取版本
+                      cb(null, self.c_task_v);
+                    })
+                  },
+                  function(c, cb) { //取得本地数据版本，并与之前获取的版本进行比对
+                    var cn = tasks[n].join('_'); //本地localStorage使用的key
+                    var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
+                    var change_flag = false;
+                    change_flag = (local_data.length != c.length);
+                    if (!change_flag) { //没发现长度不一致，继续往下判断
+                      //应该以云端的数据为准
+                      for (var i = 0; i < c.length; i++) {
+                        var found = _.find(local_data, function(x) {
+                          return x._id == c.models[i].get('_id');
+                        })
+                        if (!found) { //云端有，本地没找到，说明有变化。
+                          change_flag = true;
+                          break;
+                        } else {
+                          if (found.lastModified != c.models[i].get('lastModified')) { //找到了，但是最后更改时间戳不一致，说明有变化。
+                            change_flag = true;
+                            break;
+                          };
+                        };
+                      };
+                    };
+                    if (change_flag) { //发现有变化，重新fetch
+                      tmp_task_col.url = '/admin/pm/work_plan/bb4m?people=' + tasks[n][1] + '&ct=' + (new Date()).getTime();
+                      tmp_task_col.fetch().done(function() {
+                        localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_task_col)));
+                        // $.mobile.loading("hide");
+                        if (tasks[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
+                          self.load_data(self.c_task, 'task');
+                        };
+                        cb(null, 'task: fetch new version ok');
+                      })
+                    } else {
+                      cb(null, 'task: no new version.')
+                    };
+                    // cb(null, 'fetch ok->' + tasks[n][1]);
+                  }
+                ], next);
+              }, function(err, result) {
+                console.log(result);
+              })
             };
           }, interval); //10 seconds for test
         };

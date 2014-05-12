@@ -51,6 +51,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             render_data.ol = ol;
             render_data.login_people = $("#login_people").val();
             render_data.ai_id = self.model.get('_id');
+            render_data.ai_status = self.model.get('ai_status');
             // render_data.comments = _.sortBy(render_data.comments, function(x) {
             //     return -(new Date(x.createDate));
             // })
@@ -83,6 +84,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             // console.log(render_data);
             $("#assessment_improve_plan-content").html(self.template(render_data));
             $("#assessment_improve_plan-content").trigger('create');
+            if (render_data.ai_status == '4') { //控制新增按钮的显示
+                $("#btn-assessment_improve_plan-add").show();
+            } else {
+                $("#btn-assessment_improve_plan-add").hide();
+            };
             // Maintains chainability
             return this;
 

@@ -213,6 +213,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             var render_data = {};
             render_data = self.get_pi(lx, pi, ol);
             render_data.ai_id = self.model.get('_id');
+            render_data.ai_status = self.model.get('ai_status');
             render_data.lx = lx;
             render_data.pi = pi;
             render_data.ol = ol;
