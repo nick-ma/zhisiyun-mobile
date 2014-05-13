@@ -958,7 +958,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 }
               }
               var tmp_assessment_col = new AssessmentCollection();
-              async.times(assessments.length, function(n, next) {
+              async.timesSeries(assessments.length, function(n, next) {
                 self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
                 async.waterfall([
 
@@ -997,16 +997,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
                           self.load_data(self.c_assessment, 'assessment');
                         };
-                        cb(null, 'assessment: fetch new version ok');
+                        cb(null, cn + ': fetch new version ok. ');
                       })
                     } else {
-                      cb(null, 'assessment: no new version.')
+                      cb(null, cn + ': no new version.')
                     };
                     // cb(null, 'fetch ok->' + assessments[n][1]);
                   }
                 ], next);
               }, function(err, result) {
-                console.log(result);
+                console.log('[', moment().format('YYYY-MM-DD HH:mm:SS'), ']', result.join('\n'));
               })
               //工作任务数据
               var tasks = [];
@@ -1016,7 +1016,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 }
               }
               var tmp_task_col = new TaskCollection();
-              async.times(tasks.length, function(n, next) {
+              async.timesSeries(tasks.length, function(n, next) {
                 self.c_task_v.url = '/admin/pm/work_plan/bb_v_4m?people=' + tasks[n][1] + '&ct=' + (new Date()).getTime();
                 async.waterfall([
 
@@ -1055,16 +1055,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         if (tasks[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
                           self.load_data(self.c_task, 'task');
                         };
-                        cb(null, 'task: fetch new version ok');
+                        cb(null, cn+': fetch new version ok');
                       })
                     } else {
-                      cb(null, 'task: no new version.')
+                      cb(null, cn+': no new version.')
                     };
                     // cb(null, 'fetch ok->' + tasks[n][1]);
                   }
                 ], next);
               }, function(err, result) {
-                console.log(result);
+                console.log('[', moment().format('YYYY-MM-DD HH:mm:SS'), ']', result.join('\n'));
               })
             };
           }, interval); //10 seconds for test
