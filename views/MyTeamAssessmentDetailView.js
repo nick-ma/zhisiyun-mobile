@@ -16,10 +16,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
         },
 
         // Renders all of the Assessment models on the UI
-        render: function(people_id, lx, pi, ol) {
+        render: function(people_id, lx, pi) {
             var self = this;
             // console.log('render: ', lx, pi, ol);
-            var render_data = self.get_pi(lx, pi, ol);
+            var render_data = self.get_pi(lx, pi);
             render_data._id = self.model.get('_id');
             render_data.lx = lx;
             render_data.people_id = people_id;
@@ -92,25 +92,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             return this;
 
         },
-        get_pi: function(lx, pi, ol) {
+        get_pi: function(lx, pi) {
             var self = this;
             if (lx == 'dl') { //定量指标
                 var dl_items = self.model.get('quantitative_pis').items;
                 return _.find(dl_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
-                        return (x.pi == pi);
-                    }
+                    return (x.pi == pi);
                 })
             } else if (lx == 'dx') { //定性指标
                 var dx_items = self.model.get('qualitative_pis').items;
                 return _.find(dx_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
-                        return (x.pi == pi);
-                    }
+                    return (x.pi == pi);
                 })
             };
         }

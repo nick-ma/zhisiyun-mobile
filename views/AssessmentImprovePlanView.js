@@ -41,14 +41,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
         },
 
         // Renders all of the Assessment models on the UI
-        render: function(lx, pi, ol) {
+        render: function(lx, pi) {
             var self = this;
             // console.log('render: ', lx, pi, ol);
             var render_data = {};
-            render_data = self.get_pi(lx, pi, ol);
+            render_data = self.get_pi(lx, pi);
             render_data.lx = lx;
             render_data.pi = pi;
-            render_data.ol = ol;
             render_data.login_people = $("#login_people").val();
             render_data.ai_id = self.model.get('_id');
             render_data.ai_status = self.model.get('ai_status');
@@ -78,9 +77,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             //     render_data.improve_plan_last_update = render_data.wip_summary_all[0].createDate;
             // };
             // render_data.improve_plan_nums = render_data.wip_summary_all.length;
-            console.log(render_data.wip_summary_all);
-            $("#btn-assessment_improve_plan-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);
-            $("#btn-assessment_improve_plan-add").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol + '/new/-');
+            // console.log(render_data.wip_summary_all);
+            $("#btn-assessment_improve_plan-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi);
+            $("#btn-assessment_improve_plan-add").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + lx + '/' + pi + '/new/-');
             // console.log(render_data);
             $("#assessment_improve_plan-content").html(self.template(render_data));
             $("#assessment_improve_plan-content").trigger('create');
@@ -94,25 +93,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
 
         },
 
-        get_pi: function(lx, pi, ol) {
+        get_pi: function(lx, pi) {
             var self = this;
             if (lx == 'dl') { //定量指标
                 var dl_items = self.model.get('quantitative_pis').items;
                 return _.find(dl_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
-                        return (x.pi == pi);
-                    }
+                    return (x.pi == pi);
                 })
             } else if (lx == 'dx') { //定性指标
                 var dx_items = self.model.get('qualitative_pis').items;
                 return _.find(dx_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
-                        return (x.pi == pi);
-                    }
+                    return (x.pi == pi);
                 })
             };
         }

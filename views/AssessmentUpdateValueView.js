@@ -22,10 +22,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     var $this = $(this);
                     var lx = $this.data('lx');
                     var pi = $this.data('pi');
-                    var ol = $this.data('ol');
-                    var pi_data = self.get_pi(lx, pi, ol);
+                    var pi_data = self.get_pi(lx, pi);
                     var segment = pi_data.segments[$this.val()];
-                    self.render(lx, pi, ol, segment);
+                    self.render(lx, pi, segment);
                     // console.log(pi_data, segment);
 
                 })
@@ -36,8 +35,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                         if (self.number_pattern.test($this.val())) {
                             var lx = $this.data('lx');
                             var pi = $this.data('pi');
-                            var ol = $this.data('ol');
-                            var pi_data = self.get_pi(lx, pi, ol);
+                            var pi_data = self.get_pi(lx, pi);
                             if (lx == 'dl') { //对定量指标的处理方式
                                 //检查是有小周期还是not
                                 if (pi_data.segments.length) { //有小周期
@@ -80,7 +78,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                         self.calc_score();
                                         //save & render
                                         self.model.save().done(function() {
-                                            self.render(lx, pi, ol, cur_seg);
+                                            self.render(lx, pi, cur_seg);
                                         })
                                     };
                                 } else { //没有小周期
@@ -94,7 +92,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                         self.calc_score();
                                         //save & render
                                         self.model.save().done(function() {
-                                            self.render(lx, pi, ol, null);
+                                            self.render(lx, pi, null);
                                         })
                                     }
                                 };
@@ -117,8 +115,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                         if (self.number_pattern.test($this.val())) {
                             var lx = $this.data('lx');
                             var pi = $this.data('pi');
-                            var ol = $this.data('ol');
-                            var pi_data = self.get_pi(lx, pi, ol);
+                            var pi_data = self.get_pi(lx, pi);
                             // console.log($this.val());
                             if (pi_data.segments.length) { //有小周期
                                 var cur_seg = pi_data.segments[$("#assessment_update_value-content #segment_select").val()];
@@ -153,7 +150,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                     self.calc_score();
                                     //save & render
                                     self.model.save().done(function() {
-                                        self.render(lx, pi, ol, cur_seg);
+                                        self.render(lx, pi, cur_seg);
                                     })
                                 };
                             } else {
@@ -167,7 +164,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                     self.calc_score();
                                     //save & render
                                     self.model.save().done(function() {
-                                        self.render(lx, pi, ol, null);
+                                        self.render(lx, pi, null);
                                     })
                                 }
                             }
@@ -184,8 +181,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     if ($this.val()) {
                         var lx = $this.data('lx');
                         var pi = $this.data('pi');
-                        var ol = $this.data('ol');
-                        var pi_data = self.get_pi(lx, pi, ol);
+                        var pi_data = self.get_pi(lx, pi);
                         var cur_seg = pi_data.segments[$("#assessment_update_value-content #segment_select").val()];
                         var new_message = {
                             comment: $this.val(),
@@ -200,23 +196,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                             return (new Date(x.createDate));
                         })
                         self.model.save().done(function() {
-                            self.render(lx, pi, ol, cur_seg, 'comment_pane');
+                            self.render(lx, pi, cur_seg, 'comment_pane');
                         })
                     }
                 });
         },
 
         // Renders all of the Assessment models on the UI
-        render: function(lx, pi, ol, current_seg, opened_pane) {
+        render: function(lx, pi, current_seg, opened_pane) {
             var self = this;
             // console.log('render: ', lx, pi, ol);
             var render_data = {};
-            render_data = self.get_pi(lx, pi, ol);
+            render_data = self.get_pi(lx, pi);
             render_data.ai_id = self.model.get('_id');
             render_data.ai_status = self.model.get('ai_status');
             render_data.lx = lx;
             render_data.pi = pi;
-            render_data.ol = ol;
             render_data.login_people = $("#login_people").val();
             if (render_data.segments.length) { //加了判断
                 var now = moment();
@@ -240,7 +235,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             render_data.improve_plan_pane_collapsed = (opened_pane == 'improve_plan_pane') ? 'false' : 'true';
             // console.log(render_data);
             // render_data.comments
-            $("#btn-assessment_update_value-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);
+            $("#btn-assessment_update_value-back").attr('href', '#assessment_detail/' + self.model.get('_id') + '/' + lx + '/' + pi);
             // console.log(render_data);
             $("#assessment_update_value-content").html(self.template(render_data));
             $("#assessment_update_value-content").trigger('create');
@@ -257,25 +252,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
 
         },
 
-        get_pi: function(lx, pi, ol) {
+        get_pi: function(lx, pi) {
             var self = this;
             if (lx == 'dl') { //定量指标
                 var dl_items = self.model.get('quantitative_pis').items;
                 return _.find(dl_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
-                        return (x.pi == pi);
-                    }
+                    return (x.pi == pi);
                 })
             } else if (lx == 'dx') { //定性指标
                 var dx_items = self.model.get('qualitative_pis').items;
                 return _.find(dx_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
-                        return (x.pi == pi);
-                    }
+                    return (x.pi == pi);
                 })
             };
         },
@@ -286,10 +273,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                 self.model.attributes.quantitative_pis.sum_score = 0;
                 _.each(self.model.attributes.quantitative_pis.items, function(x) {
                     var sf = self.scoringformula.get(x.scoringformula) //计分公式
-                    // x.weight
-                    // x.actual_value
-                    // x.target_value
-                    //记分
+                        // x.weight
+                        // x.actual_value
+                        // x.target_value
+                        //记分
                     x['f_score'] = Math.round(self.scoring_func(sf.toJSON(), parseFloat(x['actual_value'] || 0), parseFloat(x['target_value'])) * 100) / 100;
                     // 得分
                     x['score'] = Math.round(x['f_score'] * x['weight']) / 100;
@@ -357,9 +344,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             // 第二步函数，
             var F2 = function(x, ss) {
                 var s = _.find(ss, function(s) {
-                    return (x >= s.r1 && x < s.r2);
-                })
-                // console.log(s);
+                        return (x >= s.r1 && x < s.r2);
+                    })
+                    // console.log(s);
                 if (s) { //找到所对应的区间
                     if (s.ftype == 'F') {
                         x = F2_F(x, s.fbody);

@@ -45,7 +45,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
                         if (self.seg_name == '-') { //在指标层级来找
                             self.pi_data.wip_summary.push(tmp_ws);
                         } else { //在小周期层级来找
-                            var tmp = self.get_pi(self.lx, self.pi, self.ol);
+                            var tmp = self.get_pi(self.lx, self.pi);
                             //先找到小周期
                             var seg = _.find(tmp.segments, function(x) {
                                 return x.segment_name == self.seg_name;
@@ -55,7 +55,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
                             };
                         };
                     } else {
-                        var tmp = self.get_pi(self.lx, self.pi, self.ol);
+                        var tmp = self.get_pi(self.lx, self.pi);
                         var found;
                         if (self.seg_name == '-') { //在指标层级来找
                             found = _.find(tmp.wip_summary, function(x) {
@@ -95,7 +95,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
                         },
                     }, function(err, result) {
                         $("#assessment_improve_plan_edit_msg_content").html('保存成功！')
-                        $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi + '/' + self.ol)
+                        $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi)
                         $("#assessment_improve_plan_edit_msg").popup('open', {
                             transition: 'slidedown'
                         });
@@ -112,7 +112,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
                         alert('新建时不能删除！\n如果要取消新建，请点击左上角的后退按钮。')
                     } else {
                         if (confirm('确认删除吗？')) {
-                            var tmp = self.get_pi(self.lx, self.pi, self.ol);
+                            var tmp = self.get_pi(self.lx, self.pi);
                             var found;
                             if (self.seg_name == '-') { //在指标层级来找
                                 found = _.find(tmp.wip_summary, function(x) {
@@ -140,7 +140,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
                             // console.log(self.model.attributes.quantitative_pis);
                             self.model.save().done(function() {
                                 $("#assessment_improve_plan_edit_msg_content").html('删除成功！')
-                                $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi + '/' + self.ol)
+                                $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi)
                                 $("#assessment_improve_plan_edit_msg").popup('open', {
                                     transition: 'slidedown'
                                 });
@@ -155,19 +155,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
         },
 
         // Renders all of the Assessment models on the UI
-        render: function(lx, pi, ol, ip_id, seg_name) {
+        render: function(lx, pi, ip_id, seg_name) {
             var self = this;
             // console.log('render: ', lx, pi, ol);
             self.lx = lx;
             self.pi = pi;
-            self.ol = ol;
             self.ip_id = ip_id;
             self.seg_name = seg_name;
             var render_data = {};
-            self.pi_data = render_data = self.get_pi(lx, pi, ol);
+            self.pi_data = render_data = self.get_pi(lx, pi);
             render_data.lx = lx;
             render_data.pi = pi;
-            render_data.ol = ol;
             render_data.ip_id = ip_id;
             render_data.seg_name = seg_name;
             render_data.login_people = $("#login_people").val();
@@ -206,7 +204,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
             // };
             // render_data.improve_plan_nums = render_data.wip_summary_all.length;
             // console.log(render_data.ws);
-            $("#btn-assessment_improve_plan_edit-back").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);
+            $("#btn-assessment_improve_plan_edit-back").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + lx + '/' + pi);
             // $("#btn-assessment_improve_plan-add").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol + '/add');
             // console.log(render_data);
             $("#assessment_improve_plan_edit-content").html(self.template(render_data));
@@ -220,25 +218,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
 
         },
 
-        get_pi: function(lx, pi, ol) {
+        get_pi: function(lx, pi) {
             var self = this;
             if (lx == 'dl') { //定量指标
                 var dl_items = self.model.get('quantitative_pis').items;
                 return _.find(dl_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
                         return (x.pi == pi);
-                    }
                 })
             } else if (lx == 'dx') { //定性指标
                 var dx_items = self.model.get('qualitative_pis').items;
                 return _.find(dx_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
                         return (x.pi == pi);
-                    }
                 })
             };
         },

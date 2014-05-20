@@ -76,11 +76,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "goto/:pagename": "goto",
         // 绩效合同相关页面
         "assessment_pi_list/:ai_id": "assessment_pi_list",
-        "assessment_detail/:ai_id/:lx/:pi/:ol": "assessment_detail",
-        "assessment_comment/:ai_id/:lx/:pi/:ol": "assessment_comment",
-        "assessment_update_value/:ai_id/:lx/:pi/:ol": "assessment_update_value",
-        "assessment_improve_plan/:ai_id/:lx/:pi/:ol": "assessment_improve_plan",
-        "assessment_improve_plan/:ai_id/:lx/:pi/:ol/:ip_id/:seg_name": "assessment_improve_plan_edit",
+        "assessment_detail/:ai_id/:lx/:pi": "assessment_detail", // <- 改
+        "assessment_comment/:ai_id/:lx/:pi": "assessment_comment",// <- 改
+        "assessment_update_value/:ai_id/:lx/:pi": "assessment_update_value",// <- 改
+        "assessment_improve_plan/:ai_id/:lx/:pi": "assessment_improve_plan",// <- 改
+        "assessment_improve_plan/:ai_id/:lx/:pi/:ip_id/:seg_name": "assessment_improve_plan_edit",// <- 改
         // When #category? is on the url, the category method is called
         //任务日历相关的routes
         "task": "task",
@@ -102,10 +102,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "myteam_competency_scores/:people_id/:cid": "myteam_competency_scores",
         "myteam_salary_detail/:people_id/:pay_time": "myteam_salary_detail",
         "myteam_assessment_pi_list/:people_id/:ai_id": "myteam_assessment_pi_list",
-        "myteam_assessment_detail/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_detail",
-        "myteam_assessment_comment/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_comment",
-        "myteam_assessment_update_value/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_update_value",
-        "myteam_assessment_improve_plan/:people_id/:ai_id/:lx/:pi/:ol": "myteam_assessment_improve_plan",
+        "myteam_assessment_detail/:people_id/:ai_id/:lx/:pi": "myteam_assessment_detail",// <- 改
+        "myteam_assessment_comment/:people_id/:ai_id/:lx/:pi": "myteam_assessment_comment",// <- 改
+        "myteam_assessment_update_value/:people_id/:ai_id/:lx/:pi": "myteam_assessment_update_value",// <- 改
+        "myteam_assessment_improve_plan/:people_id/:ai_id/:lx/:pi": "myteam_assessment_improve_plan",// <- 改
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -239,45 +239,45 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
 
       },
-      assessment_detail: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的查看界面
+      assessment_detail: function(ai_id, lx, pi) { //绩效合同－单条指标的查看界面
         this.assessmentDetailView.model = this.c_assessment.get(ai_id);
         this.assessmentDetailView.scoringformula = this.c_scoringformula;
         this.assessmentDetailView.gradegroup = this.c_gradegroup;
-        this.assessmentDetailView.render(lx, pi, ol);
+        this.assessmentDetailView.render(lx, pi);
         $("body").pagecontainer("change", "#assessment_detail", {
           reverse: false,
           changeHash: false,
         });
       },
-      assessment_comment: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
+      assessment_comment: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
         this.assessmentCommentView.model = this.c_assessment.get(ai_id);
-        this.assessmentCommentView.render(lx, pi, ol);
+        this.assessmentCommentView.render(lx, pi);
         $("body").pagecontainer("change", "#assessment_comment", {
           reverse: false,
           changeHash: false,
         });
       },
-      assessment_update_value: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
+      assessment_update_value: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
         this.assessmentUpdateValueView.model = this.c_assessment.get(ai_id);
         this.assessmentUpdateValueView.scoringformula = this.c_scoringformula;
         this.assessmentUpdateValueView.gradegroup = this.c_gradegroup;
-        this.assessmentUpdateValueView.render(lx, pi, ol);
+        this.assessmentUpdateValueView.render(lx, pi);
         $("body").pagecontainer("change", "#assessment_update_value", {
           reverse: false,
           changeHash: false,
         });
       },
-      assessment_improve_plan: function(ai_id, lx, pi, ol) { //绩效合同－单条指标的编辑留言界面
+      assessment_improve_plan: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
         this.assessmentImprovePlanView.model = this.c_assessment.get(ai_id);
-        this.assessmentImprovePlanView.render(lx, pi, ol);
+        this.assessmentImprovePlanView.render(lx, pi);
         $("body").pagecontainer("change", "#assessment_improve_plan", {
           reverse: false,
           changeHash: false,
         });
       },
-      assessment_improve_plan_edit: function(ai_id, lx, pi, ol, ip_id, seg_name) { //新增／修改改进措施
+      assessment_improve_plan_edit: function(ai_id, lx, pi, ip_id, seg_name) { //新增／修改改进措施
         this.assessmentImprovePlanEditView.model = this.c_assessment.get(ai_id);
-        this.assessmentImprovePlanEditView.render(lx, pi, ol, ip_id, seg_name);
+        this.assessmentImprovePlanEditView.render(lx, pi, ip_id, seg_name);
         $("body").pagecontainer("change", "#assessment_improve_plan_edit", {
           reverse: false,
           changeHash: false,
@@ -292,41 +292,41 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
 
       },
-      myteam_assessment_detail: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－指标详情
+      myteam_assessment_detail: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－指标详情
         this.myteamAssessmentDetailView.model = this.c_assessment_myteam.get(ai_id);
         this.myteamAssessmentDetailView.scoringformula = this.c_scoringformula;
         this.myteamAssessmentDetailView.gradegroup = this.c_gradegroup;
-        this.myteamAssessmentDetailView.render(people_id, lx, pi, ol);
+        this.myteamAssessmentDetailView.render(people_id, lx, pi);
         $("body").pagecontainer("change", "#myteam_assessment_detail", {
           reverse: false,
           changeHash: false,
         });
       },
-      myteam_assessment_comment: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－沟通与记录（读写）
+      myteam_assessment_comment: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－沟通与记录（读写）
         this.myteamAssessmentCommentView.model = this.c_assessment_myteam.get(ai_id);
         this.myteamAssessmentCommentView.scoringformula = this.c_scoringformula;
         this.myteamAssessmentCommentView.gradegroup = this.c_gradegroup;
-        this.myteamAssessmentCommentView.render(people_id, lx, pi, ol);
+        this.myteamAssessmentCommentView.render(people_id, lx, pi);
         $("body").pagecontainer("change", "#myteam_assessment_comment", {
           reverse: false,
           changeHash: false,
         });
       },
-      myteam_assessment_update_value: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－数据更新（只读）
+      myteam_assessment_update_value: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－数据更新（只读）
         this.myteamAssessmentUpdateValueView.model = this.c_assessment_myteam.get(ai_id);
         this.myteamAssessmentUpdateValueView.scoringformula = this.c_scoringformula;
         this.myteamAssessmentUpdateValueView.gradegroup = this.c_gradegroup;
-        this.myteamAssessmentUpdateValueView.render(people_id, lx, pi, ol);
+        this.myteamAssessmentUpdateValueView.render(people_id, lx, pi);
         $("body").pagecontainer("change", "#myteam_assessment_update_value", {
           reverse: false,
           changeHash: false,
         });
       },
-      myteam_assessment_improve_plan: function(people_id, ai_id, lx, pi, ol) { //团队成员的绩效合同－分析与改进（只读）
+      myteam_assessment_improve_plan: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－分析与改进（只读）
         this.myteamAssessmentImprovePlanView.model = this.c_assessment_myteam.get(ai_id);
         this.myteamAssessmentImprovePlanView.scoringformula = this.c_scoringformula;
         this.myteamAssessmentImprovePlanView.gradegroup = this.c_gradegroup;
-        this.myteamAssessmentImprovePlanView.render(people_id, lx, pi, ol);
+        this.myteamAssessmentImprovePlanView.render(people_id, lx, pi);
         $("body").pagecontainer("change", "#myteam_assessment_improve_plan", {
           reverse: false,
           changeHash: false,

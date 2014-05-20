@@ -22,10 +22,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     var $this = $(this);
                     var lx = $this.data('lx');
                     var pi = $this.data('pi');
-                    var ol = $this.data('ol');
-                    var pi_data = self.get_pi(lx, pi, ol);
+                    var pi_data = self.get_pi(lx, pi);
                     var segment = pi_data.segments[$this.val()];
-                    self.render(self.people_id, lx, pi, ol, segment);
+                    self.render(self.people_id, lx, pi, segment);
                     // console.log(pi_data, segment);
 
                 })
@@ -36,8 +35,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     if ($this.val()) {
                         var lx = $this.data('lx');
                         var pi = $this.data('pi');
-                        var ol = $this.data('ol');
-                        var pi_data = self.get_pi(lx, pi, ol);
+                        var pi_data = self.get_pi(lx, pi);
                         var cur_seg = pi_data.segments[$("#myteam_assessment_update_value-content #segment_select").val()];
                         var new_message = {
                             comment: $this.val(),
@@ -52,23 +50,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                             return (new Date(x.createDate));
                         })
                         self.model.save().done(function() {
-                            self.render(self.people_id, lx, pi, ol, cur_seg, 'comment_pane');
+                            self.render(self.people_id, lx, pi, cur_seg, 'comment_pane');
                         })
                     }
                 });
         },
 
         // Renders all of the Assessment models on the UI
-        render: function(people_id, lx, pi, ol, current_seg, opened_pane) {
+        render: function(people_id, lx, pi, current_seg, opened_pane) {
             var self = this;
             self.people_id = people_id;
             // console.log('render: ', lx, pi, ol);
             var render_data = {};
-            render_data = self.get_pi(lx, pi, ol);
+            render_data = self.get_pi(lx, pi);
             render_data.ai_id = self.model.get('_id');
             render_data.lx = lx;
             render_data.pi = pi;
-            render_data.ol = ol;
             render_data.login_people = $("#login_people").val();
             if (render_data.segments.length) { //加了判断
                 var now = moment();
@@ -92,7 +89,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             render_data.improve_plan_pane_collapsed = (opened_pane == 'improve_plan_pane') ? 'false' : 'true';
             // console.log(render_data);
             // render_data.comments
-            $("#btn-myteam_assessment_update_value-back").attr('href', '#myteam_assessment_detail/' + people_id + '/' + self.model.get('_id') + '/' + lx + '/' + pi + '/' + ol);
+            $("#btn-myteam_assessment_update_value-back").attr('href', '#myteam_assessment_detail/' + people_id + '/' + self.model.get('_id') + '/' + lx + '/' + pi);
             // console.log(render_data);
             $("#myteam_assessment_update_value-content").html(self.template(render_data));
             $("#myteam_assessment_update_value-content").trigger('create');
@@ -109,25 +106,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
 
         },
 
-        get_pi: function(lx, pi, ol) {
+        get_pi: function(lx, pi) {
             var self = this;
             if (lx == 'dl') { //定量指标
                 var dl_items = self.model.get('quantitative_pis').items;
                 return _.find(dl_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
-                        return (x.pi == pi);
-                    }
+                    return (x.pi == pi);
                 })
             } else if (lx == 'dx') { //定性指标
                 var dx_items = self.model.get('qualitative_pis').items;
                 return _.find(dx_items, function(x) {
-                    if (ol) {
-                        return (x.pi == pi && x.ol == ol);
-                    } else {
-                        return (x.pi == pi);
-                    }
+                    return (x.pi == pi);
                 })
             };
         },
