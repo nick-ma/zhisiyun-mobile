@@ -27,6 +27,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/MyProfileView",
     // 计分公式和等级组
     "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
+    // 协作任务
+    "../collections/CollProjectCollection", "../collections/CollTaskCollection",
+    "../views/CollTaskListView", "../views/CollTaskDetailView", "../views/CollTaskEditView",
+
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -44,6 +48,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     PayrollCollection, PayrollListView, PayrollDetailView,
     MyProfileView,
     ScoringFormulaCollection, GradeGroupCollection,
+    CollProjectCollection, CollTaskCollection,
+    CollTaskListView, CollTaskDetailView, CollTaskEditView,
     async, moment
 
   ) {
@@ -77,10 +83,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 绩效合同相关页面
         "assessment_pi_list/:ai_id": "assessment_pi_list",
         "assessment_detail/:ai_id/:lx/:pi": "assessment_detail", // <- 改
-        "assessment_comment/:ai_id/:lx/:pi": "assessment_comment",// <- 改
-        "assessment_update_value/:ai_id/:lx/:pi": "assessment_update_value",// <- 改
-        "assessment_improve_plan/:ai_id/:lx/:pi": "assessment_improve_plan",// <- 改
-        "assessment_improve_plan/:ai_id/:lx/:pi/:ip_id/:seg_name": "assessment_improve_plan_edit",// <- 改
+        "assessment_comment/:ai_id/:lx/:pi": "assessment_comment", // <- 改
+        "assessment_update_value/:ai_id/:lx/:pi": "assessment_update_value", // <- 改
+        "assessment_improve_plan/:ai_id/:lx/:pi": "assessment_improve_plan", // <- 改
+        "assessment_improve_plan/:ai_id/:lx/:pi/:ip_id/:seg_name": "assessment_improve_plan_edit", // <- 改
         // When #category? is on the url, the category method is called
         //任务日历相关的routes
         "task": "task",
@@ -102,10 +108,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "myteam_competency_scores/:people_id/:cid": "myteam_competency_scores",
         "myteam_salary_detail/:people_id/:pay_time": "myteam_salary_detail",
         "myteam_assessment_pi_list/:people_id/:ai_id": "myteam_assessment_pi_list",
-        "myteam_assessment_detail/:people_id/:ai_id/:lx/:pi": "myteam_assessment_detail",// <- 改
-        "myteam_assessment_comment/:people_id/:ai_id/:lx/:pi": "myteam_assessment_comment",// <- 改
-        "myteam_assessment_update_value/:people_id/:ai_id/:lx/:pi": "myteam_assessment_update_value",// <- 改
-        "myteam_assessment_improve_plan/:people_id/:ai_id/:lx/:pi": "myteam_assessment_improve_plan",// <- 改
+        "myteam_assessment_detail/:people_id/:ai_id/:lx/:pi": "myteam_assessment_detail", // <- 改
+        "myteam_assessment_comment/:people_id/:ai_id/:lx/:pi": "myteam_assessment_comment", // <- 改
+        "myteam_assessment_update_value/:people_id/:ai_id/:lx/:pi": "myteam_assessment_update_value", // <- 改
+        "myteam_assessment_improve_plan/:people_id/:ai_id/:lx/:pi": "myteam_assessment_improve_plan", // <- 改
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -123,6 +129,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "competency_spider_chart/:people_id/:qi_id": "competency_spider_chart",
         //人才九宫图
         "talent9grides/:people_id/:ai_score/:score": "talent9grides",
+        // 协作任务
+        "colltask": "colltask",
+        "colltask_detail/:ct_id": "colltask_detail",
+        "colltask_edit/:ct_id": "colltask_edit",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -624,6 +634,39 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
+      //--------协作任务--------//
+      colltask: function() {
+        // colltasklistView.
+        this.c_colltask.fetch();
+        $("body").pagecontainer("change", "#colltask", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      colltask_detail:function  (ct_id) {
+        this.collTaskDetailView.model = this.c_colltask.get(ct_id);
+        this.collTaskDetailView.render();
+        $("body").pagecontainer("change", "#colltask_detail", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      colltask_edit: function(ct_id) {
+        var ct;
+        if (ct_id == 'add') { //新增
+          ct = this.c_colltask.add({
+            task_name: '',
+          });
+        } else {
+          ct = this.c_colltask.get(ct_id);
+        };
+        this.collTaskEditView.model = ct;
+        this.collTaskEditView.render();
+        $("body").pagecontainer("change", "#colltask_edit", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
       //-----------------init---------------------//
       get_local_storage_size: function() {
         var ls_size = 0;
@@ -780,7 +823,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var login_people = $("#login_people").val();
         var cn = col_name + '_' + login_people
         var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
-        // var local_data = localStorage.getItem(cn);
+          // var local_data = localStorage.getItem(cn);
         if (local_data) {
           col_obj.reset(local_data);
           col_obj.trigger('sync');
@@ -922,6 +965,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           el: "#panel-fwd-people",
           collection: self.c_people
         })
+        this.collTaskListView = new CollTaskListView({
+          el: "#colltask-content",
+          collection: self.c_colltask
+        })
+        this.collTaskEditView = new CollTaskEditView({
+          el: "#colltask_edit-content",
+          // collection: self.c_colltask
+        })
+        this.collTaskDetailView = new CollTaskDetailView({
+          el: "#colltask_detail-content",
+          // collection: self.c_colltask
+        })
 
       },
       init_cols: function() {
@@ -941,6 +996,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_payroll_myteam = new PayrollCollection(); //团队成员的工资－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_scoringformula = new ScoringFormulaCollection(); //计分公式
         this.c_gradegroup = new GradeGroupCollection(); //等级组
+
+        this.c_colltask = new CollTaskCollection(); //协作任务
+        this.c_collproject = new CollProjectCollection(); //协作项目
+
       },
       init_models: function() {
         this.m_Q360 = new Q360Model(); //360问卷的数据
@@ -1055,10 +1114,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         if (tasks[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
                           self.load_data(self.c_task, 'task');
                         };
-                        cb(null, cn+': fetch new version ok');
+                        cb(null, cn + ': fetch new version ok');
                       })
                     } else {
-                      cb(null, cn+': no new version.')
+                      cb(null, cn + ': no new version.')
                     };
                     // cb(null, 'fetch ok->' + tasks[n][1]);
                   }
@@ -1124,13 +1183,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return (data) ? data.replace(/\n/g, '<br>') : '';
       });
       Handlebars.registerHelper('fromNow', function(data, flag) {
-        return (data) ? moment(data).fromNow( !! flag) : '';
+        return (data) ? moment(data).fromNow(!!flag) : '';
       });
       Handlebars.registerHelper('fromStart2End', function(start, end, flag) {
         if (moment(end).format('YYYY-MM-DD') == '9999-12-31') {
-          return moment(start).fromNow( !! flag);
+          return moment(start).fromNow(!!flag);
         } else {
-          return moment(start).from(moment(end), !! flag);
+          return moment(start).from(moment(end), !!flag);
         };
       });
       Handlebars.registerHelper('Avatar', function(data) {
@@ -1212,9 +1271,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         if (data_t.length) {
           _.each(data, function(x) {
             var tmp = _.filter(data_t, function(y) {
-              return moment(x.timestamp).diff(moment(y.timestamp)) >= 0;
-            })
-            // console.log(tmp);
+                return moment(x.timestamp).diff(moment(y.timestamp)) >= 0;
+              })
+              // console.log(tmp);
             if (tmp.length) {
               var t_val = _.max(tmp, function(y) {
                 return (new Date(y.timestamp))
