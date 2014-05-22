@@ -132,7 +132,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作任务
         "colltask": "colltask",
         "colltask_detail/:ct_id": "colltask_detail",
-        "colltask_edit/:ct_id": "colltask_edit",
+        // "colltask_edit/:ct_id": "colltask_edit",
+        "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -643,7 +644,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
-      colltask_detail:function  (ct_id) {
+      colltask_detail: function(ct_id) {
         this.collTaskDetailView.model = this.c_colltask.get(ct_id);
         this.collTaskDetailView.render();
         $("body").pagecontainer("change", "#colltask_detail", {
@@ -651,15 +652,17 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
-      colltask_edit: function(ct_id) {
+      colltask_edit: function(ct_id, p_task) {
         var ct;
         if (ct_id == 'add') { //新增
           ct = this.c_colltask.add({
             task_name: '',
+            p_task: p_task || null,
           });
         } else {
           ct = this.c_colltask.get(ct_id);
         };
+        console.log(ct_id, p_task, ct);
         this.collTaskEditView.model = ct;
         this.collTaskEditView.render();
         $("body").pagecontainer("change", "#colltask_edit", {

@@ -36,6 +36,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 //     rendered.push(self.template(x.attributes));
                 // });
                 // self.template(render_data);
+
                 $("#colltask_edit-content").html(self.template(self.model.toJSON()));
                 $("#colltask_edit-content").trigger('create');
                 return this;
@@ -51,9 +52,17 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     .on('click', '#btn-ct-save', function(event) {
                         // event.preventDefault();
                         // self.model.set('task_name', $("#ct_task_name").val());
-                        self.model.save().done(function() { //保存
-                            console.log('save ok');
-                        })
+                        if (self.model.isValid()) {
+                            self.model.save().done(function() { //保存
+                                alert('任务保存成功')
+                                window.setTimeout(function() {
+                                    var next_page = "#colltask_detail/" + self.model.get('_id');
+                                    window.location.href = next_page;
+                                }, 100);
+                            })
+                        } else {
+                            alert(self.model.validationError);
+                        }
                     })
                     .on('change', 'input, textarea', function(event) {
                         event.preventDefault();

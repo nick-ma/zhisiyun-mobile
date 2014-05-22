@@ -94,11 +94,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
                             self.post_to_work_plan(cb);
                         },
                     }, function(err, result) {
-                        $("#assessment_improve_plan_edit_msg_content").html('保存成功！')
-                        $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi)
-                        $("#assessment_improve_plan_edit_msg").popup('open', {
-                            transition: 'slidedown'
-                        });
+                        // $("#assessment_improve_plan_edit_msg_content").html('保存成功！')
+                        // $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi)
+                        // $("#assessment_improve_plan_edit_msg").popup('open', {
+                        //     transition: 'slidedown'
+                        // });
+                        alert('保存成功');
+                        window.setTimeout(function(){
+                            window.location.href = '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi;
+                        }, 100);
                     })
                     // self.model.save().done(function() {
 
