@@ -100,7 +100,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
                         //     transition: 'slidedown'
                         // });
                         alert('保存成功');
-                        window.setTimeout(function(){
+                        window.setTimeout(function() {
                             window.location.href = '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi;
                         }, 100);
                     })
@@ -143,11 +143,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
 
                             // console.log(self.model.attributes.quantitative_pis);
                             self.model.save().done(function() {
-                                $("#assessment_improve_plan_edit_msg_content").html('删除成功！')
-                                $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi)
-                                $("#assessment_improve_plan_edit_msg").popup('open', {
-                                    transition: 'slidedown'
-                                });
+                                // $("#assessment_improve_plan_edit_msg_content").html('删除成功！')
+                                // $("#btn-assessment_improve_plan_edit_msg_ok").attr('href', '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi)
+                                // $("#assessment_improve_plan_edit_msg").popup('open', {
+                                //     transition: 'slidedown'
+                                // });
+                                alert('删除成功');
+                                window.setTimeout(function() {
+                                    window.location.href = '#assessment_improve_plan/' + self.model.get('_id') + '/' + self.lx + '/' + self.pi;
+                                }, 100);
                                 // self.render(self.lx, self.pi, self.ol, self.ip_id, self.seg_name);
 
                             })
@@ -227,12 +231,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
             if (lx == 'dl') { //定量指标
                 var dl_items = self.model.get('quantitative_pis').items;
                 return _.find(dl_items, function(x) {
-                        return (x.pi == pi);
+                    return (x.pi == pi);
                 })
             } else if (lx == 'dx') { //定性指标
                 var dx_items = self.model.get('qualitative_pis').items;
                 return _.find(dx_items, function(x) {
-                        return (x.pi == pi);
+                    return (x.pi == pi);
                 })
             };
         },
@@ -246,27 +250,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "mo
                 if (data.code == 'OK') { //删除成功
                     // return;
                     var create_event = function(title, description, start, end, finished) {
-                        var new_event = {
-                            creator: $("#login_people").val(),
-                            people: self.model.get('people'),
-                            title: title,
-                            allDay: true,
-                            start: moment(start).format('YYYY-MM-DD'),
-                            end: moment(end).format('YYYY-MM-DD'),
-                            tags: '绩效过程,改进措施,' + self.model.get('ai_name'),
-                            url: '/admin/pm/assessment_instance/wip/bbform?ai_id=' + self.model.get('_id'),
-                            origin_oid: self.model.get('_id'),
-                            origin_cat: 'wip',
-                            editable: false,
-                            startEditable: false,
-                            durationEditable: false,
-                            origin: '1',
-                            is_complete: finished,
-                        };
-                        new_event.description = description;
-                        new TaskModel(new_event).save(); //<- need todo
-                    }
-                    //定量指标
+                            var new_event = {
+                                creator: $("#login_people").val(),
+                                people: self.model.get('people'),
+                                title: title,
+                                allDay: true,
+                                start: moment(start).format('YYYY-MM-DD'),
+                                end: moment(end).format('YYYY-MM-DD'),
+                                tags: '绩效过程,改进措施,' + self.model.get('ai_name'),
+                                url: '/admin/pm/assessment_instance/wip/bbform?ai_id=' + self.model.get('_id'),
+                                origin_oid: self.model.get('_id'),
+                                origin_cat: 'wip',
+                                editable: false,
+                                startEditable: false,
+                                durationEditable: false,
+                                origin: '1',
+                                is_complete: finished,
+                            };
+                            new_event.description = description;
+                            new TaskModel(new_event).save(); //<- need todo
+                        }
+                        //定量指标
                     _.each(self.model.attributes.quantitative_pis.items, function(x) {
                         if (x.wip_summary.length) { //单指标，整体的改进措施
                             _.each(x.wip_summary, function(y) {

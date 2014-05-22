@@ -1,4 +1,4 @@
-// CollTask List View
+// CollTask Detail View
 // =================
 
 // Includes file dependencies

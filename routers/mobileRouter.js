@@ -30,7 +30,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // 协作任务
     "../collections/CollProjectCollection", "../collections/CollTaskCollection",
     "../views/CollTaskListView", "../views/CollTaskDetailView", "../views/CollTaskEditView",
-
+    // 协作项目－配套协作任务的
+    "../views/CollProjectListView", "../views/CollProjectEditView",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -50,6 +51,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     ScoringFormulaCollection, GradeGroupCollection,
     CollProjectCollection, CollTaskCollection,
     CollTaskListView, CollTaskDetailView, CollTaskEditView,
+    CollProjectListView, CollProjectEditView,
     async, moment
 
   ) {
@@ -134,6 +136,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "colltask_detail/:ct_id": "colltask_detail",
         // "colltask_edit/:ct_id": "colltask_edit",
         "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
+        // 协作任务的项目
+        "collproject/:ct_id/(:cp_id)": "collproject",
+        "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -662,10 +667,38 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         } else {
           ct = this.c_colltask.get(ct_id);
         };
-        console.log(ct_id, p_task, ct);
+        // console.log(ct_id, p_task, ct);
         this.collTaskEditView.model = ct;
         this.collTaskEditView.render();
         $("body").pagecontainer("change", "#colltask_edit", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      collproject: function(ct_id, cp_id) {
+        // collProjectListView
+        this.c_collproject.fetch();
+        this.collProjectListView.ct_id = ct_id;
+        this.collProjectListView.ct_model = this.c_colltask.get(ct_id);
+        this.collProjectListView.cp_id = cp_id;
+        $("body").pagecontainer("change", "#collproject_list", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      collproject_edit: function(cp_id, ct_id) {
+        var cp;
+        if (cp_id == 'add') {
+          cp = this.c_collproject.add({
+            project_name: ''
+          });
+        } else {
+          cp = this.c_collproject.get(cp_id);
+        };
+        this.collProjectEditView.ct_id = ct_id;
+        this.collProjectEditView.model = cp;
+        this.collProjectEditView.render();
+        $("body").pagecontainer("change", "#collproject_edit", {
           reverse: false,
           changeHash: false,
         });
@@ -974,11 +1007,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         this.collTaskEditView = new CollTaskEditView({
           el: "#colltask_edit-content",
-          // collection: self.c_colltask
         })
         this.collTaskDetailView = new CollTaskDetailView({
           el: "#colltask_detail-content",
-          // collection: self.c_colltask
+        })
+        this.collProjectListView = new CollProjectListView({
+          el: "#collproject_list-content",
+          collection: self.c_collproject
+        })
+        this.collProjectEditView = new CollProjectEditView({
+          el: "#collproject_edit-content",
         })
 
       },
