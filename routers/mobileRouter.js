@@ -1249,6 +1249,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('cr2br', function(data) {
         return (data) ? data.replace(/\n/g, '<br>') : '';
       });
+      Handlebars.registerHelper('task_status', function(isfinished, end) {
+        if (isfinished) {
+          return '<span class="label-success">已完成</span>';
+        } else {
+          if (new Date(end) >= new Date()) {
+            return '<span class="label-info">进行中</span>';
+          } else {
+            return '<span class="label-danger">已超时</span>';
+          };
+        };
+      });
+      Handlebars.registerHelper('task_status2', function(end) {
+        if (new Date(end) < new Date()) {
+          return '<span class="label-danger">已超时</span>';
+        }
+      });
       Handlebars.registerHelper('fromNow', function(data, flag) {
         return (data) ? moment(data).fromNow(!!flag) : '';
       });

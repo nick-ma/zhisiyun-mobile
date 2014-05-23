@@ -28,7 +28,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }), function(x) {
                         return x.toJSON();
                     }), function(x) {
-                        return -new Date(x.end);
+                        return new Date(x.end);
                     }),
                     cts_finished: _.sortBy(_.map(_.filter(self.collection.models, function(x) {
                         return x.get('isfinished');

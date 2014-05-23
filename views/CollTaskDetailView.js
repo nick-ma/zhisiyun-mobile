@@ -21,19 +21,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 var self = this;
 
-                // var rendered = ;
-                // var render_data = {
-                //         cts: _.sortBy(_.map(this.collection.models, function(x) {
-                //             return x.toJSON();
-                //         }), function(x) {
-                //             return x.fl;
-                //         })
-                //     }
-                // _.each(this.collection.models, function(x) {
-                //     x.attributes.pi_count = x.attributes.qualitative_pis.items.length + x.attributes.quantitative_pis.items.length;
-                //     rendered.push(self.template(x.attributes));
-                // });
-                // self.template(render_data);
+
                 var render_data = self.model.toJSON();
                 //查找子任务
                 render_data.sub_tasks = _.map(_.filter(self.model.collection.models, function(x) {
@@ -43,7 +31,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 })
                 render_data.login_people = $("#login_people").val();
 
-                $("#btn-colltask_detail-edit").attr('href', '#colltask_edit/' + self.model.get('_id'));
                 //设定返回按钮的地址
                 if (self.model.get('p_task')) { //有父级任务，返回
                     $("#btn-colltask_detail-back").attr('href', '#colltask_detail/' + self.model.get('p_task'));
@@ -52,35 +39,61 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 };
                 $("#colltask_detail-content").html(self.template(render_data));
                 $("#colltask_detail-content").trigger('create');
+                //确定权限
+                var login_people = $("#login_people").val();
+                var rights = [0, 0, 0, 0];
+                if (login_people == self.model.attributes.creator._id) { //创建人
+                    rights = [1, 1, 1, 1];
+                } else if (login_people == self.model.attributes.th._id) { //负责人
+                    rights = [1, 1, 1, 1];
+                } else if (self.test_in('_id', login_people, self.model.attributes.tms)) { //参与人
+                    rights = [1, 0, 0, 1];
+                } else if (self.test_in('_id', login_people, self.model.attributes.ntms)) { //观察员
+                    rights = [0, 0, 0, 0];
+                };
+                var btns = ['#btn-ct-add_sub_task', '#btn-colltask_detail-edit', '#btn-colltask_detail-remove', '#btn-colltask_detail-complete'];
+                for (var i = 0; i < rights.length; i++) {
+                    if (rights[i] == 0) {
+                        $(btns[i]).attr('disabled', true)
+                    } else {
+                        $(btns[i]).removeAttr('disabled')
+                    };
+                };
                 return this;
 
             },
             bind_event: function() {
                 var self = this;
-                $("#colltask_detail-content").on('change', 'textarea', function(event) {
-                    event.preventDefault();
-                    var $this = $(this);
-                    var field = $this.data('field');
-                    var value = $this.val();
-                    if (field == 'comments') { //增加一条新的留言
-                        var new_comment = {
-                            comment: value,
-                            people_name: $("#login_people_name").val(),
-                            position_name: $("#login_position_name").val(),
-                            avatar: $("#login_avatar").val(),
-                            creator: $("#login_people").val(),
-                            createDate: new Date()
+                $("#colltask_detail-content")
+                    .on('change', 'textarea', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var field = $this.data('field');
+                        var value = $this.val();
+                        if (field == 'comments') { //增加一条新的留言
+                            var new_comment = {
+                                comment: value,
+                                people_name: $("#login_people_name").val(),
+                                position_name: $("#login_position_name").val(),
+                                avatar: $("#login_avatar").val(),
+                                creator: $("#login_people").val(),
+                                createDate: new Date()
+                            };
+                            self.model.attributes.comments.push(new_comment);
+                            self.model.attributes.comments = _.sortBy(self.model.attributes.comments, function(x) {
+                                return -(new Date(x.createDate));
+                            })
+                            self.model.save().done(function() {
+                                self.render();
+                            })
                         };
-                        self.model.attributes.comments.push(new_comment);
-                        self.model.attributes.comments = _.sortBy(self.model.attributes.comments, function(x) {
-                            return -(new Date(x.createDate));
-                        })
-                        self.model.save().done(function() {
-                            self.render();
-                        })
-                    };
 
-                });
+                    })
+                    .on('click', '#btn-ct-add_sub_task', function(event) {
+                        event.preventDefault();
+                        var url = '#colltask_edit/add/' + self.model.get('_id');
+                        window.location.href = url;
+                    });
                 $("#colltask_detail-footer")
                     .on('click', '#btn-colltask_detail-remove', function(event) {
                         event.preventDefault();
@@ -91,8 +104,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                             self.model.destroy().done(function() {
                                 alert('任务删除成功');
-                                window.location.href='#colltask';
-                                
+                                window.location.href = '#colltask';
+
                             })
                         };
                     })
@@ -101,13 +114,27 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         self.model.set('isfinished', true);
                         self.model.save().done(function() {
                             alert('任务已标记为完成');
-                            window.location.href='#colltask';
-                            
+                            window.location.href = '#colltask';
+
                         })
+                    })
+                    .on('click', '#btn-colltask_detail-edit', function(event) {
+                        event.preventDefault();
+                        var url = '#colltask_edit/' + self.model.get('_id');
+                        window.location.href = url;
                     });
 
             },
-
+            test_in: function(key, val, coll) {
+                var flag = false;
+                for (var i = 0; i < coll.length; i++) {
+                    flag = coll[i][key] == val;
+                    if (flag) {
+                        break;
+                    }
+                };
+                return flag;
+            }
         });
 
         // Returns the View class
