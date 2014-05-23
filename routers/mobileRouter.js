@@ -32,6 +32,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/CollTaskListView", "../views/CollTaskDetailView", "../views/CollTaskEditView",
     // 协作项目－配套协作任务的
     "../views/CollProjectListView", "../views/CollProjectEditView",
+    // 人员选择界面
+    "../views/PeopleSelectView",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -52,6 +54,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     CollProjectCollection, CollTaskCollection,
     CollTaskListView, CollTaskDetailView, CollTaskEditView,
     CollProjectListView, CollProjectEditView,
+    PeopleSelectView,
     async, moment
 
   ) {
@@ -139,6 +142,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作任务的项目
         "collproject/:ct_id/(:cp_id)": "collproject",
         "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
+
+        // 人员选择界面
+        "people_select/:mode/:target_field": "people_select",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -664,6 +670,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             task_name: '',
             p_task: p_task || null,
           });
+          if (p_task) { //取出上级任务的相关信息
+            var pt = this.c_colltask.get(p_task);
+            console.log(pt);
+            ct.set('root_task', pt.get('root_task'));
+            ct.set('cp', pt.get('cp'));
+            ct.set('cp_name', pt.get('cp_name'));
+          };
         } else {
           ct = this.c_colltask.get(ct_id);
         };
@@ -699,6 +712,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.collProjectEditView.model = cp;
         this.collProjectEditView.render();
         $("body").pagecontainer("change", "#collproject_edit", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+      //----------人员选择----------//
+      people_select: function(mode, target_field) {
+        this.peopleSelectView.target_field = target_field;
+        this.peopleSelectView.render(mode);
+        $("body").pagecontainer("change", "#people_select", {
           reverse: false,
           changeHash: false,
         });
@@ -1017,6 +1039,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         this.collProjectEditView = new CollProjectEditView({
           el: "#collproject_edit-content",
+        })
+        this.peopleSelectView = new PeopleSelectView({
+          el: "#people_select-content",
+          collection: self.c_people,
         })
 
       },
