@@ -59,6 +59,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         $(btns[i]).removeAttr('disabled')
                     };
                 };
+                // 设定完成按钮的文字
+                if (self.model.get('isfinished')) {
+                    $("#btn-colltask_detail-complete").html('打开');
+                } else {
+                    $("#btn-colltask_detail-complete").html('完成');
+                };
                 return this;
 
             },
@@ -111,10 +117,17 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     })
                     .on('click', '#btn-colltask_detail-complete', function(event) {
                         event.preventDefault();
-                        self.model.set('isfinished', true);
+                        var x = self.model.get('isfinished');
+                        self.model.set('isfinished', !x);
+
                         self.model.save().done(function() {
-                            alert('任务已标记为完成');
-                            window.location.href = '#colltask';
+                            if (x) {
+                                alert('任务已重新打开');
+                                self.render();
+                            } else {
+                                alert('任务已标记为完成');
+                                window.location.href = '#colltask';
+                            };
 
                         })
                     })
