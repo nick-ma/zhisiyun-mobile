@@ -21,38 +21,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 var self = this;
 
-                // var rendered = ;
-                // var render_data = {
-                //     cts: _.sortBy(_.map(_.filter(self.collection.models, function(x) {
-                //         return !x.get('isfinished');
-                //     }), function(x) {
-                //         return x.toJSON();
-                //     }), function(x) {
-                //         return -new Date(x.end);
-                //     }),
-                //     cts_finished: _.sortBy(_.map(_.filter(self.collection.models, function(x) {
-                //         return x.get('isfinished');
-                //     }), function(x) {
-                //         return x.toJSON();
-                //     }), function(x) {
-                //         return -new Date(x.end);
-                //     })
-                // };
-                // _.each(render_data.cts, function(x) {
-                //     x.sub_task_num = _.filter(self.collection.models, function(y) {
-                //         return y.get('p_task') == x._id
-                //     }).length;
-                // });
-                // _.each(render_data.cts_finished, function(x) {
-                //     x.sub_task_num = _.filter(self.collection.models, function(y) {
-                //         return y.get('p_task') == x._id
-                //     }).length;
-                // });
-                // _.each(this.collection.models, function(x) {
-                //     x.attributes.pi_count = x.attributes.qualitative_pis.items.length + x.attributes.quantitative_pis.items.length;
-                //     rendered.push(self.template(x.attributes));
-                // });
-                // self.template(render_data);
+                
 
                 var render_data = {
                     projects: _.map(self.collection.models, function(x) {

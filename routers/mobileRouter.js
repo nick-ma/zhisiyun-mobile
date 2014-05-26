@@ -34,6 +34,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/CollProjectListView", "../views/CollProjectEditView",
     // 人员选择界面
     "../views/PeopleSelectView",
+    // 指标选择界面
+    "../views/PISelectView",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -55,6 +57,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     CollTaskListView, CollTaskDetailView, CollTaskEditView,
     CollProjectListView, CollProjectEditView,
     PeopleSelectView,
+    PISelectView,
     async, moment
 
   ) {
@@ -145,6 +148,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         // 人员选择界面
         "people_select/:mode/:target_field": "people_select",
+        // 指标选择界面
+        "pi_select/:mode/:target_field": "pi_select",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -725,6 +730,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
+      //----------指标选择----------//
+      pi_select: function(mode, target_field) {
+        this.piSelectView.target_field = target_field;
+        this.piSelectView.collection = this.c_assessment;
+        this.piSelectView.render(mode);
+        $("body").pagecontainer("change", "#pi_select", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
       //-----------------init---------------------//
       get_local_storage_size: function() {
         var ls_size = 0;
@@ -1043,6 +1058,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.peopleSelectView = new PeopleSelectView({
           el: "#people_select-content",
           collection: self.c_people,
+        })
+        this.piSelectView = new PISelectView({
+          el: "#pi_select-content",
+          
         })
 
       },

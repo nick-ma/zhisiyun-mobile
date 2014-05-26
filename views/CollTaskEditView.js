@@ -36,12 +36,23 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 //     rendered.push(self.template(x.attributes));
                 // });
                 // self.template(render_data);
+                // 人员选择
                 var sphb = JSON.parse(localStorage.getItem('sp_helper_back') || null);
                 localStorage.removeItem('sp_helper_back'); //获取完之后，删掉，避免后面重复使用。
                 if (sphb) {
                     self.model.set(sphb.model);
                 };
                 localStorage.setItem('sp_helper', JSON.stringify({
+                    model: self.model.toJSON(),
+                    back_url: '#colltask_edit/' + self.model.get('_id'),
+                })); //放到local storage里面，便于后面选择屏幕进行操作
+                // 指标选择
+                var spihb = JSON.parse(localStorage.getItem('spi_helper_back') || null);
+                localStorage.removeItem('spi_helper_back'); //获取完之后，删掉，避免后面重复使用。
+                if (spihb) {
+                    self.model.set(spihb.model);
+                };
+                localStorage.setItem('spi_helper', JSON.stringify({
                     model: self.model.toJSON(),
                     back_url: '#colltask_edit/' + self.model.get('_id'),
                 })); //放到local storage里面，便于后面选择屏幕进行操作

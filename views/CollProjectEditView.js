@@ -22,20 +22,18 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-                // self.ct_id = self.model.get('_id') || null;
-                // var rendered = ;
-                // var render_data = {
-                //         cts: _.sortBy(_.map(this.collection.models, function(x) {
-                //             return x.toJSON();
-                //         }), function(x) {
-                //             return x.fl;
-                //         })
-                //     }
-                // _.each(this.collection.models, function(x) {
-                //     x.attributes.pi_count = x.attributes.qualitative_pis.items.length + x.attributes.quantitative_pis.items.length;
-                //     rendered.push(self.template(x.attributes));
-                // });
-                // self.template(render_data);
+                // 指标选择
+                var spihb = JSON.parse(localStorage.getItem('spi_helper_back') || null);
+                localStorage.removeItem('spi_helper_back'); //获取完之后，删掉，避免后面重复使用。
+                // console.log(spihb);
+                if (spihb) {
+                    self.model.set(spihb.model);
+                };
+                localStorage.setItem('spi_helper', JSON.stringify({
+                    model: self.model.toJSON(),
+                    back_url: '#collproject_edit/' + self.model.get('_id') + '/' + self.ct_id,
+                })); //放到local storage里面，便于后面选择屏幕进行操作
+
 
                 $("#collproject_edit-content").html(self.template(self.model.toJSON()));
                 $("#collproject_edit-content").trigger('create');
@@ -84,6 +82,21 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         var field = $this.data('field');
                         var value = $this.val();
                         self.model.set(field, value);
+                    })
+                    .on('click', '#btn-cp-select-pis', function(event) {
+                        event.preventDefault();
+                        if (self.model.isValid()) {
+                            self.model.save().done(function() { //保存
+                                self.render();
+                                window.setTimeout(function() {
+                                    var url = '#pi_select/m/pis';
+                                    window.location.href = url;
+                                }, 100);
+                            })
+                        } else {
+                            alert(self.model.validationError);
+                        }
+
                     });
             }
 
