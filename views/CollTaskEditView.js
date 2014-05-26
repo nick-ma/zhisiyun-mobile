@@ -56,6 +56,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     model: self.model.toJSON(),
                     back_url: '#colltask_edit/' + self.model.get('_id'),
                 })); //放到local storage里面，便于后面选择屏幕进行操作
+                if (self.ct_id) {
+                    $("#btn-colltask_edit-back").attr('href', '#colltask_detail/' + self.ct_id);
+                } else {
+                    $("#btn-colltask_edit-back").attr('href', '#colltask');
+                };
+
                 $("#colltask_edit-content").html(self.template(self.model.toJSON()));
                 $("#colltask_edit-content").trigger('create');
                 return this;
@@ -73,11 +79,16 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         // self.model.set('task_name', $("#ct_task_name").val());
                         if (self.model.isValid()) {
                             self.model.save().done(function() { //保存
-                                alert('任务保存成功')
-                                window.setTimeout(function() {
-                                    var next_page = "#colltask_detail/" + self.model.get('_id');
-                                    window.location.href = next_page;
-                                }, 100);
+                                if (self.ct_id) {
+                                    alert('任务保存成功')
+                                    window.setTimeout(function() {
+                                        var next_page = "#colltask_detail/" + self.model.get('_id');
+                                        window.location.href = next_page;
+                                    }, 100);
+                                } else {
+                                    self.render();
+                                };
+
                             })
                         } else {
                             alert(self.model.validationError);

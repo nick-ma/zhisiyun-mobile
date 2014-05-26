@@ -34,7 +34,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     back_url: '#collproject_edit/' + self.model.get('_id') + '/' + self.ct_id,
                 })); //放到local storage里面，便于后面选择屏幕进行操作
 
-
+                $("#btn-collproject_edit-back").attr('href', "#collproject/" + self.ct_id + "/" + self.model.get('_id'));
                 $("#collproject_edit-content").html(self.template(self.model.toJSON()));
                 $("#collproject_edit-content").trigger('create');
 
