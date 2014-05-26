@@ -677,10 +677,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           });
           if (p_task) { //取出上级任务的相关信息
             var pt = this.c_colltask.get(p_task);
-            console.log(pt);
+            // console.log(pt);
             ct.set('root_task', pt.get('root_task'));
             ct.set('cp', pt.get('cp'));
             ct.set('cp_name', pt.get('cp_name'));
+          };
+          //设定上级为默认的观察员
+          var upper_people = JSON.parse($("#upper_people").val());
+          if (upper_people) { //有上级的才放进去
+            ct.set('ntms', [upper_people]);
           };
         } else {
           ct = this.c_colltask.get(ct_id);
@@ -1061,7 +1066,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         this.piSelectView = new PISelectView({
           el: "#pi_select-content",
-          
+
         })
 
       },

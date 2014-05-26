@@ -65,6 +65,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 } else {
                     $("#btn-colltask_detail-complete").html('完成');
                 };
+                // 设定人员信息卡的返回地址
+                localStorage.setItem('contact_detail_back_url', '#colltask_detail/' + self.model.get('_id'));
                 return this;
 
             },

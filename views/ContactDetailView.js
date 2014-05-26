@@ -4,7 +4,7 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
     function($, _, Backbone, Handlebars, PeopleModel) {
-        
+
         // Extends Backbone.View
         var ContactDetailView = Backbone.View.extend({
 
@@ -20,7 +20,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
             render: function() {
 
                 var self = this;
-
+                var contact_detail_back_url = localStorage.getItem('contact_detail_back_url') || '#contact_list';
+                localStorage.removeItem('contact_detail_back_url');
+                $("#btn-contact_detail-back").attr('href', contact_detail_back_url);
                 $("#contact_detail-content").html(self.template(self.model.attributes));
                 $("#contact_detail-content").trigger('create');
                 return this;
