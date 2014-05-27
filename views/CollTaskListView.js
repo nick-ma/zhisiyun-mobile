@@ -29,61 +29,88 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 // console.log(mode);
                 // var rendered = ;
                 var models4render = [];
+                var render_mode = '';
                 var login_people = $("#login_people").val();
+                var render_data;
                 if (mode == 'all_task') {
+                    render_mode = 'task';
                     // console.log(mode);
                     models4render = _.filter(self.collection.models, function(x) {
                         return x
                     });
                 } else if (mode == 'my_task_1') { //我发起的任务
+                    render_mode = 'task';
                     models4render = _.filter(self.collection.models, function(x) {
                         return x.get('creator')._id == login_people;
                     })
                 } else if (mode == 'my_task_2') { //我负责的任务
+                    render_mode = 'task';
                     models4render = _.filter(self.collection.models, function(x) {
                         return x.get('th')._id == login_people;
                     })
                 } else if (mode == 'my_task_3') { //我参与的任务
+                    render_mode = 'task';
                     models4render = _.filter(self.collection.models, function(x) {
                         return !!_.find(x.get('tms'), function(y) {
                             return y._id == login_people;
                         })
                     })
                 } else if (mode == 'my_task_4') { //我观察的任务
+                    render_mode = 'task';
                     models4render = _.filter(self.collection.models, function(x) {
                         return !!_.find(x.get('ntms'), function(y) {
                             return y._id == login_people;
                         })
                     })
-                } else if (mode == 'my_project'){ //我发起的项目
-                    alert('即将实现');
+                } else if (mode == 'my_project') { //我发起的项目
+                    render_mode = 'project';
+                    // alert('即将实现');
+
+                } else if (mode == 'my_pis') { //我发起的项目
+                    render_mode = 'pi';
+                    // alert('即将实现');
+
                 };
-                var render_data = {
-                    cts: _.sortBy(_.map(_.filter(models4render, function(x) {
-                        return !x.get('isfinished');
-                    }), function(x) {
-                        return x.toJSON();
-                    }), function(x) {
-                        return new Date(x.end);
-                    }),
-                    cts_finished: _.sortBy(_.map(_.filter(models4render, function(x) {
-                        return x.get('isfinished');
-                    }), function(x) {
-                        return x.toJSON();
-                    }), function(x) {
-                        return -new Date(x.end);
-                    })
+                if (render_mode == 'task') {
+                    render_data = {
+                        cts: _.sortBy(_.map(_.filter(models4render, function(x) {
+                            return !x.get('isfinished');
+                        }), function(x) {
+                            return x.toJSON();
+                        }), function(x) {
+                            return new Date(x.end);
+                        }),
+                        cts_finished: _.sortBy(_.map(_.filter(models4render, function(x) {
+                            return x.get('isfinished');
+                        }), function(x) {
+                            return x.toJSON();
+                        }), function(x) {
+                            return -new Date(x.end);
+                        }),
+                        render_mode: render_mode,
+                    };
+                    _.each(render_data.cts, function(x) {
+                        x.sub_task_num = _.filter(self.collection.models, function(y) {
+                            return y.get('p_task') == x._id
+                        }).length;
+                    });
+                    _.each(render_data.cts_finished, function(x) {
+                        x.sub_task_num = _.filter(self.collection.models, function(y) {
+                            return y.get('p_task') == x._id
+                        }).length;
+                    });
+                } else if (render_mode == 'project') {
+                    render_data = {
+                        projects: [],
+                        render_mode: render_mode,
+                    };
+                } else if (render_mode == 'pi') {
+                    render_data = {
+                        pis: [],
+                        render_mode: render_mode,
+                    };
                 };
-                _.each(render_data.cts, function(x) {
-                    x.sub_task_num = _.filter(self.collection.models, function(y) {
-                        return y.get('p_task') == x._id
-                    }).length;
-                });
-                _.each(render_data.cts_finished, function(x) {
-                    x.sub_task_num = _.filter(self.collection.models, function(y) {
-                        return y.get('p_task') == x._id
-                    }).length;
-                });
+
                 // _.each(this.collection.models, function(x) {
                 //     x.attributes.pi_count = x.attributes.qualitative_pis.items.length + x.attributes.quantitative_pis.items.length;
                 //     rendered.push(self.template(x.attributes));
