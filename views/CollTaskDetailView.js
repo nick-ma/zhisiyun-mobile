@@ -23,6 +23,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
 
                 var render_data = self.model.toJSON();
+                var ct_last_view = JSON.parse(localStorage.getItem('ct_last_view')) || [];
+                var found = _.find(ct_last_view, function(x) {
+                    return x._id == render_data._id;
+                })
+                if (found) { //找到了，根据里面记录的时间做计算
+                    found.ts = new Date();
+                };
+                localStorage.setItem('ct_last_view', JSON.stringify(ct_last_view));
                 //查找子任务
                 render_data.sub_tasks = _.map(_.filter(self.model.collection.models, function(x) {
                     return x.get('p_task') == self.model.get('_id')

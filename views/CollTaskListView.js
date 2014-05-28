@@ -30,33 +30,55 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 var render_mode = '';
                 var login_people = $("#login_people").val();
                 var render_data;
+                var tmp = _.map(self.collection.models, function(x) {
+                        return x.toJSON();
+                    })
+                    // 计算自上次查看以来新增加的聊天条数
+                var ct_last_view = JSON.parse(localStorage.getItem('ct_last_view')) || [];
+                _.each(tmp, function(x) {
+                    var found = _.find(ct_last_view, function(y) {
+                        return y._id == x._id
+                    })
+                    if (found) { //找到了，根据里面记录的时间做计算
+                        x.unviewed_comment_nums = _.filter(x.comments, function(z) {
+                            return new Date(z.createDate) > new Date(found.ts);
+                        }).length;
+                    } else { //没找到，就按照当前时间计算。然后push进去。
+                        x.unviewed_comment_nums = x.comments.length;
+                        ct_last_view.push({
+                            _id: x._id,
+                            ts: new Date(19781125), //from some reasonable start date
+                        });
+                    };
+
+                })
+                localStorage.setItem('ct_last_view', JSON.stringify(ct_last_view));
+                // 整理前端需要渲染的数据
                 if (mode == 'all_task') {
                     render_mode = 'task';
                     // console.log(mode);
-                    models4render = _.filter(self.collection.models, function(x) {
-                        return x
-                    });
+                    models4render = tmp;
                 } else if (mode == 'my_task_1') { //我发起的任务
                     render_mode = 'task';
-                    models4render = _.filter(self.collection.models, function(x) {
-                        return x.get('creator')._id == login_people;
+                    models4render = _.filter(tmp, function(x) {
+                        return x.creator._id == login_people;
                     })
                 } else if (mode == 'my_task_2') { //我负责的任务
                     render_mode = 'task';
-                    models4render = _.filter(self.collection.models, function(x) {
-                        return x.get('th')._id == login_people;
+                    models4render = _.filter(tmp, function(x) {
+                        return x.th._id == login_people;
                     })
                 } else if (mode == 'my_task_3') { //我参与的任务
                     render_mode = 'task';
-                    models4render = _.filter(self.collection.models, function(x) {
-                        return !!_.find(x.get('tms'), function(y) {
+                    models4render = _.filter(tmp, function(x) {
+                        return !!_.find(x.tms, function(y) {
                             return y._id == login_people;
                         })
                     })
                 } else if (mode == 'my_task_4') { //我观察的任务
                     render_mode = 'task';
-                    models4render = _.filter(self.collection.models, function(x) {
-                        return !!_.find(x.get('ntms'), function(y) {
+                    models4render = _.filter(tmp, function(x) {
+                        return !!_.find(x.ntms, function(y) {
                             return y._id == login_people;
                         })
                     })
@@ -71,30 +93,26 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 };
                 if (render_mode == 'task') {
                     render_data = {
-                        cts: _.sortBy(_.map(_.filter(models4render, function(x) {
-                            return !x.get('isfinished');
-                        }), function(x) {
-                            return x.toJSON();
+                        cts: _.sortBy(_.filter(models4render, function(x) {
+                            return !x.isfinished;
                         }), function(x) {
                             return new Date(x.end);
                         }),
-                        cts_finished: _.sortBy(_.map(_.filter(models4render, function(x) {
-                            return x.get('isfinished');
-                        }), function(x) {
-                            return x.toJSON();
+                        cts_finished: _.sortBy(_.filter(models4render, function(x) {
+                            return x.isfinished;
                         }), function(x) {
                             return -new Date(x.end);
                         }),
                         render_mode: render_mode,
                     };
                     _.each(render_data.cts, function(x) {
-                        x.sub_task_num = _.filter(self.collection.models, function(y) {
-                            return y.get('p_task') == x._id
+                        x.sub_task_num = _.filter(tmp, function(y) {
+                            return y.p_task == x._id
                         }).length;
                     });
                     _.each(render_data.cts_finished, function(x) {
-                        x.sub_task_num = _.filter(self.collection.models, function(y) {
-                            return y.get('p_task') == x._id
+                        x.sub_task_num = _.filter(tmp, function(y) {
+                            return y.p_task == x._id
                         }).length;
                     });
                 } else if (render_mode == 'project') {
@@ -102,43 +120,31 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         projects: [],
                         render_mode: render_mode,
                     };
-                    var tmp = _.sortBy(_.map(self.collection.models, function(x) {
-                        return x.toJSON();
-                    }), function(x) {
+                    render_data.projects = _.groupBy(_.sortBy(tmp, function(x) {
                         return new Date(x.end);
-                    });
-                    render_data.projects = _.groupBy(tmp, function(x) {
+                    }), function(x) {
                         return x.cp_name;
                     });
-                    // render_data.projects = _.map(render_data.projects, function(val, key) {
-                    //     return {
-                    //         cp_name: key || '无关联项目的任务',
-                    //         cts: val
-                    //     }
-                    // })
+
                     // console.log(render_data.projects);
                 } else if (render_mode == 'pi') {
                     render_data = {
                         pis: [],
                         render_mode: render_mode,
                     };
-                    var tmp = _.sortBy(_.map(self.collection.models, function(x) {
-                        return x.toJSON();
-                    }), function(x) {
+                    // var tmp = _.sortBy(tmp, function(x) {
+                    //     return new Date(x.end);
+                    // });
+                    render_data.pis = _.groupBy(_.sortBy(tmp, function(x) {
                         return new Date(x.end);
-                    });
-                    render_data.pis = _.groupBy(tmp, function(x) {
+                    }), function(x) {
                         return (x.pi) ? x.pi.pi_name : '';
                     });
 
-                    console.log(render_data.pis);
+                    // console.log(render_data.pis);
                 };
 
-                // _.each(this.collection.models, function(x) {
-                //     x.attributes.pi_count = x.attributes.qualitative_pis.items.length + x.attributes.quantitative_pis.items.length;
-                //     rendered.push(self.template(x.attributes));
-                // });
-                // self.template(render_data);
+
                 $("#colltask-content").html(self.template(render_data));
                 $("#colltask-content").trigger('create');
                 return this;

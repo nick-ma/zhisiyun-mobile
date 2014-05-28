@@ -241,3 +241,9 @@ Chats
 .chat-form .btn-cont .btn {
     margin-top: 8px;
 }
+.bagnum {
+    border-radius: 20px;
+    background-color: #FF0000;
+    color:#FFFFFF;
+    padding: 3px 6px 3px 6px;
+}
