@@ -1277,7 +1277,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         if (isfinished) {
           return '<span class="label-success">已完成</span>';
         } else {
-          if (new Date(end) >= new Date()) {
+          if (moment(end).endOf('d').toDate() >= new Date()) {
             return '<span class="label-info">进行中</span>';
           } else {
             return '<span class="label-danger">已超时</span>';
@@ -1285,7 +1285,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
       });
       Handlebars.registerHelper('task_status2', function(end) {
-        if (new Date(end) < new Date()) {
+        if (moment(end).endOf('d').toDate() < new Date()) {
           return '<span class="label-danger">已超时</span>';
         }
       });

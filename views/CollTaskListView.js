@@ -14,7 +14,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 this.template = Handlebars.compile($("#hbtmp_coll_task_list_view").html());
                 // The render method is called when CollTask Models are added to the Collection
                 this.collection.on("sync", function() {
-                    self.render('all_task')
+
+                    self.render(localStorage.getItem('ct_render_mode') || 'all_task')
                 }, this);
                 this.bind_event();
             },
@@ -23,11 +24,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function(mode) {
 
                 var self = this;
-                if (!mode) { //默认是全部任务
-                    mode = 'all_task';
-                };
-                // console.log(mode);
-                // var rendered = ;
+                localStorage.setItem('ct_render_mode', mode); //通过local storage来保存状态
+
                 var models4render = [];
                 var render_mode = '';
                 var login_people = $("#login_people").val();
@@ -104,11 +102,36 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         projects: [],
                         render_mode: render_mode,
                     };
+                    var tmp = _.sortBy(_.map(self.collection.models, function(x) {
+                        return x.toJSON();
+                    }), function(x) {
+                        return new Date(x.end);
+                    });
+                    render_data.projects = _.groupBy(tmp, function(x) {
+                        return x.cp_name;
+                    });
+                    // render_data.projects = _.map(render_data.projects, function(val, key) {
+                    //     return {
+                    //         cp_name: key || '无关联项目的任务',
+                    //         cts: val
+                    //     }
+                    // })
+                    // console.log(render_data.projects);
                 } else if (render_mode == 'pi') {
                     render_data = {
                         pis: [],
                         render_mode: render_mode,
                     };
+                    var tmp = _.sortBy(_.map(self.collection.models, function(x) {
+                        return x.toJSON();
+                    }), function(x) {
+                        return new Date(x.end);
+                    });
+                    render_data.pis = _.groupBy(tmp, function(x) {
+                        return (x.pi) ? x.pi.pi_name : '';
+                    });
+
+                    console.log(render_data.pis);
                 };
 
                 // _.each(this.collection.models, function(x) {
