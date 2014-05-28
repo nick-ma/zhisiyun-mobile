@@ -247,3 +247,15 @@ Chats
     color:#FFFFFF;
     padding: 3px 6px 3px 6px;
 }
+#preview {
+    width: 100%;
+    /*max-width: 320px;*/
+}
+#preview img {
+    width: 100%;
+}
+.hiddenfile {
+    width: 0px;
+    height: 0px;
+    overflow: hidden;
+}

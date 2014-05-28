@@ -36,6 +36,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/PeopleSelectView",
     // 指标选择界面
     "../views/PISelectView",
+    // 上传图片界面
+    "../views/UploadPicView",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -58,6 +60,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     CollProjectListView, CollProjectEditView,
     PeopleSelectView,
     PISelectView,
+    UploadPicView,
     async, moment
 
   ) {
@@ -150,6 +153,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "people_select/:mode/:target_field": "people_select",
         // 指标选择界面
         "pi_select/:mode/:target_field": "pi_select",
+
+        // 上传文件
+        "upload_pic": "upload_pic",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -745,6 +751,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
+      //----------上传图片----------//
+      upload_pic: function() {
+        this.uploadPicView.render();
+        $("body").pagecontainer("change", "#upload_pic", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
       //-----------------init---------------------//
       get_local_storage_size: function() {
         var ls_size = 0;
@@ -1066,6 +1080,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         this.piSelectView = new PISelectView({
           el: "#pi_select-content",
+
+        })
+        this.uploadPicView = new UploadPicView({
+          el: "#upload_pic-content",
 
         })
 
