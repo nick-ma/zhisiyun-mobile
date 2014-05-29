@@ -38,6 +38,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/PISelectView",
     // 上传图片界面
     "../views/UploadPicView",
+    // 添加交流记录界面
+    "../views/CommentAddView",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -61,6 +63,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     PeopleSelectView,
     PISelectView,
     UploadPicView,
+    CommentAddView,
     async, moment
 
   ) {
@@ -156,6 +159,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         // 上传文件
         "upload_pic": "upload_pic",
+        // 添加交流记录
+        "comment_add":"comment_add",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -759,6 +764,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
+      //----------添加交流----------//
+      comment_add: function() {
+        this.commentAddView.render();
+        $("body").pagecontainer("change", "#comment_add", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
+
       //-----------------init---------------------//
       get_local_storage_size: function() {
         var ls_size = 0;
@@ -1086,6 +1100,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           el: "#upload_pic-content",
 
         })
+        this.commentAddView = new CommentAddView({
+          el: "#comment_add-content",
+
+        })
 
       },
       init_cols: function() {
@@ -1249,6 +1267,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             // console.log('timer stoped');
             self.start_auto_fetch(parseInt($this.val()) * 60 * 1000);
           }
+        });
+
+        $("#fullscreen-overlay").on('click', function(event) {
+          event.preventDefault();
+          var $this = $(this);
+          $this.fadeOut('fast', function() {
+            $this.empty();
+          });
         });
       }
     });

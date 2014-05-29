@@ -20,10 +20,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-
+                var um = JSON.parse(localStorage.getItem('upload_model'));
+                self.model = um.model;
+                self.field = um.field;
+                self.back_url = um.back_url;
 
                 var render_data = {};
-
+                $("#btn-upload_pic-back").attr('href', self.back_url);
                 $("#upload_pic-content").html(self.template(render_data));
                 $("#upload_pic-content").trigger('create');
 
@@ -41,13 +44,18 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     })
                     .on('click', '#do_upload', function(event) {
                         event.preventDefault();
-
                         var file = $("#upload_pic-content input[type=file]")[0].files[0];
                         if (file) {
+                            $(this).text("正在上传...");
                             $("#frmUploadPic").submit();
-                        }else{
+                        } else {
                             alert('请选择照片或者拍照！');
                         };
+                    })
+                    .on('submit', '#frmUploadPic', function(event) {
+                        event.preventDefault();
+                        $.mobile.ajaxUpload.upload(this);
+                        return false;
                     })
                     .on('change', 'input[type=file]', function(event) {
                         var file = $("input[type=file]")[0].files[0];
@@ -71,6 +79,32 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         $fileinfo.listview("refresh");
 
                     });
+                $("body").on('pagecontainerload', function(event, ui) {
+                    event.preventDefault();
+                    if (ui.textStatus == 'success') {
+                        var server_res = JSON.parse(ui.xhr.responseText);
+                        if (server_res.success) {
+                            // localStorage.setItem()
+                            $("#do_upload").text('上传成功');
+                            // 利用local storage传递数据
+                            _.each(server_res.success, function(x) {
+                                self.model[self.field].push(x._id);
+                            })
+                            localStorage.setItem('upload_model_back', JSON.stringify({
+                                model: self.model
+                            }))
+                            localStorage.removeItem('upload_model'); //用完删掉
+
+                            // 返回调用页面
+
+                            window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
+                                window.location.href = '/m' + self.back_url;
+                            }, 500);
+                        };
+                        console.log(server_res);
+                    };
+                    console.log(ui);
+                });
             },
             displayAsImage3: function(file, containerid) {
                 if (typeof FileReader !== "undefined") {

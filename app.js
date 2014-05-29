@@ -125,6 +125,8 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         /* Act on the event */
       });;
 
+
+
     }
   )
 
@@ -142,7 +144,41 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         return text;
       }
     };
+    //config for ajax file upload in jquery mobile
+    $.ajaxEnvironment = function(settings, block) {
+      var originalSettings = $.ajaxSetup();
+      var restoredSettings = {};
 
+      $.each(settings, function(key) {
+        restoredSettings[key] = originalSettings[key];
+      });
+
+      $.ajaxSetup(settings);
+      block();
+      $.ajaxSetup(restoredSettings);
+    };
+
+    $.mobile.ajaxUpload = {};
+
+    $.mobile.ajaxUpload.upload = function(form, options) {
+      var form = $(form);
+
+      $.ajaxEnvironment({
+        contentType: false,
+        processData: false,
+      }, function() {
+        // $.mobile.changePage(form.attr('action'), {
+        //   data: new FormData(form[0]),
+        //   type: form.attr('method'),
+        // });
+        $("body").pagecontainer("load", form.attr('action'), {
+          data: new FormData(form[0]),
+          type: form.attr('method'),
+        });
+
+      });
+    };
+    
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.log('message: backbone router started!');

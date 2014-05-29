@@ -21,7 +21,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 var self = this;
 
-
+                if (localStorage.getItem('comment_model_back')) {
+                    self.model.set(JSON.parse(localStorage.getItem('comment_model_back')).model);
+                    localStorage.removeItem('comment_model_back');
+                    self.model.save().done(function() {
+                        self.render();
+                    })
+                    return;
+                };
                 var render_data = self.model.toJSON();
                 var ct_last_view = JSON.parse(localStorage.getItem('ct_last_view')) || [];
                 var found = _.find(ct_last_view, function(x) {
@@ -109,6 +116,25 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         event.preventDefault();
                         var url = '#colltask_edit/add/' + self.model.get('_id');
                         window.location.href = url;
+                    })
+                    .on('click', '#btn-ct-add_comment', function(event) {
+                        event.preventDefault();
+                        localStorage.removeItem('comment_model_back'); //先把返回值清掉
+                        localStorage.setItem('comment_model', JSON.stringify({
+                            model: self.model,
+                            field: 'comments',
+                            back_url: '#colltask_detail/' + self.model.get('_id'),
+                        }));
+                        localStorage.setItem('comment_new','1'); //通知对方新开一个
+                        var url = '#comment_add';
+                        window.location.href = url;
+                    })
+                    .on('click', 'img', function(event) {
+                        event.preventDefault();
+                        // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+                        var img_view = '<img src="' + this.src + '">';
+                        // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+                        $("#fullscreen-overlay").html(img_view).fadeIn('fast');
                     });
                 $("#colltask_detail-footer")
                     .on('click', '#btn-colltask_detail-remove', function(event) {
