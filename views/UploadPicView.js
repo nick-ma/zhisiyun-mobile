@@ -99,11 +99,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                             window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
                                 window.location.href = '/m' + self.back_url;
-                            }, 500);
+                            }, 200);
                         };
-                        console.log(server_res);
+                        // console.log(server_res);
                     };
-                    console.log(ui);
+                    // console.log(ui);
                 });
             },
             displayAsImage3: function(file, containerid) {
