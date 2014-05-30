@@ -18,6 +18,8 @@ require.config({
     "highcharts": "./bower_components/highcharts/highcharts-all",
     "formatdate": "./libs/formatdate",
     "sparkline": "./libs/jquery.sparkline",
+    "exif": "./libs/jquery.exif",
+    "canvasResize": "./libs/jquery.canvasResize",
 
     "jqmcal": "./libs/jw-jqm-cal",
 
@@ -44,6 +46,8 @@ require.config({
     "sparkline": ["jquery"],
     "formatdate": ["jquery"],
     "jqmcal": ["jquery"],
+    "exif": ["jquery"],
+    "canvasResize": ["jquery"],
     "moment_lang_zh-cn": ["moment"],
     // "jquerymobile": ["jquery"],
 
@@ -52,7 +56,7 @@ require.config({
 });
 
 // Includes File Dependencies
-require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring", "jqmcal", "moment_lang_zh-cn", "sparkline"], function($, _, Backbone, Mobile, LZString) {
+require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring", "jqmcal", "moment_lang_zh-cn", "sparkline", "exif", "canvasResize"], function($, _, Backbone, Mobile, LZString) {
 
   $(document).on("mobileinit",
     // Set up the "mobileinit" handler before requiring jQuery Mobile's module
@@ -171,6 +175,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         //   data: new FormData(form[0]),
         //   type: form.attr('method'),
         // });
+      // console.log(new FormData(form[0]));
         $("body").pagecontainer("load", form.attr('action'), {
           data: new FormData(form[0]),
           type: form.attr('method'),
@@ -178,7 +183,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
 
       });
     };
-    
+
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.log('message: backbone router started!');

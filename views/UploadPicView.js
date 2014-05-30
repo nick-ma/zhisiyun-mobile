@@ -47,14 +47,21 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         var file = $("#upload_pic-content input[type=file]")[0].files[0];
                         if (file) {
                             $(this).text("正在上传...");
-                            $("#frmUploadPic").submit();
+                            // $("#frmUploadPic").submit();
+                            // change a new method for resize and upload images
+                            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                                self.resizeAndUpload(file);
+                            } else {
+                                alert('The File APIs are not fully supported in this browser.');
+                            }
+
                         } else {
                             alert('请选择照片或者拍照！');
                         };
                     })
                     .on('submit', '#frmUploadPic', function(event) {
                         event.preventDefault();
-                        $.mobile.ajaxUpload.upload(this);
+                        $.mobile.ajaxUpload.upload(this); //use form submit
                         return false;
                     })
                     .on('change', 'input[type=file]', function(event) {
@@ -120,6 +127,109 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }(img));
                     reader.readAsDataURL(file);
                 }
+            },
+            resizeAndUpload: function(file) {
+                var self = this;
+                $.canvasResize(file, {
+                    width: 640,
+                    height: 0,
+                    crop: false,
+                    quality: 90,
+                    //rotate: 90,
+                    callback: function(data, width, height) {
+                        console.log(data, width, height);
+                        // $("#upload_pic-content input[type=file]").attr('src', data);
+                        var xhr = new XMLHttpRequest();
+                        xhr.onreadystatechange = function(ev) {
+                            // document.getElementById('filesInfo').innerHTML = 'Done!';
+                            if (ev.target.readyState == 4 && ev.target.status == 200) {
+                                $("#do_upload").text('上传成功');
+                                var res = JSON.parse(ev.target.responseText);
+
+                                // 利用local storage传递数据
+
+                                self.model[self.field].push(res._id);
+                                localStorage.setItem('upload_model_back', JSON.stringify({
+                                    model: self.model
+                                }))
+                                localStorage.removeItem('upload_model'); //用完删掉
+
+                                // 返回调用页面
+
+                                window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
+                                    window.location.href = '/m' + self.back_url;
+                                }, 200);
+                                // console.log(res);
+                            } else {
+
+                                $("#do_upload").text('上传失败');
+                            };
+                            // console.log(ev);
+                        };
+
+                        xhr.open('POST', '/gridfs/put', true);
+                        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                        var post_data = 'data=' + encodeURIComponent(data.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
+                        // var post_data = 'data=' + data;
+                        post_data += '&file_name=' + file.name;
+                        post_data += '&file_type=' + file.type;
+                        // console.log(post_data);
+                        xhr.send(post_data);
+                    }
+                });
+                /*
+                var reader = new FileReader();
+                reader.onloadend = function() {
+
+                    var tempImg = new Image();
+                    tempImg.src = reader.result;
+                    tempImg.onload = function() {
+                        //resize by fixed width/height
+                        // var MAX_WIDTH = 560;
+                        // var MAX_HEIGHT = 320;
+                        // var tempW = tempImg.width;
+                        // var tempH = tempImg.height;
+                        // if (tempW > tempH) {
+                        //     if (tempW > MAX_WIDTH) {
+                        //         tempH *= MAX_WIDTH / tempW;
+                        //         tempW = MAX_WIDTH;
+                        //     }
+                        // } else {
+                        //     if (tempH > MAX_HEIGHT) {
+                        //         tempW *= MAX_HEIGHT / tempH;
+                        //         tempH = MAX_HEIGHT;
+                        //     }
+                        // }
+                        // resize by ratio
+                        var ratio = .1;
+                        var tempW = tempImg.width * ratio;
+                        var tempH = tempImg.height * ratio;
+                        var canvas = document.createElement('canvas');
+                        canvas.width = tempW;
+                        canvas.height = tempH;
+                        var ctx = canvas.getContext("2d");
+                        ctx.drawImage(this, 0, 0, tempW, tempH);
+                        var dataURL = canvas.toDataURL("image/jpeg");
+                        $("#upload_pic-content img").attr('src', dataURL);
+                        console.log(dataURL);
+                        var xhr = new XMLHttpRequest();
+                        xhr.onreadystatechange = function(ev) {
+                            // document.getElementById('filesInfo').innerHTML = 'Done!';
+                            console.log(ev);
+                            $("#do_upload").text('上传成功');
+                        };
+
+                        xhr.open('POST', '/gridfs/put', true);
+                        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                        var post_data = 'data=' + encodeURIComponent(dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
+                        post_data += '&file_name=' + file.name;
+                        post_data += '&file_type=' + file.type;
+                        xhr.send(post_data);
+                    }
+
+                }
+                reader.readAsDataURL(file);
+*/
             },
             calcSize: function(size) {
                 if (size < 1024) {
