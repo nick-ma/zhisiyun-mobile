@@ -137,32 +137,35 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     quality: 90,
                     //rotate: 90,
                     callback: function(data, width, height) {
-                        console.log(data, width, height);
+                        // console.log(data, width, height);
                         // $("#upload_pic-content input[type=file]").attr('src', data);
                         var xhr = new XMLHttpRequest();
                         xhr.onreadystatechange = function(ev) {
                             // document.getElementById('filesInfo').innerHTML = 'Done!';
-                            if (ev.target.readyState == 4 && ev.target.status == 200) {
-                                $("#do_upload").text('上传成功');
-                                var res = JSON.parse(ev.target.responseText);
 
-                                // 利用local storage传递数据
+                            if (ev.target.readyState == 4) {
+                                if (ev.target.status == 200) {
+                                    $("#do_upload").text('上传成功');
+                                    var res = JSON.parse(ev.target.responseText);
 
-                                self.model[self.field].push(res._id);
-                                localStorage.setItem('upload_model_back', JSON.stringify({
-                                    model: self.model
-                                }))
-                                localStorage.removeItem('upload_model'); //用完删掉
+                                    // 利用local storage传递数据
 
-                                // 返回调用页面
+                                    self.model[self.field].push(res._id);
+                                    localStorage.setItem('upload_model_back', JSON.stringify({
+                                        model: self.model
+                                    }))
+                                    localStorage.removeItem('upload_model'); //用完删掉
 
-                                window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
-                                    window.location.href = '/m' + self.back_url;
-                                }, 200);
+                                    // 返回调用页面
+
+                                    window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
+                                        window.location.href = '/m' + self.back_url;
+                                    }, 200);
+                                } else {
+                                    $("#do_upload").text('上传失败');
+                                };
+
                                 // console.log(res);
-                            } else {
-
-                                $("#do_upload").text('上传失败');
                             };
                             // console.log(ev);
                         };
