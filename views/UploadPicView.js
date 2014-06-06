@@ -242,7 +242,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 } else if (size >= 1048576 && size < 1073741824) { //1024^3
                     return sprintf('%0.2f MB', size / 1048576);
                 } else if (size >= 1073741824) {
-                    return springf('%0.2f GB', size / 1073741824);
+                    return sprintf('%0.2f GB', size / 1073741824);
                 };
             },
 
