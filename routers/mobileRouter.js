@@ -28,10 +28,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // 计分公式和等级组
     "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
     // 协作任务
-    "../collections/CollProjectCollection", "../collections/CollTaskCollection",
-    "../views/CollTaskListView", "../views/CollTaskDetailView", "../views/CollTaskEditView",
+    // "../collections/CollProjectCollection", "../collections/CollTaskCollection",
+    // "../views/CollTaskListView", "../views/CollTaskDetailView", "../views/CollTaskEditView",
     // 协作项目－配套协作任务的
-    "../views/CollProjectListView", "../views/CollProjectEditView",
+    // "../views/CollProjectListView", "../views/CollProjectEditView",
     // 人员选择界面
     "../views/PeopleSelectView",
     // 指标选择界面
@@ -40,6 +40,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/UploadPicView",
     // 添加交流记录界面
     "../views/CommentAddView",
+    "./colltaskRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -57,13 +58,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     PayrollCollection, PayrollListView, PayrollDetailView,
     MyProfileView,
     ScoringFormulaCollection, GradeGroupCollection,
-    CollProjectCollection, CollTaskCollection,
-    CollTaskListView, CollTaskDetailView, CollTaskEditView,
-    CollProjectListView, CollProjectEditView,
+    // CollProjectCollection, CollTaskCollection,
+    // CollTaskListView, CollTaskDetailView, CollTaskEditView,
+    // CollProjectListView, CollProjectEditView,
     PeopleSelectView,
     PISelectView,
     UploadPicView,
     CommentAddView,
+    CollTaskRouter,
     async, moment
 
   ) {
@@ -83,6 +85,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         //
         this.start_auto_fetch(parseInt(localStorage.getItem('refresh_interval') || 0) * 60 * 1000);
         this.bind_events();
+        // _.extend(this,CollTaskRouter);
+        new CollTaskRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -144,13 +148,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         //人才九宫图
         "talent9grides/:people_id/:ai_score/:score": "talent9grides",
         // 协作任务
-        "colltask": "colltask",
-        "colltask_detail/:ct_id": "colltask_detail",
+        // "colltask": "colltask",
+        // "colltask_detail/:ct_id": "colltask_detail",
         // "colltask_edit/:ct_id": "colltask_edit",
-        "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
+        // "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
         // 协作任务的项目
-        "collproject/:ct_id/(:cp_id)": "collproject",
-        "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
+        // "collproject/:ct_id/(:cp_id)": "collproject",
+        // "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
 
         // 人员选择界面
         "people_select/:mode/:target_field": "people_select",
@@ -161,6 +165,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "upload_pic": "upload_pic",
         // 添加交流记录
         "comment_add":"comment_add",
+        //lazy load sub routers
+        // "colltask/*subroute":"invokeCollTask",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
@@ -662,81 +668,86 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
-      //--------协作任务--------//
-      colltask: function() {
-        // colltasklistView.
-        this.c_colltask.fetch();
-        $("body").pagecontainer("change", "#colltask", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      colltask_detail: function(ct_id) {
-        this.collTaskDetailView.model = this.c_colltask.get(ct_id);
-        this.collTaskDetailView.render();
-        $("body").pagecontainer("change", "#colltask_detail", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      colltask_edit: function(ct_id, p_task) {
-        var ct;
-        if (ct_id == 'add') { //新增
-          ct = this.c_colltask.add({
-            task_name: '',
-            p_task: p_task || null,
-          });
-          if (p_task) { //取出上级任务的相关信息
-            var pt = this.c_colltask.get(p_task);
-            // console.log(pt);
-            ct.set('root_task', pt.get('root_task'));
-            ct.set('cp', pt.get('cp'));
-            ct.set('cp_name', pt.get('cp_name'));
-          };
-          //设定上级为默认的观察员
-          var upper_people = JSON.parse($("#upper_people").val());
-          if (upper_people) { //有上级的才放进去
-            ct.set('ntms', [upper_people]);
-          };
-        } else {
-          ct = this.c_colltask.get(ct_id);
-        };
-        // console.log(ct_id, p_task, ct);
-        this.collTaskEditView.model = ct;
-        this.collTaskEditView.render();
-        $("body").pagecontainer("change", "#colltask_edit", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      collproject: function(ct_id, cp_id) {
-        // collProjectListView
-        this.c_collproject.fetch();
-        this.collProjectListView.ct_id = ct_id;
-        this.collProjectListView.ct_model = this.c_colltask.get(ct_id);
-        this.collProjectListView.cp_id = cp_id;
-        $("body").pagecontainer("change", "#collproject_list", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      collproject_edit: function(cp_id, ct_id) {
-        var cp;
-        if (cp_id == 'add') {
-          cp = this.c_collproject.add({
-            project_name: ''
-          });
-        } else {
-          cp = this.c_collproject.get(cp_id);
-        };
-        this.collProjectEditView.ct_id = ct_id;
-        this.collProjectEditView.model = cp;
-        this.collProjectEditView.render();
-        $("body").pagecontainer("change", "#collproject_edit", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
+      // invokeCollTask:function  (subroute) {
+      //   if (!this.colltask_routes) {
+      //     this.colltask_routes = new CollTaskRouter("colltask/");
+      //   };
+      // },
+      // //--------协作任务--------//
+      // colltask: function() {
+      //   // colltasklistView.
+      //   this.c_colltask.fetch();
+      //   $("body").pagecontainer("change", "#colltask", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // colltask_detail: function(ct_id) {
+      //   this.collTaskDetailView.model = this.c_colltask.get(ct_id);
+      //   this.collTaskDetailView.render();
+      //   $("body").pagecontainer("change", "#colltask_detail", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // colltask_edit: function(ct_id, p_task) {
+      //   var ct;
+      //   if (ct_id == 'add') { //新增
+      //     ct = this.c_colltask.add({
+      //       task_name: '',
+      //       p_task: p_task || null,
+      //     });
+      //     if (p_task) { //取出上级任务的相关信息
+      //       var pt = this.c_colltask.get(p_task);
+      //       // console.log(pt);
+      //       ct.set('root_task', pt.get('root_task'));
+      //       ct.set('cp', pt.get('cp'));
+      //       ct.set('cp_name', pt.get('cp_name'));
+      //     };
+      //     //设定上级为默认的观察员
+      //     var upper_people = JSON.parse($("#upper_people").val());
+      //     if (upper_people) { //有上级的才放进去
+      //       ct.set('ntms', [upper_people]);
+      //     };
+      //   } else {
+      //     ct = this.c_colltask.get(ct_id);
+      //   };
+      //   // console.log(ct_id, p_task, ct);
+      //   this.collTaskEditView.model = ct;
+      //   this.collTaskEditView.render();
+      //   $("body").pagecontainer("change", "#colltask_edit", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // collproject: function(ct_id, cp_id) {
+      //   // collProjectListView
+      //   this.c_collproject.fetch();
+      //   this.collProjectListView.ct_id = ct_id;
+      //   this.collProjectListView.ct_model = this.c_colltask.get(ct_id);
+      //   this.collProjectListView.cp_id = cp_id;
+      //   $("body").pagecontainer("change", "#collproject_list", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // collproject_edit: function(cp_id, ct_id) {
+      //   var cp;
+      //   if (cp_id == 'add') {
+      //     cp = this.c_collproject.add({
+      //       project_name: ''
+      //     });
+      //   } else {
+      //     cp = this.c_collproject.get(cp_id);
+      //   };
+      //   this.collProjectEditView.ct_id = ct_id;
+      //   this.collProjectEditView.model = cp;
+      //   this.collProjectEditView.render();
+      //   $("body").pagecontainer("change", "#collproject_edit", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
       //----------人员选择----------//
       people_select: function(mode, target_field) {
         this.peopleSelectView.target_field = target_field;
@@ -1071,23 +1082,23 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           el: "#panel-fwd-people",
           collection: self.c_people
         })
-        this.collTaskListView = new CollTaskListView({
-          el: "#colltask-content",
-          collection: self.c_colltask
-        })
-        this.collTaskEditView = new CollTaskEditView({
-          el: "#colltask_edit-content",
-        })
-        this.collTaskDetailView = new CollTaskDetailView({
-          el: "#colltask_detail-content",
-        })
-        this.collProjectListView = new CollProjectListView({
-          el: "#collproject_list-content",
-          collection: self.c_collproject
-        })
-        this.collProjectEditView = new CollProjectEditView({
-          el: "#collproject_edit-content",
-        })
+        // this.collTaskListView = new CollTaskListView({
+        //   el: "#colltask-content",
+        //   collection: self.c_colltask
+        // })
+        // this.collTaskEditView = new CollTaskEditView({
+        //   el: "#colltask_edit-content",
+        // })
+        // this.collTaskDetailView = new CollTaskDetailView({
+        //   el: "#colltask_detail-content",
+        // })
+        // this.collProjectListView = new CollProjectListView({
+        //   el: "#collproject_list-content",
+        //   collection: self.c_collproject
+        // })
+        // this.collProjectEditView = new CollProjectEditView({
+        //   el: "#collproject_edit-content",
+        // })
         this.peopleSelectView = new PeopleSelectView({
           el: "#people_select-content",
           collection: self.c_people,
@@ -1124,8 +1135,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_scoringformula = new ScoringFormulaCollection(); //计分公式
         this.c_gradegroup = new GradeGroupCollection(); //等级组
 
-        this.c_colltask = new CollTaskCollection(); //协作任务
-        this.c_collproject = new CollProjectCollection(); //协作项目
+        // this.c_colltask = new CollTaskCollection(); //协作任务
+        // this.c_collproject = new CollProjectCollection(); //协作项目
 
       },
       init_models: function() {
