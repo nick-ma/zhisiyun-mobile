@@ -5,18 +5,19 @@
 define(["jquery", "backbone", "handlebars", "lzstring",
     //首页
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
-    "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../views/AssessmentUpdateValueView", "../views/AssessmentImprovePlanView", "../views/AssessmentImprovePlanEditView", "../collections/AssessmentVCollection",
+    // "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../views/AssessmentUpdateValueView", "../views/AssessmentImprovePlanView", "../views/AssessmentImprovePlanEditView", "../collections/AssessmentVCollection",
     "../views/HomeTaskView", "../views/HomeMyTeamView", "../collections/TaskVCollection",
     //工作日历相关
     "../models/TaskModel", "../collections/TaskCollection", "../views/TaskView", "../views/TaskDetailView", "../views/TaskEditView", "../views/TaskForwardView", "../views/TaskForwardSelectPeoplePanelView",
     //人员和组织相关
     "../models/PeopleModel", "../collections/PeopleCollection", "../views/ContactListView", "../views/ContactDetailView",
     //我的团队相关
-    "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView", "../views/MyTeamAllListView",
+    // "../views/MyTeamListView", "../views/MyTeamDetailView", "../views/MyTeamTaskView", "../views/MyTeamTaskDetailView", "../views/MyTeamTaskEditView", "../views/MyTeamAllListView",
     //团队考核相关
-    "../views/MyTeamAssessmentCommentView", "../views/MyTeamAssessmentUpdateValueView", "../views/MyTeamAssessmentImprovePlanView",
+    // "../views/MyTeamAssessmentCommentView", "../views/MyTeamAssessmentUpdateValueView", "../views/MyTeamAssessmentImprovePlanView",
     //绩效考核合同相关
-    "../views/AssessmentDetailView", "../views/MyTeamAssessmentView", "../views/MyTeamAssessmentPIListView", "../views/MyTeamAssessmentDetailView",
+    // "../views/AssessmentDetailView", 
+    // "../views/MyTeamAssessmentView", "../views/MyTeamAssessmentPIListView", "../views/MyTeamAssessmentDetailView",
     // 人才盘点相关
     "../collections/TalentCollection", "../views/MyTeamTalentView", "../collections/HoroscopeCollection", "../views/Talent9GridsChartView",
     // 能力素质相关
@@ -35,24 +36,27 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // 人员选择界面
     "../views/PeopleSelectView",
     // 指标选择界面
-    "../views/PISelectView",
+    // "../views/PISelectView",
     // 上传图片界面
     "../views/UploadPicView",
     // 添加交流记录界面
     "../views/CommentAddView",
     "./colltaskRouter",
+    "./assessmentRouter",
+    "./myteamRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
   function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
-    HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView, AssessmentUpdateValueView, AssessmentImprovePlanView, AssessmentImprovePlanEditView, AssessmentVCollection,
+    // HomeAssessmentView, HomeAssessmentHistoryView, HomeAssessmentPIListView, AssessmentCollection, AssessmentCommentView, AssessmentUpdateValueView, AssessmentImprovePlanView, AssessmentImprovePlanEditView, AssessmentVCollection,
     HomeTaskView, HomeMyTeamView, TaskVCollection,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
-    MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView, MyTeamAllListView,
-    MyTeamAssessmentCommentView, MyTeamAssessmentUpdateValueView, MyTeamAssessmentImprovePlanView,
-    AssessmentDetailView, MyTeamAssessmentView, MyTeamAssessmentPIListView, MyTeamAssessmentDetailView,
+    // MyTeamListView, MyTeamDetailView, MyTeamTaskView, MyTeamTaskDetailView, MyTeamTaskEditView, MyTeamAllListView,
+    // MyTeamAssessmentCommentView, MyTeamAssessmentUpdateValueView, MyTeamAssessmentImprovePlanView,
+    // AssessmentDetailView, 
+    // MyTeamAssessmentView, MyTeamAssessmentPIListView, MyTeamAssessmentDetailView,
     TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView,
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
     PayrollCollection, PayrollListView, PayrollDetailView,
@@ -62,10 +66,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // CollTaskListView, CollTaskDetailView, CollTaskEditView,
     // CollProjectListView, CollProjectEditView,
     PeopleSelectView,
-    PISelectView,
+    // PISelectView,
     UploadPicView,
     CommentAddView,
     CollTaskRouter,
+    AssessmentRouter,
+    MyTeamRouter,
     async, moment
 
   ) {
@@ -83,10 +89,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         //load data
         this.init_data();
         //
-        this.start_auto_fetch(parseInt(localStorage.getItem('refresh_interval') || 0) * 60 * 1000);
+        // this.start_auto_fetch(parseInt(localStorage.getItem('refresh_interval') || 0) * 60 * 1000);
         this.bind_events();
         // _.extend(this,CollTaskRouter);
         new CollTaskRouter();
+        new AssessmentRouter();
+        new MyTeamRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -98,13 +106,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "": "home",
         // 返回上一个
         "goto/:pagename": "goto",
-        // 绩效合同相关页面
-        "assessment_pi_list/:ai_id": "assessment_pi_list",
-        "assessment_detail/:ai_id/:lx/:pi": "assessment_detail", // <- 改
-        "assessment_comment/:ai_id/:lx/:pi": "assessment_comment", // <- 改
-        "assessment_update_value/:ai_id/:lx/:pi": "assessment_update_value", // <- 改
-        "assessment_improve_plan/:ai_id/:lx/:pi": "assessment_improve_plan", // <- 改
-        "assessment_improve_plan/:ai_id/:lx/:pi/:ip_id/:seg_name": "assessment_improve_plan_edit", // <- 改
+        // // 绩效合同相关页面
+        // "assessment_pi_list/:ai_id": "assessment_pi_list",
+        // "assessment_detail/:ai_id/:lx/:pi": "assessment_detail", // <- 改
+        // "assessment_comment/:ai_id/:lx/:pi": "assessment_comment", // <- 改
+        // "assessment_update_value/:ai_id/:lx/:pi": "assessment_update_value", // <- 改
+        // "assessment_improve_plan/:ai_id/:lx/:pi": "assessment_improve_plan", // <- 改
+        // "assessment_improve_plan/:ai_id/:lx/:pi/:ip_id/:seg_name": "assessment_improve_plan_edit", // <- 改
         // When #category? is on the url, the category method is called
         //任务日历相关的routes
         "task": "task",
@@ -118,18 +126,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "contact_list": "contact_list",
         "contact_detail/:people_id": "contact_detail",
         //我的团队相关
-        "myteamall": "myteam_all_list",
-        "myteam": "myteam_list",
-        "myteam_detail/:people_id/:tab": "myteam_detail",
-        "myteam_detail/:people_id/calendar/:task_id": "myteam_detail_calendar",
-        "myteam_detail/:people_id/calendar/:task_id/edit": "myteam_detail_calendar_edit",
-        "myteam_competency_scores/:people_id/:cid": "myteam_competency_scores",
-        "myteam_salary_detail/:people_id/:pay_time": "myteam_salary_detail",
-        "myteam_assessment_pi_list/:people_id/:ai_id": "myteam_assessment_pi_list",
-        "myteam_assessment_detail/:people_id/:ai_id/:lx/:pi": "myteam_assessment_detail", // <- 改
-        "myteam_assessment_comment/:people_id/:ai_id/:lx/:pi": "myteam_assessment_comment", // <- 改
-        "myteam_assessment_update_value/:people_id/:ai_id/:lx/:pi": "myteam_assessment_update_value", // <- 改
-        "myteam_assessment_improve_plan/:people_id/:ai_id/:lx/:pi": "myteam_assessment_improve_plan", // <- 改
+        // "myteamall": "myteam_all_list",
+        // "myteam": "myteam_list",
+        // "myteam_detail/:people_id/:tab": "myteam_detail",
+        // "myteam_detail/:people_id/calendar/:task_id": "myteam_detail_calendar",
+        // "myteam_detail/:people_id/calendar/:task_id/edit": "myteam_detail_calendar_edit",
+        // "myteam_competency_scores/:people_id/:cid": "myteam_competency_scores",
+        // "myteam_salary_detail/:people_id/:pay_time": "myteam_salary_detail",
+        // "myteam_assessment_pi_list/:people_id/:ai_id": "myteam_assessment_pi_list",
+        // "myteam_assessment_detail/:people_id/:ai_id/:lx/:pi": "myteam_assessment_detail", // <- 改
+        // "myteam_assessment_comment/:people_id/:ai_id/:lx/:pi": "myteam_assessment_comment", // <- 改
+        // "myteam_assessment_update_value/:people_id/:ai_id/:lx/:pi": "myteam_assessment_update_value", // <- 改
+        // "myteam_assessment_improve_plan/:people_id/:ai_id/:lx/:pi": "myteam_assessment_improve_plan", // <- 改
 
         // 更多功能的导航页面
         "more_functions": "more_functions",
@@ -147,19 +155,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "competency_spider_chart/:people_id/:qi_id": "competency_spider_chart",
         //人才九宫图
         "talent9grides/:people_id/:ai_score/:score": "talent9grides",
-        // 协作任务
-        // "colltask": "colltask",
-        // "colltask_detail/:ct_id": "colltask_detail",
-        // "colltask_edit/:ct_id": "colltask_edit",
-        // "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
-        // 协作任务的项目
-        // "collproject/:ct_id/(:cp_id)": "collproject",
-        // "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
 
         // 人员选择界面
         "people_select/:mode/:target_field": "people_select",
         // 指标选择界面
-        "pi_select/:mode/:target_field": "pi_select",
+        // "pi_select/:mode/:target_field": "pi_select",
 
         // 上传文件
         "upload_pic": "upload_pic",
@@ -274,108 +274,108 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
         });
       },
-      assessment_pi_list: function(ai_id) {
-        this.homeAssessmentPIListView.model = this.c_assessment.get(ai_id);
-        this.homeAssessmentPIListView.render();
-        $("body").pagecontainer("change", "#assessment_pi-list", {
-          reverse: false,
-          changeHash: false,
-        });
+      // assessment_pi_list: function(ai_id) {
+      //   this.homeAssessmentPIListView.model = this.c_assessment.get(ai_id);
+      //   this.homeAssessmentPIListView.render();
+      //   $("body").pagecontainer("change", "#assessment_pi-list", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
 
-      },
-      assessment_detail: function(ai_id, lx, pi) { //绩效合同－单条指标的查看界面
-        this.assessmentDetailView.model = this.c_assessment.get(ai_id);
-        this.assessmentDetailView.scoringformula = this.c_scoringformula;
-        this.assessmentDetailView.gradegroup = this.c_gradegroup;
-        this.assessmentDetailView.render(lx, pi);
-        $("body").pagecontainer("change", "#assessment_detail", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      assessment_comment: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
-        this.assessmentCommentView.model = this.c_assessment.get(ai_id);
-        this.assessmentCommentView.render(lx, pi);
-        $("body").pagecontainer("change", "#assessment_comment", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      assessment_update_value: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
-        this.assessmentUpdateValueView.model = this.c_assessment.get(ai_id);
-        this.assessmentUpdateValueView.scoringformula = this.c_scoringformula;
-        this.assessmentUpdateValueView.gradegroup = this.c_gradegroup;
-        this.assessmentUpdateValueView.render(lx, pi);
-        $("body").pagecontainer("change", "#assessment_update_value", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      assessment_improve_plan: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
-        this.assessmentImprovePlanView.model = this.c_assessment.get(ai_id);
-        this.assessmentImprovePlanView.render(lx, pi);
-        $("body").pagecontainer("change", "#assessment_improve_plan", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      assessment_improve_plan_edit: function(ai_id, lx, pi, ip_id, seg_name) { //新增／修改改进措施
-        this.assessmentImprovePlanEditView.model = this.c_assessment.get(ai_id);
-        this.assessmentImprovePlanEditView.render(lx, pi, ip_id, seg_name);
-        $("body").pagecontainer("change", "#assessment_improve_plan_edit", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      myteam_assessment_pi_list: function(people_id, ai_id) { //团队成员的绩效合同－指标清单
-        this.myteamAssessmentPIListView.model = this.c_assessment_myteam.get(ai_id);
-        this.myteamAssessmentPIListView.render(people_id);
-        $("body").pagecontainer("change", "#myteam_assessment_pi-list", {
-          reverse: false,
-          changeHash: false,
-        });
+      // },
+      // assessment_detail: function(ai_id, lx, pi) { //绩效合同－单条指标的查看界面
+      //   this.assessmentDetailView.model = this.c_assessment.get(ai_id);
+      //   this.assessmentDetailView.scoringformula = this.c_scoringformula;
+      //   this.assessmentDetailView.gradegroup = this.c_gradegroup;
+      //   this.assessmentDetailView.render(lx, pi);
+      //   $("body").pagecontainer("change", "#assessment_detail", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // assessment_comment: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
+      //   this.assessmentCommentView.model = this.c_assessment.get(ai_id);
+      //   this.assessmentCommentView.render(lx, pi);
+      //   $("body").pagecontainer("change", "#assessment_comment", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // assessment_update_value: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
+      //   this.assessmentUpdateValueView.model = this.c_assessment.get(ai_id);
+      //   this.assessmentUpdateValueView.scoringformula = this.c_scoringformula;
+      //   this.assessmentUpdateValueView.gradegroup = this.c_gradegroup;
+      //   this.assessmentUpdateValueView.render(lx, pi);
+      //   $("body").pagecontainer("change", "#assessment_update_value", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // assessment_improve_plan: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
+      //   this.assessmentImprovePlanView.model = this.c_assessment.get(ai_id);
+      //   this.assessmentImprovePlanView.render(lx, pi);
+      //   $("body").pagecontainer("change", "#assessment_improve_plan", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // assessment_improve_plan_edit: function(ai_id, lx, pi, ip_id, seg_name) { //新增／修改改进措施
+      //   this.assessmentImprovePlanEditView.model = this.c_assessment.get(ai_id);
+      //   this.assessmentImprovePlanEditView.render(lx, pi, ip_id, seg_name);
+      //   $("body").pagecontainer("change", "#assessment_improve_plan_edit", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // myteam_assessment_pi_list: function(people_id, ai_id) { //团队成员的绩效合同－指标清单
+      //   this.myteamAssessmentPIListView.model = this.c_assessment_myteam.get(ai_id);
+      //   this.myteamAssessmentPIListView.render(people_id);
+      //   $("body").pagecontainer("change", "#myteam_assessment_pi-list", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
 
-      },
-      myteam_assessment_detail: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－指标详情
-        this.myteamAssessmentDetailView.model = this.c_assessment_myteam.get(ai_id);
-        this.myteamAssessmentDetailView.scoringformula = this.c_scoringformula;
-        this.myteamAssessmentDetailView.gradegroup = this.c_gradegroup;
-        this.myteamAssessmentDetailView.render(people_id, lx, pi);
-        $("body").pagecontainer("change", "#myteam_assessment_detail", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      myteam_assessment_comment: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－沟通与记录（读写）
-        this.myteamAssessmentCommentView.model = this.c_assessment_myteam.get(ai_id);
-        this.myteamAssessmentCommentView.scoringformula = this.c_scoringformula;
-        this.myteamAssessmentCommentView.gradegroup = this.c_gradegroup;
-        this.myteamAssessmentCommentView.render(people_id, lx, pi);
-        $("body").pagecontainer("change", "#myteam_assessment_comment", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      myteam_assessment_update_value: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－数据更新（只读）
-        this.myteamAssessmentUpdateValueView.model = this.c_assessment_myteam.get(ai_id);
-        this.myteamAssessmentUpdateValueView.scoringformula = this.c_scoringformula;
-        this.myteamAssessmentUpdateValueView.gradegroup = this.c_gradegroup;
-        this.myteamAssessmentUpdateValueView.render(people_id, lx, pi);
-        $("body").pagecontainer("change", "#myteam_assessment_update_value", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      myteam_assessment_improve_plan: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－分析与改进（只读）
-        this.myteamAssessmentImprovePlanView.model = this.c_assessment_myteam.get(ai_id);
-        this.myteamAssessmentImprovePlanView.scoringformula = this.c_scoringformula;
-        this.myteamAssessmentImprovePlanView.gradegroup = this.c_gradegroup;
-        this.myteamAssessmentImprovePlanView.render(people_id, lx, pi);
-        $("body").pagecontainer("change", "#myteam_assessment_improve_plan", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
+      // },
+      // myteam_assessment_detail: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－指标详情
+      //   this.myteamAssessmentDetailView.model = this.c_assessment_myteam.get(ai_id);
+      //   this.myteamAssessmentDetailView.scoringformula = this.c_scoringformula;
+      //   this.myteamAssessmentDetailView.gradegroup = this.c_gradegroup;
+      //   this.myteamAssessmentDetailView.render(people_id, lx, pi);
+      //   $("body").pagecontainer("change", "#myteam_assessment_detail", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // myteam_assessment_comment: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－沟通与记录（读写）
+      //   this.myteamAssessmentCommentView.model = this.c_assessment_myteam.get(ai_id);
+      //   this.myteamAssessmentCommentView.scoringformula = this.c_scoringformula;
+      //   this.myteamAssessmentCommentView.gradegroup = this.c_gradegroup;
+      //   this.myteamAssessmentCommentView.render(people_id, lx, pi);
+      //   $("body").pagecontainer("change", "#myteam_assessment_comment", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // myteam_assessment_update_value: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－数据更新（只读）
+      //   this.myteamAssessmentUpdateValueView.model = this.c_assessment_myteam.get(ai_id);
+      //   this.myteamAssessmentUpdateValueView.scoringformula = this.c_scoringformula;
+      //   this.myteamAssessmentUpdateValueView.gradegroup = this.c_gradegroup;
+      //   this.myteamAssessmentUpdateValueView.render(people_id, lx, pi);
+      //   $("body").pagecontainer("change", "#myteam_assessment_update_value", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // myteam_assessment_improve_plan: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－分析与改进（只读）
+      //   this.myteamAssessmentImprovePlanView.model = this.c_assessment_myteam.get(ai_id);
+      //   this.myteamAssessmentImprovePlanView.scoringformula = this.c_scoringformula;
+      //   this.myteamAssessmentImprovePlanView.gradegroup = this.c_gradegroup;
+      //   this.myteamAssessmentImprovePlanView.render(people_id, lx, pi);
+      //   $("body").pagecontainer("change", "#myteam_assessment_improve_plan", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
       contact_list: function() { //企业通讯录，列表
         $("body").pagecontainer("change", "#contact_list", {
           reverse: false,
@@ -392,210 +392,210 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
 
       },
-      myteam_all_list: function() {
-        $("body").pagecontainer("change", "#myteam_all_list", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
-      myteam_list: function() { //我的团队，列表界面
-        $("body").pagecontainer("change", "#myteam_list", {
-          reverse: false,
-          changeHash: false,
-        });
+      // myteam_all_list: function() {
+      //   $("body").pagecontainer("change", "#myteam_all_list", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
+      // myteam_list: function() { //我的团队，列表界面
+      //   $("body").pagecontainer("change", "#myteam_list", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
 
-      },
-      myteam_detail: function(people_id, tab) { //我的团队，详情界面
-        var self = this;
-        if (tab == 'basic') {
-          //获取工资
-          $.mobile.loading("show");
-          this.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
-          var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('payroll_' + people_id)) || null)
-          if (local_data) {
-            self.c_payroll_myteam.reset(local_data);
-            self.c_payroll_myteam.trigger('sync');
-            $.mobile.loading("hide");
-            self.myteamDetailView.model = self.c_people.get(people_id);
-            self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
-          } else {
-            self.c_payroll_myteam.fetch().done(function() {
-              localStorage.setItem('payroll_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_payroll_myteam)));
-              $.mobile.loading("hide");
-              self.myteamDetailView.model = self.c_people.get(people_id);
-              self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
-            })
-          };
+      // },
+      // myteam_detail: function(people_id, tab) { //我的团队，详情界面
+      //   var self = this;
+      //   if (tab == 'basic') {
+      //     //获取工资
+      //     $.mobile.loading("show");
+      //     this.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
+      //     var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('payroll_' + people_id)) || null)
+      //     if (local_data) {
+      //       self.c_payroll_myteam.reset(local_data);
+      //       self.c_payroll_myteam.trigger('sync');
+      //       $.mobile.loading("hide");
+      //       self.myteamDetailView.model = self.c_people.get(people_id);
+      //       self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
+      //     } else {
+      //       self.c_payroll_myteam.fetch().done(function() {
+      //         localStorage.setItem('payroll_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_payroll_myteam)));
+      //         $.mobile.loading("hide");
+      //         self.myteamDetailView.model = self.c_people.get(people_id);
+      //         self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
+      //       })
+      //     };
 
-          $("body").pagecontainer("change", "#myteam_detail-basic", {
-            reverse: false,
-            changeHash: false,
-          });
+      //     $("body").pagecontainer("change", "#myteam_detail-basic", {
+      //       reverse: false,
+      //       changeHash: false,
+      //     });
 
-        } else if (tab == 'calendar') {
-          // console.log('message in: myteam_detail::calendar');
-          //重新指定route
-          var $cal = $("#jqm_cal_myteam");
-          $cal.data('jqmCalendar').settings.route = '#myteam_detail/' + people_id + '/calendar';
+      //   } else if (tab == 'calendar') {
+      //     // console.log('message in: myteam_detail::calendar');
+      //     //重新指定route
+      //     var $cal = $("#jqm_cal_myteam");
+      //     $cal.data('jqmCalendar').settings.route = '#myteam_detail/' + people_id + '/calendar';
 
-          //获取日历数据
-          $.mobile.loading("show");
-          this.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id + '&ct=' + (new Date()).getTime();
-          var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('task_' + people_id)) || null)
-          if (local_data) {
-            self.c_task_myteam.reset(local_data);
-            self.c_task_myteam.trigger('sync');
-            $.mobile.loading("hide");
-          } else {
-            self.c_task_myteam.fetch().done(function() {
-              localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)));
-              $.mobile.loading("hide");
-            })
-          };
-          // this.c_task_myteam.fetch().done();
-          $("#myteam_detail-task")
-            .find("#myteam_detail-task-h1").html(this.c_people.get(people_id).get('people_name')).end()
-            .find("#btn-myteam_detail-task-1").attr('href', '#myteam_detail/' + people_id + '/basic').end()
-            .find("#btn-myteam_detail-task-2").attr('href', '#myteam_detail/' + people_id + '/calendar').end()
-            .find("#btn-myteam_detail-task-3").attr('href', '#myteam_detail/' + people_id + '/assessment').end()
-            .find("#btn-myteam_detail-task-4").attr('href', '#myteam_detail/' + people_id + '/talent').end()
-            .find("#btn-myteam_detail-task-5").attr('href', '#myteam_detail/' + people_id + '/calendar/refresh').end()
-            .find("#btn-myteam_detail-task-6").attr('href', '#myteam_detail/' + people_id + '/calendar/cm').end()
-            .find("#btn-myteam_detail-task-7").attr('href', '#myteam_detail/' + people_id + '/calendar/cd').end()
-            .find("#btn-myteam_detail-task-8").attr('href', '#myteam_detail/' + people_id + '/calendar/new').end()
+      //     //获取日历数据
+      //     $.mobile.loading("show");
+      //     this.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id + '&ct=' + (new Date()).getTime();
+      //     var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('task_' + people_id)) || null)
+      //     if (local_data) {
+      //       self.c_task_myteam.reset(local_data);
+      //       self.c_task_myteam.trigger('sync');
+      //       $.mobile.loading("hide");
+      //     } else {
+      //       self.c_task_myteam.fetch().done(function() {
+      //         localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)));
+      //         $.mobile.loading("hide");
+      //       })
+      //     };
+      //     // this.c_task_myteam.fetch().done();
+      //     $("#myteam_detail-task")
+      //       .find("#myteam_detail-task-h1").html(this.c_people.get(people_id).get('people_name')).end()
+      //       .find("#btn-myteam_detail-task-1").attr('href', '#myteam_detail/' + people_id + '/basic').end()
+      //       .find("#btn-myteam_detail-task-2").attr('href', '#myteam_detail/' + people_id + '/calendar').end()
+      //       .find("#btn-myteam_detail-task-3").attr('href', '#myteam_detail/' + people_id + '/assessment').end()
+      //       .find("#btn-myteam_detail-task-4").attr('href', '#myteam_detail/' + people_id + '/talent').end()
+      //       .find("#btn-myteam_detail-task-5").attr('href', '#myteam_detail/' + people_id + '/calendar/refresh').end()
+      //       .find("#btn-myteam_detail-task-6").attr('href', '#myteam_detail/' + people_id + '/calendar/cm').end()
+      //       .find("#btn-myteam_detail-task-7").attr('href', '#myteam_detail/' + people_id + '/calendar/cd').end()
+      //       .find("#btn-myteam_detail-task-8").attr('href', '#myteam_detail/' + people_id + '/calendar/new').end()
 
-          $("body").pagecontainer("change", "#myteam_detail-task", {
-            reverse: false,
-            changeHash: false,
-          });
-        } else if (tab == 'assessment') { //下属的绩效
-          //获取绩效数据
-          $.mobile.loading("show");
-          this.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id + '&ct=' + (new Date()).getTime();
-          var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('assessment_' + people_id)) || null)
-          if (local_data) {
-            self.c_assessment_myteam.reset(local_data);
-            // self.c_assessment_myteam.trigger('sync');
-            $.mobile.loading("hide");
-            self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
-          } else {
-            self.c_assessment_myteam.fetch().done(function() {
-              localStorage.setItem('assessment_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_assessment_myteam)));
-              $.mobile.loading("hide");
-              self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
-            })
-          };
-          $("body").pagecontainer("change", "#myteam_detail-assessment", {
-            reverse: false,
-            changeHash: false,
-          });
-        } else if (tab == 'talent') {
-          // console.log('message: in talent tab');
+      //     $("body").pagecontainer("change", "#myteam_detail-task", {
+      //       reverse: false,
+      //       changeHash: false,
+      //     });
+      //   } else if (tab == 'assessment') { //下属的绩效
+      //     //获取绩效数据
+      //     $.mobile.loading("show");
+      //     this.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id + '&ct=' + (new Date()).getTime();
+      //     var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('assessment_' + people_id)) || null)
+      //     if (local_data) {
+      //       self.c_assessment_myteam.reset(local_data);
+      //       // self.c_assessment_myteam.trigger('sync');
+      //       $.mobile.loading("hide");
+      //       self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
+      //     } else {
+      //       self.c_assessment_myteam.fetch().done(function() {
+      //         localStorage.setItem('assessment_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_assessment_myteam)));
+      //         $.mobile.loading("hide");
+      //         self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
+      //       })
+      //     };
+      //     $("body").pagecontainer("change", "#myteam_detail-assessment", {
+      //       reverse: false,
+      //       changeHash: false,
+      //     });
+      //   } else if (tab == 'talent') {
+      //     // console.log('message: in talent tab');
 
-          self.myteamTalentView.model = self.c_talent.get(people_id);
-          self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
-          $("body").pagecontainer("change", "#myteam_detail-talent", {
-            reverse: false,
-            changeHash: false,
-          });
+      //     self.myteamTalentView.model = self.c_talent.get(people_id);
+      //     self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
+      //     $("body").pagecontainer("change", "#myteam_detail-talent", {
+      //       reverse: false,
+      //       changeHash: false,
+      //     });
 
-        };
+      //   };
 
-      },
-      myteam_detail_calendar: function(people_id, task_id) { //我的团队，日历操作功能
-        var self = this;
-        if (task_id == 'refresh') { //刷新数据
-          $.mobile.loading("show");
-          self.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id + '&ct=' + (new Date()).getTime();
-          self.c_task_myteam.fetch().done(function() {
-            localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)))
-            $.mobile.loading("hide");
-          })
-        } else if (task_id == 'cm') { //转到当月
-          $("#jqm_cal_myteam").trigger('refresh', [new Date(), true]);
-        } else if (task_id == 'cd') { //转到今天
-          $("#jqm_cal_myteam").trigger('refresh', [new Date()]);
-        } else if (task_id == 'new') { //为下属新建一条
-          var new_task_date = $("#jqm_cal_myteam a.ui-btn-active").data('date') || new Date();
-          var new_task = this.c_task_myteam.add({
-            'creator': $("#login_people").val(),
-            'people': people_id, //为这个人创建的工作任务
-            'title': '新建任务',
-            'start': new_task_date,
-            'end': new_task_date,
-            'allDay': true,
-            'is_complete': false,
-            'startEditable': true,
-            'durationEditable': true,
-            'editable': true,
-          });
-          self.myteamTaskEditView.model = new_task;
-          self.myteamTaskEditView.render();
-          $("body").pagecontainer("change", "#myteam_task_edit", {
-            reverse: false,
-            changeHash: false,
-          });
+      // },
+      // myteam_detail_calendar: function(people_id, task_id) { //我的团队，日历操作功能
+      //   var self = this;
+      //   if (task_id == 'refresh') { //刷新数据
+      //     $.mobile.loading("show");
+      //     self.c_task_myteam.url = '/admin/pm/work_plan/bb4m?people=' + people_id + '&ct=' + (new Date()).getTime();
+      //     self.c_task_myteam.fetch().done(function() {
+      //       localStorage.setItem('task_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_task_myteam)))
+      //       $.mobile.loading("hide");
+      //     })
+      //   } else if (task_id == 'cm') { //转到当月
+      //     $("#jqm_cal_myteam").trigger('refresh', [new Date(), true]);
+      //   } else if (task_id == 'cd') { //转到今天
+      //     $("#jqm_cal_myteam").trigger('refresh', [new Date()]);
+      //   } else if (task_id == 'new') { //为下属新建一条
+      //     var new_task_date = $("#jqm_cal_myteam a.ui-btn-active").data('date') || new Date();
+      //     var new_task = this.c_task_myteam.add({
+      //       'creator': $("#login_people").val(),
+      //       'people': people_id, //为这个人创建的工作任务
+      //       'title': '新建任务',
+      //       'start': new_task_date,
+      //       'end': new_task_date,
+      //       'allDay': true,
+      //       'is_complete': false,
+      //       'startEditable': true,
+      //       'durationEditable': true,
+      //       'editable': true,
+      //     });
+      //     self.myteamTaskEditView.model = new_task;
+      //     self.myteamTaskEditView.render();
+      //     $("body").pagecontainer("change", "#myteam_task_edit", {
+      //       reverse: false,
+      //       changeHash: false,
+      //     });
 
-          //把 a 换成 span， 避免点那个滑块的时候页面跳走。
-          $(".ui-flipswitch a").each(function() {
-            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
-          });
-        } else { //跳到任务详情界面
-          self.myteamTaskDetailView.model = self.c_task_myteam.get(task_id);
-          self.myteamTaskDetailView.render();
-          $("#btn-myteam_task_detail-back").attr('href', '#myteam_detail/' + people_id + '/calendar')
-          //只有当前用户创建的才可以更改（显示更改按钮）
-          if (self.myteamTaskDetailView.model.get('creator') == $("#login_people").val()) {
-            $("#btn-myteam_task_detail-task-edit").attr('href', '#myteam_detail/' + people_id + '/calendar/' + task_id + '/edit').show();
-          } else {
-            $("#btn-myteam_task_detail-task-edit").hide();
-          };
-          $("body").pagecontainer("change", "#myteam_task_detail", {
-            reverse: false,
-            changeHash: false,
-          });
-        };
-      },
-      myteam_detail_calendar_edit: function(people_id, task_id) {
-        var self = this;
-        self.myteamTaskEditView.model = self.c_task_myteam.get(task_id);
-        self.myteamTaskEditView.render();
-        $("body").pagecontainer("change", "#myteam_task_edit", {
-          reverse: false,
-          changeHash: false,
-        });
+      //     //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+      //     $(".ui-flipswitch a").each(function() {
+      //       $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+      //     });
+      //   } else { //跳到任务详情界面
+      //     self.myteamTaskDetailView.model = self.c_task_myteam.get(task_id);
+      //     self.myteamTaskDetailView.render();
+      //     $("#btn-myteam_task_detail-back").attr('href', '#myteam_detail/' + people_id + '/calendar')
+      //     //只有当前用户创建的才可以更改（显示更改按钮）
+      //     if (self.myteamTaskDetailView.model.get('creator') == $("#login_people").val()) {
+      //       $("#btn-myteam_task_detail-task-edit").attr('href', '#myteam_detail/' + people_id + '/calendar/' + task_id + '/edit').show();
+      //     } else {
+      //       $("#btn-myteam_task_detail-task-edit").hide();
+      //     };
+      //     $("body").pagecontainer("change", "#myteam_task_detail", {
+      //       reverse: false,
+      //       changeHash: false,
+      //     });
+      //   };
+      // },
+      // myteam_detail_calendar_edit: function(people_id, task_id) {
+      //   var self = this;
+      //   self.myteamTaskEditView.model = self.c_task_myteam.get(task_id);
+      //   self.myteamTaskEditView.render();
+      //   $("body").pagecontainer("change", "#myteam_task_edit", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
 
-        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
-        $(".ui-flipswitch a").each(function() {
-          $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
-        });
-      },
+      //   //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+      //   $(".ui-flipswitch a").each(function() {
+      //     $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+      //   });
+      // },
       // ------工资相关------ //
       salary_list: function() {
         $("body").pagecontainer("change", "#salary_list", {
           reverse: false,
           changeHash: false,
         });
-
       },
       salary_detail: function(pay_time) {
         this.payrollDetailView.model = this.c_payroll.get(pay_time);
+        localStorage.setItem('payroll_detail_backurl','#salary_list');
+        // $("#btn-salary_detail-back").attr('href', '#salary_list');
         this.payrollDetailView.render();
-        $("#btn-salary_detail-back").attr('href', '#salary_list');
         $("body").pagecontainer("change", "#salary_detail", {
           reverse: false,
           changeHash: false,
         });
       },
-      myteam_salary_detail: function(people_id, pay_time) {
-        this.payrollDetailView.model = this.c_payroll_myteam.get(pay_time);
-        this.payrollDetailView.render();
-        $("#btn-salary_detail-back").attr('href', '#myteam_detail/' + people_id + '/basic');
-        $("body").pagecontainer("change", "#salary_detail", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
+      // myteam_salary_detail: function(people_id, pay_time) {
+      //   this.payrollDetailView.model = this.c_payroll_myteam.get(pay_time);
+      //   this.payrollDetailView.render();
+      //   $("#btn-salary_detail-back").attr('href', '#myteam_detail/' + people_id + '/basic');
+      //   $("body").pagecontainer("change", "#salary_detail", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
       // ------个人相关------ //
       myprofile: function() {
         var login_people = $("#login_people").val();
@@ -623,14 +623,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
-      myteam_competency_scores: function(people_id, cid) {
-        this.competencyScoresView.model = this.c_competency.get(people_id);
-        this.competencyScoresView.render(people_id, cid);
-        $("body").pagecontainer("change", "#competency_scores", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
+      // myteam_competency_scores: function(people_id, cid) {
+      //   this.competencyScoresView.model = this.c_competency.get(people_id);
+      //   this.competencyScoresView.render(people_id, cid);
+      //   $("body").pagecontainer("change", "#competency_scores", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
       competency_spider_chart: function(people_id, qi_id) { //测评问卷的蜘蛛网图
         // console.log(people_id, qi_id);
         var self = this;
@@ -668,86 +668,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
       },
-      // invokeCollTask:function  (subroute) {
-      //   if (!this.colltask_routes) {
-      //     this.colltask_routes = new CollTaskRouter("colltask/");
-      //   };
-      // },
-      // //--------协作任务--------//
-      // colltask: function() {
-      //   // colltasklistView.
-      //   this.c_colltask.fetch();
-      //   $("body").pagecontainer("change", "#colltask", {
-      //     reverse: false,
-      //     changeHash: false,
-      //   });
-      // },
-      // colltask_detail: function(ct_id) {
-      //   this.collTaskDetailView.model = this.c_colltask.get(ct_id);
-      //   this.collTaskDetailView.render();
-      //   $("body").pagecontainer("change", "#colltask_detail", {
-      //     reverse: false,
-      //     changeHash: false,
-      //   });
-      // },
-      // colltask_edit: function(ct_id, p_task) {
-      //   var ct;
-      //   if (ct_id == 'add') { //新增
-      //     ct = this.c_colltask.add({
-      //       task_name: '',
-      //       p_task: p_task || null,
-      //     });
-      //     if (p_task) { //取出上级任务的相关信息
-      //       var pt = this.c_colltask.get(p_task);
-      //       // console.log(pt);
-      //       ct.set('root_task', pt.get('root_task'));
-      //       ct.set('cp', pt.get('cp'));
-      //       ct.set('cp_name', pt.get('cp_name'));
-      //     };
-      //     //设定上级为默认的观察员
-      //     var upper_people = JSON.parse($("#upper_people").val());
-      //     if (upper_people) { //有上级的才放进去
-      //       ct.set('ntms', [upper_people]);
-      //     };
-      //   } else {
-      //     ct = this.c_colltask.get(ct_id);
-      //   };
-      //   // console.log(ct_id, p_task, ct);
-      //   this.collTaskEditView.model = ct;
-      //   this.collTaskEditView.render();
-      //   $("body").pagecontainer("change", "#colltask_edit", {
-      //     reverse: false,
-      //     changeHash: false,
-      //   });
-      // },
-      // collproject: function(ct_id, cp_id) {
-      //   // collProjectListView
-      //   this.c_collproject.fetch();
-      //   this.collProjectListView.ct_id = ct_id;
-      //   this.collProjectListView.ct_model = this.c_colltask.get(ct_id);
-      //   this.collProjectListView.cp_id = cp_id;
-      //   $("body").pagecontainer("change", "#collproject_list", {
-      //     reverse: false,
-      //     changeHash: false,
-      //   });
-      // },
-      // collproject_edit: function(cp_id, ct_id) {
-      //   var cp;
-      //   if (cp_id == 'add') {
-      //     cp = this.c_collproject.add({
-      //       project_name: ''
-      //     });
-      //   } else {
-      //     cp = this.c_collproject.get(cp_id);
-      //   };
-      //   this.collProjectEditView.ct_id = ct_id;
-      //   this.collProjectEditView.model = cp;
-      //   this.collProjectEditView.render();
-      //   $("body").pagecontainer("change", "#collproject_edit", {
-      //     reverse: false,
-      //     changeHash: false,
-      //   });
-      // },
+
       //----------人员选择----------//
       people_select: function(mode, target_field) {
         this.peopleSelectView.target_field = target_field;
@@ -758,15 +679,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       //----------指标选择----------//
-      pi_select: function(mode, target_field) {
-        this.piSelectView.target_field = target_field;
-        this.piSelectView.collection = this.c_assessment;
-        this.piSelectView.render(mode);
-        $("body").pagecontainer("change", "#pi_select", {
-          reverse: false,
-          changeHash: false,
-        });
-      },
+      // pi_select: function(mode, target_field) {
+      //   this.piSelectView.target_field = target_field;
+      //   this.piSelectView.collection = this.c_assessment;
+      //   this.piSelectView.render(mode);
+      //   $("body").pagecontainer("change", "#pi_select", {
+      //     reverse: false,
+      //     changeHash: false,
+      //   });
+      // },
       //----------上传图片----------//
       upload_pic: function() {
         this.uploadPicView.render();
@@ -926,14 +847,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var self = this;
         self.load_data(self.c_people, 'people');
         self.load_data(self.c_objectives, 'objectives');
-        self.load_data(self.c_assessment, 'assessment');
         self.load_data(self.c_task, 'task');
         self.load_data(self.c_talent, 'talent');
         self.load_data(self.c_horoscope, 'horoscope');
         self.load_data(self.c_competency, 'competency');
         self.load_data(self.c_payroll, 'payroll');
-        self.load_data(self.c_scoringformula, 'scoringformula');
-        self.load_data(self.c_gradegroup, 'gradegroup');
       },
       load_data: function(col_obj, col_name) { //加载数据
         $.mobile.loading("show");
@@ -957,17 +875,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           el: "#home-objective-list",
           collection: self.c_objectives
         });
-        this.homeAssessmentView = new HomeAssessmentView({
-          el: "#home-assessment_wip-list",
-          collection: self.c_assessment
-        });
-        this.homeAssessmentHistoryView = new HomeAssessmentHistoryView({
-          el: "#home-assessment_history-list",
-          collection: self.c_assessment
-        });
-        this.homeAssessmentPIListView = new HomeAssessmentPIListView({
-          el: "#assessment_pi-list-content",
-        });
+        
         this.homeTaskView = new HomeTaskView({
           el: "#home-task-list",
           collection: self.c_task
@@ -990,21 +898,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           el: "#task_detail",
         });
 
-        this.assessmentDetailView = new AssessmentDetailView({
-          el: "#assessment_detail-content"
-        })
-        this.assessmentCommentView = new AssessmentCommentView({
-          el: "#assessment_comment-content"
-        })
-        this.assessmentUpdateValueView = new AssessmentUpdateValueView({
-          el: "#assessment_update_value-content"
-        })
-        this.assessmentImprovePlanView = new AssessmentImprovePlanView({
-          el: "#assessment_improve_plan-content"
-        })
-        this.assessmentImprovePlanEditView = new AssessmentImprovePlanEditView({
-          el: "#assessment_improve_plan_edit-content"
-        })
 
         this.contactListlView = new ContactListView({
           el: "#contact_list-content",
@@ -1013,26 +906,26 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.contactDetaillView = new ContactDetailView({
           el: "#contact_detail-content"
         })
-        this.myteamListView = new MyTeamListView({
-          el: "#myteam_list-content",
-          collection: self.c_people
-        })
-        this.myteamDetailView = new MyTeamDetailView({
-          el: "#myteam_detail-basic-content"
-        })
-        this.myteamTaskView = new MyTeamTaskView({
-          el: "#myteam_detail-basic-calendar",
-          collection: self.c_task_myteam
-        })
-        this.myteamTaskDetailView = new MyTeamTaskDetailView({
-          el: "#myteam_task_detail-content",
-        })
-        this.myteamTaskEditView = new MyTeamTaskEditView({
-          el: "#myteam_task_edit",
-        })
-        this.myteamTalentView = new MyTeamTalentView({
-          el: "#myteam_detail-talent-content",
-        })
+        // this.myteamListView = new MyTeamListView({
+        //   el: "#myteam_list-content",
+        //   collection: self.c_people
+        // })
+        // this.myteamDetailView = new MyTeamDetailView({
+        //   el: "#myteam_detail-basic-content"
+        // })
+        // this.myteamTaskView = new MyTeamTaskView({
+        //   el: "#myteam_detail-basic-calendar",
+        //   collection: self.c_task_myteam
+        // })
+        // this.myteamTaskDetailView = new MyTeamTaskDetailView({
+        //   el: "#myteam_task_detail-content",
+        // })
+        // this.myteamTaskEditView = new MyTeamTaskEditView({
+        //   el: "#myteam_task_edit",
+        // })
+        // this.myteamTalentView = new MyTeamTalentView({
+        //   el: "#myteam_detail-talent-content",
+        // })
         this.payrollListView = new PayrollListView({
           el: "#salary_list-content",
           collection: self.c_payroll
@@ -1052,29 +945,29 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.talent9GridsChartView = new Talent9GridsChartView({
           el: "#talent_9_grids_chart_container",
         })
-        this.myTeamAssessmentView = new MyTeamAssessmentView({
-          el: "#myteam_detail-assessment-content",
-          collection: self.c_assessment_myteam
-        })
-        this.myteamAssessmentPIListView = new MyTeamAssessmentPIListView({
-          el: "#myteam_assessment_pi-list-content",
-        })
-        this.myteamAssessmentDetailView = new MyTeamAssessmentDetailView({
-          el: "#myteam_assessment_detail-content",
-        })
-        this.myteamAssessmentCommentView = new MyTeamAssessmentCommentView({
-          el: "#myteam_assessment_comment-content",
-        })
-        this.myteamAssessmentUpdateValueView = new MyTeamAssessmentUpdateValueView({
-          el: "#myteam_assessment_update_value-content",
-        })
-        this.myteamAssessmentImprovePlanView = new MyTeamAssessmentImprovePlanView({
-          el: "#myteam_assessment_improve_plan-content",
-        })
-        this.myteamAllListView = new MyTeamAllListView({
-          el: "#myteam_all_list-content",
-          collection: self.c_people
-        })
+        // this.myTeamAssessmentView = new MyTeamAssessmentView({
+        //   el: "#myteam_detail-assessment-content",
+        //   collection: self.c_assessment_myteam
+        // })
+        // this.myteamAssessmentPIListView = new MyTeamAssessmentPIListView({
+        //   el: "#myteam_assessment_pi-list-content",
+        // })
+        // this.myteamAssessmentDetailView = new MyTeamAssessmentDetailView({
+        //   el: "#myteam_assessment_detail-content",
+        // })
+        // this.myteamAssessmentCommentView = new MyTeamAssessmentCommentView({
+        //   el: "#myteam_assessment_comment-content",
+        // })
+        // this.myteamAssessmentUpdateValueView = new MyTeamAssessmentUpdateValueView({
+        //   el: "#myteam_assessment_update_value-content",
+        // })
+        // this.myteamAssessmentImprovePlanView = new MyTeamAssessmentImprovePlanView({
+        //   el: "#myteam_assessment_improve_plan-content",
+        // })
+        // this.myteamAllListView = new MyTeamAllListView({
+        //   el: "#myteam_all_list-content",
+        //   collection: self.c_people
+        // })
         this.taskForwardView = new TaskForwardView({
           el: "#task_forward-content",
         })
@@ -1082,31 +975,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           el: "#panel-fwd-people",
           collection: self.c_people
         })
-        // this.collTaskListView = new CollTaskListView({
-        //   el: "#colltask-content",
-        //   collection: self.c_colltask
-        // })
-        // this.collTaskEditView = new CollTaskEditView({
-        //   el: "#colltask_edit-content",
-        // })
-        // this.collTaskDetailView = new CollTaskDetailView({
-        //   el: "#colltask_detail-content",
-        // })
-        // this.collProjectListView = new CollProjectListView({
-        //   el: "#collproject_list-content",
-        //   collection: self.c_collproject
-        // })
-        // this.collProjectEditView = new CollProjectEditView({
-        //   el: "#collproject_edit-content",
-        // })
+
         this.peopleSelectView = new PeopleSelectView({
           el: "#people_select-content",
           collection: self.c_people,
         })
-        this.piSelectView = new PISelectView({
-          el: "#pi_select-content",
+        // this.piSelectView = new PISelectView({
+        //   el: "#pi_select-content",
 
-        })
+        // })
         this.uploadPicView = new UploadPicView({
           el: "#upload_pic-content",
 
@@ -1119,24 +996,23 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       init_cols: function() {
         this.c_objectives = new ObjectiveCollection(); //目标计划
-        this.c_assessment = new AssessmentCollection(); //考核计划
-        this.c_assessment_v = new AssessmentVCollection(); //考核计划-版本
-        this.c_assessment_myteam = new AssessmentCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。
-        this.c_assessment_v_myteam = new AssessmentVCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。 －版本
+        // this.c_assessment = new AssessmentCollection(); //考核计划
+        // this.c_assessment_v = new AssessmentVCollection(); //考核计划-版本
+        // this.c_assessment_myteam = new AssessmentCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。
+        // this.c_assessment_v_myteam = new AssessmentVCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。 －版本
         this.c_task = new TaskCollection(); //工作任务
         this.c_task_v = new TaskVCollection(); //工作任务
-        this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
+        // this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
         this.c_people = new PeopleCollection(); //人员
         this.c_talent = new TalentCollection(); //人才
         this.c_horoscope = new HoroscopeCollection(); //人才九宫图配置
         this.c_competency = new CompetencyCollection(); //能力素质
         this.c_payroll = new PayrollCollection(); //工资
-        this.c_payroll_myteam = new PayrollCollection(); //团队成员的工资－获取的时候需要修改url，把下属的people id拼进去再fetch。
-        this.c_scoringformula = new ScoringFormulaCollection(); //计分公式
-        this.c_gradegroup = new GradeGroupCollection(); //等级组
+        // this.c_payroll_myteam = new PayrollCollection(); //团队成员的工资－获取的时候需要修改url，把下属的people id拼进去再fetch。
+        // this.c_scoringformula = new ScoringFormulaCollection(); //计分公式
+        // this.c_gradegroup = new GradeGroupCollection(); //等级组
 
-        // this.c_colltask = new CollTaskCollection(); //协作任务
-        // this.c_collproject = new CollProjectCollection(); //协作项目
+
 
       },
       init_models: function() {
@@ -1270,6 +1146,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       bind_events: function() {
         var self = this;
         // 设定自动同步数据的间隔，并重新启动计时器
+        /* -- disabled
         $("#config_refresh_interval").on('change', 'input[type=radio][name=config_refresh_interval_option]', function(event) {
           var $this = $(this);
           localStorage.setItem('refresh_interval', $this.val());
@@ -1279,7 +1156,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.start_auto_fetch(parseInt($this.val()) * 60 * 1000);
           }
         });
-
+        */
         $("#fullscreen-overlay").on('click', function(event) {
           event.preventDefault();
           var $this = $(this);
