@@ -108,7 +108,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 var self = this;
                 self.assessmentImprovePlanView.model = self.c_assessment.get(ai_id);
                 // self.assessmentImprovePlanView.model.fetch().done(function() {
-                //     self.assessmentImprovePlanView.render(lx, pi);
+                self.assessmentImprovePlanView.render(lx, pi);
                 // })
                 $("body").pagecontainer("change", "#assessment_improve_plan", {
                     reverse: false,

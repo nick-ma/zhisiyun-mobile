@@ -81,11 +81,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         ct.set('cp', pt.get('cp'));
                         ct.set('cp_name', pt.get('cp_name'));
                     };
-                    //设定上级为默认的观察员
-                    var upper_people = JSON.parse($("#upper_people").val());
-                    if (upper_people) { //有上级的才放进去
-                        ct.set('ntms', [upper_people]);
-                    };
+                    //设定上级为默认的观察员-改为服务器端获取
+                    // var upper_people = JSON.parse($("#upper_people").val());
+                    // if (upper_people) { //有上级的才放进去
+                    //     ct.set('ntms', [upper_people]);
+                    // };
                     self.collTaskEditView.model = ct;
                     self.collTaskEditView.render();
                 } else {

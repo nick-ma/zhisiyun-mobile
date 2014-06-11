@@ -84,35 +84,41 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             },
             bind_event: function() {
                 var self = this;
-                $("#pi_select").on('click', '#btn-pi_select-ok', function(event) {
-                    event.preventDefault();
-                    if (self.select_mode == 'm') {
-                        var pi_selected = _.map($("#pi_select-content input[type=checkbox]:checked"), function(x) {
-                            var $x = $(x);
-                            return self.get_pi($x.data('ai_id'), $x.data('lx'), $x.data('pi'));
-                            // return self.collection.get(x.value);
-                        });
-                        //获取相关的helper数据
-                        var sph = JSON.parse(localStorage.getItem('spi_helper'));
-                        sph.model[self.target_field] = _.map(pi_selected, function(x) {
-                            return x;
-                        })
-                        //写回去
-                        localStorage.setItem('spi_helper_back', JSON.stringify(sph));
-                        window.location.href = sph.back_url; //返回调用界面
-                    } else if (self.select_mode == 's') {
-                        var $x = $("#pi_select-content input[type=radio]:checked");
-                        var pi_selected = self.get_pi($x.data('ai_id'), $x.data('lx'), $x.data('pi'));
-                        // var pi_selected = self.collection.get($("#pi_select-content input[type=radio]:checked").val());
-                        //获取相关的helper数据
-                        var sph = JSON.parse(localStorage.getItem('spi_helper'));
-                        sph.model[self.target_field] = pi_selected;
-                        //写回去
-                        localStorage.setItem('spi_helper_back', JSON.stringify(sph));
-                        window.location.href = sph.back_url; //返回调用界面
-                    };
+                $("#pi_select")
+                    .on('click', '#btn-pi_select-ok', function(event) {
+                        event.preventDefault();
+                        if (self.select_mode == 'm') {
+                            var pi_selected = _.map($("#pi_select-content input[type=checkbox]:checked"), function(x) {
+                                var $x = $(x);
+                                return self.get_pi($x.data('ai_id'), $x.data('lx'), $x.data('pi'));
+                                // return self.collection.get(x.value);
+                            });
+                            //获取相关的helper数据
+                            var sph = JSON.parse(localStorage.getItem('spi_helper'));
+                            sph.model[self.target_field] = _.map(pi_selected, function(x) {
+                                return x;
+                            })
+                            //写回去
+                            localStorage.setItem('spi_helper_back', JSON.stringify(sph));
+                            window.location.href = sph.back_url; //返回调用界面
+                        } else if (self.select_mode == 's') {
+                            var $x = $("#pi_select-content input[type=radio]:checked");
+                            var pi_selected = self.get_pi($x.data('ai_id'), $x.data('lx'), $x.data('pi'));
+                            // var pi_selected = self.collection.get($("#pi_select-content input[type=radio]:checked").val());
+                            //获取相关的helper数据
+                            var sph = JSON.parse(localStorage.getItem('spi_helper'));
+                            sph.model[self.target_field] = pi_selected;
+                            //写回去
+                            localStorage.setItem('spi_helper_back', JSON.stringify(sph));
+                            window.location.href = sph.back_url; //返回调用界面
+                        };
 
-                });
+                    })
+                    .on('click', '#btn-pi_select-back', function(event) {
+                        event.preventDefault();
+                        var sph = JSON.parse(localStorage.getItem('spi_helper'));
+                        window.location.href = sph.back_url; //返回调用界面
+                    });
 
             },
             get_pi: function(ai_id, lx, pi) {

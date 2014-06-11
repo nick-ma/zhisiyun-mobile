@@ -57,31 +57,38 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             },
             bind_event: function() {
                 var self = this;
-                $("#people_select").on('click', '#btn-people_select-ok', function(event) {
-                    event.preventDefault();
-                    if (self.select_mode == 'm') {
-                        var people_selected = _.map($("#people_select-content input[type=checkbox]:checked"), function(x) {
-                            return self.collection.get(x.value);
-                        });
-                        //获取相关的helper数据
-                        var sph = JSON.parse(localStorage.getItem('sp_helper'));
-                        sph.model[self.target_field] = _.map(people_selected, function(x) {
-                            return _.pick(x.toJSON(), ['_id', 'people_name', 'position_name', 'ou_name', 'company_name']);
-                        })
-                        //写回去
-                        localStorage.setItem('sp_helper_back', JSON.stringify(sph));
-                        window.location.href = sph.back_url; //返回调用界面
-                    } else if (self.select_mode == 's') {
-                        var people_selected = self.collection.get($("#people_select-content input[type=radio]:checked").val());
-                        //获取相关的helper数据
-                        var sph = JSON.parse(localStorage.getItem('sp_helper'));
-                        sph.model[self.target_field] = _.pick(people_selected.toJSON(), ['_id', 'people_name', 'position_name', 'ou_name', 'company_name']);
-                        //写回去
-                        localStorage.setItem('sp_helper_back', JSON.stringify(sph));
-                        window.location.href = sph.back_url; //返回调用界面
-                    };
+                $("#people_select")
+                    .on('click', '#btn-people_select-ok', function(event) {
+                        event.preventDefault();
+                        if (self.select_mode == 'm') {
+                            var people_selected = _.map($("#people_select-content input[type=checkbox]:checked"), function(x) {
+                                return self.collection.get(x.value);
+                            });
+                            //获取相关的helper数据
+                            var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                            sph.model[self.target_field] = _.map(people_selected, function(x) {
+                                return _.pick(x.toJSON(), ['_id', 'people_name', 'position_name', 'ou_name', 'company_name']);
+                            })
+                            //写回去
+                            localStorage.setItem('sp_helper_back', JSON.stringify(sph));
+                            window.location.href = sph.back_url; //返回调用界面
+                        } else if (self.select_mode == 's') {
+                            var people_selected = self.collection.get($("#people_select-content input[type=radio]:checked").val());
+                            //获取相关的helper数据
+                            var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                            sph.model[self.target_field] = _.pick(people_selected.toJSON(), ['_id', 'people_name', 'position_name', 'ou_name', 'company_name']);
+                            //写回去
+                            localStorage.setItem('sp_helper_back', JSON.stringify(sph));
+                            window.location.href = sph.back_url; //返回调用界面
+                        };
 
-                });
+                    })
+                    .on('click', '#btn-people_select-back', function(event) {
+                        event.preventDefault();
+                        //获取相关的helper数据
+                        var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                        window.location.href = sph.back_url; //返回调用界面
+                    });
 
             },
 

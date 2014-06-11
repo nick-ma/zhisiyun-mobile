@@ -114,31 +114,44 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       }
       localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_people)));
 
-      $("body").on("pagecontainershow", function(event, ui) {
-        // console.log('message: page show->', ui.prevPage.length);
+      $("body")
+        .on("pagecontainershow", function(event, ui) {
+          // console.log('message: page show->', ui.prevPage.length);
 
-        if (!ui.prevPage.length) { //首页第一次load
-          $.mobile.loading("hide");
-        };
-      }).on('pagecontainerbeforetransition', function(event) {
-        // do nothing
-        // $("#loading").show();
-        // $.mobile.loading("show");
-      }).on('pagecontainertransition', function(event) {
-        // do nothing
-        // $("#loading").hide();
-        // $.mobile.loading("hide");
-        /* Act on the event */
-      });;
+          // if (!ui.prevPage.length) { //首页第一次load
+          //   $.mobile.loading("hide");
+          // };
+          var active_pages = $(".ui-mobile .ui-page-active");
+          if (active_pages.length && active_pages[0].id == 'home') {
+            window.setTimeout(function() {
+              $(window).trigger('resize');
+            }, 1);
+          };
+        })
+        .on('pagecontainerbeforetransition', function(event) {
+
+          // do nothing
+          // $("#loading").show();
+          // $.mobile.loading("show");
+        })
+        .on('pagecontainertransition', function(event) {
+          // do nothing
+          // $("#loading").hide();
+          // $.mobile.loading("hide");
+          /* Act on the event */
+        });;
 
       // 设置首页上的tiles的高度
       var self = this;
       $(window).on('resize', function() {
+        // console.log('message: window resize triggered!');
         self.resizeTiles();
       })
       this.resizeTiles = function() {
         _.each($("#main-tiles,#main-tiles2").find("[class|=ui-block]"), function(x) {
-          $(x).height($(x).width());
+          var w = $(x).width();
+          $(x).css('height', w + 'px').find('> div').css('height', w + 'px');
+          // $(x).find('> div')
         })
       };
       this.resizeTiles();

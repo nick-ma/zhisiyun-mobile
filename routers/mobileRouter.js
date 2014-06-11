@@ -177,6 +177,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           reverse: false,
           changeHash: false,
         });
+        //$(window).trigger('resize');
         // $.mobile.changePage("#home", {
         //   reverse: false,
         //   changeHash: false,
