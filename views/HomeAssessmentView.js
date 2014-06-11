@@ -12,7 +12,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/AssessmentMode
             initialize: function() {
                 this.template = Handlebars.compile($("#hbtmp_assessment_wip_view").html());
                 // The render method is called when Assessment Models are added to the Collection
-                this.collection.on("sync", this.render, this);
+                // this.collection.on("sync", this.render, this);
 
             },
 

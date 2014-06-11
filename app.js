@@ -22,6 +22,7 @@ require.config({
     "canvasResize": "./libs/jquery.canvasResize",
 
     "jqmcal": "./libs/jw-jqm-cal",
+    "pull-to-refresh": "./libs/jquery.pull-to-refresh",
 
   },
 
@@ -49,6 +50,7 @@ require.config({
     "exif": ["jquery"],
     "canvasResize": ["jquery"],
     "moment_lang_zh-cn": ["moment"],
+    "pull-to-refresh": ["jquery"],
     // "jquerymobile": ["jquery"],
 
   } // end Shim Configuration
@@ -129,8 +131,17 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         /* Act on the event */
       });;
 
-
-
+      // 设置首页上的tiles的高度
+      var self = this;
+      $(window).on('resize', function() {
+        self.resizeTiles();
+      })
+      this.resizeTiles = function() {
+        _.each($("#main-tiles,#main-tiles2").find("[class|=ui-block]"), function(x) {
+          $(x).height($(x).width());
+        })
+      };
+      this.resizeTiles();
     }
   )
 
@@ -175,7 +186,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         //   data: new FormData(form[0]),
         //   type: form.attr('method'),
         // });
-      // console.log(new FormData(form[0]));
+        // console.log(new FormData(form[0]));
         $("body").pagecontainer("load", form.attr('action'), {
           data: new FormData(form[0]),
           type: form.attr('method'),

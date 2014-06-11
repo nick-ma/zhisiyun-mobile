@@ -3,12 +3,14 @@
 
 define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作任务
+        "../models/CollTaskModel",
         "../collections/CollProjectCollection", "../collections/CollTaskCollection",
         "../views/CollTaskListView", "../views/CollTaskDetailView", "../views/CollTaskEditView",
         // 协作项目－配套协作任务的
         "../views/CollProjectListView", "../views/CollProjectEditView",
     ],
     function($, Backbone, Handlebars, LZString,
+        CollTaskModel,
         CollProjectCollection, CollTaskCollection,
         CollTaskListView, CollTaskDetailView, CollTaskEditView,
         CollProjectListView, CollProjectEditView
@@ -34,7 +36,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 "collproject/:ct_id/(:cp_id)": "collproject",
                 "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
             },
-            
+
             //--------协作任务--------//
             colltask: function() {
                 // colltasklistView.
@@ -45,8 +47,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
             },
             colltask_detail: function(ct_id) {
-                this.collTaskDetailView.model = this.c_colltask.get(ct_id);
-                this.collTaskDetailView.render();
+                var self = this;
+                if (self.c_colltask.get(ct_id)) {
+                    self.collTaskDetailView.model = self.c_colltask.get(ct_id);
+                    self.collTaskDetailView.render();
+                } else {
+                    var tmp = new CollTaskModel({
+                        _id: ct_id
+                    });
+                    tmp.fetch().done(function() {
+                        self.c_colltask.push(tmp); //放到collection里面
+                        self.collTaskDetailView.model = tmp;
+                        self.collTaskDetailView.render();
+                    })
+                };
                 $("body").pagecontainer("change", "#colltask_detail", {
                     reverse: false,
                     changeHash: false,
@@ -54,13 +68,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             colltask_edit: function(ct_id, p_task) {
                 var ct;
+                var self = this;
                 if (ct_id == 'add') { //新增
-                    ct = this.c_colltask.add({
+                    ct = self.c_colltask.add({
                         task_name: '',
                         p_task: p_task || null,
                     });
                     if (p_task) { //取出上级任务的相关信息
-                        var pt = this.c_colltask.get(p_task);
+                        var pt = self.c_colltask.get(p_task);
                         // console.log(pt);
                         ct.set('root_task', pt.get('root_task'));
                         ct.set('cp', pt.get('cp'));
@@ -71,12 +86,26 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     if (upper_people) { //有上级的才放进去
                         ct.set('ntms', [upper_people]);
                     };
+                    self.collTaskEditView.model = ct;
+                    self.collTaskEditView.render();
                 } else {
-                    ct = this.c_colltask.get(ct_id);
+                    ct = self.c_colltask.get(ct_id);
+                    if (ct) {
+                        self.collTaskEditView.model = ct;
+                        self.collTaskEditView.render();
+
+                    } else {
+                        ct = new CollTaskModel({
+                            _id: ct_id
+                        });
+                        ct.fetch().done(function() {
+                            self.c_colltask.push(ct); //放到collection里面
+                            self.collTaskEditView.model = ct;
+                            self.collTaskEditView.render();
+                        })
+                    };
                 };
                 // console.log(ct_id, p_task, ct);
-                this.collTaskEditView.model = ct;
-                this.collTaskEditView.render();
                 $("body").pagecontainer("change", "#colltask_edit", {
                     reverse: false,
                     changeHash: false,

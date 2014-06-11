@@ -846,7 +846,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
         var self = this;
         self.load_data(self.c_people, 'people');
-        self.load_data(self.c_objectives, 'objectives');
+        // self.load_data(self.c_objectives, 'objectives');
         self.load_data(self.c_task, 'task');
         self.load_data(self.c_talent, 'talent');
         self.load_data(self.c_horoscope, 'horoscope');
@@ -871,19 +871,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
       },
       init_views: function(self) {
-        this.homeObjectiveView = new HomeObjectiveView({
-          el: "#home-objective-list",
-          collection: self.c_objectives
-        });
+        // this.homeObjectiveView = new HomeObjectiveView({
+        //   el: "#home-objective-list",
+        //   collection: self.c_objectives
+        // });
         
-        this.homeTaskView = new HomeTaskView({
-          el: "#home-task-list",
-          collection: self.c_task
-        });
-        this.homeMyTeamView = new HomeMyTeamView({
-          el: "#home-myteam-list",
-          collection: self.c_people
-        });
+        // this.homeTaskView = new HomeTaskView({
+        //   el: "#home-task-list",
+        //   collection: self.c_task
+        // });
+        // this.homeMyTeamView = new HomeMyTeamView({
+        //   el: "#home-myteam-list",
+        //   collection: self.c_people
+        // });
 
         this.taskView = new TaskView({
           el: "#task",
