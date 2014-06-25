@@ -29,6 +29,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             routes: {
                 // 协作任务
                 "colltask": "colltask",
+                "colltask/refresh": "colltask_refresh",
                 "colltask_detail/:ct_id": "colltask_detail",
                 // "colltask_edit/:ct_id": "colltask_edit",
                 "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
@@ -40,10 +41,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             //--------协作任务--------//
             colltask: function() {
                 // colltasklistView.
-                this.c_colltask.fetch();
+                if (!this.c_colltask.models.length) {
+                    this.c_colltask.fetch();
+                };
                 $("body").pagecontainer("change", "#colltask", {
                     reverse: false,
                     changeHash: false,
+                });
+            },
+            colltask_refresh: function() {
+                $.mobile.loading("show");
+                this.c_colltask.fetch().done(function  () {
+                    $.mobile.loading("hide");
+                    $("#colltask-left-panel").panel("close");
                 });
             },
             colltask_detail: function(ct_id) {
