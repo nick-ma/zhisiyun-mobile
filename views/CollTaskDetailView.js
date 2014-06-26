@@ -2,17 +2,25 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars"],
-    function($, _, Backbone, Handlebars) {
+define(["jquery", "underscore", "backbone", "handlebars",
+        "../models/TaskModel"
+    ],
+    function($, _, Backbone, Handlebars,
+        TaskModel) {
 
         // Extends Backbone.View
         var CollTaskDetailView = Backbone.View.extend({
 
             // The View Constructor
             initialize: function() {
-                this.template = Handlebars.compile($("#hbtmp_coll_task_detail_view").html());
+                this.template_basic = Handlebars.compile($("#hbtmp_coll_task_detail_view_basic").html());
+                this.template_comment = Handlebars.compile($("#hbtmp_coll_task_detail_view_comment").html());
+                this.template_revise = Handlebars.compile($("#hbtmp_coll_task_detail_view_revise").html());
+                this.template_attachment = Handlebars.compile($("#hbtmp_coll_task_detail_view_attachment").html());
+                this.template_score = Handlebars.compile($("#hbtmp_coll_task_detail_view_score").html());
                 // The render method is called when CollTask Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
+                this.view_mode = 'basic'; //初始化为基本信息界面
                 this.bind_event();
             },
 
@@ -48,11 +56,46 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 //设定返回按钮的地址
                 if (self.model.get('p_task')) { //有父级任务，返回
+                    var p_task_detail = _.find(self.model.collection.models, function(x) {
+                        return x.get('_id') == self.model.get('p_task')
+                    })
+
+                    render_data.p_task_detail = (p_task_detail) ? p_task_detail.toJSON() : null;
+
                     $("#btn-colltask_detail-back").attr('href', '#colltask_detail/' + self.model.get('p_task'));
                 } else {
                     $("#btn-colltask_detail-back").attr('href', '#colltask');
                 };
-                $("#colltask_detail-content").html(self.template(render_data));
+                var rendered = '';
+                if (self.view_mode == 'basic') {
+                    rendered = self.template_basic(render_data)
+                } else if (self.view_mode == 'comment') {
+                    rendered = self.template_comment(render_data)
+                } else if (self.view_mode == 'revise') {
+                    //渲染更改记录部分
+                    var rh_data = _.sortBy(_.map(_.groupBy(self.model.get('revise_history'), function(x) {
+                            return moment(x.timestamp).format('YYYY-MM-DD HH:mm')
+                        }), function(val, key) {
+                            return {
+                                ts: key,
+                                msgs: val
+                            }
+                        }), function(x) {
+                            return -new Date(x.ts)
+                        })
+                        // console.log(rh_data);
+                        // $("#coll_task_revise").html(self.template_revise({
+                        //     revise_history: rh_data
+                        // }))
+                    rendered = self.template_revise({
+                        revise_history: rh_data
+                    })
+                } else if (self.view_mode == 'attachment') {
+                    rendered = self.template_attachment(render_data)
+                } else if (self.view_mode == 'score') {
+                    rendered = self.template_score(render_data)
+                };
+                $("#colltask_detail-content").html(rendered);
                 $("#colltask_detail-content").trigger('create');
                 //确定权限
                 var login_people = $("#login_people").val();
@@ -125,7 +168,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             field: 'comments',
                             back_url: '#colltask_detail/' + self.model.get('_id'),
                         }));
-                        localStorage.setItem('comment_new','1'); //通知对方新开一个
+                        localStorage.setItem('comment_new', '1'); //通知对方新开一个
                         var url = '#comment_add';
                         window.location.href = url;
                     })
@@ -171,8 +214,58 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         event.preventDefault();
                         var url = '#colltask_edit/' + self.model.get('_id');
                         window.location.href = url;
+                    })
+                $("#colltask_detail-left-panel")
+                    .on('click', '#btn-colltask_detail-change_view', function(event) {
+                        event.preventDefault();
+                        var $this = $(this)
+                        self.view_mode = $this.data('view_mode');
+                        self.render();
+                        $("#colltask_detail-left-panel").panel('close');
+                    })
+                    .on('click', '#btn-colltask_detail-sync_cal', function(event) { //发送到我的日历
+                        event.preventDefault();
+                        if (self.model && confirm('确认同步到我的工作日历吗？')) {
+                            $.mobile.loading("show");
+                            var login_people = $("#login_people").val();
+                            var post_data = {
+                                origin_oid: self.model.get('_id'),
+                                origin_cat: 'coll_task',
+                                people: login_people, //只删除当前登录用户的
+                            };
+                            $.post('/admin/pm/work_plan/remove_by_origin', post_data, function(data, textStatus, xhr) {
+                                var new_event = {
+                                    creator: login_people,
+                                    people: login_people,
+                                    title: self.model.get('task_name'),
+                                    allDay: true,
+                                    start: moment(self.model.get('start')).format('YYYY-MM-DD'),
+                                    end: moment(self.model.get('end')).format('YYYY-MM-DD'),
+                                    tags: '协作任务',
+                                    // url: '/admin/pm/assessment_instance/wip/bbform?ai_id=' + ai_id,
+                                    origin_oid: self.model.get('_id'),
+                                    origin_cat: 'coll_task',
+                                    editable: false,
+                                    startEditable: false,
+                                    durationEditable: false,
+                                    origin: '1',
+                                    is_complete: self.model.get('isfinished'),
+                                };
+                                new_event.description = self.model.get('task_descrpt');
+                                new TaskModel(new_event).save().done(function() {
+                                    alert('同步到日历项成功');
+                                    $.mobile.loading("hide");
+                                });
+                            })
+                        };
+                        $("#colltask_detail-left-panel").panel('close');
                     });
-
+                $("#colltask_detail")
+                    .on('swiperight', function(event) { //向右滑动，打开左边的面板
+                        event.preventDefault();
+                        $("#colltask_detail-left-panel").panel('open');
+                        // window.location.href = '#colltask'
+                    })
             },
             test_in: function(key, val, coll) {
                 var flag = false;

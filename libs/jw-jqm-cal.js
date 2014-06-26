@@ -91,10 +91,10 @@
 
       var $td = $("<td class='ui-body-" + i.settings.theme + "'/>").appendTo($row),
         $a = $("<a href='" + i.settings.route + "' class='ui-btn ui-btn-up-" + i.settings.theme + "'/>")
-          .html(date.getDate().toString())
-          .data('date', date)
-          .click(E)
-          .appendTo($td);
+        .html(date.getDate().toString())
+        .data('date', date)
+        .click(E)
+        .appendTo($td);
 
       if (selected) $a.click();
 
@@ -106,9 +106,9 @@
 
       // Find events for this date
       for (var f = 0,
-          event,
-          begin = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0),
-          end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0); event = i.settings.events[f]; f++) {
+        event,
+        begin = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0),
+        end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0); event = i.settings.events[f]; f++) {
         if (event[i.settings.end] >= begin && event[i.settings.begin] < end) {
           importance++;
           if (importance > 1) break;
@@ -237,7 +237,11 @@
             var o = e('<li data-role="list-divider">' + e.format.date(s.start, i.settings.dateFormatTitle) + "</li>").appendTo(f);
             n = e.format.date(s.start, "yyyyMMMMdd")
           }
-          var u = e("<li class='ui-event-item'><a href='" + i.settings.route + "/" + s['_id'] + "' class='event-item-link' rel='" + s.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
+          var url = i.settings.route + "/" + s['_id'];
+          if (s['origin_cat'] == 'coll_task') {
+            url = '#colltask_detail/' + s['origin_oid'];
+          };
+          var u = e("<li class='ui-event-item'><a href='" + url + "' class='event-item-link' rel='" + s.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
           i.settings.listItemFormatter(u, s)
         }
       } else {
@@ -284,7 +288,11 @@
       e('<li data-role="list-divider">' + e.format.date(n, i.settings.dateFormatTitle) + "</li>").appendTo(f);
       for (var o = 0, t; t = i.settings.events[o]; o++) {
         if (t[i.settings.end] >= n && t[i.settings.begin] < r) {
-          var u = e("<li class='ui-event-item'><a href='" + i.settings.route + "/" + t['_id'] + "' class='event-item-link' rel='" + t.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
+          var url = i.settings.route + "/" + t['_id'];
+          if (t['origin_cat'] == 'coll_task') {
+            url = '#colltask_detail/' + t['origin_oid'];
+          };
+          var u = e("<li class='ui-event-item'><a href='" + url + "' class='event-item-link' rel='" + t.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
           i.settings.listItemFormatter(u, t);
           s = true
         }

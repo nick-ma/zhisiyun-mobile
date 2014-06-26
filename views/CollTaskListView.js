@@ -262,6 +262,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         event.preventDefault();
                         $("#colltask-left-panel").panel("open");
                     })
+                    .on('click', '#btn-colltask-refresh', function(event) {
+                        event.preventDefault();
+                        $.mobile.loading("show");
+                        self.collection.fetch().done(function() {
+                            $.mobile.loading("hide");
+                            $("#colltask-left-panel").panel("close");
+                        });
+                    })
                     .on('change', '#colltask-left-panel input[name=colltask_state]', function(event) {
                         event.preventDefault();
                         var $this = $(this);

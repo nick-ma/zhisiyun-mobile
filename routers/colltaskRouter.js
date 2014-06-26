@@ -51,7 +51,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             colltask_refresh: function() {
                 $.mobile.loading("show");
-                this.c_colltask.fetch().done(function  () {
+                this.c_colltask.fetch().done(function() {
                     $.mobile.loading("hide");
                     $("#colltask-left-panel").panel("close");
                 });
@@ -82,6 +82,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 if (ct_id == 'add') { //新增
                     ct = self.c_colltask.add({
                         task_name: '',
+                        start: new Date(),
+                        end: moment().add(3, 'day').toDate(),
                         p_task: p_task || null,
                     });
                     if (p_task) { //取出上级任务的相关信息

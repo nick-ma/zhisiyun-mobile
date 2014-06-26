@@ -164,7 +164,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 上传文件
         "upload_pic": "upload_pic",
         // 添加交流记录
-        "comment_add":"comment_add",
+        "comment_add": "comment_add",
         //lazy load sub routers
         // "colltask/*subroute":"invokeCollTask",
         //默认的路由。当找不到路由的时候，转到首页。
@@ -580,7 +580,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       salary_detail: function(pay_time) {
         this.payrollDetailView.model = this.c_payroll.get(pay_time);
-        localStorage.setItem('payroll_detail_backurl','#salary_list');
+        localStorage.setItem('payroll_detail_backurl', '#salary_list');
         // $("#btn-salary_detail-back").attr('href', '#salary_list');
         this.payrollDetailView.render();
         $("body").pagecontainer("change", "#salary_detail", {
@@ -876,7 +876,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         //   el: "#home-objective-list",
         //   collection: self.c_objectives
         // });
-        
+
         // this.homeTaskView = new HomeTaskView({
         //   el: "#home-task-list",
         //   collection: self.c_task
@@ -1208,12 +1208,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('task_status', function(isfinished, end) {
         if (isfinished) {
-          return '<span class="label-success">已完成</span>';
+          return '<span class="label-success">完成</span>';
         } else {
-          if (moment(end).endOf('d').toDate() >= new Date()) {
-            return '<span class="label-info">进行中</span>';
+          if (!end || moment(end).endOf('d').toDate() >= new Date()) {
+            return '<span class="label-info">正常</span>';
           } else {
-            return '<span class="label-danger">已超时</span>';
+            return '<span class="label-danger">超时</span>';
           };
         };
       });
@@ -1337,6 +1337,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           revise_date.push(moment(x.timestamp).format('YYYY-MM-DD HH:mm'));
         })
         return revise_date.join(',');
+      });
+      Handlebars.registerHelper('getDatePart', function(ds, p) {
+        var dd = ds.split(' ');
+        if (p == 'd') {
+          return dd[0];
+        } else {
+          return dd[1];
+        };
       });
     })();
 
