@@ -42,6 +42,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // 添加交流记录界面
     "../views/CommentAddView",
     "./colltaskRouter",
+    "./collprojectRouter",
     "./assessmentRouter",
     "./myteamRouter",
     //其他jquery插件
@@ -70,6 +71,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     UploadPicView,
     CommentAddView,
     CollTaskRouter,
+    CollProjectRouter,
     AssessmentRouter,
     MyTeamRouter,
     async, moment
@@ -93,6 +95,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.bind_events();
         // _.extend(this,CollTaskRouter);
         new CollTaskRouter();
+        new CollProjectRouter();
         new AssessmentRouter();
         new MyTeamRouter();
         // Tells Backbone to start watching for hashchange events
@@ -1344,6 +1347,17 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return dd[0];
         } else {
           return dd[1];
+        };
+      });
+      Handlebars.registerHelper('project_status', function(status, end) {
+        if (status == 'C') {
+          return '<span class="label-success">完成</span>';
+        } else {
+          if (!end || moment(end).endOf('d').toDate() >= new Date()) {
+            return '<span class="label-info">正常</span>';
+          } else {
+            return '<span class="label-danger">超时</span>';
+          };
         };
       });
     })();

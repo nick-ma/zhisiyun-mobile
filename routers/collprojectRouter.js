@@ -3,67 +3,67 @@
 
 define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作任务
-        "../models/CollTaskModel",
-        "../collections/CollProjectCollection", "../collections/CollTaskCollection",
-        "../views/CollTaskListView", "../views/CollTaskDetailView", "../views/CollTaskEditView",
+        "../models/CollProjectModel",
+        "../collections/CollProjectCollection",
+        // "../views/CollProjectListView",  "../views/CollProjectEditView",
         // 协作项目－配套协作任务的
-        "../views/CollProjectListView", "../views/CollProjectEditView",
+        "../views/CollProjectListView", "../views/CollProjectListViewAll", "../views/CollProjectEditView", "../views/CollProjectDetailView",
     ],
     function($, Backbone, Handlebars, LZString,
-        CollTaskModel,
-        CollProjectCollection, CollTaskCollection,
-        CollTaskListView, CollTaskDetailView, CollTaskEditView,
-        CollProjectListView, CollProjectEditView
+        CollProjectModel,
+        CollProjectCollection,
+        // CollTaskListView, CollTaskDetailView, CollTaskEditView,
+        CollProjectListView, CollProjectListViewAll, CollProjectEditView, CollProjectDetailView
     ) {
 
-        var CollTaskRouter = Backbone.Router.extend({
+        var CollProjectRouter = Backbone.Router.extend({
             initialize: function() {
                 var self = this;
-                self.init_models();
+                // self.init_models();
                 self.init_collections();
                 self.init_views();
-                self.bind_events();
-                console.log('message: colltask router initialized');
+                // self.bind_events();
+                console.log('message: collproject router initialized');
                 // Backbone.history.start();
             },
             routes: {
-                // 协作任务
-                "colltask": "colltask",
-                "colltask_detail/:ct_id": "colltask_detail",
+                // 协作项目
+                "projectlist": "projectlist",
+                "collproject_detail/:cp_id": "collproject_detail",
                 // "colltask_edit/:ct_id": "colltask_edit",
-                "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
+                // "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
                 // 协作任务的项目
-                "collproject/:ct_id/(:cp_id)": "collproject",
-                "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
+                // "collproject/:ct_id/(:cp_id)": "collproject",
+                // "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
             },
 
             //--------协作任务--------//
-            colltask: function() {
+            projectlist: function() {
                 // colltasklistView.
-                if (!this.c_colltask.models.length) {
-                    this.c_colltask.fetch();
+                if (!this.c_collproject.models.length) {
+                    this.c_collproject.fetch();
                 };
-                $("body").pagecontainer("change", "#colltask", {
+                $("body").pagecontainer("change", "#collproject", {
                     reverse: false,
                     changeHash: false,
                 });
             },
-            colltask_detail: function(ct_id) {
+            collproject_detail: function(cp_id) {
                 var self = this;
-                if (self.c_colltask.get(ct_id)) {
-                    self.collTaskDetailView.model = self.c_colltask.get(ct_id);
-                    self.collTaskDetailView.render();
+                if (self.c_collproject.get(cp_id)) {
+                    self.collProjectDetailView.model = self.c_collproject.get(cp_id);
+                    self.collProjectDetailView.render();
                 } else {
-                    var tmp = new CollTaskModel({
-                        _id: ct_id
+                    var tmp = new CollProjectModel({
+                        _id: cp_id
                     });
                     tmp.fetch().done(function() {
-                        self.c_colltask.push(tmp); //放到collection里面
-                        self.collTaskDetailView.model = tmp;
-                        self.collTaskDetailView.render();
+                        self.c_collproject.push(tmp); //放到collection里面
+                        self.collProjectDetailView.model = tmp;
+                        self.collProjectDetailView.render();
                     })
                 };
-                $("body").pagecontainer("change", "#colltask_detail", {
+                $("body").pagecontainer("change", "#collproject_detail", {
                     reverse: false,
                     changeHash: false,
                 });
@@ -146,29 +146,33 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             //
             init_views: function() {
                 var self = this;
-                this.collTaskListView = new CollTaskListView({
-                    el: "#colltask-content",
-                    collection: self.c_colltask
+                // this.collTaskListView = new CollTaskListView({
+                //     el: "#colltask-content",
+                //     collection: self.c_colltask
+                // })
+                // this.collTaskEditView = new CollTaskEditView({
+                //     el: "#colltask_edit-content",
+                // })
+                this.collProjectDetailView = new CollProjectDetailView({
+                    el: "#collproject_detail-content",
                 })
-                this.collTaskEditView = new CollTaskEditView({
-                    el: "#colltask_edit-content",
-                })
-                this.collTaskDetailView = new CollTaskDetailView({
-                    el: "#colltask_detail-content",
-                })
-                this.collProjectListView = new CollProjectListView({
-                    el: "#collproject_list-content",
+                // this.collProjectListView = new CollProjectListView({
+                //     el: "#collproject_list-content",
+                //     collection: self.c_collproject
+                // })
+                // this.collProjectEditView = new CollProjectEditView({
+                //     el: "#collproject_edit-content",
+                // })
+                this.collProjectListViewAll = new CollProjectListViewAll({
+                    el: "#collproject-content",
                     collection: self.c_collproject
-                })
-                this.collProjectEditView = new CollProjectEditView({
-                    el: "#collproject_edit-content",
                 })
             },
             init_models: function() {
 
             },
             init_collections: function() {
-                this.c_colltask = new CollTaskCollection(); //协作任务
+                // this.c_colltask = new CollTaskCollection(); //协作任务
                 this.c_collproject = new CollProjectCollection(); //协作项目
             },
             bind_events: function() {
@@ -176,5 +180,5 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             }
         });
 
-        return CollTaskRouter;
+        return CollProjectRouter;
     })
