@@ -5,13 +5,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作任务
         "../models/CollProjectModel",
         "../collections/CollProjectCollection",
-        // "../views/CollProjectListView",  "../views/CollProjectEditView",
+        "../views/CollProjectEditContactView",
+        // "../views/CollProjectEditView",
         // 协作项目－配套协作任务的
         "../views/CollProjectListView", "../views/CollProjectListViewAll", "../views/CollProjectEditView", "../views/CollProjectDetailView",
     ],
     function($, Backbone, Handlebars, LZString,
         CollProjectModel,
         CollProjectCollection,
+        CollProjectEditContactView,
         // CollTaskListView, CollTaskDetailView, CollTaskEditView,
         CollProjectListView, CollProjectListViewAll, CollProjectEditView, CollProjectDetailView
     ) {
@@ -34,7 +36,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 // "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
                 // 协作任务的项目
                 // "collproject/:ct_id/(:cp_id)": "collproject",
-                // "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
+                "collproject_edit/:cp_id/contact/:index": "collproject_edit_contact",
             },
 
             //--------协作任务--------//
@@ -64,6 +66,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     })
                 };
                 $("body").pagecontainer("change", "#collproject_detail", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            },
+            collproject_edit_contact: function(cp_id, index) {
+                var self = this;
+                self.collProjectEditContactView.model = self.c_collproject.get(cp_id);
+                self.collProjectEditContactView.index = index;
+                self.collProjectEditContactView.render();
+                $("body").pagecontainer("change", "#collproject_edit_contact", {
                     reverse: false,
                     changeHash: false,
                 });
@@ -166,6 +178,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 this.collProjectListViewAll = new CollProjectListViewAll({
                     el: "#collproject-content",
                     collection: self.c_collproject
+                })
+                this.collProjectEditContactView = new CollProjectEditContactView({
+                    el: "#collproject_edit_contact-content",
                 })
             },
             init_models: function() {
