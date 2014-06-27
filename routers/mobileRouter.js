@@ -1370,6 +1370,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         return ret.join('');
       });
+      Handlebars.registerHelper('genCPTypesOptions', function(cp_types, cp_type) {
+        var ret = [];
+        
+        _.each(cp_types, function(x) {
+          ret.push('<option value="' + x._id + '" ' + ((x._id == cp_type) ? 'selected' : '') + '>');
+          ret.push(x.cp_type_name);
+          ret.push('</option>');
+        })
+        return ret.join('');
+      });
     })();
 
     // Returns the Router class

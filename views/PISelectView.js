@@ -124,11 +124,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             get_pi: function(ai_id, lx, pi) {
                 var self = this;
                 var m = self.collection.get(ai_id);
+                console.log(m);
                 var ret = {
                     ai_id: ai_id,
                     pi_lx: lx,
                     pi_id: pi,
                     period_name: m.get('period_name'),
+                    people_name: m.get('people_name'),
+                    people: m.get('people'),
                 };
                 if (lx == 'dl') {
                     var found = _.find(m.get('quantitative_pis').items, function(x) {
@@ -145,6 +148,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         ret.pi_name = found.pi_name;
                     };
                 };
+                console.log(ret);
                 return ret;
             }
 

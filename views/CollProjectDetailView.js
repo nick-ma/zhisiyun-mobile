@@ -188,7 +188,7 @@ define(["jquery", "underscore", "backbone", "handlebars",
                     })
                     .on('click', '#btn-collproject_detail-edit', function(event) {
                         event.preventDefault();
-                        var url = '#collproject_edit/' + self.model.get('_id');
+                        var url = '#collproject_edit/' + self.model.get('_id')+'/basic';
                         window.location.href = url;
                     })
                 $("#collproject_detail-left-panel")

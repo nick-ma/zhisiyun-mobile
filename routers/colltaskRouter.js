@@ -34,7 +34,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
                 // 协作任务的项目
                 "collproject/:ct_id/(:cp_id)": "collproject",
-                "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
+                // "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
             },
 
             //--------协作任务--------//
@@ -160,9 +160,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     el: "#collproject_list-content",
                     collection: self.c_collproject
                 })
-                this.collProjectEditView = new CollProjectEditView({
-                    el: "#collproject_edit-content",
-                })
+                // this.collProjectEditView = new CollProjectEditView({
+                //     el: "#collproject_edit-content",
+                // })
             },
             init_models: function() {
 
