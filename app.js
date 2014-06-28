@@ -146,6 +146,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       $(window).on('resize', function() {
         // console.log('message: window resize triggered!');
         self.resizeTiles();
+        self.showCopyright();
       })
       this.resizeTiles = function() {
         _.each($("#main-tiles,#main-tiles2").find("[class|=ui-block]"), function(x) {
@@ -154,7 +155,16 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
           // $(x).find('> div')
         })
       };
+      this.showCopyright = function() {
+        var l = Math.max(screen.height, screen.width);
+        if ($("#home-content").height() > l - 40) {
+          $("#copyright").hide();
+        } else {
+          $("#copyright").show();
+        };
+      };
       this.resizeTiles();
+      this.showCopyright();
     }
   )
 
