@@ -42,6 +42,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 // colltasklistView.
                 if (!this.c_colltask.models.length) {
                     this.c_colltask.fetch();
+                }else{
+                    this.collTaskListView.render();
                 };
                 $("body").pagecontainer("change", "#colltask", {
                     reverse: false,

@@ -1372,12 +1372,26 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('genCPTypesOptions', function(cp_types, cp_type) {
         var ret = [];
-        
+
         _.each(cp_types, function(x) {
           ret.push('<option value="' + x._id + '" ' + ((x._id == cp_type) ? 'selected' : '') + '>');
           ret.push(x.cp_type_name);
           ret.push('</option>');
         })
+        return ret.join('');
+      });
+      Handlebars.registerHelper('showFinishState', function(dof, end) {
+        var ret = ['<div class="'];
+        if (new Date(dof) <= new Date(end)) {
+          ret.push('text-success');
+          ret.push('">');
+          ret.push('按时完成');
+        } else {
+          ret.push('text-danger');
+          ret.push('">');
+          ret.push('超时完成');
+        };
+        ret.push('</div>')
         return ret.join('');
       });
     })();
