@@ -156,8 +156,8 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         })
       };
       this.showCopyright = function() {
-        var l = Math.max(screen.height, screen.width);
-        if ($("#home-content").height() > l - 40) {
+        var l = Math.max(document.body.clientHeight, document.body.clientWidth);
+        if ($("#home-content").height() > l - 40 -50) {
           $("#copyright").hide();
         } else {
           $("#copyright").show();
