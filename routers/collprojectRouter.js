@@ -6,6 +6,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../models/CollProjectModel",
         "../collections/CollProjectCollection",
         "../views/CollProjectEditContactView",
+        "../views/CollProjectEditExtendView",
         // "../views/CollProjectEditView",
         // 协作项目－配套协作任务的
         "../views/CollProjectListView", "../views/CollProjectListViewAll", "../views/CollProjectEditView", "../views/CollProjectDetailView",
@@ -14,6 +15,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         CollProjectModel,
         CollProjectCollection,
         CollProjectEditContactView,
+        CollProjectEditExtendView,
         // CollTaskListView, CollTaskDetailView, CollTaskEditView,
         CollProjectListView, CollProjectListViewAll, CollProjectEditView, CollProjectDetailView
     ) {
@@ -38,6 +40,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 // 协作任务的项目
                 // "collproject/:ct_id/(:cp_id)": "collproject",
                 "collproject_edit/:cp_id/basic": "collproject_edit_basic",
+                "collproject_edit/:cp_id/extend": "collproject_edit_extend",
                 "collproject_edit/:cp_id/contact/:index": "collproject_edit_contact",
             },
 
@@ -86,6 +89,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
 
             },
+            collproject_edit_extend: function(cp_id) {
+                var self = this;
+                self.collProjectEditExtendView.cp_types = self.cp_types;
+                self.collProjectEditExtendView.cpfd = self.cpfd;
+                self.collProjectEditExtendView.model = self.c_collproject.get(cp_id);
+
+                self.collProjectEditExtendView.render();
+                $("body").pagecontainer("change", "#collproject_edit_extend", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            },
             collproject_edit_contact: function(cp_id, index) {
                 var self = this;
                 self.collProjectEditContactView.model = self.c_collproject.get(cp_id);
@@ -116,6 +131,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 // })
                 this.collProjectEditView = new CollProjectEditView({
                     el: "#collproject_edit-content",
+                })
+                this.collProjectEditExtendView = new CollProjectEditExtendView({
+                    el: "#collproject_edit_extend-content",
                 })
                 this.collProjectListViewAll = new CollProjectListViewAll({
                     el: "#collproject-content",

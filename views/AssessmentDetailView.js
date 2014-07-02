@@ -20,7 +20,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
             var self = this;
             // console.log('render: ', lx, pi);
             var render_data = self.get_pi(lx, pi);
-
+            // console.log(render_data);
             render_data._id = self.model.get('_id');
             render_data.lx = lx;
             // 把下面小周期的留言也加进来

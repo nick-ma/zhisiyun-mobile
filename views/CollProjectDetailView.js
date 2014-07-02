@@ -2,10 +2,10 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars",
+define(["jquery", "underscore", "backbone", "handlebars", "moment"
 
     ],
-    function($, _, Backbone, Handlebars) {
+    function($, _, Backbone, Handlebars, moment) {
 
         // Extends Backbone.View
         var CollProjectDetailView = Backbone.View.extend({
@@ -17,8 +17,20 @@ define(["jquery", "underscore", "backbone", "handlebars",
                 this.template_contact = Handlebars.compile($("#hbtmp_coll_project_detail_view_contact").html());
                 this.template_revise = Handlebars.compile($("#hbtmp_coll_project_detail_view_revise").html());
                 this.template_attachment = Handlebars.compile($("#hbtmp_coll_project_detail_view_attachment").html());
+
+                this.template_ct_text_view = Handlebars.compile($("#hbtmp_coll_project_cf_text_view").html());
+                this.template_ct_color_view = Handlebars.compile($("#hbtmp_coll_project_cf_color_view").html());
+
+
                 // The render method is called when CollProject Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
+                this.color_map = ['#bbbbbb', '#44BBFF', '#A97FFF', "#FF8887", "#FFCF68", "#FFF86A", "#11D310", "#333333"];
+                this.color_symble = {
+                    'color_01': '&#9873;', // ⚑ flag
+                    'color_02': '&#9733;', //★ star
+                    'color_03': '&#9679;', //● circle
+                    'color_04': '&#9650;', //▲ triangle
+                };
                 this.view_mode = 'basic'; //初始化为基本信息界面
                 this.bind_event();
             },
@@ -47,8 +59,46 @@ define(["jquery", "underscore", "backbone", "handlebars",
                 var rendered = '';
                 if (self.view_mode == 'basic') {
                     rendered = self.template_basic(render_data)
-                } else if (self.view_mode == 'extend') {
-                    rendered = self.template_extend(render_data)
+                } else if (self.view_mode == 'extend') { //扩展信息
+                    var cp_type = _.find(self.cp_types, function(x) {
+                        return x._id == self.model.get('cp_type');
+                    })
+                    var rendered2 = [];
+                    if (cp_type) {
+                        _.each(cp_type.cp_type_fields, function(x) {
+                            if (x != 'contacts') {
+                                var fd = self.cpfd[x];
+                                if (fd.cat == 'color') {
+                                    var fc_rd = {
+                                        field_name: x,
+                                        field_value: self.model.get(x),
+                                        color_map: self.color_map,
+                                        color_symble: self.color_symble[x],
+                                    }
+
+                                    _.extend(fc_rd, fd);
+                                    rendered2.push(self.template_ct_color_view(fc_rd));
+                                } else {
+                                    var fc_rd = {
+                                        field_name: x,
+                                        field_value: self.model.get(x),
+                                    }
+                                    if (fd.cat == 'date') {
+                                        fc_rd.field_value = moment(fc_rd.field_value).format('YYYY-MM-DD');
+                                    } else if (fd.cat == 'num') {
+                                        fc_rd.field_value = fc_rd.field_value || 0;
+                                    };
+                                    _.extend(fc_rd, fd);
+                                    // console.log(fc_rd);
+                                    rendered2.push(self.template_ct_text_view(fc_rd));
+                                };
+                            };
+                        })
+                    };
+                    // console.log(cp_type);
+                    rendered = self.template_extend({
+                        cf_contents: rendered2.join('')
+                    });
                 } else if (self.view_mode == 'contact') {
                     rendered = self.template_contact(render_data)
                 } else if (self.view_mode == 'revise') {
@@ -188,7 +238,12 @@ define(["jquery", "underscore", "backbone", "handlebars",
                     })
                     .on('click', '#btn-collproject_detail-edit', function(event) {
                         event.preventDefault();
-                        var url = '#collproject_edit/' + self.model.get('_id')+'/basic';
+                        var url = '#collproject_edit/' + self.model.get('_id') + '/';
+                        if (self.view_mode == 'extend') {
+                            url += 'extend';
+                        } else {
+                            url += 'basic';
+                        };
                         window.location.href = url;
                     })
                 $("#collproject_detail-left-panel")
