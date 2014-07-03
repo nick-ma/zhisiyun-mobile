@@ -33,7 +33,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         return x.toJSON();
                     })
                     // 整理前端需要渲染的数据
-                // console.log(tmp);
+                    // console.log(tmp);
                 if (self.mode == 'all_project') {
                     models4render = tmp;
                 } else if (self.mode == 'my_project_1') { //我发起的任务
@@ -55,6 +55,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         return !!_.find(x.npms, function(y) {
                             return y._id == login_people;
                         })
+                    })
+                } else if (self.mode == 'my_project_5') { //我的任务
+                    models4render = _.filter(tmp, function(x) {
+                        return x.creator._id == login_people && x.pm._id != login_people;
                     })
                 }
                 _.each(models4render, function(x) {

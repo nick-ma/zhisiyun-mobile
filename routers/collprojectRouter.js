@@ -5,18 +5,17 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作任务
         "../models/CollProjectModel",
         "../collections/CollProjectCollection",
-        "../views/CollProjectEditContactView",
-        "../views/CollProjectEditExtendView",
-        // "../views/CollProjectEditView",
         // 协作项目－配套协作任务的
-        "../views/CollProjectListView", "../views/CollProjectListViewAll", "../views/CollProjectEditView", "../views/CollProjectDetailView",
+        "../views/coll_project/EditContact",
+        "../views/coll_project/EditExtend",
+        "../views/coll_project/List", "../views/coll_project/ListAll", "../views/coll_project/Edit", "../views/coll_project/Detail",
     ],
     function($, Backbone, Handlebars, LZString,
         CollProjectModel,
         CollProjectCollection,
+
         CollProjectEditContactView,
         CollProjectEditExtendView,
-        // CollTaskListView, CollTaskDetailView, CollTaskEditView,
         CollProjectListView, CollProjectListViewAll, CollProjectEditView, CollProjectDetailView
     ) {
 

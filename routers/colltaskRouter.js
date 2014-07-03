@@ -5,15 +5,15 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
         // 协作任务
         "../models/CollTaskModel",
         "../collections/CollProjectCollection", "../collections/CollTaskCollection",
-        "../views/CollTaskListView", "../views/CollTaskDetailView", "../views/CollTaskEditView",
+        "../views/coll_task/List", "../views/coll_task/Detail", "../views/coll_task/Edit",
         // 协作项目－配套协作任务的
-        "../views/CollProjectListView", "../views/CollProjectEditView",
+        "../views/coll_project/List",
     ],
     function($, Backbone, Handlebars, LZString, moment,
         CollTaskModel,
         CollProjectCollection, CollTaskCollection,
         CollTaskListView, CollTaskDetailView, CollTaskEditView,
-        CollProjectListView, CollProjectEditView
+        CollProjectListView
     ) {
 
         var CollTaskRouter = Backbone.Router.extend({

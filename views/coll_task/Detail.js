@@ -3,7 +3,7 @@
 
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars",
-        "../models/TaskModel"
+        "../../models/TaskModel"
     ],
     function($, _, Backbone, Handlebars,
         TaskModel) {

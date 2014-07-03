@@ -86,6 +86,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             return y._id == login_people;
                         })
                     })
+                } else if (self.mode == 'my_task_5') { //我分派的任务
+                    render_mode = 'task';
+                    models4render = _.filter(tmp, function(x) {
+                        return x.creator._id == login_people && x.th._id != login_people;
+                    })
                 } else if (self.mode == 'my_project') { //我发起的项目
                     render_mode = 'project';
                     // alert('即将实现');
