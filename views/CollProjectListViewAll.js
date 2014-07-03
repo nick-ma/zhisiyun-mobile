@@ -33,7 +33,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         return x.toJSON();
                     })
                     // 整理前端需要渲染的数据
-                console.log(tmp);
+                // console.log(tmp);
                 if (self.mode == 'all_project') {
                     models4render = tmp;
                 } else if (self.mode == 'my_project_1') { //我发起的任务
@@ -72,7 +72,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }),
 
                 };
-                console.log(render_data);
+                // console.log(render_data);
                 var ts_count = _.countBy(models4render, function(x) {
                     return x.state;
                 });

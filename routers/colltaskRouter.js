@@ -1,7 +1,7 @@
 // coll task router
 // ====================
 
-define(["jquery", "backbone", "handlebars", "lzstring",
+define(["jquery", "backbone", "handlebars", "lzstring", "moment",
         // 协作任务
         "../models/CollTaskModel",
         "../collections/CollProjectCollection", "../collections/CollTaskCollection",
@@ -9,7 +9,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作项目－配套协作任务的
         "../views/CollProjectListView", "../views/CollProjectEditView",
     ],
-    function($, Backbone, Handlebars, LZString,
+    function($, Backbone, Handlebars, LZString, moment,
         CollTaskModel,
         CollProjectCollection, CollTaskCollection,
         CollTaskListView, CollTaskDetailView, CollTaskEditView,
@@ -42,7 +42,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 // colltasklistView.
                 if (!this.c_colltask.models.length) {
                     this.c_colltask.fetch();
-                }else{
+                } else {
                     this.collTaskListView.render();
                 };
                 $("body").pagecontainer("change", "#colltask", {
@@ -172,6 +172,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             init_collections: function() {
                 this.c_colltask = new CollTaskCollection(); //协作任务
                 this.c_collproject = new CollProjectCollection(); //协作项目
+
+                this.c_colltask.on('sync', function(event) { //放到local storage
+
+
+                });
             },
             bind_events: function() {
 

@@ -100,21 +100,28 @@ define(["jquery", "underscore", "backbone", "handlebars",
                 //确定权限
                 var login_people = $("#login_people").val();
                 var rights = [0, 0, 0, 0];
-                if (login_people == self.model.attributes.creator._id) { //创建人
-                    rights = [1, 1, 1, 1];
-                } else if (login_people == self.model.attributes.th._id) { //负责人
+                // if (login_people == self.model.attributes.creator._id) { //创建人
+                //     rights = [0, 0, 0, 0];
+                // } else 
+                if (login_people == self.model.attributes.th._id) { //负责人
                     rights = [1, 1, 1, 1];
                 } else if (self.test_in('_id', login_people, self.model.attributes.tms)) { //参与人
-                    rights = [1, 0, 0, 1];
+                    rights = [1, 0, 0, 0];
                 } else if (self.test_in('_id', login_people, self.model.attributes.ntms)) { //观察员
                     rights = [0, 0, 0, 0];
                 };
+                var state_rights = [0, 0, 0, 0];
+                if (self.model.get('isfinished')) {
+                    state_rights = [0, 0, 0, 1];
+                } else {
+                    state_rights = [1, 1, 1, 1];
+                };
                 var btns = ['#btn-ct-add_sub_task', '#btn-colltask_detail-edit', '#btn-colltask_detail-remove', '#btn-colltask_detail-complete'];
                 for (var i = 0; i < rights.length; i++) {
-                    if (rights[i] == 0) {
-                        $(btns[i]).attr('disabled', true)
-                    } else {
+                    if (rights[i] && state_rights[i]) {
                         $(btns[i]).removeAttr('disabled')
+                    } else {
+                        $(btns[i]).attr('disabled', true)
                     };
                 };
                 // 设定完成按钮的文字
@@ -151,6 +158,29 @@ define(["jquery", "underscore", "backbone", "handlebars",
                             })
                             self.model.save().done(function() {
                                 self.render();
+                            })
+                        };
+
+                    })
+                    .on('change', 'input', function(event) { //打分
+                        event.preventDefault();
+                        var $this = $(this);
+                        var field = $this.data('field');
+                        var index = $this.data('index');
+                        var value = $this.val();
+                        var ff = (field) ? field.split('.') : [];
+                        if (ff.length == 2) { //打分的输入框
+                            $.mobile.loading("show");
+                            if (index >= 0) {
+                                self.model.attributes[ff[0]][ff[1]][index] = value;
+                            } else {
+                                self.model.attributes[ff[0]][ff[1]] = value;
+                            };
+                            self.model.save().done(function() {
+                                self.model.fetch().done(function() {
+                                    self.render();
+                                    $.mobile.loading("hide");
+                                })
                             })
                         };
 
@@ -197,18 +227,30 @@ define(["jquery", "underscore", "backbone", "handlebars",
                     .on('click', '#btn-colltask_detail-complete', function(event) {
                         event.preventDefault();
                         var x = self.model.get('isfinished');
-                        self.model.set('isfinished', !x);
+                        if (!x) { //准备关闭任务，提示打分
+                            var th_score = prompt('请为本任务评分', 90);
+                            if (th_score) {
+                                self.model.attributes.scores.th = th_score;
+                                self.model.set('isfinished', true);
+                                self.model.save().done(function() {
+                                    self.model.fetch().done(function() {
+                                        alert('任务已标记为完成');
+                                        window.location.href = '#colltask';
+                                    })
+                                })
+                            } else {
+                                alert('请评分')
+                            };
+                        } else {
+                            self.model.set('isfinished', false);
+                            self.model.save().done(function() {
 
-                        self.model.save().done(function() {
-                            if (x) {
                                 alert('任务已重新打开');
                                 self.render();
-                            } else {
-                                alert('任务已标记为完成');
-                                window.location.href = '#colltask';
-                            };
 
-                        })
+                            })
+                        };
+
                     })
                     .on('click', '#btn-colltask_detail-edit', function(event) {
                         event.preventDefault();

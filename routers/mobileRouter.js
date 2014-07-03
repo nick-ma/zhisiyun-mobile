@@ -1382,7 +1382,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('showFinishState', function(dof, end) {
         var ret = ['<div class="'];
-        if (new Date(dof) <= new Date(end)) {
+        // console.log(dof, moment(end).endOf('day').toDate());
+        if (new Date(dof) <= moment(end).endOf('day').toDate()) {
           ret.push('text-success');
           ret.push('">');
           ret.push('按时完成');
@@ -1393,6 +1394,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
         ret.push('</div>')
         return ret.join('');
+      });
+      Handlebars.registerHelper('getByIndex', function(arr, index, dft) {
+        return (arr[index]) ? arr[index] : dft;
       });
     })();
 

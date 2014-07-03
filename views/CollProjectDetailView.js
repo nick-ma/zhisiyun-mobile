@@ -17,6 +17,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                 this.template_contact = Handlebars.compile($("#hbtmp_coll_project_detail_view_contact").html());
                 this.template_revise = Handlebars.compile($("#hbtmp_coll_project_detail_view_revise").html());
                 this.template_attachment = Handlebars.compile($("#hbtmp_coll_project_detail_view_attachment").html());
+                this.template_score = Handlebars.compile($("#hbtmp_coll_project_detail_view_score").html());
+                this.template_colltask = Handlebars.compile($("#hbtmp_coll_project_detail_view_colltask").html());
 
                 this.template_ct_text_view = Handlebars.compile($("#hbtmp_coll_project_cf_text_view").html());
                 this.template_ct_color_view = Handlebars.compile($("#hbtmp_coll_project_cf_color_view").html());
@@ -122,28 +124,54 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                     })
                 } else if (self.view_mode == 'attachment') {
                     rendered = self.template_attachment(render_data)
+                } else if (self.view_mode == 'score') {
+                    rendered = self.template_score(render_data)
+                } else if (self.view_mode == 'colltasks') { //任务清单
+                    // 获取任务
+                    $.get('/admin/pm/coll_task/get_by_cp/' + self.model.get('_id'), function(data) {
+                        rendered = self.template_colltask({
+                            coll_tasks: data
+                        })
+                        $("#collproject_detail-content").html(rendered);
+                        $("#collproject_detail-content").trigger('create');
+                    })
                 };
                 $("#collproject_detail-content").html(rendered);
                 $("#collproject_detail-content").trigger('create');
                 //确定权限
                 var login_people = $("#login_people").val();
-                var rights = [0, 0, 0, 0];
-                if (login_people == self.model.attributes.creator._id) { //创建人
-                    rights = [1, 1, 1, 1];
-                } else if (login_people == self.model.attributes.pm._id) { //负责人
-                    rights = [1, 1, 1, 1];
+                var rights = [0, 0, 0, 0, 0, 0, 0];
+                // if (login_people == self.model.attributes.creator._id) { //创建人
+                //     rights = [0, 0, 0, 0, 0, 0, 0];
+                // } else 
+                if (login_people == self.model.attributes.pm._id) { //负责人
+                    rights = [1, 1, 1, 1, 1, 1, 1];
                 } else if (self.test_in('_id', login_people, self.model.attributes.pms)) { //参与人
-                    rights = [1, 0, 0, 1];
+                    rights = [1, 0, 0, 0, 0, 0, 0];
                 } else if (self.test_in('_id', login_people, self.model.attributes.npms)) { //观察员
-                    rights = [0, 0, 0, 0];
+                    rights = [0, 0, 0, 0, 0, 0, 0];
                 };
-                var btns = ['#btn-ct-add_sub_project', '#btn-collproject_detail-edit', '#btn-collproject_detail-remove', '#btn-collproject_detail-complete'];
+                var state_rights = [0, 0, 0, 0, 0, 0, 0];
+                if (self.model.get('status') == 'O') {
+                    state_rights = [1, 1, 1, 1, 1, 1, 1];
+                } else if (self.model.get('status') == 'C') {
+                    state_rights = [0, 0, 0, 1, 0, 0, 0];
+
+                };
+                var btns = ['#btn-cp-add_coll_task', '#btn-collproject_detail-edit', '#btn-collproject_detail-remove', '#btn-collproject_detail-complete',
+                    '#btn_collproject_detail_add_contact', '.btn_collproject_detail_edit_contact', '.btn_collproject_detail_remove_contact'
+                ];
                 for (var i = 0; i < rights.length; i++) {
-                    if (rights[i] == 0) {
-                        $(btns[i]).attr('disabled', true)
-                    } else {
+                    if (rights[i] && state_rights[i]) {
                         $(btns[i]).removeAttr('disabled')
+                    } else {
+                        $(btns[i]).attr('disabled', true)
                     };
+                    // if (rights[i] == 0) {
+                    //     $(btns[i]).attr('disabled', true)
+                    // } else {
+                    //     $(btns[i]).removeAttr('disabled')
+                    // };
                 };
                 // 设定完成按钮的文字
                 if (self.model.get('status') == 'C') {
@@ -159,7 +187,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
             bind_event: function() {
                 var self = this;
                 $("#collproject_detail-content")
-                    .on('click', '#btn_collproject_detail_remove_contact', function(event) {
+                    .on('click', '.btn_collproject_detail_remove_contact', function(event) {
                         event.preventDefault();
                         if (self.model && confirm('确实要删除联系人吗？')) {
                             var $this = $(this);
@@ -194,12 +222,35 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                             })
                         };
                     })
-                    .on('click', '#btn_collproject_detail_edit_contact', function(event) {
+                    .on('click', '.btn_collproject_detail_edit_contact', function(event) {
                         event.preventDefault();
                         var $this = $(this);
                         var index = $this.data('index');
                         var url = "#collproject_edit/" + self.model.get('_id') + "/contact/" + index;
                         window.location.href = url;
+                    })
+                    .on('change', 'input', function(event) { //打分
+                        event.preventDefault();
+                        var $this = $(this);
+                        var field = $this.data('field');
+                        var index = $this.data('index');
+                        var value = $this.val();
+                        var ff = (field) ? field.split('.') : [];
+                        if (ff.length == 2) { //打分的输入框
+                            $.mobile.loading("show");
+                            if (index >= 0) {
+                                self.model.attributes[ff[0]][ff[1]][index] = value;
+                            } else {
+                                self.model.attributes[ff[0]][ff[1]] = value;
+                            };
+                            self.model.save().done(function() {
+                                self.model.fetch().done(function() {
+                                    self.render();
+                                    $.mobile.loading("hide");
+                                })
+                            })
+                        };
+
                     });
 
 
@@ -222,19 +273,30 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                     .on('click', '#btn-collproject_detail-complete', function(event) {
                         event.preventDefault();
                         var x = self.model.get('status');
-                        x = (x == 'C') ? 'O' : 'C';
-                        self.model.set('status', x);
+                        if (x == 'O') { //准备关闭项目，提示打分
+                            var pm_score = prompt('请为本项目评分', 90);
+                            if (pm_score) {
+                                self.model.attributes.scores.pm = pm_score;
+                                self.model.set('status', 'C');
+                                self.model.save().done(function() {
+                                    self.model.fetch().done(function() {
+                                        alert('项目已标记为完成');
+                                        window.location.href = '#projectlist';
+                                    })
+                                })
+                            } else {
+                                alert('请评分')
+                            };
+                        } else {
+                            self.model.set('status', 'O');
+                            self.model.save().done(function() {
 
-                        self.model.save().done(function() {
-                            if (x == 'O') {
                                 alert('项目已重新打开');
                                 self.render();
-                            } else {
-                                alert('项目已标记为完成');
-                                window.location.href = '#projectlist';
-                            };
 
-                        })
+                            })
+                        };
+
                     })
                     .on('click', '#btn-collproject_detail-edit', function(event) {
                         event.preventDefault();
