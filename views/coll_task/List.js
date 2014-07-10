@@ -2,8 +2,8 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars"],
-    function($, _, Backbone, Handlebars) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment"],
+    function($, _, Backbone, Handlebars, moment) {
 
         // Extends Backbone.View
         var CollTaskListView = Backbone.View.extend({
@@ -90,6 +90,34 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     render_mode = 'task';
                     models4render = _.filter(tmp, function(x) {
                         return x.creator._id == login_people && x.th._id != login_people;
+                    })
+                } else if (self.mode == 'my_task_6') { //未打分
+                    render_mode = 'task';
+                    models4render = _.filter(tmp, function(x) {
+
+                        var flag = false;
+                        if (!flag) {
+                            for (var i = 0; i < x.tms.length; i++) {
+                                flag = (x.tms[i]._id == login_people) && !x.scores.tms[i];
+                                if (flag) {
+                                    break;
+                                };
+                            };
+                        };
+                        if (!flag) {
+                            for (var i = 0; i < x.ntms.length; i++) {
+                                flag = (x.ntms[i]._id == login_people) && !x.scores.ntms[i];
+                                if (flag) {
+                                    break;
+                                };
+                            };
+                        };
+                        return flag && x.isfinished;
+                    })
+                } else if (self.mode == 'my_task_7') { //未评定
+                    render_mode = 'task';
+                    models4render = _.filter(tmp, function(x) {
+                        return x.isfinished && x.final_judge_people && x.final_judge_people._id == login_people && !x.final_judgement;
                     })
                 } else if (self.mode == 'my_project') { //我发起的项目
                     render_mode = 'project';

@@ -1250,6 +1250,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('toISODatetime', function(date) {
         return (date) ? moment(date).format('YYYY-MM-DD HH:mm') : '';
       });
+      Handlebars.registerHelper('toUTCDatetime', function(date) {
+        return (date) ? moment(date).format('YYYY-MM-DDTHH:mm') : '';
+      });
       Handlebars.registerHelper('rateStar', function(data) {
         var ret = '';
         for (var i = 0; i < data; i++) {

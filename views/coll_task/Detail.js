@@ -2,10 +2,10 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars",
+define(["jquery", "underscore", "backbone", "handlebars", "moment",
         "../../models/TaskModel"
     ],
-    function($, _, Backbone, Handlebars,
+    function($, _, Backbone, Handlebars, moment,
         TaskModel) {
 
         // Extends Backbone.View
@@ -118,7 +118,11 @@ define(["jquery", "underscore", "backbone", "handlebars",
                 };
                 var btns = ['#btn-ct-add_sub_task', '#btn-colltask_detail-edit', '#btn-colltask_detail-remove', '#btn-colltask_detail-complete'];
                 for (var i = 0; i < rights.length; i++) {
-                    if (rights[i] && state_rights[i]) {
+                    var flag = rights[i] && state_rights[i];
+                    if (i == 2) { //应用锁定删除
+                        flag &= !self.model.get('lock_remove');
+                    };
+                    if (flag) {
                         $(btns[i]).removeAttr('disabled')
                     } else {
                         $(btns[i]).attr('disabled', true)
@@ -159,10 +163,17 @@ define(["jquery", "underscore", "backbone", "handlebars",
                             self.model.save().done(function() {
                                 self.render();
                             })
+                        } else if (field == 'final_judgement') {
+                            $.mobile.loading("show");
+                            self.model.attributes.final_judgement = value;
+                            self.model.save().done(function() {
+                                self.render();
+                                $.mobile.loading("hide");
+                            })
                         };
 
                     })
-                    .on('change', 'input', function(event) { //打分
+                    .on('change', 'input, textarea', function(event) { //打分和评语
                         event.preventDefault();
                         var $this = $(this);
                         var field = $this.data('field');
@@ -230,11 +241,13 @@ define(["jquery", "underscore", "backbone", "handlebars",
                         if (!x) { //准备关闭任务，提示打分
                             var th_score = prompt('请为本任务评分', 90);
                             if (th_score) {
+                                var th_score_comment = prompt('您为本任务打了' + th_score + '分！\n请对本任务做出评价，以便让更多的人了解你。', '')
                                 self.model.attributes.scores.th = th_score;
+                                self.model.attributes.scores_comment.th = th_score_comment || '无';
                                 self.model.set('isfinished', true);
                                 self.model.save().done(function() {
                                     self.model.fetch().done(function() {
-                                        alert('任务已标记为完成');
+                                        alert('任务已完成');
                                         window.location.href = '#colltask';
                                     })
                                 })
@@ -242,13 +255,32 @@ define(["jquery", "underscore", "backbone", "handlebars",
                                 alert('请评分')
                             };
                         } else {
-                            self.model.set('isfinished', false);
-                            self.model.save().done(function() {
+                            if (confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！')) {
+                                self.model.set('isfinished', false);
+                                self.model.set('score', 0);
+                                self.model.attributes.scores.th = 0;
+                                for (var i = 0; i < self.model.attributes.scores.tms.length; i++) {
+                                    self.model.attributes.scores.tms[i] = 0;
+                                };
+                                for (var i = 0; i < self.model.attributes.scores.ntms.length; i++) {
+                                    self.model.attributes.scores.ntms[i] = 0;
+                                };
+                                self.model.attributes.scores_comment.th = '';
+                                for (var i = 0; i < self.model.attributes.scores_comment.tms.length; i++) {
+                                    self.model.attributes.scores_comment.tms[i] = '';
+                                };
+                                for (var i = 0; i < self.model.attributes.scores_comment.ntms.length; i++) {
+                                    self.model.attributes.scores_comment.ntms[i] = '';
+                                };
+                                self.model.attributes.final_judgement = ''; //清空评定内容。
+                                self.model.save().done(function() {
 
-                                alert('任务已重新打开');
-                                self.render();
+                                    alert('任务已重新打开');
+                                    self.render();
 
-                            })
+                                })
+                            };
+
                         };
 
                     })

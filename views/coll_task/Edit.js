@@ -2,8 +2,8 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars"],
-    function($, _, Backbone, Handlebars) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment"],
+    function($, _, Backbone, Handlebars, moment) {
 
         // Extends Backbone.View
         var CollTaskEditView = Backbone.View.extend({
@@ -61,9 +61,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 } else {
                     $("#btn-colltask_edit-back").attr('href', '#colltask');
                 };
-
                 $("#colltask_edit-content").html(self.template(self.model.toJSON()));
                 $("#colltask_edit-content").trigger('create');
+                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                });
                 return this;
 
             },
@@ -100,7 +103,29 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         var field = $this.data('field');
                         var value = $this.val();
                         self.model.set(field, value);
-                    });
+                    })
+                    .on('change', '#ct_task-allday', function(event) {
+                        var value = $(this).val();
+
+                        if (value === 'true') {
+                            self.model.set('allday', true);
+                            self.$el.find("#ct_task-start").attr('type', 'date').val(moment(self.model.get('start')).format('YYYY-MM-DD'));
+                            self.$el.find("#ct_task-end").attr('type', 'date').val(moment(self.model.get('end')).format('YYYY-MM-DD'));
+                        } else {
+                            self.model.set('allday', false);
+                            self.$el.find("#ct_task-start").attr('type', 'datetime-local').val(moment(self.model.get('start')).format('YYYY-MM-DDTHH:mm'));
+                            self.$el.find("#ct_task-end").attr('type', 'datetime-local').val(moment(self.model.get('end')).format('YYYY-MM-DDTHH:mm'));
+                        }
+                    })
+                    .on('change', '#ct_task-lock_remove', function(event) {
+                        var value = $(this).val();
+
+                        if (value === 'true') {
+                            self.model.set('lock_remove', true);
+                        } else {
+                            self.model.set('lock_remove', false);
+                        }
+                    })
             }
 
         });

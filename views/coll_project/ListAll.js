@@ -2,8 +2,8 @@
 // ==========================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars"],
-    function($, _, Backbone, Handlebars) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment"],
+    function($, _, Backbone, Handlebars, moment) {
 
         // Extends Backbone.View
         var CollProjectListViewAll = Backbone.View.extend({
@@ -59,6 +59,31 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 } else if (self.mode == 'my_project_5') { //我的任务
                     models4render = _.filter(tmp, function(x) {
                         return x.creator._id == login_people && x.pm._id != login_people;
+                    })
+                } else if (self.mode == 'my_project_6') { //未评分
+                    models4render = _.filter(tmp, function(x) {
+                        var flag = false;
+                        if (!flag) {
+                            for (var i = 0; i < x.pms.length; i++) {
+                                flag = (x.pms[i]._id == login_people) && !x.scores.pms[i];
+                                if (flag) {
+                                    break;
+                                };
+                            };
+                        };
+                        if (!flag) {
+                            for (var i = 0; i < x.npms.length; i++) {
+                                flag = (x.npms[i]._id == login_people) && !x.scores.npms[i];
+                                if (flag) {
+                                    break;
+                                };
+                            };
+                        };
+                        return flag && x.status == 'C';
+                    })
+                } else if (self.mode == 'my_project_7') { //未评定
+                    models4render = _.filter(tmp, function(x) {
+                        return x.status == 'C' && x.final_judge_people && x.final_judge_people._id == login_people && !x.final_judgement;
                     })
                 }
                 _.each(models4render, function(x) {

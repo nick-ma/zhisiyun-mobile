@@ -2,10 +2,10 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment"
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../models/CollTaskModel",
 
     ],
-    function($, _, Backbone, Handlebars, moment) {
+    function($, _, Backbone, Handlebars, moment, CollTaskModel) {
 
         // Extends Backbone.View
         var CollProjectDetailView = Backbone.View.extend({
@@ -162,7 +162,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                     '#btn_collproject_detail_add_contact', '.btn_collproject_detail_edit_contact', '.btn_collproject_detail_remove_contact'
                 ];
                 for (var i = 0; i < rights.length; i++) {
-                    if (rights[i] && state_rights[i]) {
+                    var flag = rights[i] && state_rights[i]
+                    if (i == 2) { //应用删除锁定
+                        flag &= !self.model.get('lock_remove');
+                    };
+                    if (flag) {
                         $(btns[i]).removeAttr('disabled')
                     } else {
                         $(btns[i]).attr('disabled', true)
@@ -229,7 +233,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                         var url = "#collproject_edit/" + self.model.get('_id') + "/contact/" + index;
                         window.location.href = url;
                     })
-                    .on('change', 'input', function(event) { //打分
+                    .on('change', 'input, textarea', function(event) { //打分
                         event.preventDefault();
                         var $this = $(this);
                         var field = $this.data('field');
@@ -249,8 +253,32 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                                     $.mobile.loading("hide");
                                 })
                             })
+                        } else if (ff.length == 1) {
+                            $.mobile.loading("show");
+                            self.model.attributes[field] = value;
+                            self.model.save().done(function() {
+                                self.model.fetch().done(function() {
+                                    self.render();
+                                    $.mobile.loading("hide");
+                                })
+                            })
                         };
-
+                    })
+                    .on('click', '#btn-cp-add_coll_task', function(event) { //新建任务
+                        event.preventDefault();
+                        var ct = new CollTaskModel({
+                            task_name: '新建任务',
+                            start: new Date(),
+                            end: moment().add(3, 'day').toDate(),
+                            allday: true,
+                            p_task: null,
+                            comments: [],
+                            cp: self.model.get("_id"),
+                            cp_name: self.model.get("project_name"),
+                        })
+                        ct.save().done(function() {
+                            self.render();
+                        })
                     });
 
 
@@ -276,11 +304,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                         if (x == 'O') { //准备关闭项目，提示打分
                             var pm_score = prompt('请为本项目评分', 90);
                             if (pm_score) {
+                                var pm_score_comment = prompt('您为本项目打了' + pm_score + '分！\n请侃侃负责本项目的心得吧，以便让更多的人了解你。', '')
                                 self.model.attributes.scores.pm = pm_score;
+                                self.model.attributes.scores_comment.pm = pm_score_comment;
                                 self.model.set('status', 'C');
                                 self.model.save().done(function() {
                                     self.model.fetch().done(function() {
-                                        alert('项目已标记为完成');
+                                        alert('项目已完成');
                                         window.location.href = '#projectlist';
                                     })
                                 })
@@ -288,13 +318,33 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"
                                 alert('请评分')
                             };
                         } else {
-                            self.model.set('status', 'O');
-                            self.model.save().done(function() {
+                            if (confirm('确认重新打开当前项目吗？\n警告：一旦重新打开项目，之前所有的评分、评语、最终评定内容以及技能得分都将清空！')) {
+                                self.model.set('status', 'O');
+                                self.model.attributes.score = 0;
+                                self.model.attributes.scores.pm = 0;
 
-                                alert('项目已重新打开');
-                                self.render();
+                                for (var i = 0; i < self.model.attributes.scores.pms.length; i++) {
+                                    self.model.attributes.scores.pms[i] = 0;
+                                };
+                                for (var i = 0; i < self.model.attributes.scores.npms.length; i++) {
+                                    self.model.attributes.scores.npms[i] = 0;
+                                };
+                                self.model.attributes.scores_comment.pm = '';
+                                for (var i = 0; i < self.model.attributes.scores_comment.pms.length; i++) {
+                                    self.model.attributes.scores_comment.pms[i] = '';
+                                };
+                                for (var i = 0; i < self.model.attributes.scores_comment.npms.length; i++) {
+                                    self.model.attributes.scores_comment.npms[i] = '';
+                                };
+                                self.model.attributes.final_judgement = ''; //清空评定内容。
+                                self.model.save().done(function() {
 
-                            })
+                                    alert('项目已重新打开');
+                                    self.render();
+
+                                })
+                            };
+
                         };
 
                     })

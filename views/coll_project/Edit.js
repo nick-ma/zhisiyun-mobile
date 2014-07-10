@@ -46,10 +46,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 $("#btn-collproject_edit-back").attr('href', "#collproject_detail/" + self.model.get('_id'));
                 var render_data = self.model.toJSON();
                 render_data.cp_types = self.cp_types;
-                console.log(render_data);
+                // console.log(render_data);
                 $("#collproject_edit-content").html(self.template(render_data));
                 $("#collproject_edit-content").trigger('create');
-
+                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                });
                 return this;
 
             },
@@ -95,6 +98,15 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         var field = $this.data('field');
                         var value = $this.val();
                         self.model.set(field, value);
+                    })
+                    .on('change', '#ct_project-lock_remove', function(event) {
+                        var value = $(this).val();
+
+                        if (value === 'true') {
+                            self.model.set('lock_remove', true);
+                        } else {
+                            self.model.set('lock_remove', false);
+                        }
                     })
                     ;
             }

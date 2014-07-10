@@ -75,10 +75,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 var self = this;
                 if (ct_id == 'add') { //新增
                     ct = self.c_colltask.add({
-                        task_name: '',
+                        task_name: '新建任务',
                         start: new Date(),
                         end: moment().add(3, 'day').toDate(),
+                        allday: true,
                         p_task: p_task || null,
+                        comments: [],
+
                     });
                     if (p_task) { //取出上级任务的相关信息
                         var pt = self.c_colltask.get(p_task);
@@ -92,8 +95,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     // if (upper_people) { //有上级的才放进去
                     //     ct.set('ntms', [upper_people]);
                     // };
-                    self.collTaskEditView.model = ct;
-                    self.collTaskEditView.render();
+                    ct.save().done(function() {
+                        ct.fetch().done(function() {
+                            self.collTaskEditView.model = ct;
+                            self.collTaskEditView.render();
+                        })
+                    })
+
                 } else {
                     ct = self.c_colltask.get(ct_id);
                     if (ct) {
