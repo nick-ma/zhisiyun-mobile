@@ -97,7 +97,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             alert(self.model.validationError);
                         }
                     })
-                    .on('change', 'input, textarea', function(event) {
+                    .on('change', 'input, textarea, select', function(event) {
                         event.preventDefault();
                         var $this = $(this);
                         var field = $this.data('field');

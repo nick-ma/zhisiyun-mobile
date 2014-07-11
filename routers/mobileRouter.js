@@ -927,6 +927,26 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         return ret.join('');
       });
+      Handlebars.registerHelper('genCTImportanceOptions', function(importance) {
+        var ret = [];
+        var roles = ['一般', '重要', '很重要'];
+        _.each(roles, function(x) {
+          ret.push('<option value="' + x + '" ' + ((x == importance) ? 'selected' : '') + '>');
+          ret.push(x);
+          ret.push('</option>');
+        })
+        return ret.join('');
+      });
+      Handlebars.registerHelper('genCTUrgencyOptions', function(urgency) {
+        var ret = [];
+        var roles = ['一般', '紧急', '很紧急'];
+        _.each(roles, function(x) {
+          ret.push('<option value="' + x + '" ' + ((x == urgency) ? 'selected' : '') + '>');
+          ret.push(x);
+          ret.push('</option>');
+        })
+        return ret.join('');
+      });
       Handlebars.registerHelper('genCPTypesOptions', function(cp_types, cp_type) {
         var ret = [];
 
