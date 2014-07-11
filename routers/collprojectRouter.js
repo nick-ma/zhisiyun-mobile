@@ -37,7 +37,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 // "colltask_edit/:ct_id": "colltask_edit",
                 // "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
                 // 协作任务的项目
-                // "collproject/:ct_id/(:cp_id)": "collproject",
+                "collproject_edit/add": "collproject_add",
                 "collproject_edit/:cp_id/basic": "collproject_edit_basic",
                 "collproject_edit/:cp_id/extend": "collproject_edit_extend",
                 "collproject_edit/:cp_id/contact/:index": "collproject_edit_contact",
@@ -75,6 +75,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     reverse: false,
                     changeHash: false,
                 });
+            },
+            collproject_add: function() {
+                console.log('message: collpeoject add route');
+                var new_cp = this.c_collproject.add({
+                    project_name: '新建项目',
+                    project_descrpt: '手机端创建',
+                    start: new Date(),
+                    end: moment().add(10, 'day').toDate(),
+                });
+                new_cp.save().done(function() {
+                    window.location.href = "/m#collproject_edit/" + new_cp.get("_id") + "/basic";
+                })
             },
             collproject_edit_basic: function(cp_id) {
                 var self = this;

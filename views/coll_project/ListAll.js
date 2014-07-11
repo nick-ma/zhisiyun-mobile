@@ -27,39 +27,47 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
                 var self = this;
                 self.mode = $("#collproject_view_mode").val() || 'all_project';
+                var render_mode = 'project';
                 var login_people = $("#login_people").val();
-                var render_data;
+
                 var tmp = _.map(self.collection.models, function(x) {
                         return x.toJSON();
                     })
                     // 整理前端需要渲染的数据
                     // console.log(tmp);
+                var models4render;
                 if (self.mode == 'all_project') {
                     models4render = tmp;
+                    render_mode = 'project';
                 } else if (self.mode == 'my_project_1') { //我发起的任务
                     models4render = _.filter(tmp, function(x) {
                         return x.creator._id == login_people;
                     })
+                    render_mode = 'project';
                 } else if (self.mode == 'my_project_2') { //我负责的任务
                     models4render = _.filter(tmp, function(x) {
                         return x.pm._id == login_people;
                     })
+                    render_mode = 'project';
                 } else if (self.mode == 'my_project_3') { //我参与的任务
                     models4render = _.filter(tmp, function(x) {
                         return !!_.find(x.pms, function(y) {
                             return y._id == login_people;
                         })
                     })
+                    render_mode = 'project';
                 } else if (self.mode == 'my_project_4') { //我观察的任务
                     models4render = _.filter(tmp, function(x) {
                         return !!_.find(x.npms, function(y) {
                             return y._id == login_people;
                         })
                     })
+                    render_mode = 'project';
                 } else if (self.mode == 'my_project_5') { //我的任务
                     models4render = _.filter(tmp, function(x) {
                         return x.creator._id == login_people && x.pm._id != login_people;
                     })
+                    render_mode = 'project';
                 } else if (self.mode == 'my_project_6') { //未评分
                     models4render = _.filter(tmp, function(x) {
                         var flag = false;
@@ -81,36 +89,89 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         };
                         return flag && x.status == 'C';
                     })
+                    render_mode = 'project';
                 } else if (self.mode == 'my_project_7') { //未评定
                     models4render = _.filter(tmp, function(x) {
                         return x.status == 'C' && x.final_judge_people && x.final_judge_people._id == login_people && !x.final_judgement;
                     })
+                    render_mode = 'project';
+                } else if (self.mode == 'my_pis') { //指标相关
+                    render_mode = 'pis';
+                } else if (self.mode == 'my_skills') { //技能相关
+                    render_mode = 'skills';
                 }
-                _.each(models4render, function(x) {
-                    if (x.status == 'C') {
-                        x.state = '3';
-                    } else if (!x.end || moment(x.end).endOf('day').toDate() >= new Date()) {
-                        x.state = '1';
-                    } else {
-                        x.state = '2';
+                var render_data;
+
+
+                if (render_mode == 'project') {
+                    _.each(models4render, function(x) {
+                        if (x.status == 'C') {
+                            x.state = '3';
+                        } else if (!x.end || moment(x.end).endOf('day').toDate() >= new Date()) {
+                            x.state = '1';
+                        } else {
+                            x.state = '2';
+                        };
+                    })
+                    render_data = {
+                        cps: _.filter(models4render, function(x) { //没写结束日期的也算正常
+                            return x.state == self.state;
+                        }),
+                        render_mode: render_mode,
                     };
-                })
-                render_data = {
-                    cps: _.filter(models4render, function(x) { //没写结束日期的也算正常
-                        return x.state == self.state;
-                    }),
+                    // console.log(render_data);
+                    var ts_count = _.countBy(models4render, function(x) {
+                        return x.state;
+                    });
+                    _.each($("#collproject-left-panel label"), function(x) {
+                        // console.log(x);
+                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    })
+                } else if (render_mode == 'pis') {
+                    var projects_by_pis = [];
 
+                    _.each(_.filter(tmp, function(x) {
+                        return x.pis.length;
+                    }), function(x) {
+                        _.each(x.pis, function(y) {
+                            projects_by_pis.push({
+                                sk: y.pi_name + '/' + y.period_name,
+                                project: x
+                            })
+                        })
+                    })
+                    projects_by_pis = _.groupBy(projects_by_pis, function(x) {
+                        return x.sk;
+                    });
+                    render_data = {
+                        pis: projects_by_pis,
+                        render_mode: render_mode,
+                    }
+                } else if (render_mode == 'skills') {
+                    var projects_by_skills = [];
+
+                    _.each(_.filter(tmp, function(x) {
+                        return x.skills.length;
+                    }), function(x) {
+                        _.each(x.skills, function(y) {
+                            projects_by_skills.push({
+                                sk: y.skill_name,
+                                project: x
+                            })
+                        })
+                    })
+                    projects_by_skills = _.groupBy(projects_by_skills, function(x) {
+                        return x.sk;
+                    });
+                    render_data = {
+                        skills: projects_by_skills,
+                        render_mode: render_mode,
+                    }
                 };
-                // console.log(render_data);
-                var ts_count = _.countBy(models4render, function(x) {
-                    return x.state;
-                });
-                _.each($("#collproject-left-panel label"), function(x) {
-                    // console.log(x);
-                    $(x).find('span').html(ts_count[$(x).data('state')] || 0);
-                })
 
-                $("#btn-collproject_list-add").attr('href', '#collproject_edit/add/' + self.ct_id);
+
+
+                $("#btn-collproject_list-add").attr('href', '#collproject_edit/add');
 
                 $("#collproject-content").html(self.template(render_data));
                 $("#collproject-content").trigger('create');

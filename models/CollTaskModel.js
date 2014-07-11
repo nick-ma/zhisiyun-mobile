@@ -16,8 +16,8 @@ define(["jquery", "backbone", "moment"], function($, Backbone, moment) {
             if (!attrs.end) {
                 return "请设定任务截止日期";
             };
-            var e_date = moment(attrs.end).endOf('day').toDate();
-            var s_date = moment(attrs.start).startOf('day').toDate();
+            var e_date = (attrs.allday) ? moment(attrs.end).endOf('day').toDate() : moment(attrs.end).toDate();
+            var s_date = (attrs.allday) ? moment(attrs.start).startOf('day').toDate() : moment(attrs.start).toDate();
             // console.log(e_date, s_date);
             if (e_date < s_date) {
                 return "结束日期不能小于开始日期";

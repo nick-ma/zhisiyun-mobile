@@ -1,6 +1,6 @@
 // Coll Project Model, 协作项目
 // ===========================
-define(["jquery", "backbone"], function($, Backbone) {
+define(["jquery", "backbone", "moment"], function($, Backbone, moment) {
     // The Model constructor
     var Model = Backbone.Model.extend({
         idAttribute: "_id",

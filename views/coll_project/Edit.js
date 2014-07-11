@@ -63,6 +63,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     .on('click', '#btn-cp-save', function(event) {
                         // event.preventDefault();
                         // self.model.set('task_name', $("#ct_task_name").val());
+                        self.$el.find('select').trigger('change');
                         if (self.model.isValid()) {
                             self.model.save().done(function() { //保存
                                 alert('项目保存成功')
