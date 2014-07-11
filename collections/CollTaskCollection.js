@@ -9,10 +9,10 @@ define(["jquery", "backbone", "models/CollTaskModel"], function($, Backbone, Col
 
         // The Collection constructor
         initialize: function(models, options) {
-
+            this.date_offset = 30; //默认取30天
         },
         url: function() {
-            return '/admin/pm/coll_task/bb' + '?ct=' + (new Date()).getTime();
+            return '/admin/pm/coll_task/bb?date_offset=' + this.date_offset + '&ct=' + (new Date()).getTime();
         },
         // Sets the Collection model property to be a Task Model
         model: CollTaskModel,

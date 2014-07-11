@@ -19,6 +19,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 }, this);
                 self.state = '1'; //默认是1
                 self.mode = 'all_task';
+                self.importance = ''; //过滤条件
+                self.urgency = ''; //过滤条件
+                self.search_term = ''; //过滤条件
+                self.date_offset = 30; //过滤条件
                 this.bind_event();
             },
 
@@ -35,9 +39,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var login_people = $("#login_people").val();
                 var render_data;
                 var tmp = _.map(self.collection.models, function(x) {
-                        return x.toJSON();
+                    return x.toJSON();
+                });
+                //根据条件进行过滤
+                if (self.search_term) {
+                    var st = /./;
+                    st.compile(self.search_term);
+                    tmp = _.filter(tmp, function(x) {
+                        return st.test(x.task_name);
                     })
-                    // 计算自上次查看以来新增加的聊天条数
+                };
+                if (self.importance) {
+                    tmp = _.filter(tmp, function(x) {
+                        return x.importance == self.importance;
+                    })
+                };
+                if (self.urgency) {
+                    tmp = _.filter(tmp, function(x) {
+                        return x.urgency == self.urgency;
+                    })
+                };
+                // 计算自上次查看以来新增加的聊天条数
                 var ct_last_view = JSON.parse(localStorage.getItem('ct_last_view')) || [];
                 _.each(tmp, function(x) {
                     var found = _.find(ct_last_view, function(y) {
@@ -310,6 +332,31 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.render();
                         $("#colltask-left-panel").panel("close");
                         // console.log($this.val());
+                    })
+                    .on('change', '#colltask-left-panel select', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var field = $this.data("field");
+                        var value = $this.val();
+                        self[field] = value;
+                        if (field == 'date_offset') { //需要重新获取数据
+                            $.mobile.loading("show");
+                            self.collection.date_offset = value;
+                            self.collection.fetch().done(function() {
+                                $.mobile.loading("hide");
+                                self.render();
+                            })
+                        } else {
+                            self.render();
+                        };
+                        // $("#colltask-left-panel").panel("close");
+                        // console.log($this.val());
+                    })
+                    .on('change', '#cf_task_name', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        self.search_term = $this.val();
+                        self.render();
                     });
             }
 

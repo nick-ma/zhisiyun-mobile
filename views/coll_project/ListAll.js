@@ -19,6 +19,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 }, this);
                 self.state = '1'; //默认是1
                 self.mode = 'all_project';
+                self.search_term = ''; //过滤条件
+                self.date_offset = 30; //过滤条件
                 this.bind_event();
             },
 
@@ -31,10 +33,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var login_people = $("#login_people").val();
 
                 var tmp = _.map(self.collection.models, function(x) {
-                        return x.toJSON();
+                    return x.toJSON();
+                });
+                //根据条件进行过滤
+                if (self.search_term) {
+                    var st = /./;
+                    st.compile(self.search_term);
+                    tmp = _.filter(tmp, function(x) {
+                        return st.test(x.project_name);
                     })
-                    // 整理前端需要渲染的数据
-                    // console.log(tmp);
+                };
+                // 整理前端需要渲染的数据
+                // console.log(tmp);
                 var models4render;
                 if (self.mode == 'all_project') {
                     models4render = tmp;
@@ -205,6 +215,31 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.render();
                         $("#collproject-left-panel").panel("close");
                         // console.log($this.val());
+                    })
+                    .on('change', '#collproject-left-panel select', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var field = $this.data("field");
+                        var value = $this.val();
+                        self[field] = value;
+                        if (field == 'date_offset') { //需要重新获取数据
+                            $.mobile.loading("show");
+                            self.collection.date_offset = value;
+                            self.collection.fetch().done(function() {
+                                $.mobile.loading("hide");
+                                self.render();
+                            })
+                        } else {
+                            self.render();
+                        };
+                        // $("#colltask-left-panel").panel("close");
+                        // console.log($this.val());
+                    })
+                    .on('change', '#cf_project_name', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        self.search_term = $this.val();
+                        self.render();
                     });
             },
 
