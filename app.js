@@ -1,6 +1,6 @@
 // Sets the require.js configuration for your application.
 require.config({
-
+  //make a test to merge the branch Mobile to branch master.
   // 3rd party script alias names (Easier to type "jquery" than "libs/jquery-1.8.2.min")
   paths: {
 
