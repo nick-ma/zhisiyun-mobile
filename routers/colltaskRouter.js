@@ -33,7 +33,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 // "colltask_edit/:ct_id": "colltask_edit",
                 "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
                 // 协作任务的项目
-                "collproject/:ct_id/(:cp_id)": "collproject",
+                "collproject/:ct_id(/:cp_id)": "collproject",
                 // "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
             },
 
