@@ -220,7 +220,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
 
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
-    console.log('message: backbone router started!');
+    console.log('message: backbone MAIN router started!');
 
   });
 });
