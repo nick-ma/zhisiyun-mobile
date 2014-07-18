@@ -4,7 +4,7 @@
 // =============================================================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/AssessmentModel"], function($, _, Backbone, Handlebars, moment, AssessmentModel) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../models/AssessmentModel"], function($, _, Backbone, Handlebars, moment, AssessmentModel) {
 
     // Extends Backbone.View
     var AssessmentUpdateValueView = Backbone.View.extend({

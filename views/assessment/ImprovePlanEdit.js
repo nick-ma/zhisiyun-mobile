@@ -2,7 +2,7 @@
 // =============================================================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "models/AssessmentModel", "models/TaskModel"], function($, _, Backbone, Handlebars, moment, async, AssessmentModel, TaskModel) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "../../models/AssessmentModel", "../../models/TaskModel"], function($, _, Backbone, Handlebars, moment, async, AssessmentModel, TaskModel) {
 
     // Extends Backbone.View
     var AssessmentImprovePlanEditView = Backbone.View.extend({
