@@ -33,6 +33,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./collprojectRouter",
     "./assessmentRouter",
     "./myteamRouter",
+    "./skillrecommendRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -54,6 +55,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     CollProjectRouter,
     AssessmentRouter,
     MyTeamRouter,
+    SkillRecommendRouter,
     async, moment
 
   ) {
@@ -78,6 +80,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new CollProjectRouter();
         new AssessmentRouter();
         new MyTeamRouter();
+        new SkillRecommendRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -975,6 +978,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('getByIndex', function(arr, index, dft) {
         return (arr[index]) ? arr[index] : dft;
+      });
+      Handlebars.registerHelper('rp_num', function(data) {
+        var f_ps = _.filter(data, function(d) {
+          return d.is_show
+        })
+        return f_ps.length < 100 ? f_ps.length : '99+'
       });
     })();
 
