@@ -232,6 +232,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       contact_list: function() { //企业通讯录，列表
+        // set detail page's back url every time 
+        localStorage.setItem('contact_detail_back_url', '#contact_list')
+
         $("body").pagecontainer("change", "#contact_list", {
           reverse: false,
           changeHash: false,
@@ -975,6 +978,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('getByIndex', function(arr, index, dft) {
         return (arr[index]) ? arr[index] : dft;
+      });
+      Handlebars.registerHelper('calcFileSize', function(data) {
+        var size = parseInt(data);
+        if (size < 1024) {
+          return sprintf('%0.2f B', size);
+        } else if (size >= 1024 && size < 1048576) { //1024 * 1024
+          return sprintf('%0.2f KB', size / 1024);
+        } else if (size >= 1048576 && size < 1073741824) { //1024^3
+          return sprintf('%0.2f MB', size / 1048576);
+        } else if (size >= 1073741824) {
+          return springf('%0.2f GB', size / 1073741824);
+        };
       });
     })();
 
