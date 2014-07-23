@@ -21,6 +21,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
 
                 var self = this;
                 var contact_detail_back_url = localStorage.getItem('contact_detail_back_url') || '#contact_list';
+                // console.log(localStorage.getItem('contact_detail_back_url'));
+                // console.log(contact_detail_back_url);
                 localStorage.removeItem('contact_detail_back_url');
                 $("#btn-contact_detail-back").attr('href', contact_detail_back_url);
                 $("#contact_detail-content").html(self.template(self.model.attributes));

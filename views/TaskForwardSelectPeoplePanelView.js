@@ -11,7 +11,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             this.template = Handlebars.compile($("#hbtmp_people_select_view").html());
             // this.bind_events();
             // The render method is called when Task Models are added to the Collection
-            this.collection.on("sync", this.render, this);
+            // this.collection.on("sync", this.render, this);
 
         },
 
@@ -52,6 +52,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
 
             // $("#btn-task_forward-back").attr('href', '#task/' + self.model.get('_id'));
             // Maintains chainability
+            self.rendered = true;
             return this;
 
         },

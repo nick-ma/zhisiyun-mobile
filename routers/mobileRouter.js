@@ -86,7 +86,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       routes: {
 
         //首页
-        "": "home",
+        "": "loading",
+        "home": "home",
         // 返回上一个
         "goto/:pagename": "goto",
         //任务日历相关的routes
@@ -132,7 +133,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         //默认的路由。当找不到路由的时候，转到首页。
         "*path": "home",
       },
-
+      loading: function() {
+        $("body").pagecontainer("change", "#loading", {
+          reverse: false,
+          changeHash: false,
+        });
+      },
       // Home method
       home: function() { //首页
         $("body").pagecontainer("change", "#home", {
@@ -159,6 +165,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       task: function() { //任务日历
+        this.taskView.render();
         $("body").pagecontainer("change", "#task", {
           reverse: false,
           changeHash: false,
@@ -190,6 +197,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       task_forward: function(task_id) { //转发任务
         var self = this;
+        if (!self.taskForwardSelectPeoplePanelView.rendered) {
+          self.taskForwardSelectPeoplePanelView.render();
+        };
         self.taskForwardView.model = self.c_task.get(task_id);
         self.taskForwardView.render(self.c_people);
         $("#panel-fwd-people input[type=checkbox]:checked").removeAttr('checked').checkboxradio("refresh");; //把选择框都清空
@@ -232,6 +242,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       contact_list: function() { //企业通讯录，列表
+        // set detail page's back url every time 
+        localStorage.setItem('contact_detail_back_url', '#contact_list')
+        if (!this.contactListlView.rendered) {
+          this.contactListlView.render();
+        };
         $("body").pagecontainer("change", "#contact_list", {
           reverse: false,
           changeHash: false,
@@ -249,6 +264,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       // ------工资相关------ //
       salary_list: function() {
+        if (!this.payrollListView.rendered) {
+          this.payrollListView.render();
+        };
         $("body").pagecontainer("change", "#salary_list", {
           reverse: false,
           changeHash: false,
@@ -715,6 +733,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           }
         });
         */
+        $("#loading").on('click', '#btn_reload', function(event) {
+          event.preventDefault();
+          // alert(window.location.href);
+          window.location.reload();
+        });
+
         $("#fullscreen-overlay").on('click', function(event) {
           event.preventDefault();
           var $this = $(this);
@@ -722,6 +746,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             $this.empty();
           });
         });
+
+        $("body")
+          .on('click', 'button.go-home', function(event) {
+            event.preventDefault();
+            // history.replaceState('#', 'home', '#')
+            // window.location.href = '#home';
+            // window.location.href = '#home';
+            if ($("#req_ua").val() == 'normal') {
+              window.location.href = '#home';
+            } else {
+              window.location.href = '#';
+            };
+            // window.location.href = '#home';
+          })
+          
+
       }
     });
     //注册全局的帮助函数
@@ -975,6 +1015,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('getByIndex', function(arr, index, dft) {
         return (arr[index]) ? arr[index] : dft;
+      });
+      Handlebars.registerHelper('calcFileSize', function(data) {
+        var size = parseInt(data);
+        if (size < 1024) {
+          return sprintf('%0.2f B', size);
+        } else if (size >= 1024 && size < 1048576) { //1024 * 1024
+          return sprintf('%0.2f KB', size / 1024);
+        } else if (size >= 1048576 && size < 1073741824) { //1024^3
+          return sprintf('%0.2f MB', size / 1048576);
+        } else if (size >= 1073741824) {
+          return springf('%0.2f GB', size / 1073741824);
+        };
       });
     })();
 

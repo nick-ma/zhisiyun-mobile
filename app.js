@@ -1,6 +1,6 @@
 // Sets the require.js configuration for your application.
 require.config({
-// add one sentence only for test the ivan branch.
+  // add one sentence only for test the ivan branch.
   // 3rd party script alias names (Easier to type "jquery" than "libs/jquery-1.8.2.min")
   paths: {
 
@@ -68,6 +68,8 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
 
       // Disabling this will prevent jQuery Mobile from handling hash changes
       $.mobile.hashListeningEnabled = false;
+
+      $.mobile.pushStateEnabled = false;
 
       // console.log(LZString);
       // var string = "This is my compression test.";
@@ -157,7 +159,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       };
       this.showCopyright = function() {
         var l = Math.max(document.body.clientHeight, document.body.clientWidth);
-        if ($("#home-content").height() > l - 40 -50) {
+        if ($("#home-content").height() > l - 40 - 50) {
           $("#copyright").hide();
         } else {
           $("#copyright").show();

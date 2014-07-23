@@ -12,7 +12,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             initialize: function() {
                 this.template = Handlebars.compile($("#hbtmp_payroll_list_view").html());
                 // The render method is called when Payroll Models are added to the Collection
-                this.collection.on("sync", this.render, this);
+                // this.collection.on("sync", this.render, this);
 
             },
 
@@ -34,6 +34,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 // self.template(render_data);
                 $("#salary_list-content").html(self.template(render_data));
                 $("#salary_list-content").trigger('create');
+                self.rendered = true;
                 return this;
 
             }
