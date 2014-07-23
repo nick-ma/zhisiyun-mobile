@@ -551,172 +551,27 @@ Timeline UI Base
 .timeline li.timeline-info .timeline-time span.time {
     color: #4292b6;
 }
-/*技能开始*/
-    .lb{
-    border-top-right-radius: 5px;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    height: 24px;
-    background: #DDD;
-    BORDER-RIGHT:  1pt outset;
-    BORDER-TOP:  1pt outset;
-    BORDER-LEFT:  1pt outset;
-    BORDER-BOTTOM:  1pt outset;
-    margin-left:-20px;
-    
-    }
-    .hr-line {
-        border-top: 1px solid #f4f4f4;
-        margin-top: 12px;
-        margin-bottom: 0px;
-        margin-left: 10px;
-        margin-right: 0px;
-        overflow: hidden;
-        height: 12px;
-        display: block;
-    }
-    .endorsers-container {
-      overflow: hidden;
-    }
-    .endorsers-pics li {
-      float: left;
-      margin-left: 1px;
-      margin-right: 0px;
-      height: 24px;
-      list-style-type:none
-    }
-    .endorsers-pics {
-      float: right;
-      overflow: visible;
-      margin-left: 10px;
-      margin-right: 0px;
-      height: 27px;
-    }
-    .endorse-item {
-      margin-top: 0px;
-      margin-bottom: 6px;
-      overflow: hidden;
-      cursor:pointer ;
-      list-style-type:none
-    }
-    .skill-pill {
-      float: left;
-      margin-top: 2px;
-      margin-bottom: 0px;
-      display: -moz-inline-stack;
-      display: inline-block;
-      vertical-align: middle;
-      zoom: 1;
-      overflow: hidden;
-      cursor: default;
-      white-space: nowrap;
-    }
-    .has-endorsements .see-all-endorsers {
-      height: 0;
-      width: 0;
-      border-style: dashed;
-      border-color: transparent;
-      border-width: 6px 0 6px 6px;
-      border-left-color: #ccc;
-      border-left-style: solid;
-      text-indent: -119988px;
-      overflow: hidden;
-      text-align: left;
-      display: block;
-    }
-
-    .endorsers-container .see-all-endorsers {
-      position: relative;
-      font-weight: bold;
-      text-align: center;
-      line-height: 24px;
-      width: 42px;
-      padding-top: 0px;
-      padding-bottom: 0px;
-      padding-left: 3px;
-      padding-right: 3px;
-      text-align: right;
-      font-size: 20px;
-    }
-    .endorsable .endorsing, .endorsed-by-viewer .endorsing {
-      display: block;
-    }
-
-    .endorse-button .endorse-plus {
-      display: block;
-    }
-    .endorse-plus, .endorse-minus {
-
-      overflow: hidden;
-      text-align: left;
-      position: relative;
-      height: 12px;
-      width: 12px;
-      float: left;
-      margin-top: 8px;
-      margin-bottom: 0px;
-    }
-    .endorse-button .endorse-minus {
-      display: block;
-    }
-
-    .endorse-button .endorse-text, .endorse-button .unendorse-text, .endorse-button .endorse-minus {
-      display: none;
-    }
-    .endorse-text, .unendorse-text {
-      padding-left: 0px;
-      padding-right: 20px;
-      margin-left: 6px;
-      margin-right: 0px;
-      float: left;
-      line-height: 27px;
-      color: #0073b2;
-    }
-    .line-container {
-      line-height: 24px;
-      padding-bottom: 0px;
-      padding-left: 28px;
-      padding-right: 0px;
-      display: block;
-      margin-left: 0px;
-      margin-right: 23px;
-    }
-    .line-container .hr-line {
-      margin-top: 15px;
-      margin-bottom: 0px;
-      margin-left: 0px;
-      margin-right: 0px;
-    }
-    span {
-      margin: 0;
-      padding: 0;
-      border: 0;
-      font: inherit;
-      font-size: 100%;
-      vertical-align: baseline;
-    }
-    .people_show{
-      text-align:center;
-      background-color:#1ba8e5;
-      font: inherit;
-      padding-right: 0px;
-      padding-left: 0px;
-      border-radius: 4px; 
-      border-bottom-right-radius: 0px;
-      border-top-right-radius: 0px; 
-      width: 23px;
-      cursor:pointer ;
-    }
-    .task_show{
-      text-align:center;
-      background-color:rgb(200, 164, 218);
-      font: inherit;padding-right: 0px;
-      padding-left: 0px;
-      border-radius: 0px; 
-      border-bottom-right-radius: 0px;
-      border-top-right-radius: 0px; 
-      width: 23px;
-      cursor:pointer ;
-    }
-/*技能结束*/
+.endorsers-pics li {
+  float: left;
+  margin-left: 1px;
+  margin-right: 0px;
+  height: 24px;
+  list-style-type:none;
+}
+.endorsers-pics li h2{
+  background-color: rgb(167, 163, 163);
+  color: rgb(90, 86, 86);
+  height: 30px;
+  width:35px; 
+  margin-top: 0px;
+  padding-top: 5px;
+  text-align: center;
+}
+.endorsers-pics {
+  overflow: visible;
+  margin-left: 10px;
+  margin-right: 0px;
+  height: 35px;
+  padding-left: 0px;
+  margin-left: 0px;
+}

@@ -2,7 +2,7 @@
 // =========================
 
 // Includes file dependencies
-define(["jquery", "backbone", "models/SkillRecommendModel.js"], function($, Backbone, SkillRecommendModel) {
+define(["jquery", "backbone", "../models/SkillRecommendModel"], function($, Backbone, SkillRecommendModel) {
 
     // Extends Backbone.Router
     var Collection = Backbone.Collection.extend({
