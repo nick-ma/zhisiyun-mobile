@@ -19,7 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
             // this.collection.on('remove', function() {
             //     this.collection.fetch();
             // });
-            this.collection.on("sync", this.render, this);
+            // this.collection.on("sync", this.render, this);
             $("#jqm_cal").jqmCalendar({
                 events: [],
                 months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],

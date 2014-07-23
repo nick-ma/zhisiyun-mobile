@@ -12,7 +12,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
             initialize: function() {
                 this.template = Handlebars.compile($("#hbtmp_contact_list_view").html());
                 // The render method is called when Contact Models are added to the Collection
-                this.collection.on("sync", this.render, this);
+                // this.collection.on("sync", this.render, this);
 
             },
 
@@ -36,6 +36,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 // self.template(render_data);
                 $("#contact_list-content").html(self.template(render_data));
                 $("#contact_list-content").trigger('create');
+                self.rendered = true;
                 return this;
 
             }
