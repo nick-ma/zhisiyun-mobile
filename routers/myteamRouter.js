@@ -65,6 +65,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
             },
             myteam_list: function() { //我的团队，列表界面
+                this.myteamListView.render();
                 $("body").pagecontainer("change", "#myteam_list", {
                     reverse: false,
                     changeHash: false,
