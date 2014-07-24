@@ -18,7 +18,7 @@ var onError = function(err) {
     }
 };
 gulp.task('lint', function() {
-    return gulp.src(['gulpfile.js', 'cllections/*.js', 'models/*.js', 'routers/*.js', 'views/*.js', 'test/*.js'])
+    return gulp.src(['gulpfile.js', 'collections/*.js', 'models/*.js', 'routers/*.js', 'views/**/*.js', 'test/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
