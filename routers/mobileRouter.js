@@ -33,6 +33,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./collprojectRouter",
     "./assessmentRouter",
     "./myteamRouter",
+    "./skillrecommendRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -54,6 +55,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     CollProjectRouter,
     AssessmentRouter,
     MyTeamRouter,
+    SkillRecommendRouter,
     async, moment
 
   ) {
@@ -78,6 +80,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new CollProjectRouter();
         new AssessmentRouter();
         new MyTeamRouter();
+        new SkillRecommendRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -760,7 +763,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             };
             // window.location.href = '#home';
           })
-          
+
 
       }
     });
@@ -1016,6 +1019,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('getByIndex', function(arr, index, dft) {
         return (arr[index]) ? arr[index] : dft;
       });
+
       Handlebars.registerHelper('calcFileSize', function(data) {
         var size = parseInt(data);
         if (size < 1024) {
@@ -1027,6 +1031,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         } else if (size >= 1073741824) {
           return springf('%0.2f GB', size / 1073741824);
         };
+      });
+
+      Handlebars.registerHelper('rp_num', function(data) {
+        var f_ps = _.filter(data, function(d) {
+          return d.is_show
+        })
+        return f_ps.length < 100 ? f_ps.length : '99+'
+      });
+      //索引排名
+      Handlebars.registerHelper('ranking', function(num) {
+        return num + 1;
+
       });
     })();
 

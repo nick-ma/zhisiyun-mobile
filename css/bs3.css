@@ -551,3 +551,27 @@ Timeline UI Base
 .timeline li.timeline-info .timeline-time span.time {
     color: #4292b6;
 }
+.endorsers-pics li {
+  float: left;
+  margin-left: 1px;
+  margin-right: 0px;
+  height: 24px;
+  list-style-type:none;
+}
+.endorsers-pics li h2{
+  background-color: rgb(167, 163, 163);
+  color: rgb(90, 86, 86);
+  height: 30px;
+  width:35px; 
+  margin-top: 0px;
+  padding-top: 5px;
+  text-align: center;
+}
+.endorsers-pics {
+  overflow: visible;
+  margin-left: 10px;
+  margin-right: 0px;
+  height: 35px;
+  padding-left: 0px;
+  margin-left: 0px;
+}

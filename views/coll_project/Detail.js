@@ -34,6 +34,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     'color_04': '&#9650;', //▲ triangle
                 };
                 this.view_mode = 'basic'; //初始化为基本信息界面
+                this.type_obj = {
+                    '1': '任 务',
+                    '2': '项 目',
+                    '3': '课 程'
+                }
                 this.bind_event();
             },
 
