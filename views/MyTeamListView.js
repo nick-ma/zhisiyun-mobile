@@ -41,10 +41,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         count.myteama++;
                     };
                 })
-
+                count.myteama = count.myteama - count.myteam - count.myteam2 - 1; //去掉那些
+                if (count.myteama < 0) {
+                    count.myteama = 0;
+                }
                 var people = _.filter(tmp, function(x) {
                     return x[self.view_filter];
                 });
+                if (self.view_filter == 'myteama') { //去掉一级和二级下属
+                    people = _.filter(people, function(x) {
+                        // console.log(x);
+                        return !x.myteam && !x.myteam2 && x._id != $("#login_people").val();
+                    })
+                };
                 _.each($("#myteam_list-left-panel label"), function(x) {
                     $(x).find('span').html(count[$(x).data('filter')])
                 })
