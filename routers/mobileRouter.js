@@ -753,15 +753,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         $("body")
           .on('click', 'button.go-home', function(event) {
             event.preventDefault();
-            // history.replaceState('#', 'home', '#')
-            // window.location.href = '#home';
-            // window.location.href = '#home';
             if ($("#req_ua").val() == 'normal') {
               window.location.href = '#home';
             } else {
               window.location.href = '#';
             };
-            // window.location.href = '#home';
           })
 
 
