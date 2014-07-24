@@ -2,7 +2,7 @@
 // =============
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "models/AssessmentModel"],
+define(["jquery", "underscore", "backbone", "handlebars", "../../models/AssessmentModel"],
     function($, _, Backbone, Handlebars, AssessmentModel) {
 
         // Extends Backbone.View

@@ -1,28 +1,32 @@
 // assessment instances router
-// ====================
+// ===========================
 
 define(["jquery", "backbone", "handlebars", "lzstring",
         // 计分公式和等级组
         "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
-        "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView",
-        "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection",
-        "../views/AssessmentCommentView", "../views/AssessmentUpdateValueView",
-        "../views/AssessmentImprovePlanView", "../views/AssessmentImprovePlanEditView",
-        "../collections/AssessmentVCollection",
-        "../views/AssessmentDetailView",
+        "../collections/AssessmentCollection","../collections/AssessmentVCollection",
+        // views
+        "../views/assessment/Home", "../views/assessment/HomeHistory",
+        "../views/assessment/HomePIList", 
+        "../views/assessment/Comment", "../views/assessment/UpdateValue",
+        "../views/assessment/ImprovePlan", "../views/assessment/ImprovePlanEdit",
+        "../views/assessment/Detail",
         // 指标选择界面
         "../views/PISelectView",
+
         "async", "pull-to-refresh"
     ],
     function($, Backbone, Handlebars, LZString,
         ScoringFormulaCollection, GradeGroupCollection,
+        AssessmentCollection,AssessmentVCollection,
+        //views
         HomeAssessmentView, HomeAssessmentHistoryView,
-        HomeAssessmentPIListView, AssessmentCollection,
+        HomeAssessmentPIListView, 
         AssessmentCommentView, AssessmentUpdateValueView,
         AssessmentImprovePlanView, AssessmentImprovePlanEditView,
-        AssessmentVCollection,
         AssessmentDetailView,
         PISelectView,
+
         async
     ) {
 

@@ -2,7 +2,7 @@
 // =============================================================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/AssessmentModel", "models/CollTaskModel"],
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../models/AssessmentModel", "../../models/CollTaskModel"],
     function($, _, Backbone, Handlebars, moment, AssessmentModel, CollTaskModel) {
 
         // Extends Backbone.View
@@ -128,7 +128,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                                         pi_lx: lx, // 类型： dl：定量  dx：定性
                                         pi_id: pi,
                                         period_name: self.model.get('period_name'),
-                                        pi_name: pi_data.pi_name
+                                        pi_name: pi_data.pi_name,
+                                        people_name: $("#login_people_name").val(),
                                     }
                                 }
                                 // console.log(new_coll_task);

@@ -1,6 +1,6 @@
 // Sets the require.js configuration for your application.
 require.config({
-
+// add one sentence only for test the ivan branch.
   // 3rd party script alias names (Easier to type "jquery" than "libs/jquery-1.8.2.min")
   paths: {
 
