@@ -985,6 +985,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         })
         return f_ps.length < 100 ? f_ps.length : '99+'
       });
+      //索引排名
+      Handlebars.registerHelper('ranking', function(num) {
+        return num + 1;
+      });
     })();
 
     // Returns the Router class

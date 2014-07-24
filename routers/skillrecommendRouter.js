@@ -59,7 +59,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         },
         show_skill: function(people_id, skill_id) {
             this.singleSkillDetailView.model = this.skillrecommends.get(people_id);
+            this.singleSkillDetailView.skillrecommends = this.skillrecommends;
             this.singleSkillDetailView.skill_id = skill_id;
+            this.singleSkillDetailView.view_mode = 'single_show_skill'; //初始化为点赞明细 
             this.singleSkillDetailView.render();
             $("body").pagecontainer("change", "#show_skill", {
                 reverse: false,

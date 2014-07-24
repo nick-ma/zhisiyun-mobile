@@ -28,6 +28,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var o = {};
                     o.people_id = self.model.get('_id');
                     o.skill_id = skill.skill._id;
+                    o.score = skill.score;
                     o.skill_name = skill.skill.skill_name;
                     var praise_peoples = skill.praise_peoples;
                     o.praise_peoples = praise_peoples.length;

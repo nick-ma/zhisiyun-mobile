@@ -198,7 +198,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         event.preventDefault();
-                        $("#collproject-left-panel").panel("open");
+                        $("#my_skills-left-panel").panel("open");
                     })
                     .on('click', '#btn-collproject-refresh', function(event) {
                         event.preventDefault();

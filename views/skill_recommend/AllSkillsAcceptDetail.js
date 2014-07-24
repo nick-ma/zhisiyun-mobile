@@ -34,6 +34,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     o.margin_up = '2px'
                     o.mark = '';
                     o.skill_name = skill.skill.skill_name;
+                    o.score = skill.score;
                     _.each(skill.praise_peoples, function(s) {
                         if (s.people._id == login_people) {
                             o.is_in = 'ui-icon-minus';
@@ -46,7 +47,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var praise_peoples = skill.praise_peoples;
                     o.praise_peoples = praise_peoples.length;
                     o.tps = praise_peoples.length > 2 ? praise_peoples.slice(0, 2) : praise_peoples;
-                    o.bls = praise_peoples.length > 2 ? praise_peoples.slice(1, praise_peoples.length) : 0;
+                    o.bls = praise_peoples.length > 2 ? praise_peoples.slice(2, praise_peoples.length) : 0;
                     if (o.bls) {
                         var bs = o.bls;
 
