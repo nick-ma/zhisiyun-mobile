@@ -11,6 +11,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/skill_recommend/ListPeopleSearch",
     "../views/skill_recommend/ListSkillConfig",
     "../views/skill_recommend/AllSkillsBank",
+    "../models/SkillRecommendModel",
 ], function($, Backbone, Handlebars, LZString,
     SkillRecommendCollection,
     SkillCollection,
@@ -21,13 +22,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     AllSkillsAcceptDetailView,
     ListPeopleSearchView,
     ListSkillConfigView,
-    AllSkillsBankView
+    AllSkillsBankView,
+    SkillRecommendModel
 ) {
     var SkillRecommendRouter = Backbone.Router.extend({
         initialize: function() {
             var self = this;
-            // self.init_models();
+            self.init_models();
             self.init_collections();
+            // self.data_collections = [];
             self.init_views();
             // self.init_config_data();
             this.init_data();
@@ -44,18 +47,25 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             "people_search": "people_search",
             "skill_config": "skill_config",
             "show_skills_bank": "show_skills_bank",
-            "save_skill/:skill_id": "save_skill",
+            "save_skill/:people_id/:skill_id": "save_skill",
+            "skill_recommend/:people_id": "skill_recommend",
         },
 
         //--------我的技能--------//
         my_skills: function() {
+            var self = this
             var login_people = $("#login_people").val();
-            this.mySkillsListView.model = this.skillrecommends.get(login_people);
-            this.mySkillsListView.render();
-            $("body").pagecontainer("change", "#my_skills", {
-                reverse: false,
-                changeHash: false,
-            });
+            this.skillrecommend.url = '/admin/pm/skill/my_mobile_bb/' + login_people;
+            this.skillrecommend.fetch().done(function() {
+                self.skillrecommends.remove(self.skillrecommend);
+                self.skillrecommends.push(self.skillrecommend);
+                self.mySkillsListView.model = self.skillrecommend;
+                self.mySkillsListView.render();
+                $("body").pagecontainer("change", "#my_skills", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            })
         },
         show_skill: function(people_id, skill_id) {
             this.singleSkillDetailView.model = this.skillrecommends.get(people_id);
@@ -87,22 +97,31 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             }
         },
         show_people_skill: function(people_id) {
+            var self = this;
             var login_people = $("#login_people").val();
-            if (people_id == login_people) {
-                this.mySkillsListView.model = this.skillrecommends.get(login_people);
-                this.mySkillsListView.render();
-                $("body").pagecontainer("change", "#my_skills", {
-                    reverse: false,
-                    changeHash: false,
-                });
-            } else {
-                this.empSkillsListView.model = this.skillrecommends.get(people_id);
-                this.empSkillsListView.render();
-                $("body").pagecontainer("change", "#show_skill_accept", {
-                    reverse: false,
-                    changeHash: false,
-                });
-            }
+
+            this.skillrecommend.url = '/admin/pm/skill/my_mobile_bb/' + people_id;
+
+            this.skillrecommend.fetch().done(function() {
+                self.skillrecommends.remove(self.skillrecommend);
+                self.skillrecommends.push(self.skillrecommend);
+                if (people_id == login_people) {
+                    self.mySkillsListView.model = self.skillrecommends.get(login_people);
+                    self.mySkillsListView.render();
+                    $("body").pagecontainer("change", "#my_skills", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                } else {
+                    self.empSkillsListView.model = self.skillrecommends.get(people_id);
+                    self.empSkillsListView.render();
+                    $("body").pagecontainer("change", "#show_skill_accept", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                }
+            })
+
         },
         people_search: function() {
             this.listPeopleSearchView.collection = this.skillrecommends;
@@ -114,6 +133,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         },
         skill_config: function() {
             var login_people = $("#login_people").val();
+            this.listSkillConfigView.type = 'DE';
             this.listSkillConfigView.model = this.skillrecommends.get(login_people);
             this.listSkillConfigView.render();
             $("body").pagecontainer("change", "#show_skill_config", {
@@ -144,17 +164,46 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 changeHash: false,
             });
         },
-        save_skill: function(skill_id) {
-            var self = this
+        save_skill: function(people_id, skill_id) {
             var login_people = $("#login_people").val();
-            var people = this.skillrecommends.get(login_people);
+            var self = this
+            var people = this.skillrecommends.get(people_id);
             people.set('skill_id', skill_id)
             people.set('type', 'A')
             people.save().done(function() {
                 people.fetch().done(function() {
-                    self.show_skills_bank()
+                    if (login_people == people_id) {
+                        self.show_skills_bank()
+                    } else {
+                        self.skill_recommend(people_id)
+                    }
                 })
             })
+        },
+        skill_recommend: function(people_id) {
+            var people = this.skillrecommends.get(people_id);
+            this.listSkillConfigView.type = 'RE';
+            this.listSkillConfigView.model = people;
+            var skills = people.get('my_skills');
+            var items = [];
+            this.skills.each(function(skill) {
+                var f_d = _.find(skills, function(s) {
+                    return s.skill._id == skill.get('_id')
+                })
+                if (!f_d) {
+                    items.push({
+                        _id: skill.get('_id'),
+                        skill_name: skill.get('skill_name')
+                    })
+                };
+            })
+            this.listSkillConfigView.collection = items;
+            this.listSkillConfigView.skills = this.skills;
+            this.listSkillConfigView.render();
+            $("body").pagecontainer("change", "#show_skill_recommend", {
+                reverse: false,
+                changeHash: false,
+            });
         },
         init_views: function() {
             var self = this;
@@ -185,14 +234,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         },
         init_models: function() {
-
+            this.skillrecommend = new SkillRecommendModel();
         },
         init_collections: function() {
             this.skillrecommends = new SkillRecommendCollection(); //所有人
             this.skills = new SkillCollection(); //所有技能
+            this.skillrecommend_datas = new SkillRecommendCollection(); //所有人
         },
         init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
             var self = this;
+            // self.skillrecommends.fetch()
+            // self.skills.fetch()
+            // console.log('=======999999999999');/
             self.load_data(self.skillrecommends, 'skillrecommends');
             self.load_data(self.skills, 'skills');
 

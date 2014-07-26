@@ -60,13 +60,26 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var self = this;
                 $("#show_skill_accept-content").on('click', '#btn-skill-update', function(event) {
                     event.preventDefault();
+                    self.model.set('type', 'P')
                     self.model.set('skill_id', $(this).attr("skill_id"))
                     self.model.save().done(function() {
                         self.model.fetch().done(function() {
                             self.render();
                         })
                     })
+                }).on('change', 'ul', function(event) {
+                    console.log('++++++++++');
                 })
+                $("#show_skill_accept")
+                    .on('swiperight', function(event) { //向右滑动，打开左边的面板
+                        event.preventDefault();
+                        $("#show_skill_accept-left-panel").panel("open");
+                    })
+                    .on('click', '#btn-show_skill_accept-change_view', function(event) {
+                        event.preventDefault();
+                        window.location = '#skill_recommend/' + self.model.get('_id')
+                        $("#show_skill_accept-left-panel").panel("close");
+                    })
             }
         });
 

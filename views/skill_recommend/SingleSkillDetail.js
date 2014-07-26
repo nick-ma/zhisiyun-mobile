@@ -40,6 +40,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 } else if (self.view_mode == 'show_skill_ranking') {
                     $("#title_skill_show").html('技能认可排名')
                     var peoples = self.skillrecommends.toJSON();
+                    console.log(peoples);
                     var items = [];
                     _.each(peoples, function(people) {
                         var o = _.pick(people, '_id', 'people_name', 'avatar', 'position_name', 'ou_name')
@@ -47,8 +48,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var f_p = _.find(people.my_skills, function(skill) {
                             return skill.skill._id == skill_id
                         })
-
-                        if (f_p) {
+                        var f_pp = _.find(items, function(i) {
+                            return i._id == o._id
+                        })
+                        if (!f_pp && f_p) {
                             o.skill_num = f_p.praise_peoples.length;
                             items.push(o)
                         };

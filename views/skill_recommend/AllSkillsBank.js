@@ -19,6 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             render: function() {
                 var self = this;
                 var render_data = {
+                    people_id: $("#login_people").val(),
                     skills: _.sortBy(_.map(this.collection, function(x) {
                         return x;
                     }), function(x) {
