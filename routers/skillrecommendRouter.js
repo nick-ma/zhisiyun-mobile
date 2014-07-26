@@ -239,15 +239,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         init_collections: function() {
             this.skillrecommends = new SkillRecommendCollection(); //所有人
             this.skills = new SkillCollection(); //所有技能
-            this.skillrecommend_datas = new SkillRecommendCollection(); //所有人
         },
         init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
             var self = this;
-            // self.skillrecommends.fetch()
-            // self.skills.fetch()
-            // console.log('=======999999999999');/
+            self.skills.fetch()
             self.load_data(self.skillrecommends, 'skillrecommends');
-            self.load_data(self.skills, 'skills');
+            // self.load_data(self.skills, 'skills');
 
         },
         load_data: function(col_obj, col_name) { //加载数据

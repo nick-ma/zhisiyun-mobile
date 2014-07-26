@@ -13,8 +13,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var self = this;
                 this.template = Handlebars.compile($("#show_skill_config_view").html());
                 this.skill_recommend_template = Handlebars.compile($("#show_skill_recommend_view").html());
-
-
                 // The render method is called when CollTask Models are added to the Collection
                 this.bind_event();
             },
@@ -26,10 +24,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     $("#btn-skill_recommend-back").attr('href', '#show_people_skill/' + self.model.get("_id"))
                     var render_data = {
                         people_id: self.model.get("_id"),
-                        skills: _.sortBy(_.map(this.collection, function(x) {
+                        skills: _.map(this.collection, function(x) {
                             return x;
-                        }), function(x) {
-                            return x.fl;
                         })
                     }
                     $("#show_skill_recommend-content").html(self.skill_recommend_template(render_data));
@@ -38,7 +34,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     $("#is_active").addClass('ui-btn-active');
                     $("#show_skill_config-content").html(self.template(self.model.attributes));
                     $("#show_skill_config-content").trigger('create');
-
                 }
 
                 return this
@@ -88,8 +83,33 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             self.skills.fetch().done(function() {
                                 window.location = "#skill_recommend/" + self.model.get("_id")
                             })
-
                         })
+                    })
+                }).on('swiperight', function(event) { //向右滑动，打开左边的面板
+                    event.preventDefault();
+                    $("#show_skill_recommend-left-panel").panel("open");
+                }).on("click", '#btn-skill_recommend-change_view', function(event) {
+                    event.preventDefault();
+                    self.skills.fetch().done(function() {
+                        var skills = self.model.get('my_skills');
+                        self.type = 'RE';
+                        var items = []
+                        self.skills.each(function(skill) {
+                            var f_d = _.find(skills, function(s) {
+                                return s.skill._id == skill.get('_id')
+                            })
+                            if (!f_d) {
+                                items.push({
+                                    _id: skill.get('_id'),
+                                    skill_name: skill.get('skill_name')
+                                })
+                            };
+                        })
+
+                        self.collection = items;
+                        self.render();
+
+                        $("#show_skill_recommend-left-panel").panel("close");
                     })
                 })
 
