@@ -12,7 +12,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             initialize: function() {
                 this.template = Handlebars.compile($("#hbtmp_coll_project_list_view").html());
                 // The render method is called when CollProject Models are added to the Collection
-                this.collection.on("sync", this.render, this);
+                // this.collection.on("sync", this.render, this);
                 this.bind_event();
             },
 
@@ -20,12 +20,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-                console.log('=====================');
-                console.log(self);
+                // console.log('=====================');
+                // console.log(self);
 
                 var render_data = {
-                    projects: _.map(self.collection.models, function(x) {
+                    projects: _.filter(_.map(self.collection.models, function(x) {
                         return x.toJSON();
+                    }),function  (x) {
+                        return x.status == 'O'; //只列出open状态的项目  
                     }),
                     cp_id: self.cp_id,
                 }

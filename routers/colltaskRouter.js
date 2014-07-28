@@ -33,7 +33,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 // "colltask_edit/:ct_id": "colltask_edit",
                 "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
                 // 协作任务的项目
-                "collproject/:ct_id(/:cp_id)": "collproject",
+                "collproject/:ct_id/(:cp_id)": "collproject",
                 // "collproject_edit/:ct_id(/:p_task)": "collproject_edit",
             },
 
@@ -127,32 +127,35 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
             },
             collproject: function(ct_id, cp_id) {
                 // collProjectListView
-                this.c_collproject.fetch();
-                this.collProjectListView.ct_id = ct_id;
-                this.collProjectListView.ct_model = this.c_colltask.get(ct_id);
-                this.collProjectListView.cp_id = cp_id;
+                var self = this;
+                self.collProjectListView.collection.fetch().done(function() {
+                    self.collProjectListView.render();
+                    self.collProjectListView.ct_id = ct_id;
+                    self.collProjectListView.ct_model = self.c_colltask.get(ct_id);
+                    self.collProjectListView.cp_id = cp_id;
+                });
                 $("body").pagecontainer("change", "#collproject_list", {
                     reverse: false,
                     changeHash: false,
                 });
             },
-            collproject_edit: function(cp_id, ct_id) {
-                var cp;
-                if (cp_id == 'add') {
-                    cp = this.c_collproject.add({
-                        project_name: ''
-                    });
-                } else {
-                    cp = this.c_collproject.get(cp_id);
-                };
-                this.collProjectEditView.ct_id = ct_id;
-                this.collProjectEditView.model = cp;
-                this.collProjectEditView.render();
-                $("body").pagecontainer("change", "#collproject_edit", {
-                    reverse: false,
-                    changeHash: false,
-                });
-            },
+            // collproject_edit: function(cp_id, ct_id) {
+            //     var cp;
+            //     if (cp_id == 'add') {
+            //         cp = this.c_collproject.add({
+            //             project_name: ''
+            //         });
+            //     } else {
+            //         cp = this.c_collproject.get(cp_id);
+            //     };
+            //     this.collProjectEditView.ct_id = ct_id;
+            //     this.collProjectEditView.model = cp;
+            //     this.collProjectEditView.render();
+            //     $("body").pagecontainer("change", "#collproject_edit", {
+            //         reverse: false,
+            //         changeHash: false,
+            //     });
+            // },
             //
             init_views: function() {
                 var self = this;
