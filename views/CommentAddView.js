@@ -22,7 +22,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-
+                console.log(self);
                 var cm = JSON.parse(localStorage.getItem('comment_model'));
                 if (cm) {
                     self.model = cm.model;
@@ -49,6 +49,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     self.new_comment = JSON.parse(localStorage.getItem('upload_model_back')).model;
                     localStorage.removeItem('upload_model_back'); //用完删掉
                 };
+                console.log(self.new_comment);
                 // 人员选择
                 var render_data = self.new_comment;
 

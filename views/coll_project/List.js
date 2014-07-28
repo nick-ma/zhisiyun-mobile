@@ -20,8 +20,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-
-                
+                console.log('=====================');
+                console.log(self);
 
                 var render_data = {
                     projects: _.map(self.collection.models, function(x) {
@@ -69,6 +69,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         window.location.href = '#collproject_edit/' + selected + '/' + self.ct_id;
                     };
                 });
+               
             },
 
         });
