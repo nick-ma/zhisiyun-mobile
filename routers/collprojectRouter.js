@@ -23,7 +23,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             initialize: function() {
                 var self = this;
                 // self.init_models();
+
                 self.init_collections();
+
                 self.init_views();
                 self.init_config_data();
                 // self.bind_events();
@@ -46,8 +48,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             //--------协作任务--------//
             projectlist: function() {
                 // colltasklistView.
+                var self = this;
                 if (!this.c_collproject.models.length) {
-                    this.c_collproject.fetch();
+                    this.c_collproject.fetch().done(function() {
+                        self.collProjectListViewAll.cp_types = self.cp_types;
+                        // self.collProjectListViewAll.date_pj_typeset = '0'
+                        self.collProjectListViewAll.render()
+                    });
                 };
                 $("body").pagecontainer("change", "#collproject", {
                     reverse: false,
@@ -148,8 +155,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 })
                 this.collProjectListViewAll = new CollProjectListViewAll({
                     el: "#collproject-content",
-                    collection: self.c_collproject
+                    collection: self.c_collproject,
                 })
+
                 this.collProjectEditContactView = new CollProjectEditContactView({
                     el: "#collproject_edit_contact-content",
                 })

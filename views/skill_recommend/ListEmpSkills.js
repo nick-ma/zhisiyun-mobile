@@ -67,8 +67,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             self.render();
                         })
                     })
-                }).on('change', 'ul', function(event) {
-                    console.log('++++++++++');
                 })
                 $("#show_skill_accept")
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板

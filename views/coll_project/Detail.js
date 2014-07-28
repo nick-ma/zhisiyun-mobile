@@ -15,6 +15,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 this.template_basic = Handlebars.compile($("#hbtmp_coll_project_detail_view_basic").html());
                 this.template_extend = Handlebars.compile($("#hbtmp_coll_project_detail_view_extend").html());
                 this.template_contact = Handlebars.compile($("#hbtmp_coll_project_detail_view_contact").html());
+                this.template_comment = Handlebars.compile($("#hbtmp_coll_project_detail_view_comment").html());
                 this.template_revise = Handlebars.compile($("#hbtmp_coll_project_detail_view_revise").html());
                 this.template_attachment = Handlebars.compile($("#hbtmp_coll_project_detail_view_attachment").html());
                 this.template_score = Handlebars.compile($("#hbtmp_coll_project_detail_view_score").html());
@@ -47,7 +48,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
 
                 var self = this;
 
-
+                if (localStorage.getItem('comment_model_back')) {
+                    self.model.set(JSON.parse(localStorage.getItem('comment_model_back')).model);
+                    localStorage.removeItem('comment_model_back');
+                    self.model.save().done(function() {
+                        self.render();
+                    })
+                    return;
+                };
                 var render_data = self.model.toJSON();
 
 
@@ -108,6 +116,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     });
                 } else if (self.view_mode == 'contact') {
                     rendered = self.template_contact(render_data)
+                } else if (self.view_mode == 'comment') {
+                    rendered = self.template_comment(render_data)
                 } else if (self.view_mode == 'revise') {
                     //渲染更改记录部分
                     var rh_data = _.sortBy(_.map(_.groupBy(self.model.get('revise_history'), function(x) {
@@ -284,6 +294,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                         ct.save().done(function() {
                             self.render();
                         })
+                    })
+                    .on('click', '#btn-ct-add_comment', function(event) {
+                        event.preventDefault();
+                        localStorage.removeItem('comment_model_back'); //先把返回值清掉
+                        localStorage.setItem('comment_model', JSON.stringify({
+                            model: self.model,
+                            field: 'comments',
+                            back_url: '#collproject_detail/' + self.model.get('_id'),
+                        }));
+                        localStorage.setItem('comment_new', '1'); //通知对方新开一个
+                        var url = '#comment_add';
+                        window.location.href = url;
+                    })
+                    .on('click', 'img', function(event) {
+                        event.preventDefault();
+                        // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+                        var img_view = '<img src="' + this.src + '">';
+                        // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+                        $("#fullscreen-overlay").html(img_view).fadeIn('fast');
                     });
 
 

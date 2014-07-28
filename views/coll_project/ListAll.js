@@ -21,12 +21,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 self.mode = 'all_project';
                 self.search_term = ''; //过滤条件
                 self.date_offset = 30; //过滤条件
+                self.date_pj_typeset = '0';
                 this.bind_event();
             },
 
             // Renders all of the CollProject models on the UI
             render: function() {
-
                 var self = this;
                 self.mode = $("#collproject_view_mode").val() || 'all_project';
                 var render_mode = 'project';
@@ -137,6 +137,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         // console.log(x);
                         $(x).find('span').html(ts_count[$(x).data('state')] || 0);
                     })
+
                 } else if (render_mode == 'pis') {
                     var projects_by_pis = [];
 
@@ -178,13 +179,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         render_mode: render_mode,
                     }
                 };
-
-
+                var items = []
+                items.push('<option value="0" ' + (('0' == self.date_pj_typeset + '') ? 'selected' : '') + '>全部</option>')
+                _.each(self.cp_types, function(type) {
+                    items.push('<option value="' + type._id + '" ' + ((type._id == self.date_pj_typeset) ? 'selected' : '') + '>' + type.cp_type_name + '</option>')
+                })
+                $("#fc_pj_type_set").html(items.join(''))
 
                 $("#btn-collproject_list-add").attr('href', '#collproject_edit/add');
 
                 $("#collproject-content").html(self.template(render_data));
                 $("#collproject-content").trigger('create');
+                // $("#collproject-left-panel").trigger('create');
+
                 return this;
 
             },
@@ -198,7 +205,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         event.preventDefault();
-                        $("#my_skills-left-panel").panel("open");
+                        $("#collproject-left-panel").panel("open");
                     })
                     .on('click', '#btn-collproject-refresh', function(event) {
                         event.preventDefault();
@@ -229,9 +236,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                 $.mobile.loading("hide");
                                 self.render();
                             })
+                        } else if (field == 'date_pj_typeset') {
+                            $.mobile.loading("show");
+                            self.collection.date_pj_typeset = value;
+                            self.collection.fetch().done(function() {
+                                $.mobile.loading("hide");
+                                self.render();
+                            })
+                            self.render();
                         } else {
                             self.render();
-                        };
+                        }
                         // $("#colltask-left-panel").panel("close");
                         // console.log($this.val());
                     })
@@ -241,6 +256,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.search_term = $this.val();
                         self.render();
                     });
+
             },
 
         });

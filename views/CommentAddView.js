@@ -22,7 +22,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-
                 var cm = JSON.parse(localStorage.getItem('comment_model'));
                 if (cm) {
                     self.model = cm.model;

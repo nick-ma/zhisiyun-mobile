@@ -81,7 +81,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     self.model.save().done(function() {
                         self.model.fetch().done(function() {
                             self.skills.fetch().done(function() {
-                                window.location = "#skill_recommend/" + self.model.get("_id")
+                                window.location = "#show_people_skill/" + self.model.get("_id")
                             })
                         })
                     })
