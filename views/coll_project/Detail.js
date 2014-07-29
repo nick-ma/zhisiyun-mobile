@@ -400,6 +400,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                         self.render();
                         $("#collproject_detail-left-panel").panel('close');
                     })
+                    .on('click', '#btn-collproject_detail-start_groupchat', function(event) {
+                        event.preventDefault();
+                        $.mobile.loading("show");
+                        $.get('/admin/pm/coll_project/groupchat/' + self.model.get('_id'), function(data) {
+                            if (data) {
+                                var groupid = data.groupid;
+                                var syscmd_url = 'im://groupchat/' + groupid;
+                                console.log(syscmd_url);
+                                window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
+                            };
+
+                            $.mobile.loading("hide");
+                        })
+                    });
 
                 $("#collproject_detail")
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
