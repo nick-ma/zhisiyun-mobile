@@ -395,24 +395,24 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         if (navigator.onLine) {
 
 
-          var login_people = $("#login_people").val();
-          //刷新登录用户
-          var login_peoples = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('login_people')) || null) || [];
-          var found = _.find(login_peoples, function(x) {
-            return x._id == $("#login_people").val();
-          })
-          if (!found) {
-            login_peoples.push({
-              _id: $("#login_people").val()
-            });
-          }
-          localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_peoples)));
+          // var login_people = $("#login_people").val();
+          // //刷新登录用户
+          // var login_peoples = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('login_people')) || null) || [];
+          // var found = _.find(login_peoples, function(x) {
+          //   return x._id == $("#login_people").val();
+          // })
+          // if (!found) {
+          //   login_peoples.push({
+          //     _id: $("#login_people").val()
+          //   });
+          // }
+          // localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_peoples)));
           $.mobile.loading("show");
           async.parallel({
             objective: function(cb) {
               // 刷新目标计划数据
               self.c_objectives.fetch().done(function() {
-                localStorage.setItem('objectives_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_objectives)))
+                localStorage.setItem('objectives', LZString.compressToUTF16(JSON.stringify(self.c_objectives)))
                 cb(null, 'OK');
               });
             },
@@ -420,42 +420,42 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             task: function(cb) {
               // 刷新日历数据
               self.c_task.fetch().done(function() {
-                localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_task)))
+                localStorage.setItem('task', LZString.compressToUTF16(JSON.stringify(self.c_task)))
                 cb(null, 'OK');
               })
             },
             people: function(cb) {
               // 刷新通讯录数据
               self.c_people.fetch().done(function() {
-                localStorage.setItem('people_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_people)))
+                localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.c_people)))
                 cb(null, 'OK');
               })
             },
             talent: function(cb) {
               // 刷新通讯录数据
               self.c_talent.fetch().done(function() {
-                localStorage.setItem('talent_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_talent)))
+                localStorage.setItem('talent', LZString.compressToUTF16(JSON.stringify(self.c_talent)))
                 cb(null, 'OK');
               })
             },
             horoscope: function(cb) {
               // 刷新通讯录数据
               self.c_horoscope.fetch().done(function() {
-                localStorage.setItem('horoscope_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_horoscope)))
+                localStorage.setItem('horoscope', LZString.compressToUTF16(JSON.stringify(self.c_horoscope)))
                 cb(null, 'OK');
               })
             },
             competency: function(cb) {
               // 刷新通讯录数据
               self.c_competency.fetch().done(function() {
-                localStorage.setItem('competency_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_competency)))
+                localStorage.setItem('competency', LZString.compressToUTF16(JSON.stringify(self.c_competency)))
                 cb(null, 'OK');
               })
             },
             payroll: function(cb) {
               // 刷新通讯录数据
               self.c_payroll.fetch().done(function() {
-                localStorage.setItem('payroll_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_payroll)))
+                localStorage.setItem('payroll', LZString.compressToUTF16(JSON.stringify(self.c_payroll)))
                 cb(null, 'OK');
               })
             },
@@ -504,7 +504,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       load_data: function(col_obj, col_name) { //加载数据
         $.mobile.loading("show");
         var login_people = $("#login_people").val();
-        var cn = col_name + '_' + login_people
+        var cn = col_name
         var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
           // var local_data = localStorage.getItem(cn);
         if (local_data) {

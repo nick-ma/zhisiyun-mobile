@@ -39,7 +39,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 self.init_views();
                 self.init_data();
                 self.bind_events();
-                console.log('message: myteam router initialized');
+                console.info('app message: myteam router initialized');
                 // Backbone.history.start();
             },
             routes: {
@@ -385,7 +385,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             load_data: function(col_obj, col_name) { //加载数据
                 $.mobile.loading("show");
                 var login_people = $("#login_people").val();
-                var cn = col_name + '_' + login_people
+                var cn = col_name 
                 var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
                     // var local_data = localStorage.getItem(cn);
                 if (local_data) {

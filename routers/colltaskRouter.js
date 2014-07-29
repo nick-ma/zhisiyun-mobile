@@ -23,7 +23,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 self.init_collections();
                 self.init_views();
                 self.bind_events();
-                console.log('message: colltask router initialized');
+                console.info('app message: colltask router initialized');
                 // Backbone.history.start();
             },
             routes: {

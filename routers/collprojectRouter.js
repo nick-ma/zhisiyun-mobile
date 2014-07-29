@@ -29,7 +29,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 self.init_views();
                 self.init_config_data();
                 // self.bind_events();
-                console.log('message: collproject router initialized');
+                console.info('app message: collproject router initialized');
                 // Backbone.history.start();
             },
             routes: {

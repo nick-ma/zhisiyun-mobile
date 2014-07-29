@@ -16,7 +16,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 self.init_views();
                 self.init_data();
                 // self.bind_events();
-                console.log('message: todo router initialized');
+                console.info('app message: todo router initialized');
                 // Backbone.history.start();
             },
             routes: {

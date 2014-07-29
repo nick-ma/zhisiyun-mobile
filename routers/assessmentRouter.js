@@ -42,7 +42,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 self.init_data();
                 self.bind_events();
 
-                console.log('message: assessment router initialized');
+                console.info('app message: assessment router initialized');
                 // Backbone.history.start();
             },
             routes: {
@@ -209,7 +209,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             load_data: function(col_obj, col_name) { //加载数据
                 $.mobile.loading("show");
                 var login_people = $("#login_people").val();
-                var cn = col_name + '_' + login_people
+                var cn = col_name 
                 var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
                     // var local_data = localStorage.getItem(cn);
                 if (local_data) {
@@ -230,7 +230,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     assessment: function(cb) {
                         // 刷新考核数据
                         self.c_assessment.fetch().done(function() {
-                            localStorage.setItem('assessment_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_assessment)))
+                            localStorage.setItem('assessment', LZString.compressToUTF16(JSON.stringify(self.c_assessment)))
                             cb(null, 'OK');
                         })
                     },

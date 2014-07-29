@@ -88,33 +88,33 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       //hard code data version
       var DATA_VERSION = 1.0;
       //check local storage data version, if data version > local data version, then clear all.
-      var ldv = parseFloat(localStorage.getItem('data_version')) || 0;
-      if (DATA_VERSION > ldv) {
-        localStorage.clear();
-        localStorage.setItem('data_version', DATA_VERSION);
-      };
-      //判断上次数据刷新的时间
-      var lsy = localStorage.getItem('last_sync') || 0;
-      if (new Date() > new Date(lsy + 1000 * 60 * 60 * 24)) { //暂定一天
-        localStorage.clear();
-        localStorage.setItem('data_version', DATA_VERSION);
-        localStorage.setItem('last_sync', (new Date()).getTime());
-      };
-      if (localStorage.getItem('refresh_interval') == null) {
-        localStorage.setItem('refresh_interval', '15'); //如果没设置过，则默认给15分钟
-      };
+      // var ldv = parseFloat(localStorage.getItem('data_version')) || 0;
+      // if (DATA_VERSION > ldv) {
+      //   localStorage.clear();
+      //   localStorage.setItem('data_version', DATA_VERSION);
+      // };
+      // //判断上次数据刷新的时间
+      // if (new Date() > new Date(lsy + 1000 * 60 * 60 * 24)) { //暂定一天
+      //   localStorage.clear();
+      //   localStorage.setItem('data_version', DATA_VERSION);
+      //   localStorage.setItem('last_sync', (new Date()).getTime());
+      // };
+      // if (localStorage.getItem('refresh_interval') == null) {
+      //   localStorage.setItem('refresh_interval', '15'); //如果没设置过，则默认给15分钟
+      // };
       //把当前的登录用户的people id保存到local storage里面
 
-      var login_people = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('login_people')) || null) || [];
-      var found = _.find(login_people, function(x) {
-        return x._id == $("#login_people").val();
-      })
-      if (!found) {
-        login_people.push({
-          _id: $("#login_people").val()
-        });
-      }
-      localStorage.setItem('login_people', LZString.compressToUTF16(JSON.stringify(login_people)));
+      var lsy = localStorage.getItem('last_sync') || 0;
+      var login_client = localStorage.getItem('login_client');
+      var login_people = localStorage.getItem('login_people');
+      //用户更换了client, people, 超过了预定的缓存时间，需要清空所有的local缓存
+      if (login_client != $("#login_client").val() || login_people != $("#login_people").val() || new Date() > new Date(lsy + 1000 * 60 * 60 * 24)) { 
+        localStorage.clear();
+        localStorage.setItem('data_version', DATA_VERSION);
+        localStorage.setItem('login_client', $("#login_client").val());
+        localStorage.setItem('login_people', $("#login_people").val());
+        localStorage.setItem('last_sync', (new Date()).getTime());
+      };
 
       $("body")
         .on("pagecontainershow", function(event, ui) {
@@ -185,44 +185,44 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       }
     };
     //config for ajax file upload in jquery mobile
-    $.ajaxEnvironment = function(settings, block) {
-      var originalSettings = $.ajaxSetup();
-      var restoredSettings = {};
+    // $.ajaxEnvironment = function(settings, block) {
+    //   var originalSettings = $.ajaxSetup();
+    //   var restoredSettings = {};
 
-      $.each(settings, function(key) {
-        restoredSettings[key] = originalSettings[key];
-      });
+    //   $.each(settings, function(key) {
+    //     restoredSettings[key] = originalSettings[key];
+    //   });
 
-      $.ajaxSetup(settings);
-      block();
-      $.ajaxSetup(restoredSettings);
-    };
+    //   $.ajaxSetup(settings);
+    //   block();
+    //   $.ajaxSetup(restoredSettings);
+    // };
 
-    $.mobile.ajaxUpload = {};
+    // $.mobile.ajaxUpload = {};
 
-    $.mobile.ajaxUpload.upload = function(form, options) {
-      var form = $(form);
+    // $.mobile.ajaxUpload.upload = function(form, options) {
+    //   var form = $(form);
 
-      $.ajaxEnvironment({
-        contentType: false,
-        processData: false,
-      }, function() {
-        // $.mobile.changePage(form.attr('action'), {
-        //   data: new FormData(form[0]),
-        //   type: form.attr('method'),
-        // });
-        // console.log(new FormData(form[0]));
-        $("body").pagecontainer("load", form.attr('action'), {
-          data: new FormData(form[0]),
-          type: form.attr('method'),
-        });
+    //   $.ajaxEnvironment({
+    //     contentType: false,
+    //     processData: false,
+    //   }, function() {
+    //     // $.mobile.changePage(form.attr('action'), {
+    //     //   data: new FormData(form[0]),
+    //     //   type: form.attr('method'),
+    //     // });
+    //     // console.log(new FormData(form[0]));
+    //     $("body").pagecontainer("load", form.attr('action'), {
+    //       data: new FormData(form[0]),
+    //       type: form.attr('method'),
+    //     });
 
-      });
-    };
+    //   });
+    // };
 
     // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
-    console.log('message: backbone MAIN router started!');
+    console.info('app message: backbone MAIN router started!');
 
   });
 });

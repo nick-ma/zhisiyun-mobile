@@ -35,7 +35,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             // self.init_config_data();
             this.init_data();
             // self.bind_events();
-            console.log('message: collproject router initialized');
+            console.info('app message: skill recommand router initialized');
             // Backbone.history.start();
         },
         routes: {
@@ -250,7 +250,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         load_data: function(col_obj, col_name) { //加载数据
             $.mobile.loading("show");
             var login_people = $("#login_people").val();
-            var cn = col_name + '_' + login_people
+            var cn = col_name
             var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
             if (local_data) {
                 col_obj.reset(local_data);
