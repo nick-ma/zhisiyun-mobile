@@ -108,7 +108,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       var login_client = localStorage.getItem('login_client');
       var login_people = localStorage.getItem('login_people');
       //用户更换了client, people, 超过了预定的缓存时间，需要清空所有的local缓存
-      if (login_client != $("#login_client").val() || login_people != $("#login_people").val() || new Date() > new Date(lsy + 1000 * 60 * 60 * 24)) { 
+      if (login_client != $("#login_client").val() || login_people != $("#login_people").val() || new Date() > new Date(lsy + 1000 * 60 * 60 * 24)) {
         localStorage.clear();
         localStorage.setItem('data_version', DATA_VERSION);
         localStorage.setItem('login_client', $("#login_client").val());
@@ -167,9 +167,11 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       };
       this.resizeTiles();
       this.showCopyright();
+
+
+
     }
   )
-
   require(["jquerymobile"], function() {
     $.mobile.loading("show");
     $.mobile.listview.prototype.options.autodividersSelector = function(elt) {
@@ -220,9 +222,13 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
     //   });
     // };
 
-    // Instantiates a new Backbone.js Mobile Router
+    // // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.info('app message: backbone MAIN router started!');
 
   });
+  // Instantiates a new Backbone.js Mobile Router
+  // this.router = new Mobile();
+  // console.info('app message: backbone MAIN router started!');
+
 });

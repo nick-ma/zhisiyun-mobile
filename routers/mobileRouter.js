@@ -455,6 +455,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             payroll: function(cb) {
               // 刷新通讯录数据
               self.c_payroll.fetch().done(function() {
+                self.payrollListView.rendered = false;
                 localStorage.setItem('payroll', LZString.compressToUTF16(JSON.stringify(self.c_payroll)))
                 cb(null, 'OK');
               })
