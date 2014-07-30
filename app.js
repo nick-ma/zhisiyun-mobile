@@ -63,6 +63,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
   $(document).on("mobileinit",
     // Set up the "mobileinit" handler before requiring jQuery Mobile's module
     function() {
+      console.warn('mobile init');
       // Prevents all anchor click handling including the addition of active button state and alternate link bluring.
       $.mobile.linkBindingEnabled = false;
 
@@ -173,6 +174,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
     }
   )
   require(["jquerymobile"], function() {
+    console.warn('start to load jquerymobile');
     $.mobile.loading("show");
     $.mobile.listview.prototype.options.autodividersSelector = function(elt) {
       var text = $.trim(elt.data('dvdc')) || null;
@@ -225,7 +227,17 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
     // // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.info('app message: backbone MAIN router started!');
-
+    //-- 检查是否需要自动跳转到正确的首页
+    var hash = window.location.hash;
+    if ($("#req_ua").val() == 'normal') {
+      if (hash == "") {
+        window.location.href = "#home"
+      };
+    } else {
+      if (hash == "#home") {
+        window.location.href = "#"
+      };
+    };
   });
   // Instantiates a new Backbone.js Mobile Router
   // this.router = new Mobile();

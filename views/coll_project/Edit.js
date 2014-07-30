@@ -28,10 +28,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 if (sphb) {
                     self.model.set(sphb.model);
                 };
-                localStorage.setItem('sp_helper', JSON.stringify({
-                    model: self.model.toJSON(),
-                    back_url: '#collproject_edit/' + self.model.get('_id') + '/basic',
-                })); //放到local storage里面，便于后面选择屏幕进行操作
+
                 // 指标选择
                 var spihb = JSON.parse(localStorage.getItem('spi_helper_back') || null);
                 localStorage.removeItem('spi_helper_back'); //获取完之后，删掉，避免后面重复使用。
@@ -39,10 +36,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 if (spihb) {
                     self.model.set(spihb.model);
                 };
-                localStorage.setItem('spi_helper', JSON.stringify({
-                    model: self.model.toJSON(),
-                    back_url: '#collproject_edit/' + self.model.get('_id') + '/basic',
-                })); //放到local storage里面，便于后面选择屏幕进行操作
+
                 $("#btn-collproject_edit-back").attr('href', "#collproject_detail/" + self.model.get('_id'));
                 var render_data = self.model.toJSON();
                 render_data.cp_types = self.cp_types;
@@ -93,6 +87,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         };
 
                     })
+                    .on('click', 'a', function(event) {
+                        event.preventDefault();
+                        var url = this.href;
+                        localStorage.setItem('sp_helper', JSON.stringify({
+                            model: self.model.toJSON(),
+                            back_url: '#collproject_edit/' + self.model.get('_id') + '/basic',
+                        })); //放到local storage里面，便于后面选择屏幕进行操作
+                        localStorage.setItem('spi_helper', JSON.stringify({
+                            model: self.model.toJSON(),
+                            back_url: '#collproject_edit/' + self.model.get('_id') + '/basic',
+                        })); //放到local storage里面，便于后面选择屏幕进行操作
+                        window.location.href = url;
+                    })
                     .on('change', 'input, textarea, select', function(event) {
                         event.preventDefault();
                         var $this = $(this);
@@ -108,8 +115,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         } else {
                             self.model.set('lock_remove', false);
                         }
-                    })
-                    ;
+                    });
             }
 
         });

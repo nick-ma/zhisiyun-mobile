@@ -743,7 +743,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         $("#loading").on('click', '#btn_reload', function(event) {
           event.preventDefault();
           // alert(window.location.href);
-          window.location.reload();
+          if ($("#req_ua").val() == 'normal') {
+            window.location.href = '#home';
+          } else {
+            window.location.href = '#';
+          }
         });
 
         $("#fullscreen-overlay").on('click', function(event) {
