@@ -171,18 +171,28 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
       },
       task: function() { //任务日历
-        this.taskView.render();
         $("body").pagecontainer("change", "#task", {
           reverse: false,
           changeHash: false,
         });
+        var self = this;
+        self.taskView.render(); //先用当前的数据做一次render
+        window.setTimeout(function() { //1秒后再刷一次
+          $.mobile.loading("show");
+          self.c_task.fetch().done(function() {
+            var login_people = $("#login_people").val();
+            localStorage.setItem('task', LZString.compressToUTF16(JSON.stringify(self.c_task)))
+            self.taskView.render();
+            $.mobile.loading("hide");
+          })
+        }, 1000);
       },
       task_refresh: function() { //刷新任务数据
         $.mobile.loading("show");
         var self = this;
         self.c_task.fetch().done(function() {
           var login_people = $("#login_people").val();
-          localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.c_task)))
+          localStorage.setItem('task', LZString.compressToUTF16(JSON.stringify(self.c_task)))
           $.mobile.loading("hide");
         })
       },

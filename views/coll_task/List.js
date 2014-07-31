@@ -159,14 +159,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     _.each(models4render, function(x) {
                         if (x.isfinished) {
                             x.state = '3';
-                        } else if (!x.end || moment(x.end).endOf('day').toDate() >= new Date()) {
+                        } else if (!x.end || moment(x.end).endOf('day').toDate() >= new Date()) {//没写结束日期的也算正常
                             x.state = '1';
                         } else {
                             x.state = '2';
                         };
                     })
                     render_data = {
-                        cts: _.filter(models4render, function(x) { //没写结束日期的也算正常
+                        cts: _.filter(models4render, function(x) { 
                             return x.state == self.state;
                         }),
                         render_mode: render_mode,
