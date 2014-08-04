@@ -10,7 +10,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
             return options.inverse(this);
         };
     });
-    
+
     var ToDoListView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
