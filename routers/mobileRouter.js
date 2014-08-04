@@ -35,6 +35,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./myteamRouter",
     "./skillrecommendRouter",
     "./todoRouter",
+    "./quesetionnaireRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts"
   ],
@@ -58,6 +59,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     MyTeamRouter,
     SkillRecommendRouter,
     ToDoRouter,
+    QuesetionnaireRouter,
     async, moment
 
   ) {
@@ -84,6 +86,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new MyTeamRouter();
         new SkillRecommendRouter();
         new ToDoRouter();
+        new QuesetionnaireRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
