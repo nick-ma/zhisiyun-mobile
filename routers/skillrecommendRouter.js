@@ -158,6 +158,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 };
             })
             this.allSkillsBankView.collection = items;
+            this.allSkillsBankView.model = people;
             this.allSkillsBankView.render();
             $("body").pagecontainer("change", "#show_skill_config", {
                 reverse: false,

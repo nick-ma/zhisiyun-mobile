@@ -32,8 +32,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     $("#show_skill_recommend-content").trigger('create');
                 } else if (self.type == 'DE') {
                     $("#is_active").addClass('ui-btn-active');
+                    $("#is_skill_bank").removeClass('ui-btn-active');
                     $("#show_skill_config-content").html(self.template(self.model.attributes));
                     $("#show_skill_config-content").trigger('create');
+                    $("#is_show_filter").hide();
                 }
 
                 return this
