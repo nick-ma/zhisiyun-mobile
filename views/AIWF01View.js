@@ -3,6 +3,7 @@
 
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbone, Handlebars) {
+    var ai;
     var ai_data;
     var uu;
     var conver;
@@ -10,7 +11,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
     Handlebars.registerHelper('ai_inout', function(s) {
         return (s == $("#login_people").val()) ? 'in' : 'out';
-      });
+    });
 
     Handlebars.registerHelper('show', function(data, options) {
         if (data > 0) {
@@ -338,27 +339,38 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
     }
     //保存绩效实例
     function save_form_data(cb) {
-        var ai_id = ai_data._id;
-        //id删掉做修改
-        delete ai_data._id;
-        //保存时，把poulate后的重置为id保存
-        ai_data.points_system = !!ai_data.points_system._id ? ai_data.points_system._id : ai_data.points_system;
+        var ai_data_c = _.clone(ai_data);
+        // _.each(ai_data_c.qualitative_pis.items,function(x){
+        //     var i = _.find(ai_data.qualitative_pis.items,function(xx){
+        //         return _.isEqual(x._id, xx._id);
+        //     });
+        //     x = _.clone(i);
+        // });
 
-        _.each(ai_data.qualitative_pis.items, function(x) {
+        var ai_id = ai_data_c._id;
+        //id删掉做修改
+        delete ai_data_c._id;
+        //保存时，把poulate后的重置为id保存
+        ai_data_c.points_system = !!ai_data_c.points_system._id ? ai_data_c.points_system._id : ai_data_c.points_system;
+
+        _.each(ai_data_c.qualitative_pis.items, function(x) {
             x.grade_group = !!x.grade_group._id ? x.grade_group._id : x.grade_group;
         });
 
-        _.each(ai_data.quantitative_pis.items, function(x) {
+        _.each(ai_data_c.quantitative_pis.items, function(x) {
             x.scoringformula = !!x.scoringformula._id ? x.scoringformula._id : x.scoringformula;
         });
 
         var url = '/admin/pm/assessment_instance/edit';
         var post_data = "ai_id=" + ai_id;
 
-        post_data += '&ai_data=' + JSON.stringify(ai_data);
+        post_data += '&ai_data=' + JSON.stringify(ai_data_c);
 
         $.post(url, post_data, function(data) {
-            cb();
+            ai.fetch().done(function() {
+                ai_data = ai.attributes;
+                cb();
+            });
         })
 
     }
@@ -449,18 +461,18 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
                 if (!self.view_mode) {
                     window.location.href = '#todo';
-                } else if(self.view_mode == 'ai_pi_comment'){
-                    var dl_item = _.find(ai_data.quantitative_pis.items,function(x){
+                } else if (self.view_mode == 'ai_pi_comment') {
+                    var dl_item = _.find(ai_data.quantitative_pis.items, function(x) {
                         return x.pi == self.item.pi;
                     })
-                    if(dl_item){
+                    if (dl_item) {
                         self.view_mode = 'pi_detail';
-                    }else{
+                    } else {
                         self.view_mode = 'pi_detail2';
                     }
-                    
+
                     self.render();
-                }else {
+                } else {
                     self.view_mode = '';
                     self.render();
                 }
@@ -533,18 +545,25 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 var obj = {};
                 obj.comment = $("#ai_pi_new_comment").val();
                 obj.createDate = moment();
-                var people = _.find(peoples_data,function(x){
+                var people = _.find(peoples_data, function(x) {
                     return x._id == $("#login_people").val();
                 })
                 obj.people_name = people.people_name;
                 obj.position_name = people.position.position_name;
                 obj.creator = people._id;
                 obj.avatar = people.avatar;
-                
+
                 self.item.comments.push(obj);
-                save_form_data(function(){
+                save_form_data(function() {
                     self.render();
                 })
+            });
+
+            $("#ai_wf-content").on('change', '#select_next_user', function() {
+                var $this = $(this);
+
+                $("#next_user_id").val($this.val());
+                $("#next_user_name").val($this.find("option:selected").text());
             });
         },
         // Renders all of the Task models on the UI
@@ -566,6 +585,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 return x.item_type == '3';
             });
 
+            ai = self.ai;
             ai_data = self.ai.attributes;
             uu = self.team_data.attributes.data.u;
             conver = ai_data.points_system.conversion_centesimal_system;
@@ -637,6 +657,9 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 } else if (self.view_mode == 'pi_detail2') {
                     $("#ai_wf_title").html('指标明细');
 
+                    self.item = _.find(self.ai.attributes.qualitative_pis.items, function(x) {
+                        return self.item.pi == x.pi;
+                    });
                     this.template = Handlebars.compile($("#assessment_dx_pi_detail_view").html());
                     $("#ai_wf-content").html(self.template(self.item));
                     $("#ai_wf-content").trigger('create');
@@ -696,7 +719,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                         }
 
                     }
-                } else if (self.view_mode == 'ai_pi_comment'){
+                } else if (self.view_mode == 'ai_pi_comment') {
                     $("#ai_wf_title").html('沟通记录');
 
                     this.template = Handlebars.compile($("#pi_comment_view").html());
