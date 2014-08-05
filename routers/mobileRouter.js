@@ -85,7 +85,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new AssessmentRouter();
         new MyTeamRouter();
         new SkillRecommendRouter();
-        new ToDoRouter();
+        // new ToDoRouter();
         new QuesetionnaireRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();

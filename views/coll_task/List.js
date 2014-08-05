@@ -13,10 +13,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var self = this;
                 this.template = Handlebars.compile($("#hbtmp_coll_task_list_view").html());
                 // The render method is called when CollTask Models are added to the Collection
-                this.collection.on("sync", function() {
-
-                    self.render()
-                }, this);
+                // this.collection.on("sync", function() {
+                //     self.render()
+                // }, this);
                 self.state = '1'; //默认是1
                 self.mode = 'all_task';
                 self.importance = ''; //过滤条件
