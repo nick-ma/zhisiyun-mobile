@@ -2,7 +2,7 @@
 // =============
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbone, Handlebars) {
+define(["jquery", "underscore", "backbone", "handlebars",], function($, _, Backbone, Handlebars) {
     Handlebars.registerHelper('delta', function(data, options) {
         if (data <= 0) {
             return options.fn(this);

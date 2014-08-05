@@ -39,6 +39,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         return parseFloat(data).toFixed(2);
     });
 
+
     var Quesetionnaire_manageListView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
@@ -107,6 +108,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 });
                 $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_manage_template(obj));
                 $("#quesetionnaire_manage_list-content").trigger('create');
+                $("#show_tip").html('没有可提交问卷！')
             } else if (self.view_mode == '2') {
                 //已评分
                 obj.datas = _.filter(data_items, function(x) {
@@ -114,6 +116,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 });
                 $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_manage_template(obj));
                 $("#quesetionnaire_manage_list-content").trigger('create');
+                $("#show_tip").html('没有已提交问卷！')
             } else if (self.view_mode == '3') {
                 var q_items = []
                 _.each(self.qis, function(q) {
@@ -243,8 +246,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             }).on('click', '#btn-quesetionnaire_manage_list-back', function() {
                 event.preventDefault();
-                self.view_mode = '3';
-                self.render();
+                // self.view_mode = '3';
+                if (self.view_mode != '4') {
+                    window.location = '#home'
+                } else {
+                    self.view_mode = '3';
+                    self.render();
+                }
+
             })
         },
 
