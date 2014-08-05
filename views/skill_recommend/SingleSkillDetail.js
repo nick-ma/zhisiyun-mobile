@@ -39,30 +39,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     rendered = self.single_show_skill_template(f_d)
                 } else if (self.view_mode == 'show_skill_ranking') {
                     $("#title_skill_show").html('技能认可排名')
-                    var peoples = self.skillrecommends.toJSON();
-                    console.log(peoples);
-                    var items = [];
-                    _.each(peoples, function(people) {
-                        var o = _.pick(people, '_id', 'people_name', 'avatar', 'position_name', 'ou_name')
-
-                        var f_p = _.find(people.my_skills, function(skill) {
-                            return skill.skill._id == skill_id
-                        })
-                        var f_pp = _.find(items, function(i) {
-                            return i._id == o._id
-                        })
-                        if (!f_pp && f_p) {
-                            o.skill_num = f_p.praise_peoples.length;
-                            items.push(o)
-                        };
-
-
+                    $.get("/admin/pm/skill/get_skill_ranKing/" + skill_id, function(data) {
+                        f_d.skill_ranking = data;
+                        rendered = self.show_skill_ranking_template(f_d);
+                        $("#show_skill-content").html(rendered);
+                        $("#show_skill-content").trigger('create');
                     })
-                    var its = _.sortBy(items, function(item) {
-                        return item.skill_num;
-                    }).reverse();
-                    f_d.skill_ranking = its;
-                    rendered = self.show_skill_ranking_template(f_d);
+
                 } else if (self.view_mode == 'skill_score') {
                     $("#title_skill_show").html('技能积分明细')
                     $.get("/admin/pm/skill/get_skill_integral/" + self.model.get('_id') + '/' + skill_id, function(data) {
