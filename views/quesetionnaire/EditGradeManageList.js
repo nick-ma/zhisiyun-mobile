@@ -244,15 +244,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 self.qt_id = qt_id;
                 self.render();
 
-            }).on('click', '#btn-quesetionnaire_manage_list-back', function() {
+            }).on('click', '#btn-quesetionnaire_manage_list-back', function(event) {
                 event.preventDefault();
-                // self.view_mode = '3';
                 if (self.view_mode != '4') {
                     window.location = '#home'
                 } else {
                     self.view_mode = '3';
                     self.render();
                 }
+
+            }).on('click', '#btn-quesetionnaire_manage-refresh', function(event) {
+                event.preventDefault();
+                $.mobile.loading("show");
+                self.collection.fetch().done(function() {
+                    self.render();
+                    $.mobile.loading("hide");
+                    $("#quesetionnaire_manage_list-left-panel").panel("close");
+                })
 
             })
         },
