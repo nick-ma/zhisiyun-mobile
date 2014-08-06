@@ -7,6 +7,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../collections/TaskCollection", "../collections/PayrollCollection", "../collections/CompetencyCollection",
         "../collections/PeopleCollection", "../collections/TalentCollection",
 
+        "../models/AssessmentModel",
+
         "../views/PayrollDetailView",
         "../views/MyTeamTalentView", "../views/CompetencyScoresView",
         //我的团队相关
@@ -22,6 +24,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         AssessmentCollection, AssessmentVCollection,
         TaskCollection, PayrollCollection, CompetencyCollection,
         PeopleCollection, TalentCollection,
+
+        AssessmentModel,
 
         PayrollDetailView,
         MyTeamTalentView, CompetencyScoresView,
@@ -134,26 +138,33 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         changeHash: false,
                     });
                 } else if (tab == 'assessment') { //下属的绩效
-                    //获取绩效数据
-                    $.mobile.loading("show");
-                    this.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id + '&ct=' + (new Date()).getTime();
-                    var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('assessment_' + people_id)) || null)
-                    if (local_data) {
-                        self.c_assessment_myteam.reset(local_data);
-                        // self.c_assessment_myteam.trigger('sync');
-                        $.mobile.loading("hide");
-                        self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
-                    } else {
-                        self.c_assessment_myteam.fetch().done(function() {
-                            localStorage.setItem('assessment_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_assessment_myteam)));
-                            $.mobile.loading("hide");
-                            self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
-                        })
-                    };
                     $("body").pagecontainer("change", "#myteam_detail-assessment", {
                         reverse: false,
                         changeHash: false,
                     });
+                    //获取绩效数据
+                    $.mobile.loading("show");
+                    self.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id + '&ct=' + (new Date()).getTime();
+                    self.c_assessment_myteam.fetch().done(function() {
+                        self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
+                        $.mobile.loading("hide");
+                    })
+
+                    // var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('assessment_' + people_id)) || null)
+
+                    // if (local_data) {
+                    //     self.c_assessment_myteam.reset(local_data);
+                    //     // self.c_assessment_myteam.trigger('sync');
+                    //     $.mobile.loading("hide");
+                    //     self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
+                    // } else {
+                    //     self.c_assessment_myteam.fetch().done(function() {
+                    //         localStorage.setItem('assessment_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_assessment_myteam)));
+                    //         $.mobile.loading("hide");
+                    //         self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
+                    //     })
+                    // };
+
                 } else if (tab == 'talent') {
                     // console.log('message: in talent tab');
 
@@ -254,53 +265,136 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
 
             myteam_assessment_pi_list: function(people_id, ai_id) { //团队成员的绩效合同－指标清单
-                this.myteamAssessmentPIListView.model = this.c_assessment_myteam.get(ai_id);
-                this.myteamAssessmentPIListView.render(people_id);
+                var self = this;
                 $("body").pagecontainer("change", "#myteam_assessment_pi-list", {
                     reverse: false,
                     changeHash: false,
                 });
-
+                $.mobile.loading('show');
+                if (self.c_assessment_myteam.get(ai_id)) {
+                    self.myteamAssessmentPIListView.model = self.c_assessment_myteam.get(ai_id);
+                    self.myteamAssessmentPIListView.model.fetch().done(function() {
+                        self.myteamAssessmentPIListView.render(people_id);
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    });
+                    self.c_assessment_myteam.set(tmp)
+                    tmp.fetch().done(function() {
+                        self.myteamAssessmentPIListView.model = tmp;
+                        self.myteamAssessmentPIListView.render(people_id);
+                        $.mobile.loading('hide');
+                    })
+                };
             },
             myteam_assessment_detail: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－指标详情
-                this.myteamAssessmentDetailView.model = this.c_assessment_myteam.get(ai_id);
-                this.myteamAssessmentDetailView.scoringformula = this.c_scoringformula;
-                this.myteamAssessmentDetailView.gradegroup = this.c_gradegroup;
-                this.myteamAssessmentDetailView.render(people_id, lx, pi);
+                var self = this;
                 $("body").pagecontainer("change", "#myteam_assessment_detail", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                self.myteamAssessmentDetailView.scoringformula = self.c_scoringformula;
+                self.myteamAssessmentDetailView.gradegroup = self.c_gradegroup;
+                if (self.c_assessment_myteam.get(ai_id)) {
+                    self.myteamAssessmentDetailView.model = self.c_assessment_myteam.get(ai_id);
+                    self.myteamAssessmentDetailView.model.fetch().done(function() {
+                        self.myteamAssessmentDetailView.render(people_id, lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    });
+                    self.c_assessment_myteam.set(tmp)
+                    tmp.fetch().done(function() {
+                        self.myteamAssessmentDetailView.model = tmp;
+                        self.myteamAssessmentDetailView.render(people_id, lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                };
+
             },
             myteam_assessment_comment: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－沟通与记录（读写）
-                this.myteamAssessmentCommentView.model = this.c_assessment_myteam.get(ai_id);
-                this.myteamAssessmentCommentView.scoringformula = this.c_scoringformula;
-                this.myteamAssessmentCommentView.gradegroup = this.c_gradegroup;
-                this.myteamAssessmentCommentView.render(people_id, lx, pi);
+                var self = this;
                 $("body").pagecontainer("change", "#myteam_assessment_comment", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                self.myteamAssessmentCommentView.scoringformula = self.c_scoringformula;
+                self.myteamAssessmentCommentView.gradegroup = self.c_gradegroup;
+                if (self.c_assessment_myteam.get(ai_id)) {
+                    self.myteamAssessmentCommentView.model = self.c_assessment_myteam.get(ai_id);
+                    self.myteamAssessmentCommentView.model.fetch().done(function() {
+                        self.myteamAssessmentCommentView.render(people_id, lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    });
+                    self.c_assessment_myteam.set(tmp)
+                    tmp.fetch().done(function() {
+                        self.myteamAssessmentCommentView.model = tmp;
+                        self.myteamAssessmentCommentView.render(people_id, lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                };
             },
             myteam_assessment_update_value: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－数据更新（只读）
-                this.myteamAssessmentUpdateValueView.model = this.c_assessment_myteam.get(ai_id);
-                this.myteamAssessmentUpdateValueView.scoringformula = this.c_scoringformula;
-                this.myteamAssessmentUpdateValueView.gradegroup = this.c_gradegroup;
-                this.myteamAssessmentUpdateValueView.render(people_id, lx, pi);
+                var self = this;
                 $("body").pagecontainer("change", "#myteam_assessment_update_value", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                self.myteamAssessmentUpdateValueView.scoringformula = self.c_scoringformula;
+                self.myteamAssessmentUpdateValueView.gradegroup = self.c_gradegroup;
+                if (self.c_assessment_myteam.get(ai_id)) {
+                    self.myteamAssessmentUpdateValueView.model = self.c_assessment_myteam.get(ai_id);
+                    self.myteamAssessmentUpdateValueView.model.fetch().done(function() {
+                        self.myteamAssessmentUpdateValueView.render(people_id, lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    });
+                    self.c_assessment_myteam.set(tmp)
+                    tmp.fetch().done(function() {
+                        self.myteamAssessmentUpdateValueView.model = tmp;
+                        self.myteamAssessmentUpdateValueView.render(people_id, lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                };
             },
             myteam_assessment_improve_plan: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－分析与改进（只读）
-                this.myteamAssessmentImprovePlanView.model = this.c_assessment_myteam.get(ai_id);
-                this.myteamAssessmentImprovePlanView.scoringformula = this.c_scoringformula;
-                this.myteamAssessmentImprovePlanView.gradegroup = this.c_gradegroup;
-                this.myteamAssessmentImprovePlanView.render(people_id, lx, pi);
+                var self = this;
                 $("body").pagecontainer("change", "#myteam_assessment_improve_plan", {
                     reverse: false,
                     changeHash: false,
                 });
+                self.myteamAssessmentImprovePlanView.scoringformula = self.c_scoringformula;
+                self.myteamAssessmentImprovePlanView.gradegroup = self.c_gradegroup;
+                if (self.c_assessment_myteam.get(ai_id)) {
+                    self.myteamAssessmentImprovePlanView.model = self.c_assessment_myteam.get(ai_id);
+                    self.myteamAssessmentImprovePlanView.model.fetch().done(function() {
+                        self.myteamAssessmentImprovePlanView.render(people_id, lx, pi);
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    });
+                    self.c_assessment_myteam.set(tmp)
+                    tmp.fetch().done(function() {
+                        self.myteamAssessmentImprovePlanView.model = tmp;
+                        self.myteamAssessmentImprovePlanView.render(people_id, lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                }
             },
 
             //
@@ -385,7 +479,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             load_data: function(col_obj, col_name) { //加载数据
                 $.mobile.loading("show");
                 var login_people = $("#login_people").val();
-                var cn = col_name 
+                var cn = col_name
                 var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
                     // var local_data = localStorage.getItem(cn);
                 if (local_data) {

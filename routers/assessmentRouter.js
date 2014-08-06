@@ -4,10 +4,11 @@
 define(["jquery", "backbone", "handlebars", "lzstring",
         // 计分公式和等级组
         "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
-        "../collections/AssessmentCollection","../collections/AssessmentVCollection",
+        "../collections/AssessmentCollection", "../collections/AssessmentVCollection",
+        "../models/AssessmentModel",
         // views
         "../views/assessment/Home", "../views/assessment/HomeHistory",
-        "../views/assessment/HomePIList", 
+        "../views/assessment/HomePIList",
         "../views/assessment/Comment", "../views/assessment/UpdateValue",
         "../views/assessment/ImprovePlan", "../views/assessment/ImprovePlanEdit",
         "../views/assessment/Detail",
@@ -18,10 +19,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     ],
     function($, Backbone, Handlebars, LZString,
         ScoringFormulaCollection, GradeGroupCollection,
-        AssessmentCollection,AssessmentVCollection,
+        AssessmentCollection, AssessmentVCollection,
+        AssessmentModel,
         //views
         HomeAssessmentView, HomeAssessmentHistoryView,
-        HomeAssessmentPIListView, 
+        HomeAssessmentPIListView,
         AssessmentCommentView, AssessmentUpdateValueView,
         AssessmentImprovePlanView, AssessmentImprovePlanEditView,
         AssessmentDetailView,
@@ -60,82 +62,169 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             assessment_list: function() {
                 var self = this;
                 // self.refresh_data();
-                self.homeAssessmentView.render();
-                self.homeAssessmentHistoryView.render();
-
                 $("body").pagecontainer("change", "#assessment_list", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                self.c_assessment.fetch().done(function() {
+                    self.homeAssessmentView.render();
+                    self.homeAssessmentHistoryView.render();
+                    $.mobile.loading('hide');
+                })
+
             },
             assessment_pi_list: function(ai_id) { //做一个下拉更新的功能
-                this.homeAssessmentPIListView.model = this.c_assessment.get(ai_id);
-                this.homeAssessmentPIListView.render();
+                var self = this;
                 $("body").pagecontainer("change", "#assessment_pi-list", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                if (self.c_assessment.get(ai_id)) { //当前collection里面有
+                    self.homeAssessmentPIListView.model = self.c_assessment.get(ai_id);
+                    self.homeAssessmentPIListView.model.fetch().done(function() {
+                        self.homeAssessmentPIListView.render();
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    })
+                    self.c_assessment.set(tmp);
+                    tmp.fetch().done(function() {
+                        self.homeAssessmentPIListView.model = tmp;
+                        self.homeAssessmentPIListView.render();
+                        $.mobile.loading('hide');
+                    })
+                }
             },
             assessment_detail: function(ai_id, lx, pi) { //绩效合同－单条指标的查看界面
                 var self = this;
-
-                self.assessmentDetailView.model = self.c_assessment.get(ai_id);
-                self.assessmentDetailView.scoringformula = self.c_scoringformula;
-                self.assessmentDetailView.gradegroup = self.c_gradegroup;
-                self.assessmentDetailView.model.fetch().done(function() { //为了保证数据最新，需要重新fetch一下。
-                    self.assessmentDetailView.render(lx, pi);
-                })
                 $("body").pagecontainer("change", "#assessment_detail", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                self.assessmentDetailView.scoringformula = self.c_scoringformula;
+                self.assessmentDetailView.gradegroup = self.c_gradegroup;
+                if (self.c_assessment.get(ai_id)) { //当前collection里面有
+                    self.assessmentDetailView.model = self.c_assessment.get(ai_id);
+                    self.assessmentDetailView.model.fetch().done(function() { //为了保证数据最新，需要重新fetch一下。
+                        self.assessmentDetailView.render(lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                } else { //没有，需要直接获取一个，然后set到collectin里
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    })
+                    self.c_assessment.set(tmp);
+                    tmp.fetch().done(function() {
+                        self.assessmentDetailView.model = tmp;
+                        self.assessmentDetailView.render(lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                };
+
             },
             assessment_comment: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
-                this.assessmentCommentView.model = this.c_assessment.get(ai_id);
-                this.assessmentCommentView.render(lx, pi);
+                var self = this;
                 $("body").pagecontainer("change", "#assessment_comment", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                if (self.c_assessment.get(ai_id)) { //当前collection里面有
+                    self.assessmentCommentView.model = self.c_assessment.get(ai_id);
+                    self.assessmentCommentView.model.fetch().done(function() { //为了保证数据最新，需要重新fetch一下。
+                        self.assessmentCommentView.render(lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    })
+                    self.c_assessment.set(tmp);
+                    tmp.fetch().done(function() {
+                        self.assessmentCommentView.model = tmp;
+                        self.assessmentCommentView.render(lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                }
+
             },
             assessment_update_value: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
-                this.assessmentUpdateValueView.model = this.c_assessment.get(ai_id);
-                this.assessmentUpdateValueView.scoringformula = this.c_scoringformula;
-                this.assessmentUpdateValueView.gradegroup = this.c_gradegroup;
-                this.assessmentUpdateValueView.render(lx, pi);
+                var self = this;
                 $("body").pagecontainer("change", "#assessment_update_value", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                self.assessmentUpdateValueView.scoringformula = self.c_scoringformula;
+                self.assessmentUpdateValueView.gradegroup = self.c_gradegroup;
+                if (self.c_assessment.get(ai_id)) { //当前collection里面有
+                    self.assessmentUpdateValueView.model = self.c_assessment.get(ai_id);
+                    self.assessmentUpdateValueView.model.fetch().done(function() {
+                        self.assessmentUpdateValueView.render(lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    })
+                    self.c_assessment.set(tmp);
+                    tmp.fetch().done(function() {
+                        self.assessmentUpdateValueView.model = tmp;
+                        self.assessmentUpdateValueView.render(lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                }
             },
             assessment_improve_plan: function(ai_id, lx, pi) { //绩效合同－单条指标的编辑留言界面
                 var self = this;
-                self.assessmentImprovePlanView.model = self.c_assessment.get(ai_id);
-                // self.assessmentImprovePlanView.model.fetch().done(function() {
-                self.assessmentImprovePlanView.render(lx, pi);
-                // })
                 $("body").pagecontainer("change", "#assessment_improve_plan", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                if (self.c_assessment.get(ai_id)) { //当前collection里面有
+                    self.assessmentImprovePlanView.model = self.c_assessment.get(ai_id);
+                    self.assessmentImprovePlanView.model.fetch().done(function() {
+                        self.assessmentImprovePlanView.render(lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new AssessmentModel({
+                        _id: ai_id
+                    })
+                    self.c_assessment.set(tmp);
+                    tmp.fetch().done(function() {
+                        self.assessmentImprovePlanView.model = tmp;
+                        self.assessmentImprovePlanView.render(lx, pi);
+                        $.mobile.loading('hide');
+                    })
+                }
             },
             assessment_improve_plan_edit: function(ai_id, lx, pi, ip_id, seg_name) { //新增／修改改进措施
-                this.assessmentImprovePlanEditView.model = this.c_assessment.get(ai_id);
-                this.assessmentImprovePlanEditView.render(lx, pi, ip_id, seg_name);
+                var self = this;
                 $("body").pagecontainer("change", "#assessment_improve_plan_edit", {
                     reverse: false,
                     changeHash: false,
                 });
+
+                this.assessmentImprovePlanEditView.model = this.c_assessment.get(ai_id);
+                this.assessmentImprovePlanEditView.render(lx, pi, ip_id, seg_name);
+
             },
             //----------指标选择屏幕----------//
             pi_select: function(mode, target_field) {
-                this.piSelectView.target_field = target_field;
-                this.piSelectView.collection = this.c_assessment;
-                this.piSelectView.render(mode);
                 $("body").pagecontainer("change", "#pi_select", {
                     reverse: false,
                     changeHash: false,
                 });
+                this.piSelectView.target_field = target_field;
+                this.piSelectView.collection = this.c_assessment;
+                this.piSelectView.render(mode);
             },
             //
             init_views: function() {
@@ -182,34 +271,34 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             bind_events: function() {
                 var self = this;
-                $("#wrapper").pull_to_refresh({
-                    container: document.getElementById('assessment_list-content'),
-                    pull_to_refresh_text: '下拉刷新数据...',
-                    letgo_text: '松开刷新...',
-                    refreshing_text: '正在获取新数据...',
-                    status_indicator_id: 'pull_to_refresh',
-                    refreshClass: 'refresh',
-                    visibleClass: 'visible',
-                    refresh: function(stoploading) {
-                        self.refresh_data(function() {
-                            self.homeAssessmentView.render();
-                            self.homeAssessmentHistoryView.render();
-                            stoploading();
-                        });
-                        // stoploading();
-                    }
-                })
+                // $("#wrapper").pull_to_refresh({
+                //     container: document.getElementById('assessment_list-content'),
+                //     pull_to_refresh_text: '下拉刷新数据...',
+                //     letgo_text: '松开刷新...',
+                //     refreshing_text: '正在获取新数据...',
+                //     status_indicator_id: 'pull_to_refresh',
+                //     refreshClass: 'refresh',
+                //     visibleClass: 'visible',
+                //     refresh: function(stoploading) {
+                //         self.refresh_data(function() {
+                //             self.homeAssessmentView.render();
+                //             self.homeAssessmentHistoryView.render();
+                //             stoploading();
+                //         });
+                //         // stoploading();
+                //     }
+                // })
             },
             init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
                 var self = this;
-                self.load_data(self.c_assessment, 'assessment');
+                // self.load_data(self.c_assessment, 'assessment');
                 self.load_data(self.c_scoringformula, 'scoringformula');
                 self.load_data(self.c_gradegroup, 'gradegroup');
             },
             load_data: function(col_obj, col_name) { //加载数据
                 $.mobile.loading("show");
                 var login_people = $("#login_people").val();
-                var cn = col_name 
+                var cn = col_name
                 var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
                     // var local_data = localStorage.getItem(cn);
                 if (local_data) {

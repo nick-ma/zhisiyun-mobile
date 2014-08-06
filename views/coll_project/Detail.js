@@ -145,7 +145,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 } else if (self.view_mode == 'score') {
                     rendered = self.template_score(render_data)
                 } else if (self.view_mode == 'colltasks') { //任务清单
-                    self.cp_ct_state = self.cp_ct_state || '1'; //正常状态的任务
+                    self.cp_ct_state = self.cp_ct_state || '0'; //全部的任务
                     //检测并获取任务数据
 
                     async.series([
@@ -196,9 +196,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                         var ts_count = _.countBy(tmp, function(x) {
                             return x.state;
                         });
-                        tmp = _.filter(tmp, function(x) {
-                            return x.state == self.cp_ct_state;
-                        })
+                        ts_count['0'] = tmp.length; //全部的数量
+                        // console.log(ts_count);
+                        if (self.cp_ct_state != '0') {
+                            tmp = _.filter(tmp, function(x) {
+                                return x.state == self.cp_ct_state;
+                            })
+                        };
+
                         _.each($("#collproject_detail-right-panel label"), function(x) {
                             // console.log(x);
                             $(x).find('span').html(ts_count[$(x).data('state')] || 0);
