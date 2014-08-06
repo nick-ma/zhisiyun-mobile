@@ -13,30 +13,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
             // The render method is called when Assessment Models are added to the Collection
             // this.model.on("sync", this.render, this);
             var self = this;
-            $("#assessment_comment-content").on('change', '#pi_new_comment', function(event) {
-                event.preventDefault();
-                var $this = $(this);
-                var lx = $this.data('lx');
-                var pi = $this.data('pi');
-                // console.log($this.val());
-                var tmp_data = self.get_pi(lx, pi);
-                //增加一条新留言
-                tmp_data.comments.push({
-                    comment: $this.val(),
-                    people_name: $("#login_people_name").val(),
-                    position_name: $("#login_position_name").val(),
-                    avatar: $("#login_avatar").val(),
-                    creator: $("#login_people").val(),
-                    createDate: new Date()
-                })
-                tmp_data.comments = _.sortBy(tmp_data.comments, function(x) {
-                    return (new Date(x.createDate));
-                })
-                $this.val('');
-                self.model.save().done(function() {
-                    self.render(lx, pi);
-                })
-            });
+            self.bind_event();
+
         },
 
         // Renders all of the Assessment models on the UI
@@ -88,6 +66,32 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     return (x.pi == pi);
                 })
             };
+        },
+        bind_event: function() {
+            $("#assessment_comment-content").on('change', '#pi_new_comment', function(event) {
+                event.preventDefault();
+                var $this = $(this);
+                var lx = $this.data('lx');
+                var pi = $this.data('pi');
+                // console.log($this.val());
+                var tmp_data = self.get_pi(lx, pi);
+                //增加一条新留言
+                tmp_data.comments.push({
+                    comment: $this.val(),
+                    people_name: $("#login_people_name").val(),
+                    position_name: $("#login_position_name").val(),
+                    avatar: $("#login_avatar").val(),
+                    creator: $("#login_people").val(),
+                    createDate: new Date()
+                })
+                tmp_data.comments = _.sortBy(tmp_data.comments, function(x) {
+                    return (new Date(x.createDate));
+                })
+                $this.val('');
+                self.model.save().done(function() {
+                    self.render(lx, pi);
+                })
+            });
         }
 
     });

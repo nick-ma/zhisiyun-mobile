@@ -87,6 +87,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         self.collProjectDetailView.model = tmp;
                         self.collProjectDetailView.render();
                         $.mobile.loading("hide");
+                    }).fail(function() { //针对手机app版
+                        console.log('message fail');
+                        $.mobile.loading("hide");
+                        alert('项目已被删除')
+                        window.location.href = "#"
                     })
                 };
             },

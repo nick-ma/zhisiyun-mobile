@@ -74,10 +74,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                         _id: ct_id
                     });
                     tmp.fetch().done(function() {
+                        console.log('message done');
                         self.c_colltask.set(tmp); //放到collection里面
                         self.collTaskDetailView.model = tmp;
                         self.collTaskDetailView.render();
                         $.mobile.loading("hide");
+                    }).fail(function() { //针对手机app版
+                        console.log('message fail');
+                        $.mobile.loading("hide");
+                        alert('任务已被删除')
+                        window.location.href = "#"
                     })
                 };
             },
