@@ -40,35 +40,46 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
             //--------协作任务--------//
             colltask: function() {
                 // colltasklistView.
-                if (!this.c_colltask.models.length) {
-                    this.c_colltask.fetch();
-                } else {
-                    this.collTaskListView.render();
-                };
+                // if (!this.c_colltask.models.length) {
+                //     this.c_colltask.fetch();
+                // } else {
+                //     this.collTaskListView.render();
+                // };
+                var self = this;
                 $("body").pagecontainer("change", "#colltask", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.c_colltask.fetch().done(function() {
+                    self.collTaskListView.render();
+                    $.mobile.loading("hide");
+                })
             },
             colltask_detail: function(ct_id) {
                 var self = this;
+                $("body").pagecontainer("change", "#colltask_detail", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
                 if (self.c_colltask.get(ct_id)) {
                     self.collTaskDetailView.model = self.c_colltask.get(ct_id);
-                    self.collTaskDetailView.render();
+                    self.collTaskDetailView.model.fetch().done(function() {
+                        self.collTaskDetailView.render();
+                        $.mobile.loading("hide");
+                    })
                 } else {
                     var tmp = new CollTaskModel({
                         _id: ct_id
                     });
                     tmp.fetch().done(function() {
-                        self.c_colltask.push(tmp); //放到collection里面
+                        self.c_colltask.set(tmp); //放到collection里面
                         self.collTaskDetailView.model = tmp;
                         self.collTaskDetailView.render();
+                        $.mobile.loading("hide");
                     })
                 };
-                $("body").pagecontainer("change", "#colltask_detail", {
-                    reverse: false,
-                    changeHash: false,
-                });
             },
             colltask_edit: function(ct_id, p_task) {
                 var ct;
@@ -128,15 +139,17 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
             collproject: function(ct_id, cp_id) {
                 // collProjectListView
                 var self = this;
+                $("body").pagecontainer("change", "#collproject_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
                 self.collProjectListView.collection.fetch().done(function() {
                     self.collProjectListView.render();
                     self.collProjectListView.ct_id = ct_id;
                     self.collProjectListView.ct_model = self.c_colltask.get(ct_id);
                     self.collProjectListView.cp_id = cp_id;
-                });
-                $("body").pagecontainer("change", "#collproject_list", {
-                    reverse: false,
-                    changeHash: false,
+                    $.mobile.loading("hide");
                 });
             },
             // collproject_edit: function(cp_id, ct_id) {
@@ -184,10 +197,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 this.c_colltask = new CollTaskCollection(); //协作任务
                 this.c_collproject = new CollProjectCollection(); //协作项目
 
-                this.c_colltask.on('sync', function(event) { //放到local storage
+                // this.c_colltask.on('sync', function(event) { //放到local storage
 
 
-                });
+                // });
             },
             bind_events: function() {
 

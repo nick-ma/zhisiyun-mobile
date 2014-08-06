@@ -49,39 +49,46 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             projectlist: function() {
                 // colltasklistView.
                 var self = this;
-                if (!this.c_collproject.models.length) {
-                    this.c_collproject.fetch().done(function() {
-                        self.collProjectListViewAll.cp_types = self.cp_types;
-                        // self.collProjectListViewAll.date_pj_typeset = '0'
-                        self.collProjectListViewAll.render()
-                    });
-                };
                 $("body").pagecontainer("change", "#collproject", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                // if (!this.c_collproject.models.length) {
+                this.c_collproject.fetch().done(function() {
+                    self.collProjectListViewAll.cp_types = self.cp_types;
+                    // self.collProjectListViewAll.date_pj_typeset = '0'
+                    self.collProjectListViewAll.render()
+                    $.mobile.loading("hide");
+                });
+                // };
             },
             collproject_detail: function(cp_id) {
                 var self = this;
+                $("body").pagecontainer("change", "#collproject_detail", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
                 self.collProjectDetailView.cp_types = self.cp_types;
                 self.collProjectDetailView.cpfd = self.cpfd;
                 if (self.c_collproject.get(cp_id)) {
                     self.collProjectDetailView.model = self.c_collproject.get(cp_id);
-                    self.collProjectDetailView.render();
+                    self.collProjectDetailView.model.fetch().done(function() {
+                        self.collProjectDetailView.render();
+                        $.mobile.loading("hide");
+                    })
                 } else {
                     var tmp = new CollProjectModel({
                         _id: cp_id
                     });
                     tmp.fetch().done(function() {
-                        self.c_collproject.push(tmp); //放到collection里面
+                        self.c_collproject.set(tmp); //放到collection里面
                         self.collProjectDetailView.model = tmp;
                         self.collProjectDetailView.render();
+                        $.mobile.loading("hide");
                     })
                 };
-                $("body").pagecontainer("change", "#collproject_detail", {
-                    reverse: false,
-                    changeHash: false,
-                });
             },
             collproject_add: function() {
                 console.log('message: collpeoject add route');
@@ -97,37 +104,41 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             collproject_edit_basic: function(cp_id) {
                 var self = this;
-                self.collProjectEditView.cp_types = self.cp_types;
-                self.collProjectEditView.model = self.c_collproject.get(cp_id);
-
-                self.collProjectEditView.render();
                 $("body").pagecontainer("change", "#collproject_edit", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.collProjectEditView.cp_types = self.cp_types;
+                self.collProjectEditView.model = self.c_collproject.get(cp_id);
 
+                self.collProjectEditView.render();
+                $.mobile.loading("hide");
             },
             collproject_edit_extend: function(cp_id) {
                 var self = this;
-                self.collProjectEditExtendView.cp_types = self.cp_types;
-                self.collProjectEditExtendView.cpfd = self.cpfd;
-                self.collProjectEditExtendView.model = self.c_collproject.get(cp_id);
-
-                self.collProjectEditExtendView.render();
                 $("body").pagecontainer("change", "#collproject_edit_extend", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.collProjectEditExtendView.cp_types = self.cp_types;
+                self.collProjectEditExtendView.cpfd = self.cpfd;
+                self.collProjectEditExtendView.model = self.c_collproject.get(cp_id);
+                self.collProjectEditExtendView.render();
+                $.mobile.loading("hide");
             },
             collproject_edit_contact: function(cp_id, index) {
                 var self = this;
-                self.collProjectEditContactView.model = self.c_collproject.get(cp_id);
-                self.collProjectEditContactView.index = index;
-                self.collProjectEditContactView.render();
                 $("body").pagecontainer("change", "#collproject_edit_contact", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.collProjectEditContactView.model = self.c_collproject.get(cp_id);
+                self.collProjectEditContactView.index = index;
+                self.collProjectEditContactView.render();
+                $.mobile.loading("hide");
             },
 
             //
