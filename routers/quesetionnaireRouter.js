@@ -1,21 +1,32 @@
 // todo router
 // ====================
 
-define(["jquery", "backbone", "handlebars", "lzstring",
+define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/Questionnair360Collection",
         "../collections/QuestionnairManageCollection",
+        "../collections/PeopleCompetencyScoreCollection",
+        "../collections/MBTIQuestionInstanceCollection",
+        "../models/PeopleCompetencyScoreModel",
         "../models/QuestionnairInstanceModel",
+        "../models/MBTIQuestionInstanceModel",
         "../views/quesetionnaire/EditGradeList",
         "../views/quesetionnaire/EditGradeCommonList",
         "../views/quesetionnaire/EditGradeManageList",
+        "../views/quesetionnaire/EditGradeMBTIList"
+
     ],
-    function($, Backbone, Handlebars, LZString,
+    function($, Backbone, Handlebars, LZString, async,
         Questionnair360Collection,
         QuestionnairManageCollection,
+        PeopleCompetencyScoreCollection,
+        MBTIQuestionInstanceCollection,
+        PeopleCompetencyScoreModel,
         QuestionnairInstanceModel,
+        MBTIQuestionInstanceModel,
         EditGradeList,
         EditGradeCommonList,
-        EditGradeManageList
+        EditGradeManageList,
+        EditGradeMBTIList
 
     ) {
 
@@ -39,13 +50,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             quesetionnaire_list: function(qi_id, type) { //我的待办
                 var self = this;
                 if (type == '2') {
+
                     self.questionnair360s.qi_id = qi_id;
                     self.questionnair360s.fetch().done(function() {
-                        self.editGradeList.render();
-                        $("body").pagecontainer("change", "#quesetionnaire_list", {
-                            reverse: false,
-                            changeHash: false,
-                        });
+                        self.peopleCompetencyScores.fetch().done(function() {
+                            self.editGradeList.peopleCompetencyScores = self.peopleCompetencyScores;
+                            self.editGradeList.peopleCompetencyScore = self.peopleCompetencyScore;
+                            self.editGradeList.render();
+                            $("body").pagecontainer("change", "#quesetionnaire_list", {
+                                reverse: false,
+                                changeHash: false,
+                            });
+                        })
                     })
 
                 } else if (type == '3') {
@@ -56,6 +72,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                             reverse: false,
                             changeHash: false,
                         });
+                    })
+                } else if (type == '4') {
+                    self.MBTIQuestionInstance.id = qi_id;
+                    self.MBTIQuestionInstance.fetch().done(function() {
+                        self.MBTIQuestionInstances.fetch().done(function() {
+                            self.editGradeMBTIList.collection = self.MBTIQuestionInstances;
+                            self.editGradeMBTIList.render();
+                            $("body").pagecontainer("change", "#quesetionnaire_nbti_list", {
+                                reverse: false,
+                                changeHash: false,
+                            });
+                        })
+
                     })
                 }
 
@@ -91,15 +120,24 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     el: "#quesetionnaire_common_list",
                     collection: self.questionnairManages,
                 })
+                this.editGradeMBTIList = new EditGradeMBTIList({
+                    el: "#quesetionnaire_nbti_list",
+                    model: self.MBTIQuestionInstance,
+                })
+
             },
             init_models: function() {
                 var self = this;
                 self.questionnairInstance = new QuestionnairInstanceModel();
+                self.peopleCompetencyScore = new PeopleCompetencyScoreModel();
+                self.MBTIQuestionInstance = new MBTIQuestionInstanceModel()
             },
             init_collections: function() {
                 var self = this;
                 self.questionnair360s = new Questionnair360Collection();
                 self.questionnairManages = new QuestionnairManageCollection();
+                self.peopleCompetencyScores = new PeopleCompetencyScoreCollection();
+                self.MBTIQuestionInstances = new MBTIQuestionInstanceCollection();
             },
             init_my_data: function() {
                 var self = this;

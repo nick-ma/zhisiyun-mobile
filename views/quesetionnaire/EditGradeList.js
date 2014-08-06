@@ -19,7 +19,121 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         //返回+1之后的结果
         return this._index;
     });
+    var setQIScoreAndSave = function(qi, pcss, pcs, cb) {
+        var qi_obj = qi.attributes;
+        var weigth_loss = 0;
 
+        var pcs_obj = pcss.get(qi_obj.people._id);
+
+        var dimens = ['', 'self_weight', 'superior_weight', 'sibling_weight', 'subordinate_weight', 'superior_superior_weight', 'others_weight'];
+        var index = 0;
+
+        _.each(dimens, function(x) {
+            if (x != '') {
+                if (qi_obj[x] > 0) {
+                    var dimension = _.find(qi_obj.dimensions, function(xx) {
+                        return xx.dimension == index;
+                    });
+                    if (!dimension || dimension.number_of_people == 0) {
+                        weigth_loss += parseFloat(qi_obj[x]);
+                    }
+                }
+            }
+            index++;
+        });
+
+        if (weigth_loss > 0) {
+            //剩余权重总和
+            var weight = 100 - weigth_loss;
+            var superior = _.find(qi_obj.dimensions, function(xx) {
+                return xx.dimension == '2';
+            });
+            if (qi_obj.weight_loss_rule == '1' && superior) { //分摊给上级
+                superior.weight += parseFloat(weigth_loss);
+            } else { //按比列分配
+                // _.each(items, function(item) {
+                _.each(qi_obj.dimensions, function(xx) {
+                    xx.weight += parseFloat((xx.weight / weight) * weigth_loss);
+                });
+                // });
+            }
+        }
+
+        //开始算分
+        var sum_score = 0;
+        _.each(qi_obj.dimensions, function(xx) {
+            xx.score = parseFloat(xx.f_score * xx.weight / 100);
+            sum_score += parseFloat(xx.f_score * xx.weight / 100);
+        });
+        qi_obj.score = sum_score;
+        qi_obj.status = '1';
+
+        qi.save(qi.attributes, {
+            success: function(model, response, options) {
+                //按题目组装得分
+                var items = _.clone(qi_obj.dimensions[0].items);
+                var index1 = 0;
+                _.each(items, function(x) {
+                    var index2 = 0;
+                    _.each(x.qtis, function(xx) {
+                        var qti_sum_score = 0;
+                        _.each(qi_obj.dimensions, function(xxx) {
+                            qti_sum_score += parseFloat(xxx.items[index1].qtis[index2].score * xxx.weight / 100);
+                        });
+                        xx.score = qti_sum_score;
+                        xx.f_score = parseFloat(qti_sum_score / xx.qti_weight * 100);
+                        index2++;
+                    });
+                    index1++;
+                });
+
+                var set_pcs = function(pcs) {
+                    _.each(items, function(x) {
+                        _.each(x.qtis, function(xx) {
+                            if (xx.source == '3') {
+                                score_obj = {};
+                                score_obj.qi = qi_obj._id;
+                                score_obj.score = xx.f_score;
+
+                                var cc = _.find(pcs.ccs, function(xxx) {
+                                    return xxx.competencyclient == xx.competencyclient;
+                                });
+                                if (!!cc) {
+                                    cc.scores.push(score_obj);
+                                } else {
+                                    var cc_obj = {};
+                                    cc_obj.competencyclient = xx.competencyclient;
+                                    cc_obj.scores = [];
+
+                                    cc_obj.scores.push(score_obj);
+                                    pcs.ccs.push(cc_obj);
+                                }
+                            }
+                        });
+                    });
+                }
+
+                if (!!pcs_obj) { //找到则push
+                    pcs.attributes = pcs_obj.attributes;
+                    set_pcs(pcs.attributes);
+                    pcs.url = '/admin/pm/questionnair_template/pcs_bb/' + pcs.attributes._id;
+                } else { //没找到则create
+                    pcs.idAttribute = "_id";
+                    pcs.attributes.people = qi_obj.people._id;
+                    pcs.attributes.ccs = [];
+
+                    set_pcs(pcs.attributes);
+                    pcs.url = '/admin/pm/questionnair_template/pcs_bb/undefined';
+                }
+
+                pcs.save(pcs.attributes, {
+                    success: function(model, response, options) {
+                        cb(null, null);
+                    }
+                });
+            }
+        })
+    }
     var Quesetionnaire_360ListView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
@@ -96,13 +210,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             $("#quesetionnaire_list-content").html(rendered_data);
             $("#quesetionnaire_list-content").trigger('create');
 
-            var bool = false;
+            var bool = true;
             _.each(self.collection.toJSON(), function(x) {
                 _.each(x.dimensions, function(di) {
                     _.each(di.items[0].qtis[0].peoples, function(p) {
-                        if (p.people.toString() == $("#login_people").val() && p.status == '1') {
-                            bool = true;
+                        if (p.people.toString() == $("#login_people").val() && x.status == '0' && p.status == '0') {
+                            bool = false;
                         }
+                        // if (p.people.toString() == $("#login_people").val() && p.status == '1') {
+                        //     bool = true;
+                        // }
                     });
                 });
             });
@@ -253,6 +370,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '#btn-submit_qti-save', function(event) {
                 event.preventDefault();
                 var bool = true;
+                var $self = $(this);
                 $("#quesetionnaire_list-content a[id='btn_go_to']").each(function() {
                     if ($(this).attr("bool") != 'true') {
                         bool = false
@@ -260,6 +378,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 })
                 if (bool) {
                     if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
+                        $self.attr('disabled', true)
                         async.times(self.collection.models.length, function(n, next) {
                             var x = self.collection.models[n];
                             //找到评分人所属分类dimension
@@ -365,7 +484,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             //计算问卷总分，并处理权重丢失情况
                             if (x_score_flag) {
                                 x.attributes.actual_number_of_people += 1;
-                                setQIScoreAndSave(x, next);
+                                setQIScoreAndSave(x, self.peopleCompetencyScores, self.peopleCompetencyScore, next);
                             } else {
                                 x.attributes.actual_number_of_people += 1;
                                 // x.save();
