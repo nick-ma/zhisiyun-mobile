@@ -9,16 +9,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
         // The View Constructor
         initialize: function() {
             this.template = Handlebars.compile($("#hbtmp_myteam_assessment_detail_view").html());
-            // this.bind_events();
+
             // The render method is called when Assessment Models are added to the Collection
             // this.model.on("sync", this.render, this);
-
+            this.bind_event();
         },
 
         // Renders all of the Assessment models on the UI
         render: function(people_id, lx, pi) {
             var self = this;
             // console.log('render: ', lx, pi, ol);
+            // console.log(self.model);
             var render_data = self.get_pi(lx, pi);
             render_data._id = self.model.get('_id');
             render_data.lx = lx;
@@ -105,6 +106,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Asse
                     return (x.pi == pi);
                 })
             };
+        },
+        bind_event: function() {
+            var self = this;
+            $("#myteam_assessment_detail-content").on('click', '#btn_start_userchat', function(event) {
+                event.preventDefault();
+                var url = 'im://userchat/' + self.model.get('people');
+                console.log(url);
+                window.location.href = url;
+            });
         }
 
     });

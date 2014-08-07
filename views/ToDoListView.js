@@ -21,7 +21,6 @@ define(["jquery", "underscore", "backbone", "handlebars", ], function($, _, Back
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
-
             var rendered_data = {
                 todos: _.map(self.collection.models, function(x) {
                     return x.toJSON();
