@@ -102,7 +102,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                 })
                             } else {
                                 var tmp = new CompetencyModel({
-                                    id: people_id
+                                    people_id: people_id
                                 })
                                 self.c_competency.set(tmp);
                                 tmp.fetch().done(function() {
@@ -214,7 +214,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         })
                     } else {
                         var tmp = new TalentModel({
-                            id: people_id
+                            people_id: people_id
                         })
                         self.c_talent.set(tmp);
                         self.myteamTalentView.model = tmp;
@@ -312,7 +312,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     })
                 } else {
                     var tmp = new CompetencyModel({
-                        id: people_id
+                        people_id: people_id
                     })
                     self.c_competency.set(tmp);
                     tmp.fetch().done(function() {
@@ -538,9 +538,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
                 var self = this;
                 self.load_data(self.c_people, 'people');
-                self.load_data(self.c_talent, 'talent');
+                // self.load_data(self.c_talent, 'talent');
                 // self.load_data(self.c_horoscope, 'horoscope');
-                self.load_data(self.c_competency, 'competency');
+                // self.load_data(self.c_competency, 'competency');
                 self.load_data(self.c_scoringformula, 'scoringformula');
                 self.load_data(self.c_gradegroup, 'gradegroup');
                 // self.load_data(self.c_payroll, 'payroll');

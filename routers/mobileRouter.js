@@ -312,7 +312,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         $.mobile.loading("show");
         async.parallel({
           people: function(cb) {
-            cb(null, self.c_people.get(people_id));
+            if (self.c_people.get(people_id)) {
+              var tmp = self.c_people.get(people_id);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            } else {
+              var tmp = new PeopleModel({
+                _id: people_id
+              })
+              self.c_people.set(tmp);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            };
+
+            // cb(null, self.c_people.get(people_id));
           },
           // payroll: function(cb) {
           //   self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
@@ -329,7 +344,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               })
             } else {
               var tmp = new CompetencyModel({
-                id: people_id
+                people_id: people_id
               })
               self.c_competency.set(tmp);
               tmp.fetch().done(function() {
@@ -346,7 +361,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               })
             } else {
               var tmp = new TalentModel({
-                id: people_id
+                people_id: people_id
               })
               self.c_talent.set(tmp);
               tmp.fetch().done(function() {
