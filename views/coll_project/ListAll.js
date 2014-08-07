@@ -17,7 +17,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 this.collection.on("sync", function() {
                     self.render()
                 }, this);
-                self.state = '1'; //默认是1
+                self.state = '0'; //默认是0
                 self.mode = 'all_project';
                 self.search_term = ''; //过滤条件
                 self.date_offset = 30; //过滤条件
@@ -125,7 +125,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     })
                     render_data = {
                         cps: _.filter(models4render, function(x) { //没写结束日期的也算正常
-                            return x.state == self.state;
+                            if (self.state == '0') {
+                                return true;
+                            } else {
+                                return x.state == self.state;
+                            };
                         }),
                         render_mode: render_mode,
                     };
@@ -133,6 +137,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var ts_count = _.countBy(models4render, function(x) {
                         return x.state;
                     });
+                    ts_count['0'] = models4render.length;
                     _.each($("#collproject-left-panel label"), function(x) {
                         // console.log(x);
                         $(x).find('span').html(ts_count[$(x).data('state')] || 0);
