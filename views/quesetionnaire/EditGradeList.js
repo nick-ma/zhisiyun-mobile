@@ -487,7 +487,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                 })
                             }
                         }, function(err, results) {
-                            window.location = '#qt_manage'
+                            window.location.href = '#qt_manage'
                         })
                     }
                 } else {
