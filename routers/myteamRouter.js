@@ -69,11 +69,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 });
             },
             myteam_list: function() { //我的团队，列表界面
-                this.myteamListView.render();
                 $("body").pagecontainer("change", "#myteam_list", {
                     reverse: false,
                     changeHash: false,
                 });
+                this.myteamListView.render();
             },
             myteam_detail: function(people_id, tab) { //我的团队，详情界面
                 var self = this;
