@@ -64,6 +64,8 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
     // Set up the "mobileinit" handler before requiring jQuery Mobile's module
     function() {
       console.warn('mobile init');
+      //关掉自动初始化
+      $.mobile.autoInitializePage = false;
       // Prevents all anchor click handling including the addition of active button state and alternate link bluring.
       $.mobile.linkBindingEnabled = false;
 
@@ -175,7 +177,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
   )
   require(["jquerymobile"], function() {
     console.warn('start to load jquerymobile');
-    $.mobile.loading("show");
+    // $.mobile.loading("show");
     $.mobile.listview.prototype.options.autodividersSelector = function(elt) {
       var text = $.trim(elt.data('dvdc')) || null;
       if (!text) {
@@ -223,7 +225,22 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
 
     //   });
     // };
-
+    //-- 检查是否需要自动跳转到正确的首页
+    var hash = window.location.hash;
+    console.debug('start to $.mobile.initializePage()')
+    if ($("#req_ua").val() == 'normal') {
+      if (hash == "") {
+        // window.location.href = "#home"
+        window.location.hash = 'home';
+      };
+    } else {
+      if (hash == "#home") {
+        // window.location.href = "#"
+        window.location.hash = '';
+      };
+    };
+    $.mobile.initializePage();
+    console.debug('$.mobile.initializePage() --DONE!')
     // // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.info('app message: backbone MAIN router started!');
@@ -232,17 +249,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         window.location.href = "cmd://app/init"; //向外壳发出初始化完成的信号
       }
     }, 1000);
-    //-- 检查是否需要自动跳转到正确的首页
-    var hash = window.location.hash;
-    if ($("#req_ua").val() == 'normal') {
-      if (hash == "") {
-        window.location.href = "#home"
-      };
-    } else {
-      if (hash == "#home") {
-        window.location.href = "#"
-      };
-    };
+
   });
   // Instantiates a new Backbone.js Mobile Router
   // this.router = new Mobile();
