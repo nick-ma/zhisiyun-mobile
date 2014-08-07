@@ -247,7 +247,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '#btn-quesetionnaire_manage_list-back', function(event) {
                 event.preventDefault();
                 if (self.view_mode != '4') {
-                    window.location = '#home'
+                    if ($("#req_ua").val() == 'normal') {
+                        window.location.href = '#home';
+                    } else {
+                        window.location.href = '#';
+                    };
                 } else {
                     self.view_mode = '3';
                     self.render();

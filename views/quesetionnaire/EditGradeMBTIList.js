@@ -29,9 +29,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
-            console.log(self);
             var rendered_data = '';
-            $("#nbti_name").html('NBTI测试')
+            $("#nbti_name").html('MBTI测试')
             if (self.model_view == '0') {
                 rendered_data = self.quesetionnaire_nbti_template(self.model.attributes);
             } else {
