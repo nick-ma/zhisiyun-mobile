@@ -227,6 +227,11 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
     // // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.info('app message: backbone MAIN router started!');
+    window.setTimeout(function() {
+      if ($("#req_ua").val() != 'normal') {
+        window.location.href = "cmd://app/init"; //向外壳发出初始化完成的信号
+      }
+    }, 1000);
     //-- 检查是否需要自动跳转到正确的首页
     var hash = window.location.hash;
     if ($("#req_ua").val() == 'normal') {
