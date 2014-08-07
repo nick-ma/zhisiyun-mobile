@@ -37,14 +37,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         count.myteam++;
                     } else if (x.myteam2) {
                         count.myteam2++;
-                    } else if (x.myteama) {
+                    } else if (x.myteama && x._id != $("#login_people").val()) {
                         count.myteama++;
                     };
                 })
-                count.myteama = count.myteama - count.myteam - count.myteam2 - 1; //去掉那些
-                if (count.myteama < 0) {
-                    count.myteama = 0;
-                }
+                // count.myteama = count.myteama; //去掉那些
+                // if (count.myteama < 0) {
+                //     count.myteama = 0;
+                // }
                 var people = _.filter(tmp, function(x) {
                     return x[self.view_filter];
                 });

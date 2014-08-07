@@ -68,6 +68,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
             };
         },
         bind_event: function() {
+            var self = this;
             $("#assessment_comment-content").on('change', '#pi_new_comment', function(event) {
                 event.preventDefault();
                 var $this = $(this);
