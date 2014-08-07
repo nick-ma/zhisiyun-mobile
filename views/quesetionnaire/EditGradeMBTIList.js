@@ -14,26 +14,44 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
     Handlebars.registerHelper('show_name', function(data) {
         return '<span><b>' + data + '</b></span>'
     });
+    Handlebars.registerHelper('cat', function(data) {
+
+        if (data == '0') {
+            str = '<span class="label label-success">系统用户</span>';
+        } else {
+            str = '<span class="label label-info">非系统用户</span>';
+        }
+        return str;
+    });
 
     var Quesetionnaire_nbtiListView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
-            this.quesetionnaire_nbti_template = Handlebars.compile($("#quesetionnaire_nbti_list_view").html());
-            this.quesetionnaire_next_nbti_template = Handlebars.compile($("#quesetionnaire_next_nbti_list_view").html());
+            this.quesetionnaire_mbti_template = Handlebars.compile($("#quesetionnaire_mbti_list_view").html());
+            this.quesetionnaire_next_mbti_template = Handlebars.compile($("#quesetionnaire_next_mbti_list_view").html());
+            this.quesetionnaire_mbti_result_template = Handlebars.compile($("#quesetionnaire_mbti_result_list_view").html());
+
+
             this.model_view = '0';
             this.model.on("sync", this.render, this);
             this.bind_event();
             this.num1 = 0; //已完成数目
             this.num2 = 0; //题目总数
+            this.config_items = [] //题目总数
         },
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
             var rendered_data = '';
             $("#nbti_name").html('MBTI测试')
+            var status = self.model.get('status');
+            if (status == '1') {
+                self.model_view = '2'
+
+            };
             if (self.model_view == '0') {
-                rendered_data = self.quesetionnaire_nbti_template(self.model.attributes);
-            } else {
+                rendered_data = self.quesetionnaire_mbti_template(self.model.attributes);
+            } else if (self.model_view == '1') {
                 // num1 = 0; //已完成数目
                 // num2 = 0; //题目总数
                 self.num1 = 0; //已完成数目
@@ -73,7 +91,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     }
                 }
 
-                rendered_data = self.quesetionnaire_next_nbti_template(self.obj);
+                rendered_data = self.quesetionnaire_next_mbti_template(self.obj);
+            } else {
+                $.get('/admin/pm/mbti/config_bb', function(data) {
+                    var obj = self.model.attributes;
+                    var f_d = _.find(data[0].md_items, function(item) {
+                        return item.md_code == self.model.get('result')
+                    })
+                    obj.desc = f_d;
+                    console.log(obj);
+                    rendered_data = self.quesetionnaire_mbti_result_template(obj);
+                    $("#quesetionnaire_nbti_list-content").html(rendered_data);
+                    $("#quesetionnaire_nbti_list-content").trigger('create');
+                })
             }
 
             $("#quesetionnaire_nbti_list-content").html(rendered_data);
