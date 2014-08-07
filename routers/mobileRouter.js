@@ -12,9 +12,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     //人员和组织相关
     "../models/PeopleModel", "../collections/PeopleCollection", "../views/ContactListView", "../views/ContactDetailView",
     // 人才盘点相关
-    "../collections/TalentCollection", "../views/MyTeamTalentView", "../collections/HoroscopeCollection", "../views/Talent9GridsChartView",
+    "../collections/TalentCollection", "../views/MyTeamTalentView", "../collections/HoroscopeCollection", "../views/Talent9GridsChartView", "../models/TalentModel",
     // 能力素质相关
-    "../collections/CompetencyCollection", "../views/CompetencyScoresView", "../views/CompetencySpiderChartView", "../models/Q360Model",
+    "../collections/CompetencyCollection", "../views/CompetencyScoresView", "../views/CompetencySpiderChartView", "../models/Q360Model", "../models/CompetencyModel",
     // 工资相关
     "../collections/PayrollCollection", "../views/PayrollListView", "../views/PayrollDetailView",
     // 个人档案
@@ -44,8 +44,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     HomeTaskView, HomeMyTeamView, TaskVCollection,
     TaskModel, TaskCollection, TaskView, TaskDetailView, TaskEditView, TaskForwardView, TaskForwardSelectPeoplePanelView,
     PeopleModel, PeopleCollection, ContactListView, ContactDetailView,
-    TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView,
-    CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model,
+    TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView, TalentModel,
+    CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model, CompetencyModel,
     PayrollCollection, PayrollListView, PayrollDetailView,
     MyProfileView,
     ScoringFormulaCollection, GradeGroupCollection,
@@ -303,13 +303,66 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       },
       // ------个人相关------ //
       myprofile: function() {
-        var login_people = $("#login_people").val();
-        this.myProfileView.model = this.c_people.get(login_people);
-        this.myProfileView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
+        var self = this,
+          people_id = $("#login_people").val();
         $("body").pagecontainer("change", "#myprofile_basic", {
           reverse: false,
           changeHash: false,
         });
+        $.mobile.loading("show");
+        async.parallel({
+          people: function(cb) {
+            cb(null, self.c_people.get(people_id));
+          },
+          // payroll: function(cb) {
+          //   self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
+          //   self.c_payroll_myteam.fetch().done(function() {
+          //     cb(null, self.c_payroll_myteam);
+          //   })
+          // },
+          competency: function(cb) {
+            // self.c_competency.get(people_id)
+            if (self.c_competency.get(people_id)) {
+              var tmp = self.c_competency.get(people_id);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            } else {
+              var tmp = new CompetencyModel({
+                id: people_id
+              })
+              self.c_competency.set(tmp);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            };
+          },
+          talent: function(cb) {
+            // self.c_competency.get(people_id)
+            if (self.c_talent.get(people_id)) {
+              var tmp = self.c_talent.get(people_id);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            } else {
+              var tmp = new TalentModel({
+                id: people_id
+              })
+              self.c_talent.set(tmp);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            };
+          }
+        }, function(err, result) {
+          self.myProfileView.model = result.people;
+          self.myProfileView.competency = result.competency;
+          self.myProfileView.talent = result.talent;
+          self.myProfileView.render();
+          $.mobile.loading("hide");
+        })
+        // this.myProfileView.model = this.c_people.get(login_people);
+        // this.myProfileView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
       },
       competency_scores: function(cid) {
         var login_people = $("#login_people").val();

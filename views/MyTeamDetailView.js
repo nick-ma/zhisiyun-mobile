@@ -17,13 +17,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
             },
 
             // Renders all of the People models on the UI
-            render: function(m_payroll, m_competenty) {
+            render: function() {
                 var self = this;
                 var render_data = self.model.toJSON();
-                render_data.competencies = m_competenty.get('competencies')
-                render_data.payrolls = _.map(m_payroll.models,function  (x) {
+                render_data.competencies = (self.competency) ? self.competency.get('competencies') : [];
+                render_data.payrolls = (self.payroll) ? _.map(self.payroll.models, function(x) {
                     return x.toJSON();
-                });
+                }) : [];
                 // console.log(render_data.payrolls);
                 $("#myteam_detail-basic-content").html(self.template(render_data));
                 $("#myteam_detail-basic-content").trigger('create');

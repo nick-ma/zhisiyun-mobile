@@ -1,13 +1,13 @@
 // myteam router
 // ====================
 
-define(["jquery", "backbone", "handlebars", "lzstring",
+define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
         "../collections/AssessmentCollection", "../collections/AssessmentVCollection",
         "../collections/TaskCollection", "../collections/PayrollCollection", "../collections/CompetencyCollection",
         "../collections/PeopleCollection", "../collections/TalentCollection",
 
-        "../models/AssessmentModel",
+        "../models/AssessmentModel", "../models/CompetencyModel", "../models/TalentModel",
 
         "../views/PayrollDetailView",
         "../views/MyTeamTalentView", "../views/CompetencyScoresView",
@@ -19,13 +19,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../views/MyTeamAssessmentView", "../views/MyTeamAssessmentPIListView", "../views/MyTeamAssessmentDetailView",
 
     ],
-    function($, Backbone, Handlebars, LZString,
+    function($, Backbone, Handlebars, LZString, async,
         ScoringFormulaCollection, GradeGroupCollection,
         AssessmentCollection, AssessmentVCollection,
         TaskCollection, PayrollCollection, CompetencyCollection,
         PeopleCollection, TalentCollection,
 
-        AssessmentModel,
+        AssessmentModel, CompetencyModel, TalentModel,
 
         PayrollDetailView,
         MyTeamTalentView, CompetencyScoresView,
@@ -78,29 +78,63 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             myteam_detail: function(people_id, tab) { //我的团队，详情界面
                 var self = this;
                 if (tab == 'basic') {
-                    //获取工资
-                    $.mobile.loading("show");
-                    self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
-                    var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('payroll_' + people_id)) || null)
-                    if (local_data) {
-                        self.c_payroll_myteam.reset(local_data);
-                        self.c_payroll_myteam.trigger('sync');
-                        $.mobile.loading("hide");
-                        self.myteamDetailView.model = self.c_people.get(people_id);
-                        self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
-                    } else {
-                        self.c_payroll_myteam.fetch().done(function() {
-                            localStorage.setItem('payroll_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_payroll_myteam)));
-                            $.mobile.loading("hide");
-                            self.myteamDetailView.model = self.c_people.get(people_id);
-                            self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
-                        })
-                    };
-
                     $("body").pagecontainer("change", "#myteam_detail-basic", {
                         reverse: false,
                         changeHash: false,
                     });
+                    $.mobile.loading("show");
+                    async.parallel({
+                        people: function(cb) {
+                            cb(null, self.c_people.get(people_id));
+                        },
+                        payroll: function(cb) {
+                            self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
+                            self.c_payroll_myteam.fetch().done(function() {
+                                cb(null, self.c_payroll_myteam);
+                            })
+                        },
+                        competency: function(cb) {
+                            // self.c_competency.get(people_id)
+                            if (self.c_competency.get(people_id)) {
+                                var tmp = self.c_competency.get(people_id);
+                                tmp.fetch().done(function() {
+                                    cb(null, tmp);
+                                })
+                            } else {
+                                var tmp = new CompetencyModel({
+                                    id: people_id
+                                })
+                                self.c_competency.set(tmp);
+                                tmp.fetch().done(function() {
+                                    cb(null, tmp);
+                                })
+                            };
+                        }
+                    }, function(err, result) {
+                        self.myteamDetailView.model = result.people;
+                        self.myteamDetailView.payroll = result.payroll;
+                        self.myteamDetailView.competency = result.competency;
+                        self.myteamDetailView.render();
+                        $.mobile.loading("hide");
+                    })
+                    //获取工资
+                    // self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
+                    // var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('payroll_' + people_id)) || null)
+                    // if (local_data) {
+                    //     self.c_payroll_myteam.reset(local_data);
+                    //     self.c_payroll_myteam.trigger('sync');
+                    //     $.mobile.loading("hide");
+                    //     self.myteamDetailView.model = self.c_people.get(people_id);
+                    //     self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
+                    // } else {
+                    //     self.c_payroll_myteam.fetch().done(function() {
+                    //         localStorage.setItem('payroll_' + people_id, LZString.compressToUTF16(JSON.stringify(self.c_payroll_myteam)));
+                    //         $.mobile.loading("hide");
+                    //         self.myteamDetailView.model = self.c_people.get(people_id);
+                    //         self.myteamDetailView.render(self.c_payroll_myteam, self.c_competency.get(people_id));
+                    //     })
+                    // };
+
                 } else if (tab == 'calendar') {
                     // console.log('message in: myteam_detail::calendar');
                     //重新指定route
@@ -167,13 +201,30 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
                 } else if (tab == 'talent') {
                     // console.log('message: in talent tab');
-
-                    self.myteamTalentView.model = self.c_talent.get(people_id);
-                    self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
                     $("body").pagecontainer("change", "#myteam_detail-talent", {
                         reverse: false,
                         changeHash: false,
                     });
+                    $.mobile.loading("show");
+                    if (self.c_talent.get(people_id)) {
+                        self.myteamTalentView.model = self.c_talent.get(people_id);
+                        self.myteamTalentView.model.fetch().done(function() {
+                            self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
+                            $.mobile.loading("hide");
+                        })
+                    } else {
+                        var tmp = new TalentModel({
+                            id: people_id
+                        })
+                        self.c_talent.set(tmp);
+                        self.myteamTalentView.model = tmp;
+                        tmp.fetch().done(function() {
+                            self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
+                            $.mobile.loading("hide");
+                        })
+                    };
+
+
                 };
 
             },
@@ -247,12 +298,30 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
             },
             myteam_competency_scores: function(people_id, cid) {
-                this.competencyScoresView.model = this.c_competency.get(people_id);
-                this.competencyScoresView.render(people_id, cid);
+                var self = this;
                 $("body").pagecontainer("change", "#competency_scores", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading('show');
+                if (self.c_competency.get(people_id)) {
+                    self.competencyScoresView.model = self.c_competency.get(people_id);
+                    self.competencyScoresView.model.fetch().done(function() {
+                        self.competencyScoresView.render(people_id, cid);
+                        $.mobile.loading('hide');
+                    })
+                } else {
+                    var tmp = new CompetencyModel({
+                        id: people_id
+                    })
+                    self.c_competency.set(tmp);
+                    tmp.fetch().done(function() {
+                        self.competencyScoresView.model = tmp;
+                        self.competencyScoresView.render(people_id, cid);
+                        $.mobile.loading('hide');
+                    })
+                };
+
             },
             myteam_salary_detail: function(people_id, pay_time) { //通过localStorage来传递数据
                 localStorage.setItem('payroll_detail_data', JSON.stringify(this.c_payroll_myteam.get(pay_time)));
