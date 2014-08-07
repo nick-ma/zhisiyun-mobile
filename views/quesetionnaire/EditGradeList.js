@@ -25,22 +25,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
         var pcs_obj = pcss.get(qi_obj.people._id);
 
-        var dimens = ['', 'self_weight', 'superior_weight', 'sibling_weight', 'subordinate_weight', 'superior_superior_weight', 'others_weight'];
-        var index = 0;
-
-        _.each(dimens, function(x) {
-            if (x != '') {
-                if (qi_obj[x] > 0) {
-                    var dimension = _.find(qi_obj.dimensions, function(xx) {
-                        return xx.dimension == index;
-                    });
-                    if (!dimension || dimension.number_of_people == 0) {
-                        weigth_loss += parseFloat(qi_obj[x]);
-                    }
-                }
-            }
-            index++;
+        var weight_sum = 0;
+        _.each(qi_obj.dimensions, function(x) {
+            weight_sum += x.weight;
         });
+
+        weigth_loss = 100 - weight_sum;
+
 
         if (weigth_loss > 0) {
             //剩余权重总和
@@ -185,10 +176,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 };
                 var obj = _.first(self.collection.toJSON())
                 var data = {
-                    qt_name: obj.qt_name,
-                    datas: cate_items
-                }
-                self.$el.find("#wrapper").children('div').eq(tab).attr('data-collapsed', false);
+                        qt_name: obj.qt_name,
+                        datas: cate_items
+                    }
+                    // self.$el.find("#wrapper").children('div').eq(tab).attr('data-collapsed', false);
                 rendered_data = self.quesetionnaire_360_template(data);
                 if (grade_way == 'G') {
                     var url = '/admin/pm/performance_level/grade_group_get_json_data_byId/' + self.collection.models[0].attributes.grade_group;
