@@ -49,7 +49,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                     render_temp = self.template(render_data)
 
                 } else {
-                    var f_d = _.find(this.competencys, function(cy) {
+                    var f_d = _.find(self.competencys, function(cy) {
                         return cy._id == self.ct_id
                     })
                     var f_c = _.find(self.cls.levels, function(cl) {
