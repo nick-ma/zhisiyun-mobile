@@ -382,7 +382,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       competency_scores: function(cid) {
         var login_people = $("#login_people").val();
         this.competencyScoresView.model = this.c_competency.get(login_people);
-        this.competencyScoresView.render('self', cid);
+        this.competencyScoresView.people_id = 'self';
+        this.competencyScoresView.cid = cid;
+        this.competencyScoresView.model_view = '0';
+        this.competencyScoresView.render();
         $("body").pagecontainer("change", "#competency_scores", {
           reverse: false,
           changeHash: false,

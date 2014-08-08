@@ -140,8 +140,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var self = this;
             var rendered_data = '';
             var grade_way = self.collection.models[0].attributes.grade_way;
+            var tab = parseInt(self.qti ? self.qti.index1 : 0)
             if (self.model_view == '0') {
-                var tab = parseInt(self.qti ? self.qti.index1 : 0) + 1
+                // var tab = parseInt(self.qti ? self.qti.index1 : 0) + 1
                 var obj = _.first(self.collection.toJSON())
                 var cate_items = [];
                 var index1 = 0;
@@ -180,6 +181,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         datas: cate_items
                     }
                     // self.$el.find("#wrapper").children('div').eq(tab).attr('data-collapsed', false);
+
                 rendered_data = self.quesetionnaire_360_template(data);
                 if (grade_way == 'G') {
                     var url = '/admin/pm/performance_level/grade_group_get_json_data_byId/' + self.collection.models[0].attributes.grade_group;
@@ -198,9 +200,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 obj.datas = self.qti_detail;
                 rendered_data = self.quesetionnaire_360_qt_template(obj)
             }
+
+            // $('#quesetionnaire_list-content #wrapper').children().eq(tab).attr('data-collapsed', false);
             $("#quesetionnaire_list-content").html(rendered_data);
             $("#quesetionnaire_list-content").trigger('create');
-
+            // console.log(tab);
+            $('#quesetionnaire_list-content #wrapper').children().eq(tab).attr('data-collapsed', false);
             var bool = true;
             _.each(self.collection.toJSON(), function(x) {
                 _.each(x.dimensions, function(di) {
@@ -336,6 +341,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                 qi.trigger('change');
             }).on('click', '#btn-quesetionnaire_360_grade-save', function(event) {
+                var $this = $(this);
                 if (bool) {
                     var bl = true
                     $("#quesetionnaire_list-content input").each(function() {
@@ -346,13 +352,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         };
                     })
                     if (bl) {
-
+                        $this.attr('disabled', true)
+                        $.mobile.loading("show");
                         async.timesSeries(self.collection.models.length, function(n, next) {
                             var qi = self.collection.models[n];
+                            qi.attributes.people_id = $("#login_people").val();
                             qi.save(qi.attributes).done(function() {
                                 next(null, qi)
                             });
                         }, function(err, results) {
+                            if (err) {
+                                $this.removeAttr("disabled");
+                            };
+                            $.mobile.loading("hide");
                             self.model_view = '0';
                             self.render();
                         })
@@ -369,124 +381,137 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 })
                 if (bool) {
                     if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
-                        $self.attr('disabled', true)
+                        $self.attr('disabled', true);
+                        $.mobile.loading("show");
                         async.times(self.collection.models.length, function(n, next) {
                             var x = self.collection.models[n];
+                            x.attributes.people_id = $("#login_people").val();
+                            x.attributes.save_type = 'submit';
+
                             //找到评分人所属分类dimension
-                            var d;
-                            _.each(x.attributes.dimensions, function(di) {
-                                _.each(di.items, function(i) {
-                                    _.each(i.qtis, function(q) {
-                                        _.each(q.peoples, function(p) {
-                                            if (p.people.toString() == $("#login_people").val()) {
-                                                d = di;
-                                                return;
-                                            }
-                                        });
-                                    });
-                                });
-                            });
+                            // var d;
+                            // _.each(x.attributes.dimensions, function(di) {
+                            //     _.each(di.items, function(i) {
+                            //         _.each(i.qtis, function(q) {
+                            //             _.each(q.peoples, function(p) {
+                            //                 if (p.people.toString() == $("#login_people").val()) {
+                            //                     d = di;
+                            //                     return;
+                            //                 }
+                            //             });
+                            //         });
+                            //     });
+                            // });
 
-                            //dimensions评分标记,如果所有分类都已评分,则为true
-                            var d_score_flag = true;
-                            //所有分类的总和
-                            var d_sum_score = 0;
+                            // //dimensions评分标记,如果所有分类都已评分,则为true
+                            // var d_score_flag = true;
+                            // //所有分类的总和
+                            // var d_sum_score = 0;
 
-                            _.each(d.items, function(i) {
-                                //分类评分标记,如果所有题目都已评分,则为true
-                                var i_score_flag = true;
-                                //所有题目的总和
-                                var qti_sum_score = 0;
+                            // _.each(d.items, function(i) {
+                            //     //分类评分标记,如果所有题目都已评分,则为true
+                            //     var i_score_flag = true;
+                            //     //所有题目的总和
+                            //     var qti_sum_score = 0;
 
-                                _.each(i.qtis, function(q) {
-                                    //评分标记，如果所有人都提交，则不变为true
-                                    var score_flag = true;
-                                    //所有评分人的总和
-                                    var peoples_sum_score = 0;
+                            //     _.each(i.qtis, function(q) {
+                            //         //评分标记，如果所有人都提交，则不变为true
+                            //         var score_flag = true;
+                            //         //所有评分人的总和
+                            //         var peoples_sum_score = 0;
 
-                                    _.each(q.peoples, function(p) {
-                                        if (p.people.toString() == $("#login_people").val()) {
-                                            p.status = '1';
-                                            p.submitDate = moment();
-                                        }
-                                        peoples_sum_score += parseFloat(p.f_score);
-                                        //如果有未提交的人，评分标记改为false
-                                        if (p.status == '0') {
-                                            score_flag = false;
-                                        }
-                                    });
+                            //         _.each(q.peoples, function(p) {
+                            //             if (p.people.toString() == $("#login_people").val()) {
+                            //                 p.status = '1';
+                            //                 p.submitDate = moment();
+                            //             }
+                            //             peoples_sum_score += parseFloat(p.f_score);
+                            //             //如果有未提交的人，评分标记改为false
+                            //             if (p.status == '0') {
+                            //                 score_flag = false;
+                            //             }
+                            //         });
 
-                                    if (score_flag) {
-                                        if (x.attributes.score_sampling_rule == '2' && q.peoples.length > 2) { //去掉最高分和最低分
-                                            //最高分的评分人
-                                            var max_people = _.max(q.peoples, function(qp) {
-                                                return qp.f_score;
-                                            });
-                                            //最低分的评分人
-                                            var min_people = _.min(q.peoples, function(qp) {
-                                                return qp.f_score;
-                                            });
+                            //         if (score_flag) {
+                            //             if (x.attributes.score_sampling_rule == '2' && q.peoples.length > 2) { //去掉最高分和最低分
+                            //                 //最高分的评分人
+                            //                 var max_people = _.max(q.peoples, function(qp) {
+                            //                     return qp.f_score;
+                            //                 });
+                            //                 //最低分的评分人
+                            //                 var min_people = _.min(q.peoples, function(qp) {
+                            //                     return qp.f_score;
+                            //                 });
 
-                                            peoples_sum_score = peoples_sum_score - max_people.f_score - min_people.f_score;
+                            //                 peoples_sum_score = peoples_sum_score - max_people.f_score - min_people.f_score;
 
-                                            q.f_score = parseFloat(peoples_sum_score / (q.peoples.length - 2));
-                                        } else { //全部平均
-                                            q.f_score = parseFloat(peoples_sum_score / q.peoples.length);
-                                        }
-                                        q.score = parseFloat(q.f_score * q.qti_weight / 100);
-                                        q.status = '1';
-                                    }
+                            //                 q.f_score = parseFloat(peoples_sum_score / (q.peoples.length - 2));
+                            //             } else { //全部平均
+                            //                 q.f_score = parseFloat(peoples_sum_score / q.peoples.length);
+                            //             }
+                            //             q.score = parseFloat(q.f_score * q.qti_weight / 100);
+                            //             q.status = '1';
+                            //         }
 
-                                    if (q.status == '0') {
-                                        i_score_flag = false;
-                                    }
+                            //         if (q.status == '0') {
+                            //             i_score_flag = false;
+                            //         }
 
-                                    qti_sum_score += parseFloat(q.score);
-                                });
+                            //         qti_sum_score += parseFloat(q.score);
+                            //     });
 
-                                if (i.category && i_score_flag) {
-                                    i.score = qti_sum_score;
-                                    i.status = '1';
-                                    i.f_score = qti_sum_score / i.weight * 100;
+                            //     if (i.category && i_score_flag) {
+                            //         i.score = qti_sum_score;
+                            //         i.status = '1';
+                            //         i.f_score = qti_sum_score / i.weight * 100;
+                            //     }
+
+                            //     if (i.status == '0') {
+                            //         d_score_flag = false;
+                            //     }
+                            //     d_sum_score += parseFloat(i.score);
+                            // });
+
+                            // if (d_score_flag) {
+                            //     d.f_score = d_sum_score;
+                            //     d.status = '1';
+                            //     d.score = d_sum_score * d.weight / 100;
+                            // }
+                            // d.actual_number_of_people += 1;
+
+                            // //整份问卷的评分标记，如果是评分人为组后一个人，则为true，否则设为false
+                            // var x_score_flag = true;
+
+                            // _.each(x.attributes.dimensions, function(di) {
+                            //     if (di.number_of_people > 0 && di.status == '0') {
+                            //         x_score_flag = false;
+                            //     }
+                            // });
+
+                            // //计算问卷总分，并处理权重丢失情况
+                            // if (x_score_flag) {
+                            //     x.attributes.actual_number_of_people += 1;
+                            //     setQIScoreAndSave(x, self.peopleCompetencyScores, self.peopleCompetencyScore, next);
+                            // } else {
+                            //     x.attributes.actual_number_of_people += 1;
+                            //     // x.save();
+                            //     // x.attributes.status = '1';
+                            //     x.save(x.attributes, {
+                            //         success: function(model, response, options) {
+                            //             next(null, null);
+                            //         }
+                            //     })
+                            // }
+                            x.save(x.attributes, {
+                                success: function(model, response, options) {
+                                    next(null, null);
                                 }
-
-                                if (i.status == '0') {
-                                    d_score_flag = false;
-                                }
-                                d_sum_score += parseFloat(i.score);
-                            });
-
-                            if (d_score_flag) {
-                                d.f_score = d_sum_score;
-                                d.status = '1';
-                                d.score = d_sum_score * d.weight / 100;
-                            }
-                            d.actual_number_of_people += 1;
-
-                            //整份问卷的评分标记，如果是评分人为组后一个人，则为true，否则设为false
-                            var x_score_flag = true;
-
-                            _.each(x.attributes.dimensions, function(di) {
-                                if (di.number_of_people > 0 && di.status == '0') {
-                                    x_score_flag = false;
-                                }
-                            });
-
-                            //计算问卷总分，并处理权重丢失情况
-                            if (x_score_flag) {
-                                x.attributes.actual_number_of_people += 1;
-                                setQIScoreAndSave(x, self.peopleCompetencyScores, self.peopleCompetencyScore, next);
-                            } else {
-                                x.attributes.actual_number_of_people += 1;
-                                // x.save();
-                                // x.attributes.status = '1';
-                                x.save(x.attributes, {
-                                    success: function(model, response, options) {
-                                        next(null, null);
-                                    }
-                                })
-                            }
+                            })
                         }, function(err, results) {
+                            if (err) {
+                                $self.removeAttr("disabled");
+                            };
+                            $.mobile.loading("hide");
                             window.location.href = '#qt_manage'
                         })
                     }
