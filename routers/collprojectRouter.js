@@ -57,6 +57,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 // if (!this.c_collproject.models.length) {
                 this.c_collproject.fetch().done(function() {
                     self.collProjectListViewAll.cp_types = self.cp_types;
+                    self.collProjectListViewAll.cpfd = self.cpfd;
                     // self.collProjectListViewAll.date_pj_typeset = '0'
                     self.collProjectListViewAll.render()
                     $.mobile.loading("hide");

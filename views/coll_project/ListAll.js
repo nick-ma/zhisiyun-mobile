@@ -13,20 +13,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var self = this;
                 this.template = Handlebars.compile($("#hbtmp_coll_project_list_view_all").html());
                 // The render method is called when CollProject Models are added to the Collection
-
-                this.collection.on("sync", function() {
-                    self.render()
-                }, this);
+                this.extra_select_template = Handlebars.compile($("#hbtmp_coll_project_cf_str_select_filter").html());
+                // this.collection.on("sync", function() {
+                //     self.render()
+                // }, this);
                 self.state = '0'; //默认是0
                 self.mode = 'all_project';
                 self.search_term = ''; //过滤条件
                 self.date_offset = 30; //过滤条件
                 self.date_pj_typeset = '0';
+                self.extra_filter = {};
                 this.bind_event();
             },
 
             // Renders all of the CollProject models on the UI
             render: function() {
+                // console.log('message: render()');
                 var self = this;
                 self.mode = $("#collproject_view_mode").val() || 'all_project';
                 var render_mode = 'project';
@@ -43,6 +45,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         return st.test(x.project_name);
                     })
                 };
+                //过滤扩展字段
+                _.each(self.extra_filter, function(val, key) {
+                    // console.log(key, '->', val);
+                    if (val != '全部') {
+                        tmp = _.filter(tmp, function(x) {
+                            return x[key] == val;
+                        })
+                    };
+                })
                 // 整理前端需要渲染的数据
                 // console.log(tmp);
                 var models4render;
@@ -190,7 +201,38 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     items.push('<option value="' + type._id + '" ' + ((type._id == self.date_pj_typeset) ? 'selected' : '') + '>' + type.cp_type_name + '</option>')
                 })
                 $("#fc_pj_type_set").html(items.join(''))
-
+                //自定义筛选
+                $("#collproject_extra_filter_fields").empty(); //清空
+                // console.log(self.cp_types);
+                // console.log(self.cpfd);
+                var cp_type = _.find(self.cp_types, function(x) {
+                    return x._id == self.date_pj_typeset
+                });
+                if (cp_type) { //查到了，开始循环他的字段
+                    var fd_filter_rendered = [];
+                    _.each(cp_type.cp_type_fields, function(x) {
+                        // console.log(x);
+                        var field_define = self.cpfd[x];
+                        // console.log(field_define);
+                        if (field_define && field_define.cat == 'str' && field_define.ctype == 'select') {
+                            // console.log(field_define);
+                            var fd_render_data = {
+                                title: field_define.title,
+                                field_name: x,
+                                field_value: self.extra_filter[x],
+                                options: ['全部'].concat(field_define.options)
+                            };
+                            fd_filter_rendered.push(self.extra_select_template(fd_render_data));
+                            // console.log(fd_render_data);
+                        }
+                        // _.find(self.cpfd,function  (val,key) {
+                        //     return y.
+                        // })
+                    })
+                    $("#collproject_extra_filter_fields").html(fd_filter_rendered.join(''));
+                };
+                $("#collproject-left-panel").trigger("create"); //渲染侧边栏
+                // console.log(cp_type);
                 $("#btn-collproject_list-add").attr('href', '#collproject_edit/add');
 
                 $("#collproject-content").html(self.template(render_data));
@@ -204,6 +246,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var self = this;
                 $("#collproject")
                     .on('change', '#collproject_view_mode', function(event) {
+                        // console.log('message: fired 3');
                         event.preventDefault();
                         self.mode = this.value;
                         self.render();
@@ -221,6 +264,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         });
                     })
                     .on('change', '#collproject-left-panel input[name=collproject_state]', function(event) {
+                        // console.log('message: fired 2');
                         event.preventDefault();
                         var $this = $(this);
                         self.state = $this.val();
@@ -233,6 +277,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var $this = $(this);
                         var field = $this.data("field");
                         var value = $this.val();
+                        // console.log($this.data("extra"));
                         self[field] = value;
                         if (field == 'date_offset') { //需要重新获取数据
                             $.mobile.loading("show");
@@ -244,14 +289,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         } else if (field == 'date_pj_typeset') {
                             $.mobile.loading("show");
                             self.collection.date_pj_typeset = value;
+                            self.extra_filter = {}; //清空扩展字段
                             self.collection.fetch().done(function() {
                                 $.mobile.loading("hide");
                                 self.render();
                             })
-                            self.render();
-                        } else {
+                            // self.render();
+                        } else if ($this.data("extra")) { //扩展字段
+                            self.extra_filter[field] = value;
                             self.render();
                         }
+                        // console.log('message: fired 1');
                         // $("#colltask-left-panel").panel("close");
                         // console.log($this.val());
                     })
