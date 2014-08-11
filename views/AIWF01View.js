@@ -8,6 +8,8 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
     var uu;
     var conver;
     var pscs_data;
+    var tasks = [];
+    var projects = [];
 
     Handlebars.registerHelper('ai_inout', function(s) {
         return (s == $("#login_people").val()) ? 'in' : 'out';
@@ -353,9 +355,11 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
         //保存时，把poulate后的重置为id保存
         ai_data_c.points_system = !!ai_data_c.points_system._id ? ai_data_c.points_system._id : ai_data_c.points_system;
 
-        _.each(ai_data_c.qualitative_pis.items, function(x) {
-            x.grade_group = !!x.grade_group._id ? x.grade_group._id : x.grade_group;
-        });
+        if (ai_data_c.qualitative_pis.grade_way == 'G') {
+            _.each(ai_data_c.qualitative_pis.items, function(x) {
+                x.grade_group = !!x.grade_group._id ? x.grade_group._id : x.grade_group;
+            });
+        }
 
         _.each(ai_data_c.quantitative_pis.items, function(x) {
             x.scoringformula = !!x.scoringformula._id ? x.scoringformula._id : x.scoringformula;
@@ -373,6 +377,132 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
             });
         })
 
+    }
+
+    function test_in(key, val, coll) {
+        var flag = false;
+        for (var i = 0; i < coll.length; i++) {
+            flag = coll[i][key] == val;
+            if (flag) {
+                break;
+            }
+        };
+        return flag;
+    }
+
+    function get_roles(a, b, c) { //判断当前登录用户的角色
+        var ret = [0, 0, 0]; //创建人， 成员， 观察员
+        var login_people = $("#login_people").val()
+        if (login_people == a._id) {
+            ret[0] = 1;
+        };
+        if (test_in('_id', login_people, b)) {
+            ret[1] = 1;
+        };
+        if (test_in('_id', login_people, c)) {
+            ret[2] = 1;
+        };
+        return ret;
+    }
+
+    function show_state(end, isfinished) {
+        if (isfinished) {
+            return '完成';
+        } else {
+            if (!end) {
+                return '未设置结束日期';
+            } else if (moment(end).endOf('day').toDate() >= new Date()) {
+                return '正常';
+            } else {
+                return '超时';
+            };
+        };
+    }
+
+    function show_state2(end, status) {
+        if (status == 'C') {
+            return '完成';
+        } else if (moment(end).endOf('day').toDate() >= new Date()) {
+            return '正常';
+        } else {
+            return '超时';
+        };
+    }
+
+    var get_tasks = function(ai_id, pi_id, cb) {
+        //取协作任务
+        $.get("/admin/pm/get_coll_task", {
+            ai_id: ai_id,
+            pi_id: pi_id
+        }, function(data) {
+            if (data.msg.length > 0) {
+                _.each(data.msg, function(temp) {
+                    var task = {};
+                    var roles = get_roles(temp.creator, temp.tms, temp.ntms);
+                    var ret = [];
+                    if (roles[0]) {
+                        ret.push('创建人,');
+                    };
+                    if (roles[1]) {
+                        ret.push('成员,');
+                    };
+                    if (roles[2]) {
+                        ret.push('观察员,');
+                    };
+                    task.role = ret.join('');
+                    task.task_name = temp.task_name;
+                    task.comments_num = temp.comments.length;
+                    task.attachments_num = temp.attachments.length;
+                    task.end_time = moment(temp.end).format('YYYY-MM-DD');
+                    task.avatar = temp.th.avatar;
+                    task.people_name = temp.th.people_name;
+                    task.update_time = moment(temp.lastModified).fromNow();
+                    task.state = show_state(temp.end, temp.isfinished);
+                    task.score = temp.score;
+
+                    tasks.push(task);
+                })
+            }
+            cb();
+        })
+    }
+
+    var get_projects = function(ai_id, pi_id, cb) {
+        //取协作任务
+        $.get("/admin/pm/get_coll_project", {
+            ai_id: ai_id,
+            pi_id: pi_id
+        }, function(data) {
+            if (data.msg.length > 0) {
+                _.each(data.msg, function(temp) {
+                    var project = {};
+                    var roles = get_roles(temp.creator, temp.pms, temp.npms);
+                    var ret = [];
+                    if (roles[0]) {
+                        ret.push('创建人');
+                    };
+                    if (roles[1]) {
+                        ret.push('成员');
+                    };
+                    if (roles[2]) {
+                        ret.push('观察员');
+                    };
+                    project.role = ret.join('');
+                    project.project_name = temp.project_name;
+                    project.comments_num = temp.task_count ? temp.task_count : 0;
+                    project.attachments_num = temp.attachments.length;
+                    project.end_time = moment(temp.end).format('YYYY-MM-DD');
+                    project.avatar = temp.pm.avatar;
+                    project.people_name = temp.pm.people_name;
+                    project.update_time = moment(temp.lastModified).fromNow();
+                    project.state = show_state2(temp.end, temp.status);
+                    project.score = temp.score;
+
+                    projects.push(project);
+                })
+            }
+            cb();
+        })
     }
 
     var do_trans = function() {
@@ -494,9 +624,19 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     return pi_id == x.pi;
                 });
 
-                self.view_mode = 'pi_detail';
-                self.item = item;
-                self.render();
+                tasks.length = 0;
+                projects.length = 0;
+                get_tasks(self.ai.attributes._id, pi_id, function() {
+                    get_projects(self.ai.attributes._id, pi_id, function() {
+                        self.item = item;
+                        self.item_obj = {};
+                        self.item_obj.pi = item;
+                        self.item_obj.tasks = tasks;
+                        self.item_obj.projects = projects;
+                        self.view_mode = 'pi_detail';
+                        self.render();
+                    });
+                });
             });
 
             $("#ai_wf-content").on('click', '.dxpi', function() {
@@ -508,9 +648,19 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     return pi_id == x.pi;
                 });
 
-                self.view_mode = 'pi_detail2';
-                self.item = item2;
-                self.render();
+                tasks.length = 0;
+                projects.length = 0;
+                get_tasks(self.ai.attributes._id, pi_id, function() {
+                    get_projects(self.ai.attributes._id, pi_id, function() {
+                        self.item = item2;
+                        self.item_obj = {};
+                        self.item_obj.pi = item2;
+                        self.item_obj.tasks = tasks;
+                        self.item_obj.projects = projects;
+                        self.view_mode = 'pi_detail2';
+                        self.render();
+                    });
+                });
             });
 
             $("#ai_wf-content").on('change', '#self,#indirect,#superior,#superior_superior', function() {
@@ -651,7 +801,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     $("#ai_wf_title").html('指标明细');
 
                     this.template = Handlebars.compile($("#assessment_dl_pi_detail_view").html());
-                    $("#ai_wf-content").html(self.template(self.item));
+                    $("#ai_wf-content").html(self.template(self.item_obj));
                     $("#ai_wf-content").trigger('create');
 
                 } else if (self.view_mode == 'pi_detail2') {
@@ -660,8 +810,11 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     self.item = _.find(self.ai.attributes.qualitative_pis.items, function(x) {
                         return self.item.pi == x.pi;
                     });
+
+                    self.item_obj.pi = self.item;
+
                     this.template = Handlebars.compile($("#assessment_dx_pi_detail_view").html());
-                    $("#ai_wf-content").html(self.template(self.item));
+                    $("#ai_wf-content").html(self.template(self.item_obj));
                     $("#ai_wf-content").trigger('create');
 
                     //判断是哪个环节，只要评估人对应的环节才能评分
