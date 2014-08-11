@@ -37,13 +37,45 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
 
             bind_event: function() {
                 var self = this;
-                $("#contact_detail-content").on('click', '#btn_start_userchat', function(event) {
-                    event.preventDefault();
-                    var url = "im://userchat/" + self.model.get('_id');
-                    console.log(url);
-                    window.location.href = url;
-                });
+                $("#contact_detail-content")
+                    .on('click', '#btn_start_userchat', function(event) {
+                        event.preventDefault();
+                        var url = "im://userchat/" + self.model.get('_id');
+                        console.log(url);
+                        window.location.href = url;
+                    })
+                    .on('click', '#btn_add_to_favorite', function(event) {
+                        event.preventDefault();
+                        var url = "/admin/masterdata/people/add_to_my_favorite";
+                        var post_data = {
+                            people_id: self.model.get('_id'),
+                        };
+                        $.post(url, post_data, function(data) {
+                            alert('操作成功')
+                            self.model.collection.fetch().done(function() {
+                                // to do
+                            });
+                        }).fail(function(err) {
+                            alert('操作失败')
+                        })
 
+                    })
+                    .on('click', '#btn_remove_from_favorite', function(event) {
+                        event.preventDefault();
+                        var url = "/admin/masterdata/people/remove_from_my_favorite";
+                        var post_data = {
+                            people_id: self.model.get('_id'),
+                        };
+                        $.post(url, post_data, function(data) {
+                            alert('操作成功')
+                            self.model.collection.fetch().done(function() {
+                                // to do
+                            });
+                        }).fail(function(err) {
+                            alert('操作失败')
+                        })
+
+                    });
             }
 
         });
