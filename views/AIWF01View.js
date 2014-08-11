@@ -23,6 +23,14 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
         };
     });
 
+    Handlebars.registerHelper('isplan', function(data, options) {
+        if (parseFloat(data) < 4) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        };
+    });
+
     Handlebars.registerHelper('task', function(data, options) {
         if (data == 'TASK') {
             return options.fn(this);
@@ -363,6 +371,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
         _.each(ai_data_c.quantitative_pis.items, function(x) {
             x.scoringformula = !!x.scoringformula._id ? x.scoringformula._id : x.scoringformula;
+            x.dp_people = !!x.dp_people._id ? x.dp_people._id : x.dp_people;
         });
 
         var url = '/admin/pm/assessment_instance/edit';
@@ -630,6 +639,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     get_projects(self.ai.attributes._id, pi_id, function() {
                         self.item = item;
                         self.item_obj = {};
+                        self.item_obj.ai_status = self.ai.attributes.ai_status;
                         self.item_obj.pi = item;
                         self.item_obj.tasks = tasks;
                         self.item_obj.projects = projects;
@@ -654,6 +664,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     get_projects(self.ai.attributes._id, pi_id, function() {
                         self.item = item2;
                         self.item_obj = {};
+                        self.item_obj.ai_status = self.ai.attributes.ai_status;
                         self.item_obj.pi = item2;
                         self.item_obj.tasks = tasks;
                         self.item_obj.projects = projects;
