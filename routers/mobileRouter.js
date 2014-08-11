@@ -29,6 +29,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/UploadPicView",
     // 添加交流记录界面
     "../views/CommentAddView",
+    "../views/CompetencyDetailView",
+
+    "../collections/CompetencyDetalCollection",
     "./colltaskRouter",
     "./collprojectRouter",
     "./assessmentRouter",
@@ -37,7 +40,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./todoRouter",
     "./quesetionnaireRouter",
     //其他jquery插件
-    "async", "moment", "sprintf", "highcharts"
+    "async", "moment", "sprintf", "highcharts",
+
   ],
   function($, Backbone, Handlebars, LZString,
     HomeObjectiveView, ObjectiveCollection,
@@ -53,6 +57,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // PISelectView,
     UploadPicView,
     CommentAddView,
+    CompetencyDetailView,
+    CompetencyDetalCollection,
     CollTaskRouter,
     CollProjectRouter,
     AssessmentRouter,
@@ -61,6 +67,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     ToDoRouter,
     QuesetionnaireRouter,
     async, moment
+
 
   ) {
     // Extends Backbone.Router
@@ -125,6 +132,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 能力测评明细
         "competency_scores/:cid": "competency_scores",
         "competency_spider_chart/:people_id/:qi_id": "competency_spider_chart",
+        "competency_scores_datail/:people_id/:ct_id": "competency_scores_datail",
         //人才九宫图
         "talent9grides/:people_id/:ai_score/:score": "talent9grides",
 
@@ -382,10 +390,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       competency_scores: function(cid) {
         var login_people = $("#login_people").val();
         this.competencyScoresView.model = this.c_competency.get(login_people);
-        this.competencyScoresView.people_id = 'self';
-        this.competencyScoresView.cid = cid;
-        this.competencyScoresView.model_view = '0'
-        this.competencyScoresView.render();
+        this.competencyScoresView.render('self', cid);
         $("body").pagecontainer("change", "#competency_scores", {
           reverse: false,
           changeHash: false,
@@ -417,6 +422,26 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           changeHash: false,
         });
 
+      },
+      competency_scores_datail: function(people_id, ct_id) {
+        var self = this;
+        if (self.competencyDetal.length) {
+          self.competencyDetailView.render();
+          $("body").pagecontainer("change", "#competency_scores", {
+            reverse: false,
+            changeHash: false,
+          });
+        } else {
+          self.competencyDetal.fetch().done(function() {
+            self.competencyDetailView.ct_id = ct_id;
+            self.competencyDetailView.people = people_id;
+            self.competencyDetailView.render();
+            $("body").pagecontainer("change", "#competency_scores", {
+              reverse: false,
+              changeHash: false,
+            });
+          })
+        }
       },
       talent9grides: function(people_id, ai_score, score) {
         var self = this;
@@ -670,7 +695,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           el: "#comment_add-content",
 
         })
-
+        this.competencyDetailView = new CompetencyDetailView({
+          el: "#competency_scores-content",
+          collection: self.competencyDetal,
+        })
       },
       init_cols: function() {
         this.c_objectives = new ObjectiveCollection(); //目标计划
@@ -681,6 +709,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.c_horoscope = new HoroscopeCollection(); //人才九宫图配置
         this.c_competency = new CompetencyCollection(); //能力素质
         this.c_payroll = new PayrollCollection(); //工资
+        this.competencyDetal = new CompetencyDetalCollection()
       },
       init_models: function() {
         this.m_Q360 = new Q360Model(); //360问卷的数据
