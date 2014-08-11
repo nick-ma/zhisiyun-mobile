@@ -50,6 +50,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     self.model.set(spihb.model);
                 };
 
+                // 技能选择
+                var skhb = JSON.parse(localStorage.getItem('sk_helper_back') || null);
+                localStorage.removeItem('sk_helper_back'); //获取完之后，删掉，避免后面重复使用。
+                if (skhb) {
+                    self.model.set(skhb.model);
+                };
+
                 if (self.ct_id) {
                     $("#btn-colltask_edit-back").attr('href', '#colltask_detail/' + self.ct_id);
                 } else {
@@ -99,6 +106,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             back_url: '#colltask_edit/' + self.model.get('_id'),
                         })); //放到local storage里面，便于后面选择屏幕进行操作
                         localStorage.setItem('spi_helper', JSON.stringify({
+                            model: self.model.toJSON(),
+                            back_url: '#colltask_edit/' + self.model.get('_id'),
+                        })); //放到local storage里面，便于后面选择屏幕进行操作
+                        localStorage.setItem('sk_helper', JSON.stringify({
                             model: self.model.toJSON(),
                             back_url: '#colltask_edit/' + self.model.get('_id'),
                         })); //放到local storage里面，便于后面选择屏幕进行操作

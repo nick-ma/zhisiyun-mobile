@@ -1161,6 +1161,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return num + 1;
 
       });
+      Handlebars.registerHelper('join', function(array, jc) {
+        if (_.isArray(array)) {
+          return (jc) ? array.join(jc) : array.join(',');
+        } else {
+          return '';
+        };
+
+      });
     })();
 
     // Returns the Router class
