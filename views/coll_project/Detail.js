@@ -223,15 +223,29 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 //确定权限
                 var login_people = $("#login_people").val();
                 var rights = [0, 0, 0, 0, 0, 0, 0];
-                // if (login_people == self.model.attributes.creator._id) { //创建人
-                //     rights = [0, 0, 0, 0, 0, 0, 0];
-                // } else 
+                if (login_people == self.model.attributes.creator._id) { //创建人
+                    var tmp_rights = [0, 1, 0, 0, 0, 0, 0];
+                    for (var i = 0; i < rights.length; i++) {
+                        rights[i] = rights[i] || tmp_rights[i];
+                    };
+                }
                 if (login_people == self.model.attributes.pm._id) { //负责人
-                    rights = [1, 1, 1, 1, 1, 1, 1];
-                } else if (self.test_in('_id', login_people, self.model.attributes.pms)) { //参与人
-                    rights = [1, 0, 0, 0, 0, 0, 0];
-                } else if (self.test_in('_id', login_people, self.model.attributes.npms)) { //观察员
-                    rights = [0, 0, 0, 0, 0, 0, 0];
+                    var tmp_rights = [1, 1, 1, 1, 1, 1, 1];
+                    for (var i = 0; i < rights.length; i++) {
+                        rights[i] = rights[i] || tmp_rights[i];
+                    };
+                }
+                if (self.test_in('_id', login_people, self.model.attributes.pms)) { //参与人
+                    var tmp_rights = [1, 0, 0, 0, 0, 0, 0];
+                    for (var i = 0; i < rights.length; i++) {
+                        rights[i] = rights[i] || tmp_rights[i];
+                    };
+                }
+                if (self.test_in('_id', login_people, self.model.attributes.npms)) { //观察员
+                    var tmp_rights = [0, 0, 0, 0, 0, 0, 0];
+                    for (var i = 0; i < rights.length; i++) {
+                        rights[i] = rights[i] || tmp_rights[i];
+                    };
                 };
                 var state_rights = [0, 0, 0, 0, 0, 0, 0];
                 if (self.model.get('status') == 'O') {

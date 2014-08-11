@@ -37,6 +37,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     self.model.set(spihb.model);
                 };
 
+                // 技能选择
+                var skhb = JSON.parse(localStorage.getItem('sk_helper_back') || null);
+                localStorage.removeItem('sk_helper_back'); //获取完之后，删掉，避免后面重复使用。
+                if (skhb) {
+                    self.model.set(skhb.model);
+                };
+
                 $("#btn-collproject_edit-back").attr('href', "#collproject_detail/" + self.model.get('_id'));
                 var render_data = self.model.toJSON();
                 render_data.cp_types = self.cp_types;
@@ -95,6 +102,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             back_url: '#collproject_edit/' + self.model.get('_id') + '/basic',
                         })); //放到local storage里面，便于后面选择屏幕进行操作
                         localStorage.setItem('spi_helper', JSON.stringify({
+                            model: self.model.toJSON(),
+                            back_url: '#collproject_edit/' + self.model.get('_id') + '/basic',
+                        })); //放到local storage里面，便于后面选择屏幕进行操作
+                        localStorage.setItem('sk_helper', JSON.stringify({
                             model: self.model.toJSON(),
                             back_url: '#collproject_edit/' + self.model.get('_id') + '/basic',
                         })); //放到local storage里面，便于后面选择屏幕进行操作

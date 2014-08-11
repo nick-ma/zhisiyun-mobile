@@ -11,6 +11,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/skill_recommend/ListPeopleSearch",
     "../views/skill_recommend/ListSkillConfig",
     "../views/skill_recommend/AllSkillsBank",
+    "../views/skill_recommend/SkillSelect",
     "../models/SkillRecommendModel",
 ], function($, Backbone, Handlebars, LZString,
     SkillRecommendCollection,
@@ -23,6 +24,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     ListPeopleSearchView,
     ListSkillConfigView,
     AllSkillsBankView,
+    SkillSelectView,
     SkillRecommendModel
 ) {
     var SkillRecommendRouter = Backbone.Router.extend({
@@ -49,6 +51,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             "show_skills_bank": "show_skills_bank",
             "save_skill/:people_id/:skill_id": "save_skill",
             "skill_recommend/:people_id": "skill_recommend",
+            "skill_select/:mode/:target_field": "skill_select",
         },
 
         //--------我的技能--------//
@@ -206,6 +209,17 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 changeHash: false,
             });
         },
+        //----------技能选择屏幕----------//
+        skill_select: function(mode, target_field) {
+            var self = this;
+            $("body").pagecontainer("change", "#skill_select", {
+                reverse: false,
+                changeHash: false,
+            });
+            self.skillSelectView.target_field = target_field;
+            self.skillSelectView.collection = self.skills;
+            self.skillSelectView.render(mode);
+        },
         init_views: function() {
             var self = this;
             this.mySkillsListView = new MySkillsListView({
@@ -231,6 +245,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             });
             this.allSkillsBankView = new AllSkillsBankView({
                 el: "#show_skill_config-content",
+            });
+            this.skillSelectView = new SkillSelectView({
+                el: "#skill_select-content",
             });
 
         },

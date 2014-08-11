@@ -13,6 +13,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 this.template = Handlebars.compile($("#hbtmp_myteam_detail_basic_view").html());
                 // The render method is called when People Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
+                this.bind_event();
 
             },
 
@@ -28,6 +29,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 $("#myteam_detail-basic-content").html(self.template(render_data));
                 $("#myteam_detail-basic-content").trigger('create');
                 return this;
+            },
+            bind_event: function() {
+                var self = this;
+                $("#myteam_detail-basic-content").on('click', '#btn_start_userchat', function(event) {
+                    event.preventDefault();
+                    var url = 'im://userchat/' + self.model.get('_id');
+                    window.location.href = url;
+                });
             }
 
         });

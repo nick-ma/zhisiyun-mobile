@@ -50,7 +50,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 };
                 $("#people_select-content").trigger('create');
                 window.setTimeout(function() {
-                    $.mobile.silentScroll($("#people_select-content input:checked").offset().top - 75)
+                    if ($("#people_select-content input:checked").length && $("#people_select-content input:checked").offset().top > 75) {
+                        $.mobile.silentScroll($("#people_select-content input:checked").offset().top - 75)
+                    }
                 }, 1000);
                 return this;
 
