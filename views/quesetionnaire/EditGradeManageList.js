@@ -38,6 +38,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
         return parseFloat(data).toFixed(2);
     });
+    Handlebars.registerHelper("my_result", function(result, options) {
+        return options[result].option;
+    });
+
 
     function forcechange(x) {
         var f_x = parseFloat(x);
@@ -67,9 +71,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
     var Quesetionnaire_manageListView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
+            var self = this;
             this.quesetionnaire_manage_template = Handlebars.compile($("#quesetionnaire_manage_list_view").html());
             this.quesetionnaire_my_manage_template = Handlebars.compile($("#quesetionnaire_my_manage_list_view").html());
-            this.quesetionnaire_my_manage_datail_template = Handlebars.compile($("#quesetionnaire_my_datail_manage_list_view").html());
+            this.quesetionnaire_survey_template = Handlebars.compile($("#quesetionnaire_survey_manage_list_view").html());
+            this.quesetionnaire_exam_template = Handlebars.compile($("#quesetionnaire_exam_manage_list_view").html());
 
             this.collection.on("sync", this.render, this);
             this.view_mode = '1';
@@ -77,30 +83,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.period_set = null;
             this.qti_items = [];
             this.bind_event();
+
         },
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
 
-            // $.get('/admin/pm/questionnair_template/get_my_qis_report_json', function(data) {
-            //     self.qis = data.qis;
-            //     _.each($("#quesetionnaire_manage_list-left-panel label"), function(x) {
-            //         var state = $(x).data('state');
-            //         var filters = []
-            //         if (state == '0' || state == '1') {
-            //             filters = _.filter(self.collection.toJSON(), function(s) {
-            //                 return s.status == state;
-            //             });
-            //         } else {
-
-            //             var mbtis = _.filter(data_items, function(x) {
-            //                 return x.mark == '5';
-            //             });
-            //             filters = _.flatten([data.qis, mbtis], true);
-            //         }
-            //         $(x).find('span').html(filters.length || 0);
-            //     })
-            // })
 
             var rendered_data = '';
             var obj = {};
@@ -127,7 +115,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     return (data.period ? data.period._id : null) == String(self.period_set)
                 })
             };
-
             $.get('/admin/pm/questionnair_template/get_my_qis_report_json', function(data) {
                 self.qis = data.qis;
                 _.each($("#quesetionnaire_manage_list-left-panel label"), function(x) {
@@ -138,15 +125,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             return s.status == state;
                         });
                     } else {
+                        var nums = ['3', '4', '5']
                         var mbtis = _.filter(data_items, function(x) {
-                            return x.mark == '5';
+                            return !!~nums.indexOf(x.mark);
                         });
-                        filters = _.flatten([data.qis, mbtis], true);
+                        filters = _.flatten([self.qis, mbtis], true);
                     }
                     $(x).find('span').html(filters.length || 0);
                 })
-            })
 
+            })
             $("#quesetionnaire_manage_list-content_02").hide();
             $("#quesetionnaire_manage_list-content").show();
             if (self.view_mode == '1') {
@@ -166,9 +154,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $("#quesetionnaire_manage_list-content").trigger('create');
                 $("#show_tip").html('没有已提交问卷！')
             } else if (self.view_mode == '3') {
-
+                var nums = ['3', '4', '5']
                 var mbtis = _.filter(data_items, function(x) {
-                    return x.mark == '5';
+                    return !!~nums.indexOf(x.mark);
                 });
                 var q_items = [];
                 _.each(self.qis, function(q) {
@@ -221,7 +209,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                 $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_my_manage_template(obj));
                 $("#quesetionnaire_manage_list-content").trigger('create');
-            } else {
+            } else if (self.view_mode == '4') {
 
                 $("#quesetionnaire_manage_list-content_02").show();
                 $("#quesetionnaire_manage_list-content").hide();
@@ -339,42 +327,33 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     $("#spider_chart_qt_container").html("<h2>没有找到问卷数据</h2>");
                 }
 
+            } else if (self.view_mode == '5') {
+                $("#quesetionnaire_manage_list #common_name").html('调研问卷')
+                var q_insatnce = _.find(self.collection.toJSON(), function(q) {
+                    return q.operation_id == self.operation_id
+                })
+                $.get('/admin/pm/questionnair_template/get_questionnair_survey_bblist/' + q_insatnce.qtc + '/' + q_insatnce.createDate, function(results) {
 
-                // var items = _.clone(qo.dimensions[0].items);
-                // //重新组装分类的得分
-                // var index = 0;
-                // _.each(items, function(x) {
-                //     var index2 = 0;
-                //     var item_sum_score = 0;
-                //     _.each(qo.dimensions, function(xx) {
-                //         item_sum_score += parseFloat(xx.items[index].score * xx.weight / 100);
-                //     });
-                //     x.score = item_sum_score;
-                //     x.f_score = parseFloat(item_sum_score / x.weight * 100);
-                //     index++;
-                // });
-                // //重新组装题目的得分
-                // var index1 = 0;
-                // _.each(items, function(x) {
-                //     var index2 = 0;
-                //     _.each(x.qtis, function(xx) {
-                //         var qti_sum_score = 0;
-                //         _.each(qo.dimensions, function(xxx) {
-                //             qti_sum_score += parseFloat(xxx.items[index1].qtis[index2].score * xxx.weight / 100);
-                //         });
-                //         xx.score = qti_sum_score;
-                //         xx.f_score = parseFloat(qti_sum_score / xx.qti_weight * 100);
-                //         index2++;
-                //     });
-                //     index1++;
-                // });
-                // var o = {};
-                // o.qt_name = qo.qt_name
-                // o.score = parseFloat(qo.score).toFixed(2);
-                // o.items = items
-                // self.my_items = o;
-                // $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_my_manage_datail_template(o));
-                // $("#quesetionnaire_manage_list-content").trigger('create');
+                    _.each(q_insatnce.datas, function(data) {
+                        _.each(data.qti_options, function(qt) {
+                            var f_d = _.find(results, function(rt) {
+                                return rt.qt_name == data.qti_name && rt.op == qt.option
+                            })
+                            qt.pc = f_d.pc
+                        })
+                    })
+                    $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_survey_template(q_insatnce));
+                    $("#quesetionnaire_manage_list-content").trigger('create');
+                })
+
+            } else if (self.view_mode == '6') {
+                $("#quesetionnaire_manage_list #common_name").html('测试问卷')
+                var q_insatnce = _.find(self.collection.toJSON(), function(q) {
+                    return q.operation_id == self.operation_id
+                })
+
+                $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_exam_template(q_insatnce));
+                $("#quesetionnaire_manage_list-content").trigger('create');
             }
 
 
@@ -408,9 +387,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 // $("#colltask-left-panel").panel("close");
             }).on('click', '.btn_to_detail', function(event) {
                 event.preventDefault();
-
-                if ($(this).data('type') && $(this).data('type') == '4') {
-                    window.location.href = '#godo/' + $(this).data('operation_id') + '/4'
+                var type = $(this).data('type')
+                var mark = $(this).data('mark')
+                if (type && type == '4') {
+                    window.location.href = '#godo/' + $(this).data('operation_id') + '/' + type
+                } else if (type && type == '3') {
+                    var operation_id = $(this).data('operation_id');
+                    self.operation_id = operation_id;
+                    if (mark == '3') {
+                        self.view_mode = '5';
+                        self.render();
+                    } else {
+                        self.view_mode = '6';
+                        self.render();
+                    }
                 } else {
                     self.view_mode = '4';
                     var qt_id = $(this).data('qt_id');
@@ -421,7 +411,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             }).on('click', '#btn-quesetionnaire_manage_list-back', function(event) {
                 event.preventDefault();
-                if (self.view_mode != '4') {
+                if (self.view_mode != '4' && self.view_mode != '5' && self.view_mode != '6') {
                     if ($("#req_ua").val() == 'normal') {
                         window.location.href = '#home';
                     } else {
