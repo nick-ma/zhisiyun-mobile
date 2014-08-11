@@ -190,6 +190,25 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         return text;
       }
     };
+    //自定义的多关键字搜索 -> 返回true代表当前行需要隐藏， 返回false代表当前行显示出来
+    $.mobile.filterable.prototype.options.filterCallback = function(index, searchValue) {
+      // console.log(index, searchValue);
+      var $this = $(this),
+        filtertext = $this.data('filtertext') || $this.text() || '';
+        
+      if (searchValue) {
+        searchValue = searchValue.split(' ');
+        var found_flag = true;
+        for (var i = 0; i < searchValue.length; i++) { //循环字段， 取每次的交集
+          var tmp_regexp = /./;
+          tmp_regexp.compile(searchValue[i]);
+          found_flag = found_flag && tmp_regexp.test(filtertext);
+        };
+        // console.log(filtertext, searchValue, found_flag);
+        return !found_flag;
+      };
+      return false; //没有过滤条件，全都显示
+    }
     //config for ajax file upload in jquery mobile
     // $.ajaxEnvironment = function(settings, block) {
     //   var originalSettings = $.ajaxSetup();
