@@ -2,12 +2,12 @@
 // ====================
 
 define(["jquery", "backbone", "handlebars", "lzstring",
-        "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View", "../views/TransConfirmView",
+        "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View","../views/AIWF03View", "../views/TransConfirmView",
         "../collections/ToDoListCollection",
         "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel"
     ],
     function($, Backbone, Handlebars, LZString,
-        ToDoListView, AIWF01View,AIWF02View, TransConfirmView,
+        ToDoListView, AIWF01View,AIWF02View,AIWF03View, TransConfirmView,
         ToDoListCollection,
         WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel
     ) {
@@ -28,6 +28,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 "todo": "todo_list",
                 "godo1/:op_id/:type": "go_do1",
                 "godo2/:op_id/:type": "go_do2",
+                "godo3/:op_id/:type": "go_do3",
             },
             todo_list: function() { //我的待办
                 var self = this;
@@ -93,6 +94,35 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     });
                 });
             },
+            go_do3: function(op_id, type) {
+                var self = this;
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+
+                self.wf_data.id = ti_id;
+                self.wf_data.fetch().done(function(data) {
+                    self.ai.id = data.ti.process_instance.collection_id;
+                    self.ai.fetch().done(function(data1) {
+                        self.team_data.id = self.ai.attributes.people;
+                        self.team_data.fetch().done(function(data2) {
+                            self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json?ai_id=' + self.ai.attributes._id;
+                            self.ai_datas.fetch().done(function(data2) {
+                                self.wf03View.wf_data = self.wf_data;
+                                self.wf03View.ai = self.ai;
+                                self.wf03View.team_data = self.team_data;
+                                self.wf03View.ai_datas = self.ai_datas;
+                                self.wf03View.render();
+
+                                $("body").pagecontainer("change", "#ai_wf1", {
+                                    reverse: false,
+                                    changeHash: false,
+                                });
+                            })
+                        })
+                    });
+                });
+            },
             init_views: function() {
                 var self = this;
                 this.todoListView = new ToDoListView({
@@ -106,6 +136,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
                 this.wf02View = new AIWF02View({
                     el: "#dc_wf",
+                })
+
+                this.wf03View = new AIWF03View({
+                    el: "#ai_wf1",
                 })
 
                 this.transConfirmView = new TransConfirmView({
