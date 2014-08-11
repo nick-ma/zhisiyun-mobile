@@ -1161,9 +1161,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return num + 1;
 
       });
-      Handlebars.registerHelper('join', function(array, jc) {
-        if (_.isArray(array)) {
-          return (jc) ? array.join(jc) : array.join(',');
+      Handlebars.registerHelper('getFileExtName', function(filename) {
+        var fn_parts = filename.split('.');
+        if (fn_parts.length > 1) {
+          return fn_parts[fn_parts.length - 1];
         } else {
           return '';
         };
