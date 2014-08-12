@@ -56,12 +56,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     self.ai.fetch().done(function(data1) {
                         self.team_data.id = self.ai.attributes.people;
                         self.team_data.fetch().done(function(data2) {
-                            self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json?ai_id=' + self.ai.attributes._id;
+                            self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
                             self.ai_datas.fetch().done(function(data2) {
                                 self.wf01View.wf_data = self.wf_data;
                                 self.wf01View.ai = self.ai;
                                 self.wf01View.team_data = self.team_data;
                                 self.wf01View.ai_datas = self.ai_datas;
+                                self.wf01View.view_mode = '';
                                 self.wf01View.render();
 
                                 $("body").pagecontainer("change", "#ai_wf", {
@@ -85,6 +86,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     self.dc.fetch().done(function(data1) {
                         self.wf02View.wf_data = self.wf_data;
                         self.wf02View.dc = self.dc;
+                        self.wf02View.view_mode = '';
                         self.wf02View.render();
 
                         $("body").pagecontainer("change", "#dc_wf", {
@@ -106,12 +108,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     self.ai.fetch().done(function(data1) {
                         self.team_data.id = self.ai.attributes.people;
                         self.team_data.fetch().done(function(data2) {
-                            self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json?ai_id=' + self.ai.attributes._id;
+                            self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
                             self.ai_datas.fetch().done(function(data2) {
                                 self.wf03View.wf_data = self.wf_data;
                                 self.wf03View.ai = self.ai;
                                 self.wf03View.team_data = self.team_data;
                                 self.wf03View.ai_datas = self.ai_datas;
+                                self.wf03View.view_mode = '';
                                 self.wf03View.render();
 
                                 $("body").pagecontainer("change", "#ai_wf1", {

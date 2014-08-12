@@ -1171,6 +1171,75 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
 
       });
+      //绩效流程相关=====================》
+      Handlebars.registerHelper('ai_inout', function(s) {
+        return (s == $("#login_people").val()) ? 'in' : 'out';
+      });
+
+      Handlebars.registerHelper('isplan', function(data, options) {
+        if (parseFloat(data) < 4) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('task', function(data, options) {
+        if (data == 'TASK') {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('turn', function(data, options) {
+        if (data == 'F') {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('next_task_user0', function(data, options) {
+        if (data.length == 0) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('next_task_user1', function(data, options) {
+        if (data.length == 1) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('next_task_user', function(data, options) {
+        if (data.length != 0 && data.length != 1) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('grade_way', function(data, options) {
+        if (data == 'P') {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('get_next_user_id', function(data) {
+        return data[0]._id;
+      });
+
+      Handlebars.registerHelper('get_next_user_name', function(data) {
+        return data[0].people_name;
+      });
+      //绩效流程相关=====================》
     })();
 
     // Returns the Router class
