@@ -32,7 +32,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     // cp_id: self.cp_id,
                 }
                 if (self.filter_mode == 'favorite') {
-                    render_data.people = _.filter(render_data.people,function  (x) {
+                    render_data.people = _.filter(render_data.people, function(x) {
                         return x.is_my_favorite;
                     })
                 };
@@ -56,9 +56,18 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }
                 };
                 $("#people_select-content").trigger('create');
+                // 设定顶部过滤按钮的样式
+                if (self.filter_mode == 'all') {
+                    $("#people_select").find("#btn_filter_all").addClass('ui-btn-active');
+                    $("#people_select").find("#btn_filter_my_favorite").removeClass('ui-btn-active');
+                } else {
+                    $("#people_select").find("#btn_filter_all").removeClass('ui-btn-active');
+                    $("#people_select").find("#btn_filter_my_favorite").addClass('ui-btn-active');
+                };
+
                 window.setTimeout(function() {
                     if ($("#people_select-content input:checked").length && $("#people_select-content input:checked").offset().top > 75) {
-                        $.mobile.silentScroll($("#people_select-content input:checked").offset().top - 75)
+                        $.mobile.silentScroll($("#people_select-content input:checked").offset().top - 95)
                     }
                 }, 1000);
                 return this;
