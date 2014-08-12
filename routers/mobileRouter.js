@@ -271,9 +271,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       contact_list: function() { //企业通讯录，列表
         // set detail page's back url every time 
         localStorage.setItem('contact_detail_back_url', '#contact_list')
-        if (!this.contactListlView.rendered) {
+        // if (!this.contactListlView.rendered) {
           this.contactListlView.render();
-        };
+        // };
         $("body").pagecontainer("change", "#contact_list", {
           reverse: false,
           changeHash: false,
@@ -457,7 +457,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       //----------人员选择----------//
       people_select: function(mode, target_field) {
         this.peopleSelectView.target_field = target_field;
-        this.peopleSelectView.render(mode);
+        this.peopleSelectView.select_mode = mode;
+        this.peopleSelectView.render();
         $("body").pagecontainer("change", "#people_select", {
           reverse: false,
           changeHash: false,
@@ -612,19 +613,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         self.load_data(self.c_payroll, 'payroll');
       },
       load_data: function(col_obj, col_name) { //加载数据
-        $.mobile.loading("show");
-        var login_people = $("#login_people").val();
+        // $.mobile.loading("show");
+        // var login_people = $("#login_people").val();
         var cn = col_name
         var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
           // var local_data = localStorage.getItem(cn);
         if (local_data) {
           col_obj.reset(local_data);
           col_obj.trigger('sync');
-          $.mobile.loading("hide");
+          // $.mobile.loading("hide");
         } else {
           col_obj.fetch().done(function() {
             localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(col_obj)));
-            $.mobile.loading("hide");
+            // $.mobile.loading("hide");
           })
         };
       },
@@ -1161,9 +1162,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return num + 1;
 
       });
-      Handlebars.registerHelper('join', function(array, jc) {
-        if (_.isArray(array)) {
-          return (jc) ? array.join(jc) : array.join(',');
+      Handlebars.registerHelper('getFileExtName', function(filename) {
+        var fn_parts = filename.split('.');
+        if (fn_parts.length > 1) {
+          return fn_parts[fn_parts.length - 1];
         } else {
           return '';
         };

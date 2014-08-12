@@ -20,11 +20,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
             render: function() {
 
                 var self = this;
-                var contact_detail_back_url = localStorage.getItem('contact_detail_back_url') || '#contact_list';
+                self.contact_detail_back_url = localStorage.getItem('contact_detail_back_url') || '#contact_list';
                 // console.log(localStorage.getItem('contact_detail_back_url'));
                 // console.log(contact_detail_back_url);
                 localStorage.removeItem('contact_detail_back_url');
-                $("#btn-contact_detail-back").attr('href', contact_detail_back_url);
+                $("#btn-contact_detail-back").attr('href', self.contact_detail_back_url);
                 $("#contact_detail-content").html(self.template(self.model.toJSON()));
                 $("#contact_detail-content").trigger('create');
                 //对自己不显示发起聊天的按钮
@@ -37,13 +37,49 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
 
             bind_event: function() {
                 var self = this;
-                $("#contact_detail-content").on('click', '#btn_start_userchat', function(event) {
-                    event.preventDefault();
-                    var url = "im://userchat/" + self.model.get('_id');
-                    console.log(url);
-                    window.location.href = url;
-                });
+                $("#contact_detail-content")
+                    .on('click', '#btn_start_userchat', function(event) {
+                        event.preventDefault();
+                        var url = "im://userchat/" + self.model.get('_id');
+                        console.log(url);
+                        window.location.href = url;
+                    })
+                    .on('click', '#btn_add_to_favorite', function(event) {
+                        event.preventDefault();
+                        var url = "/admin/masterdata/people/add_to_my_favorite";
+                        var post_data = {
+                            people_id: self.model.get('_id'),
+                        };
+                        $.post(url, post_data, function(data) {
+                            alert('操作成功')
+                            self.model.fetch().done(function() {
+                                localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.model.collection)));
+                                localStorage.setItem('contact_detail_back_url',self.contact_detail_back_url);
+                                self.render();
+                            });
+                        }).fail(function(err) {
+                            alert('操作失败')
+                        })
 
+                    })
+                    .on('click', '#btn_remove_from_favorite', function(event) {
+                        event.preventDefault();
+                        var url = "/admin/masterdata/people/remove_from_my_favorite";
+                        var post_data = {
+                            people_id: self.model.get('_id'),
+                        };
+                        $.post(url, post_data, function(data) {
+                            alert('操作成功')
+                            self.model.fetch().done(function() {
+                                localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.model.collection)));
+                                localStorage.setItem('contact_detail_back_url',self.contact_detail_back_url);
+                                self.render();
+                            });
+                        }).fail(function(err) {
+                            alert('操作失败')
+                        })
+
+                    });
             }
 
         });

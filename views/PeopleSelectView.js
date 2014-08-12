@@ -14,21 +14,28 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 this.template_s = Handlebars.compile($("#hbtmp_people_select_single_view").html());
                 // The render method is called when PeopleSelectels are added to the Collection
                 // this.collection.on("sync", this.render, this);
+                this.filter_mode = 'favorite'; //默认是favorite
+                this.select_mode = 'm';
                 this.bind_event();
             },
 
             // Renders all of the PeopleSelectels on the UI
-            render: function(select_mode) {
+            render: function() {
 
                 var self = this;
                 // self.target_field = target_field;
-                self.select_mode = select_mode || 'm'; //默认多选
+                // self.select_mode = select_mode || 'm'; //默认多选
                 var render_data = {
                     people: _.map(self.collection.models, function(x) {
                         return x.toJSON();
                     }),
                     // cp_id: self.cp_id,
                 }
+                if (self.filter_mode == 'favorite') {
+                    render_data.people = _.filter(render_data.people, function(x) {
+                        return x.is_my_favorite;
+                    })
+                };
                 var first_el;
                 if (self.select_mode == 'm') {
                     $("#people_select-content").html(self.template_m(render_data));
@@ -49,9 +56,18 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }
                 };
                 $("#people_select-content").trigger('create');
+                // 设定顶部过滤按钮的样式
+                if (self.filter_mode == 'all') {
+                    $("#people_select").find("#btn_filter_all").addClass('ui-btn-active');
+                    $("#people_select").find("#btn_filter_my_favorite").removeClass('ui-btn-active');
+                } else {
+                    $("#people_select").find("#btn_filter_all").removeClass('ui-btn-active');
+                    $("#people_select").find("#btn_filter_my_favorite").addClass('ui-btn-active');
+                };
+
                 window.setTimeout(function() {
                     if ($("#people_select-content input:checked").length && $("#people_select-content input:checked").offset().top > 75) {
-                        $.mobile.silentScroll($("#people_select-content input:checked").offset().top - 75)
+                        $.mobile.silentScroll($("#people_select-content input:checked").offset().top - 95)
                     }
                 }, 1000);
                 return this;
@@ -90,6 +106,16 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         //获取相关的helper数据
                         var sph = JSON.parse(localStorage.getItem('sp_helper'));
                         window.location.href = sph.back_url; //返回调用界面
+                    })
+                    .on('click', '#btn_filter_my_favorite', function(event) {
+                        event.preventDefault();
+                        self.filter_mode = 'favorite';
+                        self.render();
+                    })
+                    .on('click', '#btn_filter_all', function(event) {
+                        event.preventDefault();
+                        self.filter_mode = 'all';
+                        self.render();
                     });
 
             },
