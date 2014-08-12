@@ -20,11 +20,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
             render: function() {
 
                 var self = this;
-                var contact_detail_back_url = localStorage.getItem('contact_detail_back_url') || '#contact_list';
+                self.contact_detail_back_url = localStorage.getItem('contact_detail_back_url') || '#contact_list';
                 // console.log(localStorage.getItem('contact_detail_back_url'));
                 // console.log(contact_detail_back_url);
                 localStorage.removeItem('contact_detail_back_url');
-                $("#btn-contact_detail-back").attr('href', contact_detail_back_url);
+                $("#btn-contact_detail-back").attr('href', self.contact_detail_back_url);
                 $("#contact_detail-content").html(self.template(self.model.toJSON()));
                 $("#contact_detail-content").trigger('create');
                 //对自己不显示发起聊天的按钮
@@ -52,8 +52,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                         };
                         $.post(url, post_data, function(data) {
                             alert('操作成功')
-                            self.model.collection.fetch().done(function() {
-                                // to do
+                            self.model.fetch().done(function() {
+                                localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.model.collection)));
+                                localStorage.setItem('contact_detail_back_url',self.contact_detail_back_url);
+                                self.render();
                             });
                         }).fail(function(err) {
                             alert('操作失败')
@@ -68,8 +70,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                         };
                         $.post(url, post_data, function(data) {
                             alert('操作成功')
-                            self.model.collection.fetch().done(function() {
-                                // to do
+                            self.model.fetch().done(function() {
+                                localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.model.collection)));
+                                localStorage.setItem('contact_detail_back_url',self.contact_detail_back_url);
+                                self.render();
                             });
                         }).fail(function(err) {
                             alert('操作失败')
