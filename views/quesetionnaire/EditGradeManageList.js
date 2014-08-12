@@ -347,13 +347,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 })
 
             } else if (self.view_mode == '6') {
+
                 $("#quesetionnaire_manage_list #common_name").html('测试问卷')
                 var q_insatnce = _.find(self.collection.toJSON(), function(q) {
                     return q.operation_id == self.operation_id
                 })
-
                 $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_exam_template(q_insatnce));
                 $("#quesetionnaire_manage_list-content").trigger('create');
+                $('#quesetionnaire_manage_list-content .btn_dis').attr('disabled', true)
             }
 
 
