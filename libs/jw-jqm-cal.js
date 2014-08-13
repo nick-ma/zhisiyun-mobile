@@ -238,9 +238,9 @@
             n = e.format.date(s.start, "yyyyMMMMdd")
           }
           var url = i.settings.route + "/" + s['_id'];
-          if (s['origin_cat'] == 'coll_task') {
-            url = '#colltask_detail/' + s['origin_oid'];
-          };
+          // if (s['origin_cat'] == 'coll_task') {
+          //   url = '#colltask_detail/' + s['origin_oid'];
+          // };
           var u = e("<li class='ui-event-item'><a href='" + url + "' class='event-item-link' rel='" + s.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
           i.settings.listItemFormatter(u, s)
         }
@@ -289,9 +289,9 @@
       for (var o = 0, t; t = i.settings.events[o]; o++) {
         if (t[i.settings.end] >= n && t[i.settings.begin] < r) {
           var url = i.settings.route + "/" + t['_id'];
-          if (t['origin_cat'] == 'coll_task') {
-            url = '#colltask_detail/' + t['origin_oid'];
-          };
+          // if (t['origin_cat'] == 'coll_task') {
+          //   url = '#colltask_detail/' + t['origin_oid'];
+          // };
           var u = e("<li class='ui-event-item'><a href='" + url + "' class='event-item-link' rel='" + t.eid + "'><h3></h3><p></p></a></li>").appendTo(f);
           i.settings.listItemFormatter(u, t);
           s = true

@@ -1,12 +1,12 @@
 // todo router
 // ====================
 
-define(["jquery", "backbone", "handlebars", "lzstring",
+define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View", "../views/AIWF03View", "../views/TransConfirmView",
         "../collections/ToDoListCollection",
         "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel"
     ],
-    function($, Backbone, Handlebars, LZString,
+    function($, Backbone, Handlebars, LZString, async,
         ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView,
         ToDoListCollection,
         WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel
@@ -78,6 +78,46 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         })
                     });
                 });
+
+                // async.waterfall([
+
+                //     function(cb) {
+                //         self.wf_data.id = ti_id;
+                //         self.wf_data.fetch(function(){
+                //             cb(null,self.wf_data);
+                //         });
+                //     },
+                //     function(wf_data, cb) {
+                //         self.ai.id = wf_data.ti.process_instance.collection_id;
+                //         self.ai.fetch().done(function(){
+                //             cb(null,self.ai);
+                //         });
+                //     },
+                //     function(ai, cb) {
+                //         self.team_data.id = ai.people;
+                //         self.team_data.fetch().done(function(){
+                //             cb(null,self.team_data);
+                //         });
+                //     },
+                //     function(data, cb) {
+                //         self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
+                //         self.ai_datas.fetch().done(cb);
+                //     },
+                // ], function(err, ret) {
+                //     self.wf01View.wf_data = self.wf_data;
+                //     self.wf01View.ai = self.ai;
+                //     self.wf01View.team_data = self.team_data;
+                //     self.wf01View.ai_datas = self.ai_datas;
+                //     if (self.view_mode_state) {
+                //         self.wf01View.view_mode = '';
+                //     }
+                //     self.wf01View.render();
+
+                //     $("body").pagecontainer("change", "#ai_wf", {
+                //         reverse: false,
+                //         changeHash: false,
+                //     });
+                // });
             },
             go_do2: function(op_id, type) {
                 var self = this;

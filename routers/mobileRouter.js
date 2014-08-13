@@ -214,6 +214,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         $("#jqm_cal").trigger('refresh', [new Date()]);
       },
       task_detail: function(task_id) { //查看任务详情
+        localStorage.setItem('colltask_detail_back_url', window.location.href);
         this.taskDetailView.model = this.c_task.get(task_id);
         this.taskDetailView.render();
         $("body").pagecontainer("change", "#task_detail", {
