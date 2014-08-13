@@ -28,7 +28,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
             render: function() {
 
                 var self = this;
-
+                self.colltask_detail_back_url = localStorage.getItem('colltask_detail_back_url') || null;
+                localStorage.removeItem('colltask_detail_back_url'); //用完删掉 
                 if (localStorage.getItem('comment_model_back')) {
                     self.model.set(JSON.parse(localStorage.getItem('comment_model_back')).model);
                     localStorage.removeItem('comment_model_back');
@@ -55,17 +56,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 render_data.login_people = $("#login_people").val();
 
                 //设定返回按钮的地址
-                if (self.model.get('p_task')) { //有父级任务，返回
-                    var p_task_detail = _.find(self.model.collection.models, function(x) {
-                        return x.get('_id') == self.model.get('p_task')
-                    })
-
-                    render_data.p_task_detail = (p_task_detail) ? p_task_detail.toJSON() : null;
-
-                    $("#btn-colltask_detail-back").attr('href', '#colltask_detail/' + self.model.get('p_task'));
-                } else {
-                    $("#btn-colltask_detail-back").attr('href', '#colltask');
+                if (!self.colltask_detail_back_url) {
+                    if (self.model.get('p_task')) { //有父级任务，返回
+                        var p_task_detail = _.find(self.model.collection.models, function(x) {
+                            return x.get('_id') == self.model.get('p_task')
+                        })
+                        render_data.p_task_detail = (p_task_detail) ? p_task_detail.toJSON() : null;
+                        self.colltask_detail_back_url = '#colltask_detail/' + self.model.get('p_task')
+                    } else {
+                        self.colltask_detail_back_url = '#colltask';
+                    };
                 };
+                $("#btn-colltask_detail-back").attr('href', self.colltask_detail_back_url);
+
                 var rendered = '';
                 if (self.view_mode == 'basic') {
                     rendered = self.template_basic(render_data)
@@ -150,6 +153,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 };
                 // 设定人员信息卡的返回地址
                 localStorage.setItem('contact_detail_back_url', '#colltask_detail/' + self.model.get('_id'));
+
+                //hold
+                self.hold_back_url();
                 return this;
 
             },
@@ -378,6 +384,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     }
                 };
                 return flag;
+            },
+            hold_back_url: function() {
+                if (self.colltask_detail_back_url.substr(0, 9) != '#colltask') {
+                    localStorage.setItem('colltask_detail_back_url', self.colltask_detail_back_url);
+                };
             }
         });
 
