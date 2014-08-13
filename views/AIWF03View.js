@@ -216,6 +216,22 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 $("#next_user_id").val($this.val());
                 $("#next_user_name").val($this.find("option:selected").text());
             });
+
+            $("#ai_wf1-content").on('click', '#btn_ai1_start_userchat', function(event) {
+                event.preventDefault();
+                var url = "im://userchat/" + ai_data.people;
+                console.log(url);
+                window.location.href = url;
+            })
+
+            $("#ai_wf1-content").on('click', '.btn_ai_comment', function(event) {
+                event.preventDefault();
+                var $this = $(this);
+                var people_id = $this.data('people_id');
+                var url = "im://userchat/" + people_id;
+                console.log(url);
+                window.location.href = url;
+            })
         },
         // Renders all of the Task models on the UI
         render: function() {
@@ -253,6 +269,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
             obj.history_tasks = self.wf_data.attributes.history_tasks;
             obj.flowchart_data = self.wf_data.attributes.flowchart_data;
             obj.attachments = self.wf_data.attributes.attachments;
+            obj.login_people = $("#login_people").val();
 
             if (self.view_mode) {
                 if (self.view_mode == 'trans') {
@@ -290,6 +307,11 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 $("#ai_wf1-content").html(self.template(obj));
                 $("#ai_wf1-content").trigger('create');
             }
+
+            //对自己不显示发起聊天的按钮
+            if ($("#login_people").val() == ai_data.people) {
+                $("#ai_wf-content").find('#btn_ai1_start_userchat').hide();
+            };
 
             return self;
         }
