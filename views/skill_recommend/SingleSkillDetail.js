@@ -48,6 +48,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
                 } else if (self.view_mode == 'skill_score') {
                     $("#title_skill_show").html('技能积分明细')
+                    localStorage.setItem('colltask_detail_back_url', window.location.href);
+                    localStorage.setItem('collproject_detail_back_url', window.location.href);
                     $.get("/admin/pm/skill/get_skill_integral/" + self.model.get('_id') + '/' + skill_id, function(data) {
                         var groups = _.groupBy(data, function(f) {
                             return f.psi_name + '/' + f.ref_object + '/' + f.psi_type
