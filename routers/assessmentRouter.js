@@ -100,6 +100,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 }
             },
             assessment_detail: function(ai_id, lx, pi) { //绩效合同－单条指标的查看界面
+                //设置返回路径
+                localStorage.setItem('colltask_detail_back_url', window.location.href);
+                localStorage.setItem('collproject_detail_back_url', window.location.href);
                 var self = this;
                 $("body").pagecontainer("change", "#assessment_detail", {
                     reverse: false,

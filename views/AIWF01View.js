@@ -382,6 +382,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     if (roles[2]) {
                         ret.push('观察员,');
                     };
+                    task._id = temp._id;
                     task.role = ret.join('');
                     task.task_name = temp.task_name;
                     task.comments_num = temp.comments.length;
@@ -401,7 +402,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
     }
 
     var get_projects = function(ai_id, pi_id, cb) {
-        //取协作任务
+        //取协作项目
         $.get("/admin/pm/get_coll_project", {
             ai_id: ai_id,
             pi_id: pi_id
@@ -420,6 +421,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     if (roles[2]) {
                         ret.push('观察员');
                     };
+                    project._id = temp._id;
                     project.role = ret.join('');
                     project.project_name = temp.project_name;
                     project.comments_num = temp.task_count ? temp.task_count : 0;
@@ -549,7 +551,8 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
             })
 
             $("#ai_wf-content").on('click', '.dlpi', function() {
-
+                localStorage.setItem('colltask_detail_back_url', window.location.href);
+                localStorage.setItem('collproject_detail_back_url', window.location.href);
                 var $this = $(this);
                 var pi_id = $this.data('pi_id');
 
@@ -574,7 +577,8 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
             });
 
             $("#ai_wf-content").on('click', '.dxpi', function() {
-
+                localStorage.setItem('colltask_detail_back_url', window.location.href);
+                localStorage.setItem('collproject_detail_back_url', window.location.href);
                 var $this = $(this);
                 var pi_id = $this.data('pi_id');
 

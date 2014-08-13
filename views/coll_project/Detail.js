@@ -50,7 +50,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
             render: function() {
 
                 var self = this;
-
+                self.collproject_detail_back_url = localStorage.getItem('collproject_detail_back_url') || '#projectlist';
+                localStorage.removeItem('collproject_detail_back_url'); //用完删掉 
                 if (localStorage.getItem('comment_model_back')) {
                     self.model.set(JSON.parse(localStorage.getItem('comment_model_back')).model);
                     localStorage.removeItem('comment_model_back');
@@ -72,7 +73,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
 
                 //设定返回按钮的地址
 
-                $("#btn-collproject_detail-back").attr('href', '#projectlist');
+                $("#btn-collproject_detail-back").attr('href', self.collproject_detail_back_url);
 
                 var rendered = '';
                 if (self.view_mode == 'basic') {
@@ -281,6 +282,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 };
                 // 设定人员信息卡的返回地址
                 localStorage.setItem('contact_detail_back_url', '#collproject_detail/' + self.model.get('_id'));
+                
+                //hold
+                self.hold_back_url();
+
                 return this;
 
             },
@@ -556,6 +561,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                     }
                 };
                 return flag;
+            },
+            hold_back_url: function() {
+                if (this.collproject_detail_back_url.substr(0, 12) != '#collproject') {
+                    localStorage.setItem('collproject_detail_back_url', this.collproject_detail_back_url);
+                };
             }
         });
 

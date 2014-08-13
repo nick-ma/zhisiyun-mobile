@@ -386,8 +386,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 return flag;
             },
             hold_back_url: function() {
-                if (self.colltask_detail_back_url.substr(0, 9) != '#colltask') {
-                    localStorage.setItem('colltask_detail_back_url', self.colltask_detail_back_url);
+                if (this.colltask_detail_back_url.substr(0, 9) != '#colltask') {
+                    localStorage.setItem('colltask_detail_back_url', this.colltask_detail_back_url);
                 };
             }
         });

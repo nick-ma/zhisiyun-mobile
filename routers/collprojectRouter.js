@@ -48,6 +48,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             //--------协作任务--------//
             projectlist: function() {
                 // colltasklistView.
+                localStorage.setItem('collproject_detail_back_url', window.location.href);
                 var self = this;
                 $("body").pagecontainer("change", "#collproject", {
                     reverse: false,
