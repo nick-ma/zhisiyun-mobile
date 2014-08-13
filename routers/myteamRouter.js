@@ -359,6 +359,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 };
             },
             myteam_assessment_detail: function(people_id, ai_id, lx, pi) { //团队成员的绩效合同－指标详情
+                localStorage.setItem('colltask_detail_back_url', window.location.href);
+                localStorage.setItem('collproject_detail_back_url', window.location.href);
                 var self = this;
                 $("body").pagecontainer("change", "#myteam_assessment_detail", {
                     reverse: false,

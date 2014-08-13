@@ -2,12 +2,12 @@
 // ====================
 
 define(["jquery", "backbone", "handlebars", "lzstring",
-        "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View","../views/AIWF03View", "../views/TransConfirmView",
+        "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View", "../views/AIWF03View", "../views/TransConfirmView",
         "../collections/ToDoListCollection",
         "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel"
     ],
     function($, Backbone, Handlebars, LZString,
-        ToDoListView, AIWF01View,AIWF02View,AIWF03View, TransConfirmView,
+        ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView,
         ToDoListCollection,
         WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel
     ) {
@@ -32,6 +32,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             todo_list: function() { //我的待办
                 var self = this;
+                localStorage.setItem('view_mode_state', '1');
                 // if (self.todoListView.collection.length) {
                 //     self.todoListView.render();
                 // } else {
@@ -46,6 +47,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             go_do1: function(op_id, type) {
                 var self = this;
+                self.view_mode_state = localStorage.getItem('view_mode_state') || null;
+                localStorage.removeItem('view_mode_state'); //用完删掉 
                 var ti_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
@@ -62,7 +65,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                                 self.wf01View.ai = self.ai;
                                 self.wf01View.team_data = self.team_data;
                                 self.wf01View.ai_datas = self.ai_datas;
-                                self.wf01View.view_mode = '';
+                                if (self.view_mode_state) {
+                                    self.wf01View.view_mode = '';
+                                }
                                 self.wf01View.render();
 
                                 $("body").pagecontainer("change", "#ai_wf", {
@@ -76,6 +81,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             go_do2: function(op_id, type) {
                 var self = this;
+                self.view_mode_state = localStorage.getItem('view_mode_state') || null;
+                localStorage.removeItem('view_mode_state'); //用完删掉 
                 var ti_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
@@ -86,7 +93,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     self.dc.fetch().done(function(data1) {
                         self.wf02View.wf_data = self.wf_data;
                         self.wf02View.dc = self.dc;
-                        self.wf02View.view_mode = '';
+                        if (self.view_mode_state) {
+                            self.wf02View.view_mode = '';
+                        }
                         self.wf02View.render();
 
                         $("body").pagecontainer("change", "#dc_wf", {
@@ -98,6 +107,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             go_do3: function(op_id, type) {
                 var self = this;
+                self.view_mode_state = localStorage.getItem('view_mode_state') || null;
+                localStorage.removeItem('view_mode_state'); //用完删掉 
                 var ti_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
@@ -114,7 +125,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                                 self.wf03View.ai = self.ai;
                                 self.wf03View.team_data = self.team_data;
                                 self.wf03View.ai_datas = self.ai_datas;
-                                self.wf03View.view_mode = '';
+                                if (self.view_mode_state) {
+                                    self.wf03View.view_mode = '';
+                                }
                                 self.wf03View.render();
 
                                 $("body").pagecontainer("change", "#ai_wf1", {

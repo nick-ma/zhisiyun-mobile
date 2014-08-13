@@ -45,6 +45,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 // } else {
                 //     this.collTaskListView.render();
                 // };
+                localStorage.setItem('colltask_detail_back_url', window.location.href);
                 var self = this;
                 $("body").pagecontainer("change", "#colltask", {
                     reverse: false,
