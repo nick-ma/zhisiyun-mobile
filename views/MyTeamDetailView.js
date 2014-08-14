@@ -26,6 +26,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                     return x.toJSON();
                 }) : [];
                 // console.log(render_data.payrolls);
+                $("#myteam_detail_people_name").html(render_data.people_name);
                 $("#myteam_detail-basic-content").html(self.template(render_data));
                 $("#myteam_detail-basic-content").trigger('create');
                 return this;
@@ -37,6 +38,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                     var url = 'im://userchat/' + self.model.get('_id');
                     window.location.href = url;
                 });
+
+                $("#myteam_detail-basic")
+                    .on('swiperight', function(event) { //向右滑动，打开左边的面板
+                        event.preventDefault();
+                        $("#myteam_detail-basic-left-panel").panel("open");
+                    })
+                    .on('change', '#myteam_detail-basic-left-panel input[name=myteam_detail_filter]', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        self.view_filter = $this.val();
+                        self.render();
+                        $("#myteam_detail-basic-left-panel").panel("close");
+                        // console.log($this.val());
+                    })
             }
 
         });
