@@ -2,7 +2,7 @@
 // =============
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbone, Handlebars) {
+define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, _, Backbone, Handlebars, async) {
     var ai;
     var ai_data;
     var uu;
@@ -362,83 +362,83 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
         };
     }
 
-    var get_tasks = function(ai_id, pi_id, cb) {
-        //取协作任务
-        $.get("/admin/pm/get_coll_task", {
-            ai_id: ai_id,
-            pi_id: pi_id
-        }, function(data) {
-            if (data.msg.length > 0) {
-                _.each(data.msg, function(temp) {
-                    var task = {};
-                    var roles = get_roles(temp.creator, temp.tms, temp.ntms);
-                    var ret = [];
-                    if (roles[0]) {
-                        ret.push('创建人,');
-                    };
-                    if (roles[1]) {
-                        ret.push('成员,');
-                    };
-                    if (roles[2]) {
-                        ret.push('观察员,');
-                    };
-                    task._id = temp._id;
-                    task.role = ret.join('');
-                    task.task_name = temp.task_name;
-                    task.comments_num = temp.comments.length;
-                    task.attachments_num = temp.attachments.length;
-                    task.end_time = moment(temp.end).format('YYYY-MM-DD');
-                    task.avatar = temp.th.avatar;
-                    task.people_name = temp.th.people_name;
-                    task.update_time = moment(temp.lastModified).fromNow();
-                    task.state = show_state(temp.end, temp.isfinished);
-                    task.score = temp.score;
+    // var get_tasks = function(ai_id, pi_id, cb) {
+    //     //取协作任务
+    //     $.get("/admin/pm/get_coll_task", {
+    //         ai_id: ai_id,
+    //         pi_id: pi_id
+    //     }, function(data) {
+    //         if (data.msg.length > 0) {
+    //             _.each(data.msg, function(temp) {
+    //                 var task = {};
+    //                 var roles = get_roles(temp.creator, temp.tms, temp.ntms);
+    //                 var ret = [];
+    //                 if (roles[0]) {
+    //                     ret.push('创建人,');
+    //                 };
+    //                 if (roles[1]) {
+    //                     ret.push('成员,');
+    //                 };
+    //                 if (roles[2]) {
+    //                     ret.push('观察员,');
+    //                 };
+    //                 task._id = temp._id;
+    //                 task.role = ret.join('');
+    //                 task.task_name = temp.task_name;
+    //                 task.comments_num = temp.comments.length;
+    //                 task.attachments_num = temp.attachments.length;
+    //                 task.end_time = moment(temp.end).format('YYYY-MM-DD');
+    //                 task.avatar = temp.th.avatar;
+    //                 task.people_name = temp.th.people_name;
+    //                 task.update_time = moment(temp.lastModified).fromNow();
+    //                 task.state = show_state(temp.end, temp.isfinished);
+    //                 task.score = temp.score;
 
-                    tasks.push(task);
-                })
-            }
-            cb();
-        })
-    }
+    //                 tasks.push(task);
+    //             })
+    //         }
+    //         cb();
+    //     })
+    // }
 
-    var get_projects = function(ai_id, pi_id, cb) {
-        //取协作项目
-        $.get("/admin/pm/get_coll_project", {
-            ai_id: ai_id,
-            pi_id: pi_id
-        }, function(data) {
-            if (data.msg.length > 0) {
-                _.each(data.msg, function(temp) {
-                    var project = {};
-                    var roles = get_roles(temp.creator, temp.pms, temp.npms);
-                    var ret = [];
-                    if (roles[0]) {
-                        ret.push('创建人');
-                    };
-                    if (roles[1]) {
-                        ret.push('成员');
-                    };
-                    if (roles[2]) {
-                        ret.push('观察员');
-                    };
-                    project._id = temp._id;
-                    project.role = ret.join('');
-                    project.project_name = temp.project_name;
-                    project.comments_num = temp.task_count ? temp.task_count : 0;
-                    project.attachments_num = temp.attachments.length;
-                    project.end_time = moment(temp.end).format('YYYY-MM-DD');
-                    project.avatar = temp.pm.avatar;
-                    project.people_name = temp.pm.people_name;
-                    project.update_time = moment(temp.lastModified).fromNow();
-                    project.state = show_state2(temp.end, temp.status);
-                    project.score = temp.score;
+    // var get_projects = function(ai_id, pi_id, cb) {
+    //     //取协作项目
+    //     $.get("/admin/pm/get_coll_project", {
+    //         ai_id: ai_id,
+    //         pi_id: pi_id
+    //     }, function(data) {
+    //         if (data.msg.length > 0) {
+    //             _.each(data.msg, function(temp) {
+    //                 var project = {};
+    //                 var roles = get_roles(temp.creator, temp.pms, temp.npms);
+    //                 var ret = [];
+    //                 if (roles[0]) {
+    //                     ret.push('创建人');
+    //                 };
+    //                 if (roles[1]) {
+    //                     ret.push('成员');
+    //                 };
+    //                 if (roles[2]) {
+    //                     ret.push('观察员');
+    //                 };
+    //                 project._id = temp._id;
+    //                 project.role = ret.join('');
+    //                 project.project_name = temp.project_name;
+    //                 project.comments_num = temp.task_count ? temp.task_count : 0;
+    //                 project.attachments_num = temp.attachments.length;
+    //                 project.end_time = moment(temp.end).format('YYYY-MM-DD');
+    //                 project.avatar = temp.pm.avatar;
+    //                 project.people_name = temp.pm.people_name;
+    //                 project.update_time = moment(temp.lastModified).fromNow();
+    //                 project.state = show_state2(temp.end, temp.status);
+    //                 project.score = temp.score;
 
-                    projects.push(project);
-                })
-            }
-            cb();
-        })
-    }
+    //                 projects.push(project);
+    //             })
+    //         }
+    //         cb();
+    //     })
+    // }
 
     var do_trans = function() {
         save_form_data(function() {
@@ -562,18 +562,24 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
                 tasks.length = 0;
                 projects.length = 0;
-                get_tasks(self.ai.attributes._id, pi_id, function() {
-                    get_projects(self.ai.attributes._id, pi_id, function() {
-                        self.item = item;
-                        self.item_obj = {};
-                        self.item_obj.ai_status = self.ai.attributes.ai_status;
-                        self.item_obj.pi = item;
-                        self.item_obj.tasks = tasks;
-                        self.item_obj.projects = projects;
-                        self.view_mode = 'pi_detail';
-                        self.render();
-                    });
-                });
+                // get_tasks(self.ai.attributes._id, pi_id, function() {
+                //     get_projects(self.ai.attributes._id, pi_id, function() {
+                //         self.item = item;
+                //         self.item_obj = {};
+                //         self.item_obj.ai_status = self.ai.attributes.ai_status;
+                //         self.item_obj.pi = item;
+                //         self.item_obj.tasks = tasks;
+                //         self.item_obj.projects = projects;
+                //         self.view_mode = 'pi_detail';
+                //         self.render();
+                //     });
+                // });
+                self.item = item;
+                self.item_obj = {};
+                self.item_obj.ai_status = self.ai.attributes.ai_status;
+                self.item_obj.pi = item;
+                self.view_mode = 'pi_detail';
+                self.render();
             });
 
             $("#ai_wf-content").on('click', '.dxpi', function() {
@@ -588,18 +594,42 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
                 tasks.length = 0;
                 projects.length = 0;
-                get_tasks(self.ai.attributes._id, pi_id, function() {
-                    get_projects(self.ai.attributes._id, pi_id, function() {
-                        self.item = item2;
-                        self.item_obj = {};
-                        self.item_obj.ai_status = self.ai.attributes.ai_status;
-                        self.item_obj.pi = item2;
-                        self.item_obj.tasks = tasks;
-                        self.item_obj.projects = projects;
-                        self.view_mode = 'pi_detail2';
-                        self.render();
-                    });
-                });
+                // async.parallel({
+                //     tasks: function(cb) {
+                //         get_tasks(self.ai.attributes._id, pi_id, cb);
+                //     },
+                //     projects: function(cb) {
+                //         get_projects(self.ai.attributes._id, pi_id, cb);
+                //     },
+                // }, function(err, ret) {
+                //     self.item = item2;
+                //     self.item_obj = {};
+                //     self.item_obj.ai_status = self.ai.attributes.ai_status;
+                //     self.item_obj.pi = item2;
+                //     self.item_obj.tasks = tasks;
+                //     self.item_obj.projects = projects;
+                //     self.view_mode = 'pi_detail2';
+                //     self.render();
+                // });
+                // get_tasks(self.ai.attributes._id, pi_id, function() {
+                //     get_projects(self.ai.attributes._id, pi_id, function() {
+                //         self.item = item2;
+                //         self.item_obj = {};
+                //         self.item_obj.ai_status = self.ai.attributes.ai_status;
+                //         self.item_obj.pi = item2;
+                //         self.item_obj.tasks = tasks;
+                //         self.item_obj.projects = projects;
+                //         self.view_mode = 'pi_detail2';
+                //         self.render();
+                //     });
+                // });
+
+                self.item = item2;
+                self.item_obj = {};
+                self.item_obj.ai_status = self.ai.attributes.ai_status;
+                self.item_obj.pi = item2;
+                self.view_mode = 'pi_detail2';
+                self.render();
             });
 
             $("#ai_wf-content").on('change', '#self,#indirect,#superior,#superior_superior', function() {
@@ -661,7 +691,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 console.log(url);
                 window.location.href = url;
             })
-            
+
             $("#ai_wf-content").on('click', '.btn_ai_comment', function(event) {
                 event.preventDefault();
                 var $this = $(this);
