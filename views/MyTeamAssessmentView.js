@@ -13,7 +13,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 this.template = Handlebars.compile($("#hbtmp_myteam_detail_assessment_view").html());
                 // The render method is called when People Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
-
+                this.bind_event();
             },
 
             // Renders all of the People models on the UI
@@ -35,6 +35,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 $("#myteam_detail-assessment-content").html(self.template(render_data));
                 $("#myteam_detail-assessment-content").trigger('create');
                 return this;
+            },
+            bind_event: function() {
+                $("#myteam_detail-assessment")
+                    .on('swiperight', function(event) { //向右滑动，打开左边的面板
+                        event.preventDefault();
+                        $("#myteam_detail-assessment-left-panel").panel("open");
+                    })
             }
 
         });

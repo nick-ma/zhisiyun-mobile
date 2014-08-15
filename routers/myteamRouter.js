@@ -77,7 +77,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             myteam_detail: function(people_id, tab) { //我的团队，详情界面
                 var self = this;
-                self.myTeamDetailLeftView.template = Handlebars.compile($("#myteam_detail_left_panel_view").html());
+                // self.myTeamDetailLeftView.template = Handlebars.compile($("#myteam_detail_left_panel_view").html());
+                //侧边栏
+                var side_panel_name = tab;
+                if (tab == 'calendar') {
+                    side_panel_name = 'task';
+                };
+                if (self.myTeamDetailLeftView.people_id != people_id) {
+                    self.myTeamDetailLeftView.people_id = people_id;
+                    self.myTeamDetailLeftView.render();
+                };
                 if (tab == 'basic') {
                     $("body").pagecontainer("change", "#myteam_detail-basic", {
                         reverse: false,
@@ -116,13 +125,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         self.myteamDetailView.payroll = result.payroll;
                         self.myteamDetailView.competency = result.competency;
                         self.myteamDetailView.render();
-                        //侧边栏
-                        self.myTeamDetailLeftView.people_id = result.people.attributes._id;
-                        self.myTeamDetailLeftView.cont = $("#myteam_detail-basic");
-                        self.myTeamDetailLeftView.el = $("#myteam_detail-basic-left-panel");
-                        self.myTeamDetailLeftView.btn_mode = 'basic';
-                        self.myTeamDetailLeftView.render();
-
                         $.mobile.loading("hide");
                     })
 
@@ -181,12 +183,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         reverse: false,
                         changeHash: false,
                     });
-                    //侧边栏
-                    self.myTeamDetailLeftView.people_id = people_id;
-                    self.myTeamDetailLeftView.cont = $("#myteam_detail-task");
-                    self.myTeamDetailLeftView.el = $("#myteam_detail-task-left-panel");
-                    self.myTeamDetailLeftView.btn_mode = 'calendar';
-                    self.myTeamDetailLeftView.render();
+
                 } else if (tab == 'assessment') { //下属的绩效
                     $("body").pagecontainer("change", "#myteam_detail-assessment", {
                         reverse: false,
@@ -198,13 +195,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     self.c_assessment_myteam.fetch().done(function() {
                         self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
                         $.mobile.loading("hide");
-
-                        //侧边栏
-                        self.myTeamDetailLeftView.people_id = people_id;
-                        self.myTeamDetailLeftView.cont = $("#myteam_detail-assessment");
-                        self.myTeamDetailLeftView.el = $("#myteam_detail-assessment-left-panel");
-                        self.myTeamDetailLeftView.btn_mode = 'assessment';
-                        self.myTeamDetailLeftView.render();
                     })
 
                     // var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('assessment_' + people_id)) || null)
@@ -234,13 +224,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         self.myteamTalentView.model.fetch().done(function() {
                             self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
                             $.mobile.loading("hide");
-
-                            //侧边栏
-                            self.myTeamDetailLeftView.people_id = people_id;
-                            self.myTeamDetailLeftView.cont = $("#myteam_detail-talent");
-                            self.myTeamDetailLeftView.el = $("#myteam_detail-talent-left-panel");
-                            self.myTeamDetailLeftView.btn_mode = 'talent';
-                            self.myTeamDetailLeftView.render();
                         })
                     } else {
                         var tmp = new TalentModel({
@@ -251,12 +234,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         tmp.fetch().done(function() {
                             self.myteamTalentView.render(self.c_people.get(people_id).get('people_name'));
                             $.mobile.loading("hide");
-                            //侧边栏
-                            self.myTeamDetailLeftView.people_id = people_id;
-                            self.myTeamDetailLeftView.cont = $("#myteam_detail-talent");
-                            self.myTeamDetailLeftView.el = $("#myteam_detail-talent-left-panel");
-                            self.myTeamDetailLeftView.btn_mode = 'talent';
-                            self.myTeamDetailLeftView.render();
                         })
                     };
 
