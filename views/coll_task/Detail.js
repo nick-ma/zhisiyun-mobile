@@ -236,9 +236,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     .on('click', 'img', function(event) {
                         event.preventDefault();
                         // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
-                        var img_view = '<img src="' + this.src + '">';
+                        if ($("#req_ua").val() == 'normal') {
+                            var img_view = '<img src="' + this.src + '">';
+                            $("#fullscreen-overlay").html(img_view).fadeIn('fast');
+                        } else { //让webview的钩子把它勾住
+                            window.location.href = this.src;
+                        };
                         // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
-                        $("#fullscreen-overlay").html(img_view).fadeIn('fast');
                     });
                 $("#colltask_detail-footer")
                     .on('click', '#btn-colltask_detail-remove', function(event) {
