@@ -32,14 +32,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             todo_list: function() { //我的待办
                 var self = this;
+                //从待办进入时，做标记，后面做返回时用到
                 localStorage.setItem('view_mode_state', '1');
-                // if (self.todoListView.collection.length) {
-                //     self.todoListView.render();
-                // } else {
                 self.todoListView.collection.fetch().done(function() {
                     self.todoListView.render();
                 })
-                // }
                 $("body").pagecontainer("change", "#todo_list", {
                     reverse: false,
                     changeHash: false,
@@ -47,77 +44,59 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             go_do1: function(op_id, type) {
                 var self = this;
+                //判断是否时待办进入，还是返回
                 self.view_mode_state = localStorage.getItem('view_mode_state') || null;
                 localStorage.removeItem('view_mode_state'); //用完删掉 
+
                 var ti_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
 
-                self.wf_data.id = ti_id;
-                self.wf_data.fetch().done(function(data) {
-                    self.ai.id = data.ti.process_instance.collection_id;
-                    self.ai.fetch().done(function(data1) {
-                        self.team_data.id = self.ai.attributes.people;
-                        self.team_data.fetch().done(function(data2) {
-                            self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
-                            self.ai_datas.fetch().done(function(data2) {
-                                self.wf01View.wf_data = self.wf_data;
-                                self.wf01View.ai = self.ai;
-                                self.wf01View.team_data = self.team_data;
-                                self.wf01View.ai_datas = self.ai_datas;
-                                if (self.view_mode_state) {
-                                    self.wf01View.view_mode = '';
-                                }
-                                self.wf01View.render();
+                async.parallel({
+                    data1: function(cb) {
+                        async.waterfall([
 
-                                $("body").pagecontainer("change", "#ai_wf", {
-                                    reverse: false,
-                                    changeHash: false,
+                            function(cb) {
+                                self.wf_data.id = ti_id;
+                                self.wf_data.fetch().done(function() {
+                                    cb(null, self.wf_data);
                                 });
-                            })
-                        })
+                            },
+                            function(wf_data, cb) {
+                                self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
+                                self.ai.fetch().done(function() {
+                                    cb(null, self.ai);
+                                });
+                            },
+                            function(ai, cb) {
+                                self.team_data.id = ai.attributes.people;
+                                self.team_data.fetch().done(function() {
+                                    cb(null, null); //不需要传递
+                                });
+                            },
+                        ], cb);
+                    },
+                    data2: function(cb) {
+                        self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
+                        self.ai_datas.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
+                }, function(err, ret) {
+                    self.wf01View.wf_data = self.wf_data;
+                    self.wf01View.ai = self.ai;
+                    self.wf01View.team_data = self.team_data;
+                    self.wf01View.ai_datas = self.ai_datas;
+                    if (self.view_mode_state) {
+                        self.wf01View.view_mode = '';
+                    }
+                    self.wf01View.render();
+
+                    $("body").pagecontainer("change", "#ai_wf", {
+                        reverse: false,
+                        changeHash: false,
                     });
-                });
-
-                // async.waterfall([
-
-                //     function(cb) {
-                //         self.wf_data.id = ti_id;
-                //         self.wf_data.fetch(function(){
-                //             cb(null,self.wf_data);
-                //         });
-                //     },
-                //     function(wf_data, cb) {
-                //         self.ai.id = wf_data.ti.process_instance.collection_id;
-                //         self.ai.fetch().done(function(){
-                //             cb(null,self.ai);
-                //         });
-                //     },
-                //     function(ai, cb) {
-                //         self.team_data.id = ai.people;
-                //         self.team_data.fetch().done(function(){
-                //             cb(null,self.team_data);
-                //         });
-                //     },
-                //     function(data, cb) {
-                //         self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
-                //         self.ai_datas.fetch().done(cb);
-                //     },
-                // ], function(err, ret) {
-                //     self.wf01View.wf_data = self.wf_data;
-                //     self.wf01View.ai = self.ai;
-                //     self.wf01View.team_data = self.team_data;
-                //     self.wf01View.ai_datas = self.ai_datas;
-                //     if (self.view_mode_state) {
-                //         self.wf01View.view_mode = '';
-                //     }
-                //     self.wf01View.render();
-
-                //     $("body").pagecontainer("change", "#ai_wf", {
-                //         reverse: false,
-                //         changeHash: false,
-                //     });
-                // });
+                })
             },
             go_do2: function(op_id, type) {
                 var self = this;
@@ -153,31 +132,70 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
 
-                self.wf_data.id = ti_id;
-                self.wf_data.fetch().done(function(data) {
-                    self.ai.id = data.ti.process_instance.collection_id;
-                    self.ai.fetch().done(function(data1) {
-                        self.team_data.id = self.ai.attributes.people;
-                        self.team_data.fetch().done(function(data2) {
-                            self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
-                            self.ai_datas.fetch().done(function(data2) {
-                                self.wf03View.wf_data = self.wf_data;
-                                self.wf03View.ai = self.ai;
-                                self.wf03View.team_data = self.team_data;
-                                self.wf03View.ai_datas = self.ai_datas;
-                                if (self.view_mode_state) {
-                                    self.wf03View.view_mode = '';
-                                }
-                                self.wf03View.render();
+                // self.wf_data.id = ti_id;
+                // self.wf_data.fetch().done(function(data) {
+                //     self.ai.id = data.ti.process_instance.collection_id;
+                //     self.ai.fetch().done(function(data1) {
+                //         self.team_data.id = self.ai.attributes.people;
+                //         self.team_data.fetch().done(function(data2) {
+                //             self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
+                //             self.ai_datas.fetch().done(function(data2) {
+                //                 self.wf03View.wf_data = self.wf_data;
+                //                 self.wf03View.ai = self.ai;
+                //                 self.wf03View.team_data = self.team_data;
+                //                 self.wf03View.ai_datas = self.ai_datas;
+                //                 if (self.view_mode_state) {
+                //                     self.wf03View.view_mode = '';
+                //                 }
+                //                 self.wf03View.render();
 
-                                $("body").pagecontainer("change", "#ai_wf1", {
-                                    reverse: false,
-                                    changeHash: false,
+                //                 $("body").pagecontainer("change", "#ai_wf1", {
+                //                     reverse: false,
+                //                     changeHash: false,
+                //                 });
+                //             })
+                //         })
+                //     });
+                // });
+
+                async.parallel({
+                    data1: function(cb) {
+                        async.waterfall([
+
+                            function(cb) {
+                                self.wf_data.id = ti_id;
+                                self.wf_data.fetch().done(function() {
+                                    cb(null, self.wf_data);
                                 });
-                            })
-                        })
+                            },
+                            function(wf_data, cb) {
+                                self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
+                                self.ai.fetch().done(function() {
+                                    cb(null, self.ai);
+                                });
+                            },
+                        ], cb);
+                    },
+                    data2: function(cb) {
+                        self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
+                        self.ai_datas.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
+                }, function(err, ret) {
+                    self.wf03View.wf_data = self.wf_data;
+                    self.wf03View.ai = self.ai;
+                    self.wf03View.ai_datas = self.ai_datas;
+                    if (self.view_mode_state) {
+                        self.wf03View.view_mode = '';
+                    }
+                    self.wf03View.render();
+
+                    $("body").pagecontainer("change", "#ai_wf1", {
+                        reverse: false,
+                        changeHash: false,
                     });
-                });
+                })
             },
             init_views: function() {
                 var self = this;

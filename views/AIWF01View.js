@@ -8,8 +8,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
     var uu;
     var conver;
     var pscs_data;
-    var tasks = [];
-    var projects = [];
+    var obj;
+    // var tasks = [];
+    // var projects = [];
 
     // 记分公式 －》 开始
     var scoring_func = function(formula, x, r1, r2) {
@@ -560,8 +561,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     return pi_id == x.pi;
                 });
 
-                tasks.length = 0;
-                projects.length = 0;
+                // tasks.length = 0;
+                // projects.length = 0;
                 // get_tasks(self.ai.attributes._id, pi_id, function() {
                 //     get_projects(self.ai.attributes._id, pi_id, function() {
                 //         self.item = item;
@@ -592,38 +593,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     return pi_id == x.pi;
                 });
 
-                tasks.length = 0;
-                projects.length = 0;
-                // async.parallel({
-                //     tasks: function(cb) {
-                //         get_tasks(self.ai.attributes._id, pi_id, cb);
-                //     },
-                //     projects: function(cb) {
-                //         get_projects(self.ai.attributes._id, pi_id, cb);
-                //     },
-                // }, function(err, ret) {
-                //     self.item = item2;
-                //     self.item_obj = {};
-                //     self.item_obj.ai_status = self.ai.attributes.ai_status;
-                //     self.item_obj.pi = item2;
-                //     self.item_obj.tasks = tasks;
-                //     self.item_obj.projects = projects;
-                //     self.view_mode = 'pi_detail2';
-                //     self.render();
-                // });
-                // get_tasks(self.ai.attributes._id, pi_id, function() {
-                //     get_projects(self.ai.attributes._id, pi_id, function() {
-                //         self.item = item2;
-                //         self.item_obj = {};
-                //         self.item_obj.ai_status = self.ai.attributes.ai_status;
-                //         self.item_obj.pi = item2;
-                //         self.item_obj.tasks = tasks;
-                //         self.item_obj.projects = projects;
-                //         self.view_mode = 'pi_detail2';
-                //         self.render();
-                //     });
-                // });
-
                 self.item = item2;
                 self.item_obj = {};
                 self.item_obj.ai_status = self.ai.attributes.ai_status;
@@ -648,14 +617,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             $("#ai_wf-content").on('click', '.ai_pi_comment', function() {
                 var $this = $(this);
-                // var pi_id = $this.data('pi_id');
-                // var type = $this.data('type');
 
-                // if(type == 'dl'){
-                //     self.item_comment = item;
-                // }else{
-                //     self.item_comment = item2;
-                // }
                 self.view_mode = 'ai_pi_comment';
                 self.render();
             });
@@ -704,73 +666,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
-
-            //克隆others，方便取加减分项
-            var others = _.clone(self.ai.attributes.others);
-            //获取加分项
-            var other1 = _.find(others, function(x) {
-                return x.item_type == '1';
-            });
-            //获取减分项
-            var other2 = _.find(others, function(x) {
-                return x.item_type == '2';
-            });
-            //获取一票否决项
-            var other3 = _.find(others, function(x) {
-                return x.item_type == '3';
-            });
-
-            ai = self.ai;
-            ai_data = self.ai.attributes;
-            uu = self.team_data.attributes.data.u;
-            conver = ai_data.points_system.conversion_centesimal_system;
-            pscs_data = self.ai_datas.attributes.pscs;
-            peoples_data = self.ai_datas.attributes.peoples;
-
-            //当事人编辑绩效合同时，算分
-            if (ai_data.ai_status == '7') {
-                ai_data.quantitative_pis.sum_score = 0;
-                _.each(ai_data.quantitative_pis.items, function(x) {
-                    //记分
-                    x.f_score = Math.round(scoring_func(x.scoringformula, parseFloat(x.actual_value), parseFloat(x.target_value)) * 100) / 100;
-                    // 得分
-                    x.score = Math.round(x.f_score * x.weight) / 100;
-                    //定量指标得分之和
-                    ai_data.quantitative_pis.sum_score += x.score;
-                });
-                //定性指标
-                _.each(ai_data.qualitative_pis.items, function(pi) {
-                    ai_data.qualitative_pis.sum_score = ai_data.qualitative_pis.sum_score - pi.score;
-                    pi.score = 0;
-                    pi.score += changeTwoDecimal(pi.self_final_score);
-                    pi.score += changeTwoDecimal(pi.indirect_final_score);
-                    pi.score += changeTwoDecimal(pi.superior_final_score);
-                    pi.score += changeTwoDecimal(pi.superior_superior_final_score);
-                    pi.score += changeTwoDecimal(pi.other_final_score);
-                    //指标计分
-                    pi.f_score = pi.score;
-                    pi.score = changeTwoDecimal(pi.f_score * pi.weight / 100);
-                    ai_data.qualitative_pis.sum_score += pi.score;
-                })
-                //重新分配权重
-                reset_qualitative_pis_weight();
-
-            }
-
-            var obj = {};
-            obj.ai = ai_data;
-            obj.other1 = other1;
-            obj.other2 = other2;
-            obj.other3 = other3;
-            obj.tts = self.wf_data.attributes.tts;
-            obj.td = self.wf_data.attributes.td;
-            obj.ti = self.wf_data.attributes.ti;
-
-            obj.pd = self.wf_data.attributes.pd;
-            obj.history_tasks = self.wf_data.attributes.history_tasks;
-            obj.flowchart_data = self.wf_data.attributes.flowchart_data;
-            obj.attachments = self.wf_data.attributes.attachments;
-            obj.login_people = $("#login_people").val();
 
             if (self.view_mode) {
                 if (self.view_mode == 'trans') {
@@ -867,7 +762,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 }
             } else {
                 $("#ai_wf_title").html('绩效评估');
-
+                if(!obj){
+                    self.get_datas();
+                }
                 this.template = Handlebars.compile($("#wf01_view").html());
                 $("#ai_wf-content").html(self.template(obj));
                 $("#ai_wf-content").trigger('create');
@@ -880,6 +777,76 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }
 
             return self;
+        },
+
+        get_datas: function() {
+            var self = this;
+            //克隆others，方便取加减分项
+            var others = _.clone(self.ai.attributes.others);
+            //获取加分项
+            var other1 = _.find(others, function(x) {
+                return x.item_type == '1';
+            });
+            //获取减分项
+            var other2 = _.find(others, function(x) {
+                return x.item_type == '2';
+            });
+            //获取一票否决项
+            var other3 = _.find(others, function(x) {
+                return x.item_type == '3';
+            });
+
+            ai = self.ai;
+            ai_data = self.ai.attributes;
+            uu = self.team_data.attributes.data.u;
+            conver = ai_data.points_system.conversion_centesimal_system;
+            pscs_data = self.ai_datas.attributes.pscs;
+            peoples_data = self.ai_datas.attributes.peoples;
+
+            //当事人编辑绩效合同时，算分
+            if (ai_data.ai_status == '7') {
+                ai_data.quantitative_pis.sum_score = 0;
+                _.each(ai_data.quantitative_pis.items, function(x) {
+                    //记分
+                    x.f_score = Math.round(scoring_func(x.scoringformula, parseFloat(x.actual_value), parseFloat(x.target_value)) * 100) / 100;
+                    // 得分
+                    x.score = Math.round(x.f_score * x.weight) / 100;
+                    //定量指标得分之和
+                    ai_data.quantitative_pis.sum_score += x.score;
+                });
+                //定性指标
+                _.each(ai_data.qualitative_pis.items, function(pi) {
+                    ai_data.qualitative_pis.sum_score = ai_data.qualitative_pis.sum_score - pi.score;
+                    pi.score = 0;
+                    pi.score += changeTwoDecimal(pi.self_final_score);
+                    pi.score += changeTwoDecimal(pi.indirect_final_score);
+                    pi.score += changeTwoDecimal(pi.superior_final_score);
+                    pi.score += changeTwoDecimal(pi.superior_superior_final_score);
+                    pi.score += changeTwoDecimal(pi.other_final_score);
+                    //指标计分
+                    pi.f_score = pi.score;
+                    pi.score = changeTwoDecimal(pi.f_score * pi.weight / 100);
+                    ai_data.qualitative_pis.sum_score += pi.score;
+                })
+                //重新分配权重
+                reset_qualitative_pis_weight();
+
+            }
+
+            obj = {};
+            obj.ai = ai_data;
+            obj.other1 = other1;
+            obj.other2 = other2;
+            obj.other3 = other3;
+            obj.tts = self.wf_data.attributes.tts;
+            obj.td = self.wf_data.attributes.td;
+            obj.ti = self.wf_data.attributes.ti;
+
+            obj.pd = self.wf_data.attributes.pd;
+            obj.history_tasks = self.wf_data.attributes.history_tasks;
+            obj.flowchart_data = self.wf_data.attributes.flowchart_data;
+            obj.attachments = self.wf_data.attributes.attachments;
+            obj.login_people = $("#login_people").val();
         }
     });
 
