@@ -20,7 +20,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             var self = this;
 
             $("#btn-task-edit").attr('href', "#task_edit/" + self.model.get('_id'));
-            $("#task_detail-content").html(self.template(self.model.attributes));
+            $("#task_detail-content").html(self.template(self.model.toJSON()));
             $("#task_detail-content").trigger('create');
             // Maintains chainability
             return this;
@@ -47,13 +47,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     var rank = $("#task_rank").val();
                     self.model.set('rank', rank);
                     self.model.save().done(function() {
-                        var login_people = $("#login_people").val();
-                        localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.model.collection)))
-                        $.mobile.changePage("#task", {
-                            reverse: false,
-                            changeHash: false,
-                            transition: "flip",
-                        });
+                        window.location.href = "#task";
                     });
                 });
         }

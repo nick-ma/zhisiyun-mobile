@@ -33,6 +33,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                 $form.find("#task-start").val(moment(self.model.get('start')).format('YYYY-MM-DDTHH:mm'));
                 $form.find("#task-end").val(moment(self.model.get('end')).format('YYYY-MM-DDTHH:mm'));
             }
+            $form.find("#task-has_alarms").val(self.model.get('has_alarms').toString()).trigger('change');
+            $form.find("#task-alarm_date_absolute").val(moment(self.model.get('alarm_date_absolute')).format('YYYY-MM-DDTHH:mm'));
+            if (self.model.get('alarm_date_type' == 'A')) {
+                $form.find("#fc-task-alarm_date_absolute").show();
+                $form.find("#task-alarm_date_type").val(self.model.get('alarm_date_type').toString()).trigger('change');
+            } else {
+                $form.find("#fc-task-alarm_date_absolute").hide();
+                $form.find("#task-alarm_date_type").val(self.model.get('alarm_date_offset')).trigger('change');
+            };
             $form.find("#task-is_complete").val(self.model.get('is_complete').toString()).trigger('change');
             if (self.model.isNew()) {
                 $("#btn-back-from-task-edit").attr('href', '#task');
@@ -54,12 +63,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     if (self.model.isValid()) {
                         self.model.set('forward_people', []); //避免在下一次sync前cal渲染出错。
                         self.model.save().done(function() {
-                            var login_people = $("#login_people").val();
-                            localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.model.collection)))
-                            $("body").pagecontainer("change", "#task", {
-                                reverse: false,
-                                changeHash: false,
-                            });
+                            // var login_people = $("#login_people").val();
+                            // localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(self.model.collection)))
+                            window.location.href = '#task/' + self.model.get('_id');
+                            // $("body").pagecontainer("change", "#task", {
+                            //     reverse: false,
+                            //     changeHash: false,
+                            // });
                         });
                     } else { //显示错误提示信息
                         if (!$("#task_edit_msg").hasClass('text-danger')) {
@@ -78,14 +88,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                         var col = self.model.collection;
                         self.model.destroy().done(function() {
                             col.fetch().done(function() {
-                                var login_people = $("#login_people").val();
-                                localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(col)))
+                                // var login_people = $("#login_people").val();
+                                // localStorage.setItem('task_' + login_people, LZString.compressToUTF16(JSON.stringify(col)))
+                                window.location.href = "#task";
                             }); //删除后重新获取collection
-                            $.mobile.changePage("#task", {
-                                reverse: false,
-                                changeHash: false,
-                                transition: "flip",
-                            });
+                            // $.mobile.changePage("#task", {
+                            //     reverse: false,
+                            //     changeHash: false,
+                            //     transition: "flip",
+                            // });
                         });
                     };
                 })
@@ -106,9 +117,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     if (field === 'start' || field === 'end') {
                         value = value.replace('T', ' '); //把T换掉，保存UCT的时间
                     }
-                    if (field === 'is_complete' || field === 'allDay') {
+                    if (field === 'is_complete' || field === 'allDay' || field === 'has_alarms') {
                         value = (value === 'true') ? true : false;
                     }
+                    if (field == 'alarm_date_type') {
+                        if (value != 'A') {
+                            self.model.set('alarm_date_offset', value);
+                            value = 'R';
+                        } else {
+                            $("#task-edit").find("#fc-task-alarm_date_absolute").show();
+                        };
+                    };
                     self.model.set(field, value);
                 });
 

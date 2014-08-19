@@ -273,7 +273,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // set detail page's back url every time 
         localStorage.setItem('contact_detail_back_url', '#contact_list')
         // if (!this.contactListlView.rendered) {
-          this.contactListlView.render();
+        this.contactListlView.render();
         // };
         $("body").pagecontainer("change", "#contact_list", {
           reverse: false,
@@ -1241,6 +1241,29 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return data[0].people_name;
       });
       //绩效流程相关=====================》
+      Handlebars.registerHelper('genAlarmSetMsg', function(offset) {
+        var prefix = '',
+          msg = '';
+
+        if (offset < 0) {
+          prefix = '开始前'
+        } else if (offset > 0) {
+          prefix = '开始后'
+        } else {
+          return '任务开始时'
+        };
+        offset = Math.abs(offset);
+        if (offset > 0 && offset < 60) {
+          msg = offset + '分钟';
+        } else if (offset >= 60 && offset <= 120) {
+          msg = offset / 60 + '小时';
+        } else if (offset > 120 && offset <= 2880) {
+          msg = offset / 60 / 24 + '天';
+        } else if (offset > 2880) {
+          msg = offset / 60 / 24 / 7 + '周';
+        };
+        return prefix + msg;
+      });
     })();
 
     // Returns the Router class
