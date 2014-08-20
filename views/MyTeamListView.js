@@ -68,6 +68,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             bind_event: function() {
                 var self = this;
                 $("#myteam_list")
+                    .on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#myteam_list-left-panel").panel('open');
+                    })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         event.preventDefault();
                         $("#myteam_list-left-panel").panel("open");

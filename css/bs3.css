@@ -576,3 +576,13 @@ Timeline UI Base
   padding-left: 0px;
   margin-left: 0px;
 }
+
+/*头部的次按钮 － 左*/
+.ui-btn-icon-notext.ui-btn-left2{
+    left: 2.5em;
+}
+
+/*头部的次按钮 － 右*/
+.ui-btn-icon-notext.ui-btn-right2{
+    right: 2.5em;
+}

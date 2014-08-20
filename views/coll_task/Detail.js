@@ -373,6 +373,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         })
                     });
                 $("#colltask_detail")
+                    .on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#colltask_detail-left-panel").panel("open");
+                    })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         event.preventDefault();
                         $("#colltask_detail-left-panel").panel('open');

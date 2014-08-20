@@ -318,8 +318,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.mode = this.value;
                         self.render();
                     })
-                    .on('swiperight', function(event) { //向右滑动，打开左边的面板
+                    .on('click', '.open-left-panel', function(event) {
                         event.preventDefault();
+                        $("#colltask-left-panel").panel("open");
+                    })
+                    .on('swiperight', function(event) { //向右滑动，打开左边的面板
+                        // console.log('message on touchStart');
+                        // event.preventDefault();
                         $("#colltask-left-panel").panel("open");
                     })
                     .on('click', '#btn-colltask-refresh', function(event) {
@@ -362,6 +367,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var $this = $(this);
                         self.search_term = $this.val();
                         self.render();
+                    })
+                    .on('click', '._ezswipe_container', function(event) {
+                        console.log('message ininin');
                     });
             }
 
