@@ -99,6 +99,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             bind_event: function() {
                 var self = this;
                 $("#show_skill")
+                    .on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#show_skill-left-panel").panel("open");
+                    })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         event.preventDefault();
                         $("#show_skill-left-panel").panel("open");

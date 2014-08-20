@@ -362,7 +362,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         },
         bind_event: function() {
             var self = this
-            $("#quesetionnaire_manage_list").on('swiperight', function(event) { //向右滑动，打开左边的面板
+            $("#quesetionnaire_manage_list").on('click', '.open-left-panel', function(event) {
+                event.preventDefault();
+                $("#quesetionnaire_manage_list-left-panel").panel("open");
+            }).on('swiperight', function(event) { //向右滑动，打开左边的面板
                 event.preventDefault();
                 $("#quesetionnaire_manage_list-left-panel").panel("open");
             }).on('change', '#quesetionnaire_manage_list-left-panel input[name=quesetionnaire_manage]', function(event) {
