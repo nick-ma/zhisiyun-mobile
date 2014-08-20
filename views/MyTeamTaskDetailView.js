@@ -55,6 +55,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             //         });
             //     });
             $("#myteam_detail-task")
+                .on('click', '.open-left-panel', function(event) {
+                    event.preventDefault();
+                    $("#myteam_detail-task-left-panel").panel("open");
+                })
                 .on('swiperight', function(event) { //向右滑动，打开左边的面板
                     event.preventDefault();
                     $("#myteam_detail-task-left-panel").panel("open");

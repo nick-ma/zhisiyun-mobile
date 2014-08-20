@@ -3936,6 +3936,8 @@ if ( eventCaptureSupported ) {
 			var data = event.originalEvent.touches ?
 					event.originalEvent.touches[ 0 ] : event,
 				location = $.event.special.swipe.getLocation( data );
+				// console.dir(event.type);
+				// event.preventDefault();
 			return {
 						time: ( new Date() ).getTime(),
 						coords: [ location.x, location.y ],
@@ -3947,6 +3949,7 @@ if ( eventCaptureSupported ) {
 			var data = event.originalEvent.touches ?
 					event.originalEvent.touches[ 0 ] : event,
 				location = $.event.special.swipe.getLocation( data );
+				// console.dir(event.type);
 			return {
 						time: ( new Date() ).getTime(),
 						coords: [ location.x, location.y ]

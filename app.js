@@ -74,6 +74,10 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
 
       $.mobile.pushStateEnabled = false;
 
+      // set swipe 
+      $.event.special.swipe.durationThreshold = 1000;
+      $.event.special.swipe.horizontalDistanceThreshold = window.devicePixelRatio >= 2 ? 15 : 30;
+      $.event.special.swipe.verticalDistanceThreshold = window.devicePixelRatio >= 2 ? 15 : 30;
       // console.log(LZString);
       // var string = "This is my compression test.";
       // console.log("Size of sample is: " + string.length);
@@ -195,7 +199,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       // console.log(index, searchValue);
       var $this = $(this),
         filtertext = $this.data('filtertext') || $this.text() || '';
-        
+
       if (searchValue) {
         searchValue = searchValue.split(' ');
         var found_flag = true;

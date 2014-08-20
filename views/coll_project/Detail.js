@@ -282,7 +282,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 };
                 // 设定人员信息卡的返回地址
                 localStorage.setItem('contact_detail_back_url', '#collproject_detail/' + self.model.get('_id'));
-                
+
                 //hold
                 self.hold_back_url();
 
@@ -545,12 +545,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
 
 
                 $("#collproject_detail")
+                    .on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#collproject_detail-left-panel").panel('open');
+                    })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         // event.preventDefault();
                         $("#collproject_detail-left-panel").panel('open');
                         // window.location.href = '#collproject'
                     })
-                    .on('swipeleft', function(event) { //向右滑动，打开左边的面板
+                    .on('click', '.open-right-panel', function(event) {
+                        event.preventDefault();
+                        if (self.view_mode == 'colltasks') {
+                            $("#collproject_detail-right-panel").panel('open');
+                        };
+                    })
+                    .on('swipeleft', function(event) { //向左滑动，打开右边的面板
                         // event.preventDefault();
                         if (self.view_mode == 'colltasks') {
                             $("#collproject_detail-right-panel").panel('open');

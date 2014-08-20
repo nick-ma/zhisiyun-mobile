@@ -251,6 +251,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.mode = this.value;
                         self.render();
                     })
+                    .on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#collproject-left-panel").panel("open");
+                    })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         event.preventDefault();
                         $("#collproject-left-panel").panel("open");

@@ -40,6 +40,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 });
 
                 $("#myteam_detail-basic")
+                    .on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#myteam_detail-basic-left-panel").panel("open");
+                    })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         event.preventDefault();
                         $("#myteam_detail-basic-left-panel").panel("open");

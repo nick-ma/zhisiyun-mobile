@@ -38,6 +38,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             },
             bind_event: function() {
                 $("#myteam_detail-assessment")
+                    .on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#myteam_detail-assessment-left-panel").panel("open");
+                    })
                     .on('swiperight', function(event) { //向右滑动，打开左边的面板
                         event.preventDefault();
                         $("#myteam_detail-assessment-left-panel").panel("open");
