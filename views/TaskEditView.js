@@ -35,9 +35,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             }
             $form.find("#task-has_alarms").val(self.model.get('has_alarms').toString()).trigger('change');
             $form.find("#task-alarm_date_absolute").val(moment(self.model.get('alarm_date_absolute')).format('YYYY-MM-DDTHH:mm'));
-            if (self.model.get('alarm_date_type' == 'A')) {
+            if (self.model.get('alarm_date_type') == 'A') {
                 $form.find("#fc-task-alarm_date_absolute").show();
-                $form.find("#task-alarm_date_type").val(self.model.get('alarm_date_type').toString()).trigger('change');
+                $form.find("#task-alarm_date_type").val('A').trigger('change');
             } else {
                 $form.find("#fc-task-alarm_date_absolute").hide();
                 $form.find("#task-alarm_date_type").val(self.model.get('alarm_date_offset')).trigger('change');
@@ -59,6 +59,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
             self.$el
                 .on('click', '#btn-task-save', function(event) {
                     event.preventDefault();
+                    self.$el.find('input').trigger('change');
                     //check valid
                     if (self.model.isValid()) {
                         self.model.set('forward_people', []); //避免在下一次sync前cal渲染出错。
@@ -114,7 +115,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     var $this = $(this);
                     var field = $this.data('field');
                     var value = $this.val();
-                    if (field === 'start' || field === 'end') {
+                    if (field === 'start' || field === 'end' || field === 'alarm_date_absolute') {
                         value = value.replace('T', ' '); //把T换掉，保存UCT的时间
                     }
                     if (field === 'is_complete' || field === 'allDay' || field === 'has_alarms') {
@@ -124,10 +125,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                         if (value != 'A') {
                             self.model.set('alarm_date_offset', value);
                             value = 'R';
+                            $("#task-edit").find("#fc-task-alarm_date_absolute").hide();
                         } else {
                             $("#task-edit").find("#fc-task-alarm_date_absolute").show();
+
                         };
                     };
+                    // console.log(field, '->', value);
                     self.model.set(field, value);
                 });
 
