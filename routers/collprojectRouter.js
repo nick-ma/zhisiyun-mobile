@@ -4,7 +4,7 @@
 define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作任务
         "../models/CollProjectModel",
-        "../collections/CollProjectCollection",
+        "../collections/CollProjectCollection", "../collections/ContactsCollection",
         // 协作项目－配套协作任务的
         "../views/coll_project/EditContact",
         "../views/coll_project/EditExtend",
@@ -12,7 +12,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     ],
     function($, Backbone, Handlebars, LZString,
         CollProjectModel,
-        CollProjectCollection,
+        CollProjectCollection, ContactsCollection,
 
         CollProjectEditContactView,
         CollProjectEditExtendView,
@@ -72,30 +72,33 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     changeHash: false,
                 });
                 $.mobile.loading("show");
-                self.collProjectDetailView.cp_types = self.cp_types;
-                self.collProjectDetailView.cpfd = self.cpfd;
-                if (self.c_collproject.get(cp_id)) {
-                    self.collProjectDetailView.model = self.c_collproject.get(cp_id);
-                    self.collProjectDetailView.model.fetch().done(function() {
-                        self.collProjectDetailView.render();
-                        $.mobile.loading("hide");
-                    })
-                } else {
-                    var tmp = new CollProjectModel({
-                        _id: cp_id
-                    });
-                    tmp.fetch().done(function() {
-                        self.c_collproject.set(tmp); //放到collection里面
-                        self.collProjectDetailView.model = tmp;
-                        self.collProjectDetailView.render();
-                        $.mobile.loading("hide");
-                    }).fail(function() { //针对手机app版
-                        console.log('message fail');
-                        $.mobile.loading("hide");
-                        alert('项目已被删除')
-                        window.location.href = "#"
-                    })
-                };
+                self.c_contacts.fetch().done(function() {
+                    self.collProjectDetailView.c_contacts = self.c_contacts;
+                    self.collProjectDetailView.cp_types = self.cp_types;
+                    self.collProjectDetailView.cpfd = self.cpfd;
+                    if (self.c_collproject.get(cp_id)) {
+                        self.collProjectDetailView.model = self.c_collproject.get(cp_id);
+                        self.collProjectDetailView.model.fetch().done(function() {
+                            self.collProjectDetailView.render();
+                            $.mobile.loading("hide");
+                        })
+                    } else {
+                        var tmp = new CollProjectModel({
+                            _id: cp_id
+                        });
+                        tmp.fetch().done(function() {
+                            self.c_collproject.set(tmp); //放到collection里面
+                            self.collProjectDetailView.model = tmp;
+                            self.collProjectDetailView.render();
+                            $.mobile.loading("hide");
+                        }).fail(function() { //针对手机app版
+                            console.log('message fail');
+                            $.mobile.loading("hide");
+                            alert('项目已被删除')
+                            window.location.href = "#"
+                        })
+                    };
+                });
             },
             collproject_add: function() {
                 console.log('message: collpeoject add route');
@@ -142,10 +145,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     changeHash: false,
                 });
                 $.mobile.loading("show");
-                self.collProjectEditContactView.model = self.c_collproject.get(cp_id);
-                self.collProjectEditContactView.index = index;
-                self.collProjectEditContactView.render();
-                $.mobile.loading("hide");
+                self.c_contacts.fetch().done(function() {
+                    self.collProjectEditContactView.view_mode = '';
+                    self.collProjectEditContactView.c_contacts = self.c_contacts;
+                    self.collProjectEditContactView.model = self.c_collproject.get(cp_id);
+                    self.collProjectEditContactView.index = index;
+                    self.collProjectEditContactView.render();
+                    $.mobile.loading("hide");
+                });
             },
 
             //
@@ -186,6 +193,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             init_collections: function() {
                 // this.c_colltask = new CollTaskCollection(); //协作任务
                 this.c_collproject = new CollProjectCollection(); //协作项目
+                this.c_contacts = new ContactsCollection(); //联系人库
             },
             bind_events: function() {
 
