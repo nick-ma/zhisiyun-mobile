@@ -299,11 +299,26 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                             var $this = $(this);
                             var index = $this.data('index');
                             var contacts = self.model.get('contacts');
-                            contacts.splice(index, 1);
-                            self.model.set('contacts', contacts);
-                            self.model.save().done(function() {
-                                self.render()
-                            })
+                            //删除对应联系人库中的项目
+                            var c = self.c_contacts.get(contacts[index].contact);
+                            if (c) {
+                                c.attributes.coll_projects.splice(c.attributes.coll_projects.indexOf(self.model.attributes._id), 1);
+                                c.save().done(function() {
+                                    self.c_contacts.fetch().done(function() {
+                                        contacts.splice(index, 1);
+                                        self.model.set('contacts', contacts);
+                                        self.model.save().done(function() {
+                                            self.render()
+                                        })
+                                    })
+                                });
+                            } else {
+                                contacts.splice(index, 1);
+                                self.model.set('contacts', contacts);
+                                self.model.save().done(function() {
+                                    self.render()
+                                })
+                            }
                         };
                     })
                     .on('click', '#btn_collproject_detail_add_contact', function(event) {
