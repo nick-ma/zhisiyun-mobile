@@ -214,13 +214,37 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         $("#jqm_cal").trigger('refresh', [new Date()]);
       },
       task_detail: function(task_id) { //查看任务详情
-        localStorage.setItem('colltask_detail_back_url', window.location.href);
-        this.taskDetailView.model = this.c_task.get(task_id);
-        this.taskDetailView.render();
+        var self = this;
         $("body").pagecontainer("change", "#task_detail", {
           reverse: false,
           changeHash: false,
         });
+        localStorage.setItem('colltask_detail_back_url', window.location.href);
+
+        $.mobile.loading("show");
+        if (self.c_task.get(task_id)) {
+          self.taskDetailView.model = self.c_task.get(task_id);
+          self.taskDetailView.model.fetch().done(function() {
+            self.taskDetailView.render();
+            $.mobile.loading("hide");
+          })
+        } else {
+          var tmp = new TaskModel({
+            _id: task_id
+          });
+          tmp.fetch().done(function() {
+            
+            self.c_task.set(tmp); //放到collection里面
+            self.taskDetailView.model = tmp;
+            self.taskDetailView.render();
+            $.mobile.loading("hide");
+          }).fail(function() { //针对手机app版
+            // console.log('message fail');
+            $.mobile.loading("hide");
+            alert('日历项目已被删除')
+            window.location.href = "#"
+          })
+        };
 
       },
       task_forward: function(task_id) { //转发任务
