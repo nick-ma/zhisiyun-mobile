@@ -133,9 +133,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                                     '偏差分析:' + y.gap_analysis,
                                     '改进措施:' + y.improvement_plan,
                                     '考核指标:' + x.pi_name,
-                                    '支撑目标:' + x.ol_name,
-                                    '绩效合同:' + self.model.get('ai_name'),
                                 ];
+                                if (x.ol) { //如果没有目标，则不加这以行
+                                    description.push('支撑目标:' + x.ol_name);
+                                };
+                                description.push('绩效合同:' + self.model.get('ai_name'));
                                 create_event(title, description.join('\n'), y.start, y.end, y.finished);
                             })
                         };
@@ -149,9 +151,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                                             '改进措施:' + z.improvement_plan,
                                             '小周期名:' + y.segment_name,
                                             '考核指标:' + x.pi_name,
-                                            '支撑目标:' + x.ol_name,
-                                            '绩效合同:' + self.model.get('ai_name'),
                                         ];
+                                        if (x.ol) { //如果没有目标，则不加这以行
+                                            description.push('支撑目标:' + x.ol_name);
+                                        };
+                                        description.push('绩效合同:' + self.model.get('ai_name'));
+
                                         create_event(title, description.join('\n'), z.start, z.end, z.finished);
                                     })
                                 };
@@ -167,9 +172,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                                     '偏差分析:' + y.gap_analysis,
                                     '改进措施:' + y.improvement_plan,
                                     '考核指标:' + x.pi_name,
-                                    '支撑目标:' + x.ol_name,
-                                    '绩效合同:' + self.model.get('ai_name'),
                                 ];
+                                if (x.ol) { //如果没有目标，则不加这以行
+                                    description.push('支撑目标:' + x.ol_name);
+                                };
+                                description.push('绩效合同:' + self.model.get('ai_name'));
+
                                 create_event(title, description.join('\n'), y.start, y.end, y.finished);
                             })
                         };
@@ -183,9 +191,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                                             '改进措施:' + z.improvement_plan,
                                             '小周期名:' + y.segment_name,
                                             '考核指标:' + x.pi_name,
-                                            '支撑目标:' + x.ol_name,
-                                            '绩效合同:' + self.model.get('ai_name'),
                                         ];
+                                        if (x.ol) { //如果没有目标，则不加这以行
+                                            description.push('支撑目标:' + x.ol_name);
+                                        };
+                                        description.push('绩效合同:' + self.model.get('ai_name'));
+
                                         create_event(title, description.join('\n'), z.start, z.end, z.finished);
                                     })
                                 };
