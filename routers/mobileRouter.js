@@ -39,6 +39,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./skillrecommendRouter",
     "./todoRouter",
     "./quesetionnaireRouter",
+    "./workreportRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
 
@@ -66,6 +67,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     SkillRecommendRouter,
     ToDoRouter,
     QuesetionnaireRouter,
+    WorkReportRouter,
     async, moment
 
 
@@ -94,6 +96,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new SkillRecommendRouter();
         new ToDoRouter();
         new QuesetionnaireRouter();
+        new WorkReportRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -233,7 +236,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             _id: task_id
           });
           tmp.fetch().done(function() {
-            
+
             self.c_task.set(tmp); //放到collection里面
             self.taskDetailView.model = tmp;
             self.taskDetailView.render();
@@ -1262,6 +1265,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
       Handlebars.registerHelper('grade_way', function(data, options) {
         if (data == 'P') {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('wr_can_submit', function(data, options) {
+        if (moment() >= moment(data)) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      //和登录人比较
+      Handlebars.registerHelper('is_self', function(data, options) {
+        if (data == $('#login_people').val()) {
           return options.fn(this);
         } else {
           return options.inverse(this);
