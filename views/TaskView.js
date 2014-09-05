@@ -1,6 +1,5 @@
 // Task View
 // =============
-//add one line to test git .
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "jqmcal", "formatdate"], function($, _, Backbone, Handlebars, TaskModel) {
 
