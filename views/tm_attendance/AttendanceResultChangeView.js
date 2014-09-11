@@ -272,7 +272,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			},
 			bind_event: function() {
 				var self = this;
-				self.$el.on('click', '.do_trans', function(event) {
+				$("#personal_wf_attend-content").on('click', '.do_trans', function(event) {
 					if ($("#ti_comment").val() == '') {
 						alert('请填写审批意见！');
 						return;
@@ -351,40 +351,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					event.preventDefault();
 					window.location.reload();
 				})
-				self.$el.on('click', '#btn-save', function(event) {
+				$("#personal_wf_attend-content").on('click', '#btn_save', function(event) {
+					event.preventDefault();
 					save_form_data(function(data) {
+						console.log(data)
 						alert("数据保存成功");
 
 					})
 				})
 				// $("#wf_attendance")
 			},
-			// save_form_data: function(cb) { //若转移路由待时候需保存表单数据，可查找到人员id，得到工作时间。
-			// 	cb();
-			// },
-			// do_trans: function() {
-			// 	var self = this;
-			// 	self.save_form_data(function() {
-			// 		var post_data = {
-			// 			process_instance_id: $("#process_instance_id").val(),
-			// 			task_instance_id: $("#task_instance_id").val(),
-			// 			process_define_id: $("#process_define_id").val(),
-			// 			next_tdid: $("#next_tdid").val(),
-			// 			next_user: $("#next_user_id").val() || null, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
-			// 			trans_name: $("#trans_name").val(), // 转移过来的名称
-			// 			comment_msg: $("#comment_msg").val(), // 任务批注 
-			// 		};
-			// 		var post_url = $("#task_process_url").val();
-			// 		post_url = post_url.replace('<TASK_ID>', $("#task_instance_id").val());
-
-			// 		$.post(post_url, post_data, function(data) {
-			// 			if (data.code == 'OK') {
-
-			// 				window.location = '#todo';
-			// 			};
-			// 		})
-			// 	})
-			// },
 			get_datas: function() {
 
 				var self = this;

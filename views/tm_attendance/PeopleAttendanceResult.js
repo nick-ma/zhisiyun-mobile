@@ -62,7 +62,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var obj = {
 					attendance_data: rendered_data
 				}
-				console.log(obj)
 				$("#personal_attend_list-content").html(self.template(obj));
 
 				$("#personal_attend_list-content").trigger('create');
@@ -84,12 +83,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						self.render();
 					})
 					.on('click', '#attendance_result_change', function(event) {
-						if (confirm("是否考勤异常申请?")) {
+						if (confirm("是否申请处理考勤异常?")) {
 							var goto_url = $(this).data("href");
 							$.get('/admin/tm/beyond_work/wf_create/A', function(data) {
-								console.log(data);
-								var collection_id = data.ti._id;
-								window.location.href = '/m' + goto_url + '/' + collection_id;
+								// console.log(data);
+								// var collection_id = data.ti._id;
+								var goto_url = data.ti._id + '-' + data.pd._id + '-' + data.pd ? data.pd.process_code : '';
+								window.location.href = '/m' + goto_url + '/' + 1;
 							})
 
 						}
