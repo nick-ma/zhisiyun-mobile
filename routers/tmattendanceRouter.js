@@ -198,7 +198,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         function(cb) {
                             $.get('/admin/tm/beyond_work/edit_m/' + ti_id, function(data) {
                                 if (data) {
-                                    console.log(self.singleBeyondOfWorkView)
                                     self.singleBeyondOfWorkView.wf_data = data;
                                     cb(null, data)
                                 } else {
@@ -271,16 +270,18 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 }
                 self.singleBeyondOfWorkView.is_full_day = true;
+                self.singleBeyondOfWorkView.page_mode = 'wf_three';
+
                 self.singleBeyondOfWorkView.render();
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                 $(".ui-flipswitch a").each(function() {
                     $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                 });
-                // if (!is_self) {
-                //     $("#change_no_card_on").attr("disabled", true);
-                //     $("#change_reason").attr("disabled", true);
+                if (!is_self) {
+                    $("#category").attr("disabled", true);
+                    $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
 
-                // }
+                }
                 $("body").pagecontainer("change", "#wf_beyond_of_work", {
                     reverse: false,
                     changeHash: false,
