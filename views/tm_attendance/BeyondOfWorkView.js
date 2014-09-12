@@ -4,6 +4,9 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
+		Handlebars.registerHelper('category', function(num, category_mue) {
+			return category_mue[num]
+		});
 		var times_configs = null,
 			time_type = null,
 			times = null;
@@ -31,48 +34,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 		function save_form_data(cb) {
 			var url = '/admin/tm/tm_wf/edit_formdata';
-			// var post_data = $("#frmWFAttendanceResultChange").serialize();
-			// re-disabled the set of inputs that you previously enabled
-			// disabled.attr('disabled', 'disabled');
-			var change_result = [];
-			if ($("#change_no_card_on").val() == 'NCM') {
-				change_result.push('NCM');
-			}
-			if ($("#change_no_card_off").val() == 'NCA') {
-				change_result.push('NCA');
-			}
 
-			var change_date = $("#change_date").val();
-			var arr1 = [],
-				arr2 = [];
-			arr1.push(change_date);
-			var time = is_work_on_off(change_date);
-			if (time.work_on_time) {
-				arr1.push(time.work_on_time);
-			} else {
-				arr2.push("09:00");
-			}
-			if (time.is_cross_day) {
-				arr2.push(moment(change_date).add('days', 1).format("YYYY-MM-DD"));
-			} else {
-				arr2.push(change_date);
-
-			}
-			if (time.wokr_off_time) {
-				arr2.push(time.work_on_time);
-
-			} else {
-				arr2.push("18:00");
-			}
-			var come_time = moment(arr1.join(" "));
-			var leave_time = moment(arr2.join(" "));
-
-			var post_data = 'change_result=' + JSON.stringify(change_result);
-			post_data += '&change_reason=' + $('#change_reason').val();
-			post_data += '&change_date=' + $('#change_date').val();
-			post_data += '&attendance_id=' + $('#attendance_id').val();
-			post_data += '&come_time=' + come_time;
-			post_data += '&leave_time=' + leave_time;
 			$.post(url, post_data, function(data) {
 				cb(data)
 			})
@@ -102,12 +64,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 		}
 
 		// Extends Backbone.View
-		var AttendanceResultChangeView = Backbone.View.extend({
+		var BeyondOfWorkView = Backbone.View.extend({
 
 			// The View Constructor
 			initialize: function() {
 				var self = this;
-				this.template = Handlebars.compile($("#hbtmp_personal_wf_attend_view").html());
+				this.template = Handlebars.compile($("#hbtmp_wf_beyond_of_work_list_view").html());
+				this.details_template = Handlebars.compile($("#wf_three_details_view").html());
 				// The render method is called when CollTask Models are added to the Collection
 				this.bind_event();
 			},
@@ -121,11 +84,49 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				times = self.times;
 				//流程数据
 				var wf_data = self.wf_data;
-				var attendance = self.attendance;
-				var bool = false;
-				var arr_change = [];
-				console.log(self.view_mode);
 				console.log(self);
+				//加班类别数据
+				var category_mue = {
+						'1': '正常工作日加班',
+						'2': '休息日加班',
+						'3': '法定节假日加班'
+					},
+					category_arr = [{
+						"num": '1'
+					}, {
+						"num": '2'
+					}, {
+						"num": '3'
+					}];
+
+				var obj = _.extend(wf_data, {
+					"category_arr": category_arr
+				}, {
+					"category_mue": category_mue
+				});
+				//是否全天任务判断
+				var is_full_day = self.is_full_day;
+				if (wf_data.leave.data > 0) {
+
+					var is_full_day_data = _.find(leave.data, function(temp) {
+						return temp.is_full_day == false
+					})
+					is_full_day = is_full_day_data ? false : true;
+
+				}
+				obj.is_full_day = is_full_day;
+				//判断是否有开始和结束时间
+				obj.leave.create_start_date = wf_data.leave.create_start_date ? wf_data.leave.create_start_date : new Date();
+				obj.leave.create_end_date = wf_data.leave.create_end_date ? wf_data.leave.create_end_date : new Date();
+				//当天工作时间
+				var today_time = is_work_on_off(new Date());
+				// console.log(today_time);
+				// obj.work_time = today_time;
+				var day_hours = 0;
+				if (today_time) {
+					day_hours = today_time.work_time_hour;
+				}
+				obj.leave.hours = wf_data.leave.hours ? wf_data.leave.hours : day_hours;
 				if (self.view_mode) {
 					if (self.view_mode == 'trans') {
 						$("#wf_attendance_title").html('数据处理人');
@@ -187,93 +188,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						return this;
 					}
 				} else {
-					// if (!self.attendance) {
-					// 	$("#wf_attendance_title").html('异常处理流程');
-					// 	self.get_datas();
-					// 	console.log(self)
-					// 	this.template = Handlebars.compile($("#hbtmp_personal_wf_attend_view").html());
-					// }
-					var data = self.model.attributes[0].data;
-					var people = self.model.attributes[0].people;
-					if (attendance) {
-						if (!!~attendance.work_result.indexOf('NCM')) {
-
-							arr_change.push(true);
-						} else {
-							arr_change.push(false);
-						};
-						if (!!~attendance.work_result.indexOf('NCA')) {
-							arr_change.push(true);
-						} else {
-							arr_change.push(false);
-						};
-					}
-					if (!!~arr_change.indexOf(true)) {
-						var bool = true;
-					}
-
-					var filter_data = _.filter(data, function(temp) {
-						var bool = !!~temp.work_result.indexOf("NCM") || !!~temp.work_result.indexOf("NCA");
-						return bool && temp.is_job_day && moment(temp.job_date).format("YYYY-MM-DD") == String(self.date);
-					})
-					filter_data = _.each(filter_data, function(temp) {
-						temp.format_time = moment(temp.job_date).format("YYYYMMDD");
-						if (bool) {
-							if (!!~attendance.work_result.indexOf("NCM")) {
-								temp.change_no_card_on = true;
-							} else {
-								temp.change_no_card_on = false;
-
-							}
-							if (!!~attendance.work_result.indexOf("NCA")) {
-								temp.change_no_card_off = true;
-
-							} else {
-								temp.change_no_card_off = false;
-
-							}
-							temp.change_reason = attendance.change_reason;
-						} else {
-							if (!!~temp.work_result.indexOf("NCM")) {
-								temp.change_no_card_on = true;
-							} else {
-								temp.change_no_card_on = false;
-
-							}
-							if (!!~temp.work_result.indexOf("NCA")) {
-								temp.change_no_card_off = true;
-
-							} else {
-								temp.change_no_card_off = false;
-
-							}
-							temp.change_reason = '';
-						}
-
-						temp.tts = wf_data.tts;
-						temp.pd = wf_data.pd;
-						temp.td = wf_data.td;
-						temp.ti = wf_data.ti;
-						temp.history_tasks = wf_data.history_tasks;
-					})
-					var rendered_data = _.map(filter_data, function(x) {
-						return x;
-					})
-					var obj = {
-						attendance_data: rendered_data,
-					}
 					console.log(obj)
-					$("#personal_wf_attend-content").html(self.template(obj));
-					$("#personal_wf_attend-content").trigger('create');
+					$("#personal_wf_beyond_of_work-content").html(self.template(obj));
+					$("#personal_wf_beyond_of_work-content").trigger('create');
 					return this;
 				}
 
 
 
 			},
+			render2: function() {
+				var self = this;
+			},
 			bind_event: function() {
 				var self = this;
-				$("#personal_wf_attend-content").on('click', '.do_trans', function(event) {
+				$("#personal_wf_beyond_of_work-content").on('click', '.do_trans', function(event) {
 					if ($("#ti_comment").val() == '') {
 						alert('请填写审批意见！');
 						return;
@@ -334,8 +263,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					}
 
 
-				})
-				$("#personal_wf_attend-content").on('click', '#btn_ok', function(e) {
+				}).on('click', '#btn_ok', function(e) {
 					if ($("#next_user_name").val()) {
 						$("#btn_ok").attr("disabled", "disabled");
 						if (!self.view_mode) {
@@ -347,18 +275,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					} else {
 						alert('请选择下一任务的处理人');
 					};
-				})
-				$("#personal_wf_attend-content").on('click', '#btn_trans_cancel', function(event) {
+				}).on('click', '#btn_trans_cancel', function(event) {
 					event.preventDefault();
 					window.location.reload();
-				})
-				$("#personal_wf_attend-content").on('click', '#btn_save', function(event) {
+				}).on('click', '#btn_save', function(event) {
 					event.preventDefault();
 					save_form_data(function(data) {
 						console.log(data)
 						alert("数据保存成功");
 
 					})
+				}).on('change', '#is_full_day', function(event) {
+					var is_full_day = $(this).val();
+					self.is_full_day = is_full_day == "false" ? false : true;
+					self.render();
 				})
 				// $("#wf_attendance")
 			},
@@ -370,6 +300,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 		});
 
 		// Returns the View class
-		return AttendanceResultChangeView;
+		return BeyondOfWorkView;
 
 	});

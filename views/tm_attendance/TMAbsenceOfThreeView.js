@@ -25,9 +25,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			// Renders all of the CollTask models on the UI
 			render: function() {
 				var self = this;
-				console.log(self.model)
 				var wf_data = self.model.attributes;
-				console.log(wf_data);
 				var temp_arr = [];
 				_.each(wf_data, function(temp) {
 					if (temp.absence_type == String(absence_type)) {
@@ -61,7 +59,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var obj = {
 					wf_absence_data: rendered_data
 				}
-				console.log(obj);
 				$("#personal_wf_three_list-content").html(self.template(obj));
 
 				$("#personal_wf_three_list-content").trigger('create');
@@ -75,6 +72,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					absence_type = $(this).val();
 					self.render();
 				})
+					.on('click', '#btn_wf_add', function(event) {
+						event.preventDefault();
+						var type = $("#wf_three_view_mode").val();
+						var obj = {
+							type: type
+						}
+						var temp_obj = {
+							'B': '#godo5/',
+							'W': '#godo6/',
+							'C': '#godo7/'
+						}
+						$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
+							var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+							console.log(goto_url);
+							window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
+						})
+
+					})
+
 
 			}
 		});

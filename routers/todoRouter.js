@@ -244,6 +244,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             },
                             function(data, cb) {
                                 var people = data.people;
+                                self.singleAttendanceResultChangeView.people = people;
                                 async.parallel({
                                     model: function(cb) {
                                         self.tmattendance.url = '/admin/tm/cardrecord/m_bb/' + people;
@@ -251,7 +252,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                             self.tmattendances.remove(self.tmattendance);
                                             self.tmattendances.push(self.tmattendance);
                                             self.singleAttendanceResultChangeView.model = self.tmattendance;
-                                            self.singleAttendanceResultChangeView.date = data.chagne_date;
+                                            self.singleAttendanceResultChangeView.date = data ? data.change_date : '';
                                             cb(null, 'OK');
 
                                         })
@@ -311,14 +312,24 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         ], cb);
                     }
                 }, function(err, ret) {
-                    self.singleAttendanceResultChangeView.view_mode = 'deal_with';
+                    var is_self = self.singleAttendanceResultChangeView.people == String($("#login_people").val());
+                    if (is_self) {
+                        self.singleAttendanceResultChangeView.view_mode = '';
+
+                    } else {
+                        self.singleAttendanceResultChangeView.view_mode = 'deal_with';
+
+                    }
                     self.singleAttendanceResultChangeView.render();
                     //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                     $(".ui-flipswitch a").each(function() {
                         $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                     });
-                    $("#change_no_card_on").attr("disabled", true);
-                    $("#change_reason").attr("disabled", true);
+                    if (!is_self) {
+                        $("#change_no_card_on").attr("disabled", true);
+                        $("#change_reason").attr("disabled", true);
+
+                    }
                     $("body").pagecontainer("change", "#wf_attendance", {
                         reverse: false,
                         changeHash: false,

@@ -83,13 +83,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						self.render();
 					})
 					.on('click', '#attendance_result_change', function(event) {
+						// var change_date = $(this).data("date");
+						var obj = {
+							change_date: $(this).data("date"),
+							type: 'A'
+						}
 						if (confirm("是否申请处理考勤异常?")) {
-							var goto_url = $(this).data("href");
-							$.get('/admin/tm/beyond_work/wf_create/A', function(data) {
-								// console.log(data);
-								// var collection_id = data.ti._id;
-								var goto_url = data.ti._id + '-' + data.pd._id + '-' + data.pd ? data.pd.process_code : '';
-								window.location.href = '/m' + goto_url + '/' + 1;
+							$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
+								var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+								window.location.href = '/m' + '#godo4/' + goto_url + '/' + 1;
 							})
 
 						}
