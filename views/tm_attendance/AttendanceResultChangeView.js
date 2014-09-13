@@ -124,8 +124,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var attendance = self.attendance;
 				var bool = false;
 				var arr_change = [];
-				console.log(self.view_mode);
-				console.log(self);
 				if (self.view_mode) {
 					if (self.view_mode == 'trans') {
 						$("#wf_attendance_title").html('数据处理人');
@@ -262,7 +260,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					var obj = {
 						attendance_data: rendered_data,
 					}
-					console.log(obj)
 					$("#personal_wf_attend-content").html(self.template(obj));
 					$("#personal_wf_attend-content").trigger('create');
 					return this;
@@ -355,7 +352,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				$("#personal_wf_attend-content").on('click', '#btn_save', function(event) {
 					event.preventDefault();
 					save_form_data(function(data) {
-						console.log(data)
 						alert("数据保存成功");
 
 					})
