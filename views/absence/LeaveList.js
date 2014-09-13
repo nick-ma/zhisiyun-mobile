@@ -14,6 +14,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         }
         return mark[data]
     });
+
     Handlebars.registerHelper('rp', function(data) {
         var str = '无假期类型'
         if (data) {
@@ -21,6 +22,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         };
         return str
     });
+
     Handlebars.registerHelper('show_date', function(st, ed) {
         var s = (st) ? moment(st).format('YYYY-MM-DD') : '';
         var e = (ed) ? moment(ed).format('YYYY-MM-DD') : '';
@@ -43,7 +45,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         initialize: function() {
             console.log(this);
             this.leave_template = Handlebars.compile($("#leave_view").html());
-            this.collection.on("sync", this.render, this);
             this.month = moment(new Date()).month() + 1;
             this.bind_event();
         },
@@ -69,7 +70,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.render()
             }).on('click', '#crate_leave', function(event) {
                 self.leaveOfAbsence.save().done(function(data) {
-                    window.location.href = "/m#leave_form/" + data.ti._id;
+                    window.location.href = "/m#leave_form_t/" + data.ti._id;
 
                 })
 
