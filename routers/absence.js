@@ -5,11 +5,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/absence/LeaveList",
     "../views/absence/LeaveOfAbsenceList",
     "../models/LeaveOfAbsenceModel",
+    "../views/absence/LeaveViewList"
 ], function($, Backbone, Handlebars, LZString,
     LeaveOfAbsenceCollection,
     LeaveView,
     LeaveOfAbsenceView,
-    LeaveOfAbsenceModel
+    LeaveOfAbsenceModel,
+    LeaveShowList
     // SkillRecommendModel
 ) {
     var AbsenceRouter = Backbone.Router.extend({
@@ -28,7 +30,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         routes: {
             // 假期
             "leave_list": "leave_list",
-            "leave_form/:ti_id": "leave_form",
+            "leave_form_t/:ti_id": "leave_form",
+            "leave_form_p/:ti_id": "list_view",
         },
 
 
@@ -59,6 +62,21 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
             })
         },
+        list_view: function(pi_id) {
+            var self = this;
+            $.get('/admin/tm/wf_leave_of_absence/view_json/' + pi_id, function(data) {
+                console.log(data)
+                self.leaveShowList.obj = data
+                self.leaveShowList.render();
+                $("body").pagecontainer("change", "#leave_view_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            })
+
+        },
+
+
         init_views: function() {
             var self = this;
             this.leaveView = new LeaveView({
@@ -68,6 +86,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             this.leaveOfAbsenceView = new LeaveOfAbsenceView({
                 el: "#leaveofabsence_list-content",
                 model: self.leaveOfAbsence,
+            });
+            this.leaveShowList = new LeaveShowList({
+                el: "#leaveofabsence_list-content",
+                // model: self.leaveOfAbsence,
             });
 
 

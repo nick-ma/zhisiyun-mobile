@@ -341,7 +341,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var ti_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
-                window.location.href = '/m#leave_form/' + ti_id;
+                window.location.href = '/m#leave_form_t/' + ti_id;
             },
 
 
