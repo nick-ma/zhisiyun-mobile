@@ -90,6 +90,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						})
 
 					})
+					.on('swiperight', function(event) { //向右滑动，打开左边的面板
+						event.preventDefault();
+						$("#show_attendance_result-left-panel").panel("open");
+					})
+					.on('click', '#btn-show_attendance_result-change_view', function(event) {
+						event.preventDefault();
+						window.location = '#attendance'
+						$("#show_attendance_result-left-panel").panel("close");
+					})
+
 
 
 			}

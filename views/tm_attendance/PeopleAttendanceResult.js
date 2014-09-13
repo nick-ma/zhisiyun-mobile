@@ -96,6 +96,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 						}
 					})
+					.on('click','#go_back',function(event){
+						event.preventDefault();
+						window.location = '#wf_three';
+					})
 			}
 		});
 
