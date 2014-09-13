@@ -24,7 +24,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 self.model = um.model;
                 self.field = um.field;
                 self.back_url = um.back_url;
-
+                self.new_width = um.new_width; //直接定义的新宽度
+                console.log(um);
                 var render_data = {};
                 $("#btn-upload_pic-back").attr('href', self.back_url);
                 $("#upload_pic-content").html(self.template(render_data));
@@ -95,7 +96,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             $("#do_upload").text('上传成功');
                             // 利用local storage传递数据
                             _.each(server_res.success, function(x) {
-                                self.model[self.field].push(x._id);
+                                if (_.isArray(self.model[self.field])) { //如果是数组，就push
+                                    self.model[self.field].push(x._id);
+                                } else { //否则，直接替换－》人员头像
+                                    self.model[self.field] = x._id;
+                                };
                             })
                             localStorage.setItem('upload_model_back', JSON.stringify({
                                 model: self.model
@@ -131,7 +136,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             resizeAndUpload: function(file) {
                 var self = this;
                 $.canvasResize(file, {
-                    width: 640,
+                    width: self.new_width || 640,
                     height: 0,
                     crop: false,
                     quality: 90,
@@ -150,7 +155,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                                     // 利用local storage传递数据
 
-                                    self.model[self.field].push(res._id);
+                                    // self.model[self.field].push(res._id);
+
+                                    if (_.isArray(self.model[self.field])) { //如果是数组，就push
+                                        self.model[self.field].push(res._id);
+                                    } else { //否则，直接替换－》人员头像
+                                        self.model[self.field] = res._id;
+                                    };
+
                                     localStorage.setItem('upload_model_back', JSON.stringify({
                                         model: self.model
                                     }))
