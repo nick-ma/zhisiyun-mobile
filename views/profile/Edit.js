@@ -23,10 +23,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/PeopleMo
             // Renders all of the People models on the UI
             render: function() {
                 var self = this;
+                var back_model = JSON.parse(localStorage.getItem('upload_model_back'));
+                localStorage.removeItem('upload_model_back'); //用完删掉
+
+                if (back_model) {
+                    self.model.set(back_model.model);
+                };
                 var render_data = self.model.toJSON();
+
                 if (self.edit_mode == '01') {
                     $("#myprofile_edit_01-content").html(self.template_01(render_data));
                     $("#myprofile_edit_01-content").trigger('create');
+                } else if (self.edit_mode == '02') {
+                    $("#myprofile_edit_02-content").html(self.template_02(render_data));
+                    $("#myprofile_edit_02-content").trigger('create');
                 } else if (self.edit_mode == '03') {
                     $("#myprofile_edit_03-content").html(self.template_03({}));
                     $("#myprofile_edit_03-content").trigger('create');
@@ -53,7 +63,30 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/PeopleMo
                         };
                     })
                 });
+                $("#myprofile_edit_02-content")
+                    .on('click', '#btn-upload-pic', function(event) {
+                        event.preventDefault();
+                        localStorage.setItem('upload_model', JSON.stringify({
+                            model: self.model.toJSON(),
+                            field: 'avatar',
+                            back_url: '#myprofile_edit_02',
+                            new_width: 120,
+                        }));
 
+                        window.location.href = "#upload_pic";
+                    })
+                    .on('click', '#btn-profile-save', function(event) {
+                        event.preventDefault();
+                        var data4post = {
+                            people_id: self.model.get('_id'),
+                            avatar: self.model.get('avatar')
+                        };
+                        $.post(self.update_people_url, data4post, function(data) {
+                            if (data) {
+                                alert(data.msg);
+                            };
+                        })
+                    });
                 $("#myprofile_edit_03-content").on('click', '#btn-profile-save', function(event) {
                     event.preventDefault();
                     //校验输入

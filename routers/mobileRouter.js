@@ -443,6 +443,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           reverse: false,
           changeHash: false,
         });
+        self.myProfileEditView.model = self.myProfileDetailView.model;
+        self.myProfileEditView.edit_mode = '02';
+        self.myProfileEditView.render();
       },
       myprofile_edit_03: function() { //修改密码
         var self = this;

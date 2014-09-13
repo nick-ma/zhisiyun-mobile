@@ -43,7 +43,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
     var AbsenceListView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
-            console.log(this);
+            // console.log(this);
             this.leave_template = Handlebars.compile($("#leave_view").html());
             this.month = moment(new Date()).month() + 1;
             this.bind_event();
