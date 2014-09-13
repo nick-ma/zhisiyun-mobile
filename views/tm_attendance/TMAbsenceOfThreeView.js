@@ -43,7 +43,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 								people: temp.people,
 								destination: temp.destination,
 								category: temp.category,
-								is_exchange: temp.is_exchange
+								is_exchange: temp.is_exchange,
+								is_over: temp.is_over
 							}
 							temp_arr.push(obj);
 						})

@@ -174,7 +174,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 if (!is_self) {
                     $("#category").attr("disabled", true);
                     $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
-
+                    $("#exchange").show();
                 }
                 $("body").pagecontainer("change", "#wf_beyond_of_work", {
                     reverse: false,
@@ -277,7 +277,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 if (!is_self) {
                     $("#reason").attr("disabled", true);
                     $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
-
+                    $("#create_destination_data").find("h2").html("查看出差目的地");
                 }
                 $("body").pagecontainer("change", "#wf_work_of_travel", {
                     reverse: false,

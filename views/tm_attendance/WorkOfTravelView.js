@@ -182,7 +182,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			var obj = {
 				leaves: JSON.stringify(leaves),
 				leave_id: leave_id,
-				destinations: JSON.stringify([])
+				destinations: JSON.stringify(wf_data.leave.destination)
 			}
 			post_data = _.extend(obj, wf_data.leave);
 			post_data.reason = $("#reason").val();
