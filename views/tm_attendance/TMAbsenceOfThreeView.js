@@ -23,27 +23,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var temp_arr = [];
 				_.each(wf_data, function(temp) {
 					if (temp.absence_type == String(absence_type)) {
-						_.each(temp.data, function(t) {
-							var obj = {
-								_id: temp._id,
-								date: t.start_date,
-								reason: temp.reason,
-								format_time: moment(t.start_date).format("YYYYMMDD"),
-								is_full_day: t.is_full_day,
-								time_zone_s: t.time_zone_s,
-								time_zone_e: t.time_zone_e,
-								hours: t.total_time,
-								absence_type: temp.absence_type,
-								people: temp.people,
-								destination: temp.destination,
-								category: temp.category,
-								is_exchange: temp.is_exchange,
-								is_over: temp.is_over,
-								process_state: temp.process_state,
-								state: (temp.process_state == 'END' ? true : false)
-							}
-							temp_arr.push(obj);
-						})
+						var obj = {
+							_id: temp._id,
+							reason: temp.reason,
+							create_start_date: temp.create_start_date,
+							create_end_date: temp.create_end_date,
+							format_time: moment(temp.create_start_date).format("YYYYMMDD"),
+							absence_type: temp.absence_type,
+							hours: temp.hours,
+							people: temp.people,
+							destination: temp.destination,
+							category: temp.category,
+							is_exchange: temp.is_exchange,
+							is_over: temp.is_over,
+							process_state: temp.process_state,
+							pi_id: temp.pi_id,
+							ti_id: temp.task_instance_id,
+							pd_id: temp.pd_id,
+							pd_code: temp.pd_code,
+							state: (temp.process_state == 'END' ? true : false)
+						}
+						temp_arr.push(obj);
 					}
 
 				})
@@ -105,6 +105,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						event.preventDefault();
 						window.location = '#attend_report'
 						$("#show_attendance_result-left-panel").panel("close");
+					}).on('click', '#wf_three_details', function(event) {
+						event.preventDefault();
+						var url = $(this).data("url");
+						var absence_type = $(this).data("absence_type");
+						var pi_id = $(this).data("pi_id");
+						var temp_obj = {
+							'B': '/m#godo5/',
+							'W': '/m#godo6/',
+							'C': '/m#godo7/'
+						}
+						$.get('/admin/tm/beyond_work/wf_three_data_4_view_m/' + pi_id, function(data) {
+							var ti_id = data[0]._id;
+							var goto_url = temp_obj[String(absence_type)] + ti_id + url;
+							window.location.href = goto_url;
+						})
+
 					})
 
 

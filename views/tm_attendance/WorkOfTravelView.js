@@ -416,6 +416,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					ed = time_parse(end_date);
 					assemble(self, st, ed);
 
+				}).on('click', '#btn_wf2_start_userchat', function(event) {
+					event.preventDefault();
+					var url = "im://userchat/" + self.wf_data.leave.people._id;
+					console.log(url);
+					window.location.href = url;
 				})
 				$("#wf_work_of_travel").on('click', '#go_back', function(event) {
 					if (self.page_mode == 'detail') {

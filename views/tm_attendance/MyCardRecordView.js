@@ -4,15 +4,6 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
-		Handlebars.registerHelper('sign_style', function(type) {
-			var obj = {
-				'P': '电脑',
-				'I': '考勤机',
-				'M': '移动'
-			}
-			return '<span class="label label-info">'+obj[String(type)]+'</span>'
-
-		});
 		// Extends Backbone.View
 		var MyCardRecordView = Backbone.View.extend({
 

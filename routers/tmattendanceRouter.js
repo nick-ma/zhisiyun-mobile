@@ -86,7 +86,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             })
 
         },
-        go_do5: function(op_id, type) {
+        go_do5: function(op_id, type, mode) {
             var self = this;
             var ti_id = op_id.split("-")[0];
             var pd_id = op_id.split("-")[1];
@@ -181,6 +181,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     $("#category").attr("disabled", true);
                     $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
                     $("#exchange").show();
+                }
+                if (type == '2') {
+                    $("#wf_beyond_of_work_title").html("加班流程查看")
+                    $("#personal_wf_beyond_of_work-content").find("button").attr("disabled", true);
+                    $("#personal_wf_beyond_of_work-content").find("input").attr("disabled", true);
+                    $("#personal_wf_beyond_of_work-content").find("a").attr("disabled", true);
+                    $("#personal_wf_beyond_of_work-content").find("select").attr("disabled", true);
+
                 }
                 $("body").pagecontainer("change", "#wf_beyond_of_work", {
                     reverse: false,
@@ -285,6 +293,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
                     $("#create_destination_data").find("h2").html("查看出差目的地");
                 }
+                if (type == '2') {
+                    $("#wf_work_of_travel_title").html("出差流程查看")
+                    $("#personal_wf_work_of_travel-content").find("button").attr("disabled", true);
+                    $("#personal_wf_work_of_travel-content").find("input").attr("disabled", true);
+                    $("#personal_wf_work_of_travel-content").find("a").attr("disabled", true);
+                    $("#personal_wf_work_of_travel-content").find("select").attr("disabled", true);
+
+                }
                 $("body").pagecontainer("change", "#wf_work_of_travel", {
                     reverse: false,
                     changeHash: false,
@@ -387,6 +403,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 if (!is_self) {
                     $("#reason").attr("disabled", true);
                     $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
+
+                }
+                if (type == '2') {
+                    $("#wf_work_of_city_title").html("市区公干流程查看")
+                    $("#personal_wf_work_of_city-content").find("button").attr("disabled", true);
+                    $("#personal_wf_work_of_city-content").find("input").attr("disabled", true);
+                    $("#personal_wf_work_of_city-content").find("a").attr("disabled", true);
+                    $("#personal_wf_work_of_city-content").find("select").attr("disabled", true);
 
                 }
                 $("body").pagecontainer("change", "#wf_work_of_city", {

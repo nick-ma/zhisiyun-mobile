@@ -1371,6 +1371,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       //移动考勤相关====================
       //TmAbsenceOfThreeView
+      Handlebars.registerHelper('formatDate', function(start, end) {
+        var format_start = moment(start).format("YYYY-MM-DD");
+        var format_end = moment(end).format("YYYY-MM-DD");
+        if (format_start != format_end) {
+          return format_start + '~' + format_end
+        } else {
+          return format_start
+        }
+
+      });
       Handlebars.registerHelper('hour', function(time) {
         if (time > 0) {
           return time + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
@@ -1383,7 +1393,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             return t.city_name
           })
           if (destinations.length > 0) {
-            return '<div class="ui-grid-b"><p style="margin-bottom:0px">目的地:' + destinations.join(' ') + '</p></div>'
+            return '<div class="ui-grid-b"><p style="margin-bottom:0px">目的地:&nbsp;<span class="text-info">' + destinations.join(' ') + '</span></p></div>'
 
           }
         }
@@ -1418,6 +1428,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       //BeyondOfWorkReportView
       Handlebars.registerHelper('month', function(filter_month) {
+        var months = {
+          '1': '一月',
+          '2': '二月',
+          '3': '三月',
+          '4': '四月',
+          '5': '五月',
+          '6': '六月',
+          '7': '七月',
+          '8': '八月',
+          '9': '九月',
+          '10': '十月',
+          '11': '十一月',
+          '12': '十二月',
+        }
         return months[String(filter_month)]
 
       });
@@ -1429,6 +1453,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         if (destination.length > 0) {
           return '<span class="text-success">' + destination.join(' ') + '</span>'
         }
+      });
+      //my card record list view
+      Handlebars.registerHelper('sign_style', function(type) {
+        var obj = {
+          'P': '电脑',
+          'I': '考勤机',
+          'M': '移动'
+        }
+        return '<span class="label label-info">' + obj[String(type)] + '</span>'
+
       });
 
 

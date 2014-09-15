@@ -122,6 +122,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				//流程数据
 				var wf_data = self.wf_data;
 				var attendance = self.attendance;
+				var is_self = self.is_self;
 				var bool = false;
 				var arr_change = [];
 				if (self.view_mode) {
@@ -172,6 +173,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						attendance.pd = wf_data.pd;
 						attendance.td = wf_data.td;
 						attendance.ti = wf_data.ti;
+						temp.is_self = is_self;
+
 						attendance.history_tasks = wf_data.history_tasks;
 						var rendered_data = [];
 						rendered_data.push(attendance);
@@ -252,6 +255,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						temp.pd = wf_data.pd;
 						temp.td = wf_data.td;
 						temp.ti = wf_data.ti;
+						temp.is_self = is_self;
 						temp.history_tasks = wf_data.history_tasks;
 					})
 					var rendered_data = _.map(filter_data, function(x) {
@@ -355,6 +359,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						alert("数据保存成功");
 
 					})
+				}).on('click', '#btn_wf_start_userchat', function(event) {
+					event.preventDefault();
+					var url = "im://userchat/" + self.attendance.people;
+					console.log(url);
+					window.location.href = url;
 				})
 				// $("#wf_attendance")
 			},

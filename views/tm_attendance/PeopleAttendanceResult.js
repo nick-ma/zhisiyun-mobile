@@ -24,7 +24,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				var filter_data = _.sortBy(_.filter(data, function(temp) {
 					temp.format_time = moment(temp.job_date).format("YYYYMMDD");
-					if (!!~temp.work_result.indexOf("NCM") || !!~temp.work_result.indexOf("NCA")) {
+					var is_normal = !!~temp.work_result.indexOf("CC") && !!~temp.work_result.indexOf("CL");
+					if ((!!~temp.work_result.indexOf("NCM") || !!~temp.work_result.indexOf("NCA")) && !is_normal) {
 						temp.attendance_diff = true;
 					} else {
 						temp.attendance_diff = false;
@@ -74,7 +75,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 						}
 					})
-					.on('click','#go_back',function(event){
+					.on('click', '#go_back', function(event) {
 						event.preventDefault();
 						window.location = '#wf_three';
 					})
