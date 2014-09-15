@@ -5,28 +5,6 @@
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
 		var filter_month = moment().format("YYYY-MM");
-		Handlebars.registerHelper('if_true', function(result, cond1) {
-			if (!!~result.indexOf(String(cond1))) {
-				// return '<a data-role="button" data-icon="check" ></a>'
-				return '<span class="label label-info" style="color:red">是</span>'
-
-			} else {
-				return false;
-			}
-
-		});
-		Handlebars.registerHelper('if_true2', function(result, cond1, cond2) {
-			if (cond1 && cond2) {
-				if (!!~result.indexOf(String(cond1)) && !!~result.indexOf(String(cond2))) {
-					// return '<i class="icon-ok" style="color:red"></i>'
-					return '<span class="label label-info" style="color:red">是</span>'
-
-				} else {
-					return false;
-				}
-			}
-
-		});
 		// Extends Backbone.View
 		var MyAttendanceListView = Backbone.View.extend({
 

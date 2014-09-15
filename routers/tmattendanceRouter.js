@@ -10,6 +10,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
     "../views/tm_attendance/WorkOfTravelView",
     "../views/tm_attendance/WorkOfCityView",
     "../views/tm_attendance/CitiesView",
+    "../views/tm_attendance/MyCardRecordView",
+    "../views/tm_attendance/BeyondOfWorkReportView",
     "../views/TransConfirmView",
     "../models/WFDataModel",
     "../models/TmAttendanceModel",
@@ -25,6 +27,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
     WorkOfTravelView,
     WorkOfCityView,
     CitiesView,
+    MyCardRecordView,
+    BeyondOfWorkReportView,
     TransConfirmView,
     WFDataModel,
     TmAttendanceModel,
@@ -44,7 +48,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             "godo5/:op_id/:type": "go_do5", //员工加班流程
             "godo6/:op_id/:type": "go_do6", //外出差旅流程
             "godo7/:op_id/:type": "go_do7", //市区公干流程
-            "cities/:task_id": "cities"
+            "cities/:task_id": "cities", //城市数据
+            "attend_report": "attend_report", //加班统计报表
+            "card_record": "card_record" //打卡记录列表查看
 
         },
 
@@ -66,17 +72,17 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         },
         wf_three: function() {
             var self = this;
-            var login_people = $("#login_people").val();
-            this.tm_absence_three.url = '/admin/tm/beyond_work/mobile_bb/' + login_people + '/' + null;
-            this.tm_absence_three.fetch().done(function() {
-                self.tm_absence_threes.remove(self.tm_absence_three);
-                self.tm_absence_threes.push(self.tm_absence_three);
-                self.singleTMAbsenceOfThreeView.model = self.tm_absence_three;
+            $.get('/admin/tm/beyond_work/wf_three_data_4_m', function(data) {
+                if (data) {
+                    self.singleTMAbsenceOfThreeView.wf_data = data;
+
+                }
                 self.singleTMAbsenceOfThreeView.render();
                 $("body").pagecontainer("change", "#wf_three", {
                     reverse: false,
                     changeHash: false,
                 });
+
             })
 
         },
@@ -417,6 +423,34 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             })
 
         },
+        card_record: function() {
+            var self = this;
+            $.get("/admin/tm/cardrecord/record_4_m", function(data) {
+                if (data) {
+                    self.singleMyCardRecordView.record_data = data;
+                    self.singleMyCardRecordView.render();
+                    $("body").pagecontainer("change", "#show_my_card_record", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                }
+            })
+
+        },
+        attend_report: function() {
+            var self = this;
+            $.get("/admin/tm/beyond_work/beyond_of_work_4_m", function(data) {
+                if (data) {
+                    self.singleBeyondOfWorkReportView.data = data;
+                    self.singleBeyondOfWorkReportView.render();
+                    $("body").pagecontainer("change", "#show_beyond_of_work_report", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                }
+            })
+
+        },
         init_views: function() {
             var self = this;
             this.PeopleAttendanceResult = new PeopleAttendanceResult({
@@ -437,6 +471,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             this.singleCitiesView = new CitiesView({
                 el: "#show_destinations-content",
             });
+            this.singleMyCardRecordView = new MyCardRecordView({
+                el: "#personal_my_card_record-content",
+            });
+            this.singleBeyondOfWorkReportView = new BeyondOfWorkReportView({
+                el: "#personal_beyond_of_work_report-content",
+            });
+
             this.transConfirmView = new TransConfirmView({
                 el: "#trans_confirm",
             })

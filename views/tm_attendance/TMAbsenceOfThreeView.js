@@ -1,16 +1,10 @@
-// PeopleAttendanceResult List View
+// TmAbsenceOfThreeView List View
 // =================
 
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
 		var absence_type = 'B';
-		Handlebars.registerHelper('hour', function(time) {
-			if (time > 0) {
-				return time + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
-			}
-
-		});
 		// Extends Backbone.View
 		var TMAbsenceOfThreeView = Backbone.View.extend({
 
@@ -25,7 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			// Renders all of the CollTask models on the UI
 			render: function() {
 				var self = this;
-				var wf_data = self.model.attributes;
+				var wf_data = self.wf_data;
 				var temp_arr = [];
 				_.each(wf_data, function(temp) {
 					if (temp.absence_type == String(absence_type)) {
@@ -44,7 +38,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 								destination: temp.destination,
 								category: temp.category,
 								is_exchange: temp.is_exchange,
-								is_over: temp.is_over
+								is_over: temp.is_over,
+								process_state: temp.process_state,
+								state: (temp.process_state == 'END' ? true : false)
 							}
 							temp_arr.push(obj);
 						})
@@ -58,7 +54,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					return x;
 				})
 				var obj = {
-					wf_absence_data: rendered_data
+					wf_absence_data: rendered_data.reverse()
 				}
 				$("#personal_wf_three_list-content").html(self.template(obj));
 
@@ -98,6 +94,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					.on('click', '#btn-show_attendance_result-change_view', function(event) {
 						event.preventDefault();
 						window.location = '#attendance'
+						$("#show_attendance_result-left-panel").panel("close");
+					})
+					.on('click', '#btn-show_card_record-change_view', function(event) {
+						event.preventDefault();
+						window.location = '#card_record'
+						$("#show_attendance_result-left-panel").panel("close");
+					})
+					.on('click', '#btn-show_beyond_of_work_report-change_view', function(event) {
+						event.preventDefault();
+						window.location = '#attend_report'
 						$("#show_attendance_result-left-panel").panel("close");
 					})
 

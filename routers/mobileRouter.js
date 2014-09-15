@@ -1369,6 +1369,70 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
         return prefix + msg;
       });
+      //移动考勤相关====================
+      //TmAbsenceOfThreeView
+      Handlebars.registerHelper('hour', function(time) {
+        if (time > 0) {
+          return time + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
+        }
+
+      });
+      Handlebars.registerHelper('travel', function(absence_type, destination) {
+        if (absence_type == 'W') {
+          var destinations = _.map(destination, function(t) {
+            return t.city_name
+          })
+          if (destinations.length > 0) {
+            return '<div class="ui-grid-b"><p style="margin-bottom:0px">目的地:' + destinations.join(' ') + '</p></div>'
+
+          }
+        }
+
+      });
+      //PeopleAttendanceResultView
+      Handlebars.registerHelper('if_true', function(result, cond1) {
+        if (!!~result.indexOf(String(cond1))) {
+          // return '<a data-role="button" data-icon="check" ></a>'
+          return '<span class="label label-info" style="color:red">是</span>'
+
+        } else {
+          return false;
+        }
+
+      });
+      Handlebars.registerHelper('if_true2', function(result, cond1, cond2) {
+        if (cond1 && cond2) {
+          if (!!~result.indexOf(String(cond1)) && !!~result.indexOf(String(cond2))) {
+            // return '<i class="icon-ok" style="color:red"></i>'
+            return '<span class="label label-info" style="color:red">是</span>'
+
+          } else {
+            return false;
+          }
+        }
+
+      });
+      //BeyondOfWorkView
+      Handlebars.registerHelper('work_category', function(num, category_mue) {
+        return category_mue[num]
+      });
+      //BeyondOfWorkReportView
+      Handlebars.registerHelper('month', function(filter_month) {
+        return months[String(filter_month)]
+
+      });
+      //WorkOfTravelView
+      Handlebars.registerHelper('destination', function(destination) {
+        var destination = _.map(destination, function(temp) {
+          return temp.city_name
+        })
+        if (destination.length > 0) {
+          return '<span class="text-success">' + destination.join(' ') + '</span>'
+        }
+      });
+
+
+
     })();
 
     (function() {
