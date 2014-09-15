@@ -3,17 +3,17 @@
 
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], function($, _, Backbone, Handlebars, async, moment) {
-    Handlebars.registerHelper('mark', function(data) {
-        var mark = {
-            'START': '开始',
-            'RUNNING': '执行中 ',
-            'END': '结束',
-            'SUSPEND': '挂起',
-            'TERMINATE': '终止',
-            'DELETE': '删除'
-        }
-        return mark[data]
-    });
+    // Handlebars.registerHelper('mark', function(data) {
+    //     var mark = {
+    //         'START': '开始',
+    //         'RUNNING': '执行中 ',
+    //         'END': '结束',
+    //         'SUSPEND': '挂起',
+    //         'TERMINATE': '终止',
+    //         'DELETE': '删除'
+    //     }
+    //     return mark[data]
+    // });
 
     function absence_code_show(absence_code, self) {
         var absence_code = (absence_code || '001');
@@ -49,7 +49,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     num += ft.balance
                 })
                 leave.leave_balance = num;
-                $('#leave_balance').val(num + '小时')
+                $('#leave_balance').html(num + ' 小时')
             };
         } else if (absence_code == '003' || absence_code == '002') {
             $("#detail_show,#history").show();
@@ -63,7 +63,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 num += accumulate.hours
             })
             leave.aggregate_value = num + '小时';
-            $('#aggregate_value').val(num + '小时')
+            $('#aggregate_value').html(num + '小时')
 
         } else if (absence_code == '004') {
             $("#ration_show,#history").show();
@@ -89,7 +89,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             };
 
             leave.ration = hours * 8;
-            $("#ration").val(hours * 8 + '小时')
+            $("#ration").html(hours * 8 + '小时')
 
 
         } else {
@@ -274,7 +274,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             leave.leaves = date_items;
             leave.hours = total_value;
 
-            $('#hours').val(total_value + '小时');
+            $('#hours').html(total_value + '小时');
 
         };
         if (date_items.length == 0) {
