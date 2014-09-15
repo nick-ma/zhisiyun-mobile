@@ -52,8 +52,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         render: function() {
             var self = this;
             var rendered_data = '';
+            var items = self.collection.toJSON()
             rendered_data = self.leave_template({
-                leaves: self.collection.toJSON()
+                leaves: items.reverse()
             });
             // console.log(self.collection.toJSON())
             $("#leave_list-content").html(rendered_data);

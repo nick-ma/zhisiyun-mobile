@@ -52,16 +52,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         render: function() {
             $("#leaveofabsence_name").html('假期查看')
             var self = this;
-            console.log(self.obj)
             var rendered_data = '';
-
-
 
             if (self.model_view == '0') {
                 rendered_data = self.leave_template(self.obj);
 
             } else if (self.model_view == '1') {
                 $("#leaveofabsence_name").html('假期累计明细');
+                console.log(self)
                 rendered_data = self.leave_details_template(self.obj);
             } else if (self.model_view == '2') {
                 $("#leaveofabsence_name").html('请假明细');
