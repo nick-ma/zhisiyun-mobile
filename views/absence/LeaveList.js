@@ -79,7 +79,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             this.bind_event();
             this.mode_view = '0';
         },
-        // Renders all of the Task models on the UI
+        
         render: function() {
             var self = this;
             var rendered_data = '';
