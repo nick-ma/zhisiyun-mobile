@@ -4,7 +4,7 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
-		
+
 		var times_configs = null,
 			time_type = null,
 			times = null;
@@ -549,6 +549,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					ed = time_parse(end_date);
 					assemble(self, st, ed);
 
+				}).on('click', '#btn_wf1_start_userchat', function(event) {
+					event.preventDefault();
+					var url = "im://userchat/" + self.wf_data.leave.people._id;
+					console.log(url);
+					window.location.href = url;
 				})
 				$("#wf_beyond_of_work").on('click', '#go_back', function(event) {
 					if (self.page_mode == 'detail') {
