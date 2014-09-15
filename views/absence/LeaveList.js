@@ -79,7 +79,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             this.bind_event();
             this.mode_view = '0';
         },
-        
+
         render: function() {
             var self = this;
             var rendered_data = '';
@@ -190,7 +190,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 $("#leave_list-left-panel").panel("open");
             }).on('click', '#btn-leave_list-refresh', function(event) {
                 event.preventDefault();
-                console.log('+++++++++++')
                 $.mobile.loading("show");
                 self.collection.fetch().done(function() {
                     self.render();
@@ -200,22 +199,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             }).on('change', 'input[type="radio"]', function(event) {
                 event.preventDefault();
-                // console.log('=======')
-                // console.log($(this).val())
                 self.mode_view = $(this).val();
                 self.render();
-                // var $this = $(this);
-                // var field = $this.data("field");
-                // var value = $this.val();
-                // if (field == 'date_period') { //需要重新获取数据
-                //     $.mobile.loading("show");
-                //     self.period_set = value
-                // } else if (field == 'date_qt_type') {
-                //     $.mobile.loading("show");
-                //     self.date_typeset = value
-                // }
-                // self.render();
-                // $.mobile.loading("hide");
                 $("#leave_list-left-panel").panel("close");
             })
         },
