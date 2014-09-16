@@ -171,6 +171,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 }
                 self.singleBeyondOfWorkView.is_full_day = true;
                 self.singleBeyondOfWorkView.page_mode = 'wf_three';
+                self.singleBeyondOfWorkView.mode = type;
 
                 self.singleBeyondOfWorkView.render();
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。
@@ -183,11 +184,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     $("#exchange").show();
                 }
                 if (type == '2') {
+                    $("#personal_wf_beyond_of_work-content").find("textarea").attr("disabled", true);
                     $("#wf_beyond_of_work_title").html("加班流程查看")
                     $("#personal_wf_beyond_of_work-content").find("button").attr("disabled", true);
                     $("#personal_wf_beyond_of_work-content").find("input").attr("disabled", true);
                     $("#personal_wf_beyond_of_work-content").find("a").attr("disabled", true);
                     $("#personal_wf_beyond_of_work-content").find("select").attr("disabled", true);
+                    $("#personal_wf_beyond_of_work-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
 
                 }
                 $("body").pagecontainer("change", "#wf_beyond_of_work", {
@@ -282,6 +285,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 }
                 self.singleWorkOfTravelView.is_full_day = true;
                 self.singleWorkOfTravelView.page_mode = 'wf_three';
+                self.singleWorkOfTravelView.mode = type;
 
                 self.singleWorkOfTravelView.render();
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。
@@ -294,11 +298,15 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     $("#create_destination_data").find("h2").html("查看出差目的地");
                 }
                 if (type == '2') {
+                    $("#personal_wf_work_of_travel-content").find("textarea").attr("disabled", true);
+
                     $("#wf_work_of_travel_title").html("出差流程查看")
                     $("#personal_wf_work_of_travel-content").find("button").attr("disabled", true);
                     $("#personal_wf_work_of_travel-content").find("input").attr("disabled", true);
                     $("#personal_wf_work_of_travel-content").find("a").attr("disabled", true);
                     $("#personal_wf_work_of_travel-content").find("select").attr("disabled", true);
+                    $("#personal_wf_work_of_travel-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
+                    $("#personal_wf_work_of_travel-content").find("a[id='create_destination_data']").parent().remove();
 
                 }
                 $("body").pagecontainer("change", "#wf_work_of_travel", {
@@ -394,6 +402,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 }
                 self.singleWorkOfCityView.is_full_day = true;
                 self.singleWorkOfCityView.page_mode = 'wf_three';
+                self.singleWorkOfCityView.mode = type;
 
                 self.singleWorkOfCityView.render();
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。
@@ -406,11 +415,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 }
                 if (type == '2') {
+                    $("#personal_wf_work_of_city-content").find("textarea").attr("disabled", true);
                     $("#wf_work_of_city_title").html("市区公干流程查看")
                     $("#personal_wf_work_of_city-content").find("button").attr("disabled", true);
                     $("#personal_wf_work_of_city-content").find("input").attr("disabled", true);
                     $("#personal_wf_work_of_city-content").find("a").attr("disabled", true);
                     $("#personal_wf_work_of_city-content").find("select").attr("disabled", true);
+                    $("#personal_wf_work_of_city-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
 
                 }
                 $("body").pagecontainer("change", "#wf_work_of_city", {

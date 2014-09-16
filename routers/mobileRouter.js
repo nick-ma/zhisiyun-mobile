@@ -1406,7 +1406,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return '<span class="label label-info" style="color:red">是</span>'
 
         } else {
-          return false;
+          return '<span class="label label-warning" style="color:red">否</span>'
         }
 
       });
@@ -1417,7 +1417,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             return '<span class="label label-info" style="color:red">是</span>'
 
           } else {
-            return false;
+            return '<span class="label label-warning" style="color:red">否</span>'
           }
         }
 

@@ -426,7 +426,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					if (self.page_mode == 'detail') {
 						$("#wf_work_of_travel_title").html("出差申请流程");
 						self.page_mode = 'wf_three';
-						self.render();
+						if (self.mode == '2') {
+							self.render();
+							$("#personal_wf_work_of_travel-content").find("textarea").attr("disabled", true);
+
+							$("#wf_work_of_travel_title").html("出差流程查看")
+							$("#personal_wf_work_of_travel-content").find("button").attr("disabled", true);
+							$("#personal_wf_work_of_travel-content").find("input").attr("disabled", true);
+							$("#personal_wf_work_of_travel-content").find("a").attr("disabled", true);
+							$("#personal_wf_work_of_travel-content").find("select").attr("disabled", true);
+							$("#personal_wf_work_of_travel-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
+							$("#personal_wf_work_of_travel-content").find("a[id='create_destination_data']").parent().remove();
+
+						} else {
+							self.render();
+						}
 					} else if (self.page_mode == 'wf_three') {
 						window.location.href = "/m#wf_three";
 					} else {
