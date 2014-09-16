@@ -322,7 +322,15 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                     }
                     self.singleAttendanceResultChangeView.is_self = is_self;
+                    self.singleAttendanceResultChangeView.mode = type;
+
                     self.singleAttendanceResultChangeView.render();
+                    if (type == '2') {
+                        $("#personal_wf_attend-content").find("button").attr("disabled", true);
+                        $("#personal_wf_attend-content").find("input").attr("disabled", true);
+                        $("#personal_wf_attend-content").find("textarea").attr("disabled", true);
+
+                    }
                     //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                     $(".ui-flipswitch a").each(function() {
                         $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");

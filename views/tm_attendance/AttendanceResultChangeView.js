@@ -173,7 +173,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						attendance.pd = wf_data.pd;
 						attendance.td = wf_data.td;
 						attendance.ti = wf_data.ti;
-						temp.is_self = is_self;
+						attendance.is_self = is_self;
 
 						attendance.history_tasks = wf_data.history_tasks;
 						var rendered_data = [];

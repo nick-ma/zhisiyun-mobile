@@ -152,7 +152,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				}
 				self.wf_data.leave.data = date_items;
 				self.wf_data.leave.hours = total_value;
-				$('#hours').val(total_value + '小时');
+				$('#hours').val(parseFloat(total_value).toFixed(2) + '小时');
 				//判断公干时间需在上班时间内。
 				if (!self.is_full_day && date_items.length == 1) {
 					if (moment.duration(date_items[0].time_zone_s) < moment.duration(date_items[0].work_on_time) || moment.duration(date_items[0].time_zone_e) > moment.duration(date_items[0].work_off_time)) {

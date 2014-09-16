@@ -237,7 +237,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				}
 				self.wf_data.leave.data = date_items;
 				self.wf_data.leave.hours = total_value;
-				$('#hours').val(total_value + '小时');
+				$('#hours').val(parseFloat(total_value).toFixed(2) + '小时');
 				//当月已加班小时数
 				var month_hour = self.wf_data.total_hour;
 				var month_max_hour = self.wf_data.month_max_hour;
