@@ -89,7 +89,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 if (state == '0') {
                     $(x).find('span').html(items[0].leaves.length || 0);
                 } else if (state == '1') {
-                    $(x).find('span').html(items[0].balance.details.length || 0);
+                    $(x).find('span').html(items[0].balance ? items[0].balance.data.length : 0);
                 } else if (state == '2') {
                     var all_cunts = _.flatten([items[0].leave_total.leaveOfabsences, items[0].leave_total.backleaveOfabsences], true)
                     $(x).find('span').html(all_cunts.length || 0);
@@ -121,10 +121,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     var end_date = moment(dt.end_date).format('YYYY-MM-DD')
                     return dt.absence_code == '005'
                 })
-
+                console.log(items[0].balance)
                 rendered_data = self.balance_template({
-                    '001_bs': sort(filter_003s),
-                    '002_bs': sort(filter_004s),
+                    '001_bs': sort(filter_001s),
+                    '002_bs': sort(filter_002s),
                     '001_num': calculate(filter_001s),
                     '002_num': calculate(filter_002s)
                 });
@@ -178,9 +178,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.month = parseInt($(this).val()) + 1;
                 self.render()
             }).on('click', '#crate_leave', function(event) {
-                self.leaveOfAbsence.save().done(function(data) {
-                    window.location.href = "#leave_form_t/" + data.ti._id;
-                })
+                if (confirm('确定启动请假流程 ？')) {
+                    self.leaveOfAbsence.save().done(function(data) {
+                        window.location.href = "#leave_form_t/" + data.ti._id;
+                    })
+                };
             }).on('click', '.open-left-panel', function(event) {
                 event.preventDefault();
                 $("#leave_list-left-panel").panel("open");
@@ -201,11 +203,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.mode_view = $(this).val();
                 self.render();
                 $("#leave_list-left-panel").panel("close");
-            }).on('click', '#btn_wf_start_userchat', function(event) {
-                event.preventDefault();
-                var url = "im://userchat/" + self.wf_data.leave.people._id;
-                console.log(url);
-                window.location.href = url;
             })
         },
 
