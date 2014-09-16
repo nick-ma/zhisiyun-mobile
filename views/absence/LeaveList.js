@@ -16,7 +16,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
     });
 
     Handlebars.registerHelper('rp', function(data) {
-        var str = '无假期类型'
+        var str = '无假期类型' 
         if (data) {
             str = data;
         };
