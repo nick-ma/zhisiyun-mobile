@@ -184,6 +184,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 						$("#personal_wf_attend-content").html(self.template(obj));
 						$("#personal_wf_attend-content").trigger('create');
+						$("#btn_save").hide();
 
 						return this;
 					}

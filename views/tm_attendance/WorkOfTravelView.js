@@ -272,6 +272,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					} else if (self.view_mode == 'deal_with') {
 						$("#personal_wf_work_of_travel-content").html(self.template(obj));
 						$("#personal_wf_work_of_travel-content").trigger('create');
+						$("#btn_save").hide();
+						$('#create_start_date,#create_end_date,#textarea').attr('disabled', true);
 
 						return this;
 					}

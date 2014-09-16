@@ -392,7 +392,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					} else if (self.view_mode == 'deal_with') {
 						$("#personal_wf_beyond_of_work-content").html(self.template(obj));
 						$("#personal_wf_beyond_of_work-content").trigger('create');
-
+						$("#btn_save").hide();
+						$('#create_start_date,#create_end_date,#textarea').attr('disabled', true);
 						return this;
 					}
 				} else {
