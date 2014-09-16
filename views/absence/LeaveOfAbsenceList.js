@@ -426,7 +426,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     };
 
                 };
-
+                self.model.id = $("#task_instance_id").val();
 
                 self.model.save().done(function(data) {
                     if (data) {
@@ -473,19 +473,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var leave = self.model.get('leave');
                 leave.leave_reason = $(this).val();
             }).on('change', '#leave_allday', function(event) {
+                event.preventDefault();
                 var la = $(this).val();
                 var leave = self.model.get('leave');
                 leave.allday = (la == 'false' ? false : true);
                 self.render();
             }).on('click', '.do_trans', function(event) {
+
                 event.preventDefault();
                 var leave = self.model.get('leave');
                 var $this = $(this);
-                if ($("#ti_comment").val() == '') {
+                if (!$("#ti_comment").val()) {
                     alert('请填写审批意见！');
                     return;
-                }
-
+                };
                 var absence_type = $('#absence_type').val();
                 if (absence_type == '001' || absence_type == '005') {
                     if (leave.hours > leave.leave_balance) {
@@ -497,8 +498,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         alert('请假时长不能大于定额！')
                         return false
                     };
-
                 };
+
+                $(this).attr('disabled', true)
+                $.mobile.loading("show");
 
                 var process_define_id = $("#process_define_id").val();
                 var task_define_id = $("#task_define_id").val();
@@ -513,6 +516,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var roles_type = $this.data('roles_type');
                 var position_form_field = $this.data('position_form_field');
 
+                console.log(self.model)
+
+                self.model.id = $("#task_instance_id").val();
                 self.model.save().done(function(data) {
                     $.post('/admin/wf/trans_confirm_form_4m', {
                         process_define_id: process_define_id,
@@ -526,8 +532,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         next_tdid: target_id,
                         direction: direction
                     }, function(data) {
+                        console.log(data)
                         self.model_view = '3';
                         self.trans_data = data;
+                        $.mobile.loading("hide");
                         self.render();
                     });
                 })
@@ -536,9 +544,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 event.preventDefault();
                 window.location.reload();
             }).on('click', '#btn_ok', function(e) {
+                $.mobile.loading("show");
                 if ($("#next_user_name").val()) {
                     $("#btn_ok").attr("disabled", "disabled");
                     do_trans(self.trans_data);
+                    $.mobile.loading("hide");
                 } else {
                     alert('请选择下一任务的处理人');
                 };
