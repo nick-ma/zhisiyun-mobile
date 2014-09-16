@@ -179,7 +179,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.render()
             }).on('click', '#crate_leave', function(event) {
                 self.leaveOfAbsence.save().done(function(data) {
-                    window.location.href = "/m#leave_form_t/" + data.ti._id;
+                    window.location.href = "#leave_form_t/" + data.ti._id;
                 })
             }).on('click', '.open-left-panel', function(event) {
                 event.preventDefault();
