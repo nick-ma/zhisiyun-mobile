@@ -398,8 +398,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             };
 
             if (self.people_id == String(leave.people._id)) {
-
+                $("#btn_ims_show").hide();
             } else {
+                $("#btn_ims_show").show();
                 $('#absence_type,#leave_reason,#leave_allday,#create_start_date,#create_end_date').attr('disabled', true);
             }
             $("#leave_list #crate_leave").hide();
@@ -541,6 +542,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 } else {
                     alert('请选择下一任务的处理人');
                 };
+            }).on('click', '#btn_wf_start_userchat', function(event) {
+                event.preventDefault();
+                var leave = self.model.get('leave');
+                var url = "im://userchat/" + leave.people._id;
+                window.location.href = url;
             })
         },
 

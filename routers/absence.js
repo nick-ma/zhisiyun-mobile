@@ -49,8 +49,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         },
         leave_form: function(ti_id) {
             var login_people = $("#login_people").val();
-
-            console.log(login_people)
             var self = this;
             self.leaveOfAbsence.id = ti_id;
             self.leaveOfAbsence.fetch().done(function() {
