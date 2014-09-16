@@ -165,7 +165,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 });
 
             };
-            // console.log(self.collection.toJSON())
             $("#leave_list-content").html(rendered_data);
             $("#leave_list-content").trigger('create');
             $("#leave_list #crate_leave").show();
