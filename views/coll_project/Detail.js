@@ -148,74 +148,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 } else if (self.view_mode == 'colltasks') { //任务清单
                     self.cp_ct_state = self.cp_ct_state || '0'; //全部的任务
                     //检测并获取任务数据
-
-                    async.series([
-
-                        function(cb) {
-                            if (self.last_cp_id != self.model.get('_id')) { //换了项目，需要重新获取
-                                $.get('/admin/pm/coll_task/get_by_cp/' + self.model.get('_id'), function(data) {
-                                    self.coll_tasks = data;
-                                    cb(null, data);
-                                })
-                                self.last_cp_id = self.model.get('_id')
-                            } else {
-                                cb(null, null);
-                            };
-                        }
-                    ], function(err, result) {
-                        //进行过滤的操作 
-
-                        var tmp = self.coll_tasks;
-                        // console.log(tmp);
-                        //根据条件进行过滤
-                        if (self.ct_search_term) {
-                            var st = /./;
-                            st.compile(self.ct_search_term);
-                            tmp = _.filter(tmp, function(x) {
-                                return st.test(x.task_name);
-                            })
-                        };
-                        if (self.ct_importance) {
-                            tmp = _.filter(tmp, function(x) {
-                                return x.importance == self.ct_importance;
-                            })
-                        };
-                        if (self.ct_urgency) {
-                            tmp = _.filter(tmp, function(x) {
-                                return x.urgency == self.ct_urgency;
-                            })
-                        };
-                        _.each(tmp, function(x) {
-                            if (x.isfinished) {
-                                x.state = '3';
-                            } else if (!x.end || moment(x.end).endOf('day').toDate() >= new Date()) {
-                                x.state = '1';
-                            } else {
-                                x.state = '2';
-                            };
-                        })
-                        var ts_count = _.countBy(tmp, function(x) {
-                            return x.state;
-                        });
-                        ts_count['0'] = tmp.length; //全部的数量
-                        // console.log(ts_count);
-                        if (self.cp_ct_state != '0') {
-                            tmp = _.filter(tmp, function(x) {
-                                return x.state == self.cp_ct_state;
-                            })
-                        };
-
-                        _.each($("#collproject_detail-right-panel label"), function(x) {
-                            // console.log(x);
-                            $(x).find('span').html(ts_count[$(x).data('state')] || 0);
-                        })
-                        rendered = self.template_colltask({
-                            coll_tasks: tmp
-                        })
-                        $("#collproject_detail-content").html(rendered);
-                        $("#collproject_detail-content").trigger('create');
-                    })
-
+                    self.reload_coll_tasks();
 
 
                 };
@@ -383,8 +316,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                     })
                     .on('click', '#btn-cp-add_coll_task', function(event) { //新建任务
                         event.preventDefault();
+                        var task_name = prompt("请输入任务名称") || '新建任务';
                         var ct = new CollTaskModel({
-                            task_name: '新建任务',
+                            task_name: task_name,
                             start: new Date(),
                             end: moment().add(3, 'day').toDate(),
                             allday: true,
@@ -394,7 +328,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                             cp_name: self.model.get("project_name"),
                         })
                         ct.save().done(function() {
-                            self.render();
+                            alert('任务“' + task_name + '”创建成功');
+                            self.reload_coll_tasks();
                         })
                     })
                     .on('click', '#btn-ct-add_comment', function(event) {
@@ -597,6 +532,77 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 if (this.collproject_detail_back_url.substr(0, 12) != '#collproject') {
                     localStorage.setItem('collproject_detail_back_url', this.collproject_detail_back_url);
                 };
+            },
+            reload_coll_tasks: function() {
+                var self = this;
+                async.series([
+
+                    function(cb) {
+                        // if (self.last_cp_id != self.model.get('_id')) { //换了项目，需要重新获取
+                        $.get('/admin/pm/coll_task/get_by_cp/' + self.model.get('_id'), function(data) {
+                            self.coll_tasks = data;
+                            cb(null, data);
+                        })
+                        self.last_cp_id = self.model.get('_id')
+                        // } else {
+                        // cb(null, null);
+                        // };
+                    }
+                ], function(err, result) {
+                    //进行过滤的操作 
+
+                    var tmp = self.coll_tasks;
+                    // console.log(tmp);
+                    //根据条件进行过滤
+                    if (self.ct_search_term) {
+                        var st = /./;
+                        st.compile(self.ct_search_term);
+                        tmp = _.filter(tmp, function(x) {
+                            return st.test(x.task_name);
+                        })
+                    };
+                    if (self.ct_importance) {
+                        tmp = _.filter(tmp, function(x) {
+                            return x.importance == self.ct_importance;
+                        })
+                    };
+                    if (self.ct_urgency) {
+                        tmp = _.filter(tmp, function(x) {
+                            return x.urgency == self.ct_urgency;
+                        })
+                    };
+                    _.each(tmp, function(x) {
+                        if (x.isfinished) {
+                            x.state = '3';
+                        } else if (!x.end || moment(x.end).endOf('day').toDate() >= new Date()) {
+                            x.state = '1';
+                        } else {
+                            x.state = '2';
+                        };
+                    })
+                    var ts_count = _.countBy(tmp, function(x) {
+                        return x.state;
+                    });
+                    ts_count['0'] = tmp.length; //全部的数量
+                    // console.log(ts_count);
+                    if (self.cp_ct_state != '0') {
+                        tmp = _.filter(tmp, function(x) {
+                            return x.state == self.cp_ct_state;
+                        })
+                    };
+
+                    _.each($("#collproject_detail-right-panel label"), function(x) {
+                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    })
+                    tmp = _.sortBy(tmp, function(x) {
+                        return -new Date(x.createDate); //按创建时间倒序排
+                    })
+                    rendered = self.template_colltask({
+                        coll_tasks: tmp
+                    })
+                    $("#collproject_detail-content").html(rendered);
+                    $("#collproject_detail-content").trigger('create');
+                })
             }
         });
 

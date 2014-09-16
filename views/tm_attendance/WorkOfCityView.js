@@ -4,7 +4,6 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
-
 		var times_configs = null,
 			time_type = null,
 			times = null;
@@ -26,33 +25,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			}
 			return bool;
 		}
-		//计算两个时间之间工作多小时
-		function calculate_hours_d(start_time, end_time) {
-			var days_between = moment(end_time).diff(moment(start_time), 'days');
-			var num = 0;
-			for (var i = 0; i <= days_between; i++) {
-				var iterate_date = moment(start_time).add('days', i).format('YYYY-MM-DD');
-				for (var j = 0; j < times_configs.length; j++) {
-					var f_d = _.find(times_configs[j].calendar_data, function(dt) {
-						if (time_type == '2') {
-							return moment(iterate_date).format('YYYYMMDD') <= moment(dt.expire_off).format('YYYYMMDD') && moment(iterate_date).format('YYYYMMDD') >= moment(dt.expire_on).format('YYYYMMDD')
-						} else {
-							return dt.job_date == moment(iterate_date).format('YYYY-MM-DD')
-						}
-					})
-					if (f_d && !f_d.is_job_day) {
-						num += times_configs[j].time.work_time_hour;
-					};
-
-				};
-
-			};
-			return num
-		}
-
-
 		//计算时间
-		function calculate_hours(time, start_time, s_hour, end_time, e_hour, is_full_day) {
+		function calculate_hours(time, start_time, s_hour, end_time, e_hour) {
 			var time_long = null;
 			var s_hour = moment.duration(s_hour);
 			var e_hour = moment.duration(e_hour);
@@ -60,74 +34,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			var work_off_time = moment.duration(time.work_off_time);
 			var rest_start = moment.duration(time.rest_start);
 			var rest_end = moment.duration(time.rest_end);
-			if (is_full_day) {
-				var s_up = s_hour >= work_on_time && s_hour <= rest_start;
-				var e_up = e_hour >= work_on_time && e_hour <= rest_start; //同在上午
+			var s_up = s_hour >= work_on_time && s_hour <= rest_start;
+			var e_up = e_hour >= work_on_time && e_hour <= rest_start; //同在上午
 
-				var s_down = s_hour >= rest_end && s_hour <= work_off_time;
-				var e_down = e_hour >= rest_end && e_hour <= work_off_time; //同在下午
-				if (s_up && e_up || s_down && e_down) {
-					time_long = (e_hour - s_hour) / 60000 / 60
-				} else {
-					time_long = ((rest_start - s_hour) + (e_hour - rest_end)) / 60000 / 60
-				}
-
+			var s_down = s_hour >= rest_end && s_hour <= work_off_time;
+			var e_down = e_hour >= rest_end && e_hour <= work_off_time; //同在下午
+			if (s_up && e_up || s_down && e_down) {
+				time_long = (e_hour - s_hour) / 60000 / 60
 			} else {
-				//假日中的半天
-				var rest_day_num = calculate_hours_d(start_time, end_time);
-
-				if (rest_day_num != 0) { //休息日加班
-
-					var s_up = s_hour <= rest_start;
-					var e_up = e_hour <= rest_start; //同在上午
-
-					var s_down = s_hour >= rest_end;
-					var e_down = e_hour >= rest_end; //同在下午
-					var s_center = s_hour >= work_on_time && s_hour <= work_off_time; //同在上班时间段(包括上边两个判断了)
-					var e_center = e_hour >= work_on_time && e_hour <= work_off_time;
-					if (s_up && e_up || s_down && e_down) {
-						time_long = (e_hour - s_hour) / 60000 / 60
-					} else {
-						time_long = ((rest_start - s_hour) + (e_hour - rest_end)) / 60000 / 60
-
-					}
-
-				} else {
-					var s_up = s_hour >= work_on_time && s_hour <= rest_start;
-					var e_up = e_hour >= work_on_time && e_hour <= rest_start; //同在上午
-
-					var s_down = s_hour >= rest_end && s_hour <= work_off_time;
-					var e_down = e_hour >= rest_end && e_hour <= work_off_time; //同在下午
-
-					var s_center = s_hour >= work_on_time && s_hour <= work_off_time; //同在上班时间段(包括上边两个判断了)
-					var e_center = e_hour >= work_on_time && e_hour <= work_off_time;
-
-					var s_left = s_hour <= work_on_time && e_hour <= work_on_time;
-					var e_right = s_hour >= work_off_time && e_hour >= work_off_time;
-
-					var s_between = s_hour <= work_on_time && e_hour <= work_off_time && e_hour >= work_on_time;
-					var e_between = s_hour >= work_on_time && s_hour <= work_off_time && e_hour >= work_off_time;
-
-					if (s_up && e_up || s_down && e_down || s_center && e_center) {
-						time_long = 0;
-					} else if (s_left || e_right) {
-						time_long = (e_hour - s_hour) / (60000 * 60);
-					} else if (s_between) {
-						time_long = (work_on_time - s_hour) / (60000 * 60);
-					} else if (e_between) {
-						time_long = (e_hour - work_off_time) / (60000 * 60);
-					} else {
-						time_long = ((work_on_time - s_hour) + (e_hour - work_off_time)) / (60000 * 60);
-
-					}
-				}
-
+				time_long = ((rest_start - s_hour) + (e_hour - rest_end)) / 60000 / 60
 			}
+
 
 			return time_long
 		}
 
-		function is_work_on_off(data, is_full_day) {
+		function is_work_on_off(data) {
 			var time = null;
 
 			_.each(times_configs, function(config) {
@@ -138,42 +60,35 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						return dt.job_date == moment(data).format('YYYY-MM-DD')
 					}
 				})
-				if (is_full_day) {
-					if (f_d && !f_d.is_job_day) {
-						time = _.find(times, function(temp) {
-							return temp._id == String(f_d.work_time)
-						})
-						return
-					}
-
-				} else {
+				if (f_d && f_d.is_job_day) {
 					time = _.find(times, function(temp) {
 						return temp._id == String(f_d.work_time)
 					})
 					return
 				}
+
 			})
 			return time
 		}
 
 		function assemble(self, st, ed) {
 			if (st.zone == 'null' || st.zone == null) {
-				var time = is_work_on_off(st.date, null);
+				var time = is_work_on_off(st.date);
 				if (time) {
 					st.zone = time.work_on_time
 				}
 			};
 			if (ed.zone == 'null' || ed.zone == null) {
-				var time = is_work_on_off(ed.date, null);
+				var time = is_work_on_off(ed.date);
 				if (time) {
 					ed.zone = time.work_off_time
 				}
 			};
-			if (st.date && st.zone && ed.date && ed.zone) {
+			if (st.date && ed.date) {
 				var days_between = moment(ed.date).diff(moment(st.date), 'days');
 				var date_items = [];
 				if (days_between == 0) {
-					var time = is_work_on_off(st.date, self.is_full_day);
+					var time = is_work_on_off(st.date);
 					if (time) {
 						date_items.push({
 							is_full_day: compare(st.zone, ed.zone, time.work_on_time, time.work_off_time),
@@ -183,7 +98,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							work_off_time: time.work_off_time,
 							time_zone_s: st.zone,
 							time_zone_e: ed.zone,
-							total_time: calculate_hours(time, st.date, st.zone, ed.date, ed.zone, self.is_full_day),
+							total_time: calculate_hours(time, st.date, st.zone, ed.date, ed.zone),
 
 						})
 					};
@@ -205,19 +120,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 								o.time_zone_s = st.zone;
 								o.time_zone_e = time.work_off_time;
 								o.is_full_day = compare(st.zone, time.work_off_time, time.work_on_time, time.work_off_time);
-								o.total_time = calculate_hours(time, iterate_date, st.zone, iterate_date, time.work_off_time, self.is_full_day);
+								o.total_time = calculate_hours(time, iterate_date, st.zone, iterate_date, time.work_off_time);
 
 							} else if (i == days_between) {
 								o.time_zone_s = time.work_on_time;
 								o.time_zone_e = ed.zone;
 								o.is_full_day = compare(time.work_on_time, ed.zone, time.work_on_time, time.work_off_time);
-								o.total_time = calculate_hours(time, iterate_date, time.work_on_time, iterate_date, ed.zone, self.is_full_day);
+								o.total_time = calculate_hours(time, iterate_date, time.work_on_time, iterate_date, ed.zone);
 							} else {
 
 								o.time_zone_s = time.work_on_time;
 								o.time_zone_e = time.work_off_time;
 								o.is_full_day = compare(time.work_on_time, time.work_off_time, time.work_on_time, time.work_off_time);
-								o.total_time = calculate_hours(time, iterate_date, time.work_on_time, iterate_date, time.work_off_time, self.is_full_day);
+								o.total_time = calculate_hours(time, iterate_date, time.work_on_time, iterate_date, time.work_off_time);
 
 							}
 							date_items.push(o)
@@ -238,32 +153,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				self.wf_data.leave.data = date_items;
 				self.wf_data.leave.hours = total_value;
 				$('#hours').val(total_value + '小时');
-				//当月已加班小时数
-				var month_hour = self.wf_data.total_hour;
-				var month_max_hour = self.wf_data.month_max_hour;
-				var month_min_hour = self.wf_data.month_min_hour;
-				if ((Number(self.wf_data.leave.hours) + Number(month_hour)) > month_max_hour) {
-					alert('已超月加班最大数额！');
-					self.wf_data.leave.data = [];
-					self.wf_data.leave.hours = 0;
-					$('#hours').val('');
-					if (!self.is_full_day) {
+				//判断公干时间需在上班时间内。
+				if (!self.is_full_day && date_items.length == 1) {
+					if (moment.duration(date_items[0].time_zone_s) < moment.duration(date_items[0].work_on_time) || moment.duration(date_items[0].time_zone_e) > moment.duration(date_items[0].work_off_time)) {
+						alert('公干时间需在上班时间内!');
+
+						self.wf_data.leave.data = [];
+						self.wf_data.leave.hours = 0;
+						$('#hours').val('');
 						$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
 						$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
-					} else {
-						$("#create_end_date").val(format(new Date()));
-						$("#create_start_date").val(format(new Date()));
 					}
-
-				}
-				if (!self.is_full_day && (Number(self.wf_data.leave.hours) > Number(month_min_hour))) {
-					alert('小于单次加班最少小时数!');
-					self.wf_data.leave.data = [];
-					self.wf_data.leave.hours = 0;
-					$('#hours').val('');
-					$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
-					$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
-
 				}
 
 			};
@@ -276,14 +176,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 		}
 
 		function save_form_data(wf_data, cb) {
-			var url = '/admin/tm/beyond_work/edit_formdata';
+			var url = '/admin/tm/work_city/edit_formdata';
 			var leaves = wf_data.leave.data;
 			var leave_id = wf_data.leave._id;
-			var category = $("#category").val();
 			var obj = {
 				leaves: JSON.stringify(leaves),
 				leave_id: leave_id,
-				category: category,
 			}
 			post_data = _.extend(obj, wf_data.leave);
 			post_data.reason = $("#reason").val()
@@ -316,12 +214,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 		}
 
 		// Extends Backbone.View
-		var BeyondOfWorkView = Backbone.View.extend({
+		var WorkOfCityView = Backbone.View.extend({
 
 			// The View Constructor
 			initialize: function() {
 				var self = this;
-				this.template = Handlebars.compile($("#hbtmp_wf_beyond_of_work_list_view").html());
+				this.template = Handlebars.compile($("#hbtmp_wf_work_of_city_list_view").html());
 				this.details_template = Handlebars.compile($("#wf_three_details_view").html());
 				// The render method is called when CollTask Models are added to the Collection
 				this.bind_event();
@@ -336,25 +234,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				times = self.times;
 				//流程数据
 				var wf_data = self.wf_data;
-				//加班类别数据
-				var category_mue = {
-						'1': '正常工作日加班',
-						'2': '休息日加班',
-						'3': '法定节假日加班'
-					},
-					category_arr = [{
-						"num": '1'
-					}, {
-						"num": '2'
-					}, {
-						"num": '3'
-					}];
-
-				var obj = _.extend(wf_data, {
-					"category_arr": category_arr
-				}, {
-					"category_mue": category_mue
-				});
+				var obj = _.extend(wf_data, {});
 				//是否全天任务判断
 				var is_full_day = self.is_full_day;
 				if (wf_data.leave.data > 0) {
@@ -371,33 +251,28 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				obj.leave.create_end_date = wf_data.leave.create_end_date ? wf_data.leave.create_end_date : new Date();
 				//当天工作时间
 				var today_time = is_work_on_off(new Date(), self.is_full_day);
-				// console.log(today_time);
-				// obj.work_time = today_time;
 				var day_hours = 0;
-				// if (today_time) {
-				// 	day_hours = today_time.work_time_hour;
-				// }
 				obj.leave.hours = wf_data.leave.hours ? wf_data.leave.hours : day_hours;
 				if (self.view_mode) {
 					if (self.view_mode == 'trans') {
 						$("#wf_attendance_title").html('数据处理人');
 
 						this.template = Handlebars.compile($("#trans_confirm_view").html());
-						$("#personal_wf_beyond_of_work-content").html(self.template(self.trans_data));
-						$("#personal_wf_beyond_of_work-content").trigger('create');
+						$("#personal_wf_work_of_city-content").html(self.template(self.trans_data));
+						$("#personal_wf_work_of_city-content").trigger('create');
 
 						if (self.trans_data.next_td.node_type == 'END') {
 							do_trans();
 						}
 					} else if (self.view_mode == 'deal_with') {
-						$("#personal_wf_beyond_of_work-content").html(self.template(obj));
-						$("#personal_wf_beyond_of_work-content").trigger('create');
+						$("#personal_wf_work_of_city-content").html(self.template(obj));
+						$("#personal_wf_work_of_city-content").trigger('create');
 
 						return this;
 					}
 				} else {
-					$("#personal_wf_beyond_of_work-content").html(self.template(obj));
-					$("#personal_wf_beyond_of_work-content").trigger('create');
+					$("#personal_wf_work_of_city-content").html(self.template(obj));
+					$("#personal_wf_work_of_city-content").trigger('create');
 					return this;
 				}
 
@@ -408,16 +283,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var self = this;
 				var obj = self.wf_data;
 				save_form_data(obj, function() {
-					$("#wf_beyond_of_work_title").html("加班明细");
-					$("#personal_wf_beyond_of_work-content").html(self.details_template(obj));
-					$("#personal_wf_beyond_of_work-content").trigger('create');
+					$("#wf_beyond_of_work_title").html("公干明细");
+					$("#personal_wf_work_of_city-content").html(self.details_template(obj));
+					$("#personal_wf_work_of_city-content").trigger('create');
 					return this;
 				})
 
 			},
 			bind_event: function() {
 				var self = this;
-				$("#personal_wf_beyond_of_work-content").on('click', '.do_trans', function(event) {
+				$("#personal_wf_work_of_city-content").on('click', '.do_trans', function(event) {
 					if ($("#ti_comment").val() == '') {
 						alert('请填写审批意见！');
 						return;
@@ -506,11 +381,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					self.is_full_day = is_full_day == "false" ? false : true;
 					var end_date = $("#create_end_date").val();
 					var start_date = $("#create_start_date").val();
-					if (format(end_date) != String(format(start_date))) {
-						var end_date = start_date;
-						$("#create_end_date").val(end_date)
 
-					}
 
 					self.render();
 				}).on('click', '#create_data', function(event) {
@@ -522,42 +393,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						var start_date = $(this).val();
 						var end_date = $("#create_end_date").val();
 
-						if (!self.is_full_day) {
-							if (format(end_date) != String(format(start_date))) {
-								alert('非全天不能跨天！')
-								var end_date = $(this).val();
-								$("#create_end_date").val(end_date)
-
-							}
-						}
 
 					} else {
 						var start_date = $("#create_start_date").val();
 						var end_date = $(this).val();
-
-						if (!self.is_full_day) {
-							if (format(end_date) != String(format(start_date))) {
-								alert('非全天不能跨天！');
-								var start_date = $(this).val();
-								$("#create_end_date").val(start_date)
-
-							}
-						}
 
 					}
 					st = time_parse(start_date);
 					ed = time_parse(end_date);
 					assemble(self, st, ed);
 
-				}).on('click', '#btn_wf1_start_userchat', function(event) {
+				}).on('click', '#btn_wf3_start_userchat', function(event) {
 					event.preventDefault();
 					var url = "im://userchat/" + self.wf_data.leave.people._id;
 					console.log(url);
 					window.location.href = url;
 				})
-				$("#wf_beyond_of_work").on('click', '#go_back', function(event) {
+				$("#wf_work_of_city").on('click', '#go_back', function(event) {
 					if (self.page_mode == 'detail') {
-						$("#wf_beyond_of_work_title").html("加班申请流程");
+						$("#wf_work_of_city_title").html("公干申请流程");
 						self.page_mode = 'wf_three';
 						self.render();
 					} else if (self.page_mode == 'wf_three') {
@@ -576,6 +430,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 		});
 
 		// Returns the View class
-		return BeyondOfWorkView;
+		return WorkOfCityView;
 
 	});

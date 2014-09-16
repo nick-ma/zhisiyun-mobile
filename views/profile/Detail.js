@@ -1,12 +1,12 @@
-// MyProfile  View
+// MyProfile  View Detail
 // ===================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
+define(["jquery", "underscore", "backbone", "handlebars", "../../models/PeopleModel"],
     function($, _, Backbone, Handlebars, PeopleModel) {
 
         // Extends Backbone.View
-        var MyProfileView = Backbone.View.extend({
+        var MyProfileDetailView = Backbone.View.extend({
 
             // The View Constructor
             initialize: function() {
@@ -31,6 +31,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
         });
 
         // Returns the View class
-        return MyProfileView;
+        return MyProfileDetailView;
 
     });

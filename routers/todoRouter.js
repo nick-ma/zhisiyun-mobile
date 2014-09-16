@@ -321,6 +321,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         self.singleAttendanceResultChangeView.view_mode = 'deal_with';
 
                     }
+                    self.singleAttendanceResultChangeView.is_self = is_self;
                     self.singleAttendanceResultChangeView.render();
                     //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                     $(".ui-flipswitch a").each(function() {

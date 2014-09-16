@@ -1,16 +1,10 @@
-// PeopleAttendanceResult List View
+// TmAbsenceOfThreeView List View
 // =================
 
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
 		var absence_type = 'B';
-		Handlebars.registerHelper('hour', function(time) {
-			if (time > 0) {
-				return time + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
-			}
-
-		});
 		// Extends Backbone.View
 		var TMAbsenceOfThreeView = Backbone.View.extend({
 
@@ -25,28 +19,31 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			// Renders all of the CollTask models on the UI
 			render: function() {
 				var self = this;
-				var wf_data = self.model.attributes;
+				var wf_data = self.wf_data;
 				var temp_arr = [];
 				_.each(wf_data, function(temp) {
 					if (temp.absence_type == String(absence_type)) {
-						_.each(temp.data, function(t) {
-							var obj = {
-								_id: temp._id,
-								date: t.start_date,
-								reason: temp.reason,
-								format_time: moment(t.start_date).format("YYYYMMDD"),
-								is_full_day: t.is_full_day,
-								time_zone_s: t.time_zone_s,
-								time_zone_e: t.time_zone_e,
-								hours: t.total_time,
-								absence_type: temp.absence_type,
-								people: temp.people,
-								destination: temp.destination,
-								category: temp.category,
-								is_exchange: temp.is_exchange
-							}
-							temp_arr.push(obj);
-						})
+						var obj = {
+							_id: temp._id,
+							reason: temp.reason,
+							create_start_date: temp.create_start_date,
+							create_end_date: temp.create_end_date,
+							format_time: moment(temp.create_start_date).format("YYYYMMDD"),
+							absence_type: temp.absence_type,
+							hours: temp.hours,
+							people: temp.people,
+							destination: temp.destination,
+							category: temp.category,
+							is_exchange: temp.is_exchange,
+							is_over: temp.is_over,
+							process_state: temp.process_state,
+							pi_id: temp.pi_id,
+							ti_id: temp.task_instance_id,
+							pd_id: temp.pd_id,
+							pd_code: temp.pd_code,
+							state: (temp.process_state == 'END' ? true : false)
+						}
+						temp_arr.push(obj);
 					}
 
 				})
@@ -57,7 +54,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					return x;
 				})
 				var obj = {
-					wf_absence_data: rendered_data
+					wf_absence_data: rendered_data.reverse()
 				}
 				$("#personal_wf_three_list-content").html(self.template(obj));
 
@@ -90,6 +87,42 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						})
 
 					})
+					.on('swiperight', function(event) { //向右滑动，打开左边的面板
+						event.preventDefault();
+						$("#show_attendance_result-left-panel").panel("open");
+					})
+					.on('click', '#btn-show_attendance_result-change_view', function(event) {
+						event.preventDefault();
+						window.location = '#attendance'
+						$("#show_attendance_result-left-panel").panel("close");
+					})
+					.on('click', '#btn-show_card_record-change_view', function(event) {
+						event.preventDefault();
+						window.location = '#card_record'
+						$("#show_attendance_result-left-panel").panel("close");
+					})
+					.on('click', '#btn-show_beyond_of_work_report-change_view', function(event) {
+						event.preventDefault();
+						window.location = '#attend_report'
+						$("#show_attendance_result-left-panel").panel("close");
+					}).on('click', '#wf_three_details', function(event) {
+						event.preventDefault();
+						var url = $(this).data("url");
+						var absence_type = $(this).data("absence_type");
+						var pi_id = $(this).data("pi_id");
+						var temp_obj = {
+							'B': '/m#godo5/',
+							'W': '/m#godo6/',
+							'C': '/m#godo7/'
+						}
+						$.get('/admin/tm/beyond_work/wf_three_data_4_view_m/' + pi_id, function(data) {
+							var ti_id = data[0]._id;
+							var goto_url = temp_obj[String(absence_type)] + ti_id + url;
+							window.location.href = goto_url;
+						})
+
+					})
+
 
 
 			}

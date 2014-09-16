@@ -5,28 +5,6 @@
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
 		var filter_month = moment().format("YYYY-MM");
-		Handlebars.registerHelper('if_true', function(result, cond1) {
-			if (!!~result.indexOf(String(cond1))) {
-				// return '<a data-role="button" data-icon="check" ></a>'
-				return '<span class="label label-info" style="color:red">是</span>'
-
-			} else {
-				return false;
-			}
-
-		});
-		Handlebars.registerHelper('if_true2', function(result, cond1, cond2) {
-			if (cond1 && cond2) {
-				if (!!~result.indexOf(String(cond1)) && !!~result.indexOf(String(cond2))) {
-					// return '<i class="icon-ok" style="color:red"></i>'
-					return '<span class="label label-info" style="color:red">是</span>'
-
-				} else {
-					return false;
-				}
-			}
-
-		});
 		// Extends Backbone.View
 		var MyAttendanceListView = Backbone.View.extend({
 
@@ -46,7 +24,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				var filter_data = _.sortBy(_.filter(data, function(temp) {
 					temp.format_time = moment(temp.job_date).format("YYYYMMDD");
-					if (!!~temp.work_result.indexOf("NCM") || !!~temp.work_result.indexOf("NCA")) {
+					var is_normal = !!~temp.work_result.indexOf("CC") && !!~temp.work_result.indexOf("CL");
+					if ((!!~temp.work_result.indexOf("NCM") || !!~temp.work_result.indexOf("NCA")) && !is_normal) {
 						temp.attendance_diff = true;
 					} else {
 						temp.attendance_diff = false;
@@ -95,6 +74,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							})
 
 						}
+					})
+					.on('click', '#go_back', function(event) {
+						event.preventDefault();
+						window.location = '#wf_three';
 					})
 			}
 		});

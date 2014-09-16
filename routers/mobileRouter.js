@@ -18,7 +18,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     // 工资相关
     "../collections/PayrollCollection", "../views/PayrollListView", "../views/PayrollDetailView",
     // 个人档案
-    "../views/MyProfileView",
+    "../views/profile/Detail", "../views/profile/Edit",
     // 计分公式和等级组
     "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
     // 人员选择界面
@@ -55,7 +55,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     TalentCollection, MyTeamTalentView, HoroscopeCollection, Talent9GridsChartView, TalentModel,
     CompetencyCollection, CompetencyScoresView, CompetencySpiderChartView, Q360Model, CompetencyModel,
     PayrollCollection, PayrollListView, PayrollDetailView,
-    MyProfileView,
+    MyProfileDetailView, MyProfileEditView,
     ScoringFormulaCollection, GradeGroupCollection,
     PeopleSelectView,
     // PISelectView,
@@ -139,6 +139,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "salary_detail/:pay_time": "salary_detail",
         // 我的资料
         "myprofile": "myprofile",
+        "myprofile_edit_01": "myprofile_edit_01",
+        "myprofile_edit_02": "myprofile_edit_02",
+        "myprofile_edit_03": "myprofile_edit_03",
+        "myprofile_edit_04": "myprofile_edit_04",
         // 能力测评明细
         "competency_scores/:cid": "competency_scores",
         "competency_spider_chart/:people_id/:qi_id": "competency_spider_chart",
@@ -414,14 +418,51 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             };
           }
         }, function(err, result) {
-          self.myProfileView.model = result.people;
-          self.myProfileView.competency = result.competency;
-          self.myProfileView.talent = result.talent;
-          self.myProfileView.render();
+          self.myProfileDetailView.model = result.people;
+          self.myProfileDetailView.competency = result.competency;
+          self.myProfileDetailView.talent = result.talent;
+          self.myProfileDetailView.render();
           $.mobile.loading("hide");
         })
-        // this.myProfileView.model = this.c_people.get(login_people);
-        // this.myProfileView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
+        // this.myProfileDetailView.model = this.c_people.get(login_people);
+        // this.myProfileDetailView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
+      },
+      myprofile_edit_01: function() { //编辑基本信息
+        var self = this;
+        $("body").pagecontainer("change", "#myprofile_edit_01", {
+          reverse: false,
+          changeHash: false,
+        });
+        self.myProfileEditView.model = self.myProfileDetailView.model;
+        self.myProfileEditView.edit_mode = '01';
+        self.myProfileEditView.render();
+      },
+      myprofile_edit_02: function() { //编辑头像
+        var self = this;
+        $("body").pagecontainer("change", "#myprofile_edit_02", {
+          reverse: false,
+          changeHash: false,
+        });
+        self.myProfileEditView.model = self.myProfileDetailView.model;
+        self.myProfileEditView.edit_mode = '02';
+        self.myProfileEditView.render();
+      },
+      myprofile_edit_03: function() { //修改密码
+        var self = this;
+        $("body").pagecontainer("change", "#myprofile_edit_03", {
+          reverse: false,
+          changeHash: false,
+        });
+        self.myProfileEditView.model = self.myProfileDetailView.model;
+        self.myProfileEditView.edit_mode = '03';
+        self.myProfileEditView.render();
+      },
+      myprofile_edit_04: function() { //编辑地址信息
+        var self = this;
+        $("body").pagecontainer("change", "#myprofile_edit_04", {
+          reverse: false,
+          changeHash: false,
+        });
       },
       competency_scores: function(cid) {
         var login_people = $("#login_people").val();
@@ -697,8 +738,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.payrollDetailView = new PayrollDetailView({
           el: "#salary_detail-content",
         })
-        this.myProfileView = new MyProfileView({
+        this.myProfileDetailView = new MyProfileDetailView({
           el: "#myprofile_basic-content",
+        })
+        this.myProfileEditView = new MyProfileEditView({
+
         })
         this.competencyScoresView = new CompetencyScoresView({
           el: "#competency_scores-content",
@@ -1325,6 +1369,104 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
         return prefix + msg;
       });
+      //移动考勤相关====================
+      //TmAbsenceOfThreeView
+      Handlebars.registerHelper('formatDate', function(start, end) {
+        var format_start = moment(start).format("YYYY-MM-DD");
+        var format_end = moment(end).format("YYYY-MM-DD");
+        if (format_start != format_end) {
+          return format_start + '~' + format_end
+        } else {
+          return format_start
+        }
+
+      });
+      Handlebars.registerHelper('hour', function(time) {
+        if (time > 0) {
+          return time + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
+        }
+
+      });
+      Handlebars.registerHelper('travel', function(absence_type, destination) {
+        if (absence_type == 'W') {
+          var destinations = _.map(destination, function(t) {
+            return t.city_name
+          })
+          if (destinations.length > 0) {
+            return '<div class="ui-grid-b"><p style="margin-bottom:0px">目的地:&nbsp;<span class="text-info">' + destinations.join(' ') + '</span></p></div>'
+
+          }
+        }
+
+      });
+      //PeopleAttendanceResultView
+      Handlebars.registerHelper('if_true', function(result, cond1) {
+        if (!!~result.indexOf(String(cond1))) {
+          // return '<a data-role="button" data-icon="check" ></a>'
+          return '<span class="label label-info" style="color:red">是</span>'
+
+        } else {
+          return false;
+        }
+
+      });
+      Handlebars.registerHelper('if_true2', function(result, cond1, cond2) {
+        if (cond1 && cond2) {
+          if (!!~result.indexOf(String(cond1)) && !!~result.indexOf(String(cond2))) {
+            // return '<i class="icon-ok" style="color:red"></i>'
+            return '<span class="label label-info" style="color:red">是</span>'
+
+          } else {
+            return false;
+          }
+        }
+
+      });
+      //BeyondOfWorkView
+      Handlebars.registerHelper('work_category', function(num, category_mue) {
+        return category_mue[num]
+      });
+      //BeyondOfWorkReportView
+      Handlebars.registerHelper('month', function(filter_month) {
+        var months = {
+          '1': '一月',
+          '2': '二月',
+          '3': '三月',
+          '4': '四月',
+          '5': '五月',
+          '6': '六月',
+          '7': '七月',
+          '8': '八月',
+          '9': '九月',
+          '10': '十月',
+          '11': '十一月',
+          '12': '十二月',
+        }
+        return months[String(filter_month)]
+
+      });
+      //WorkOfTravelView
+      Handlebars.registerHelper('destination', function(destination) {
+        var destination = _.map(destination, function(temp) {
+          return temp.city_name
+        })
+        if (destination.length > 0) {
+          return '<span class="text-success">' + destination.join(' ') + '</span>'
+        }
+      });
+      //my card record list view
+      Handlebars.registerHelper('sign_style', function(type) {
+        var obj = {
+          'P': '电脑',
+          'I': '考勤机',
+          'M': '移动'
+        }
+        return '<span class="label label-info">' + obj[String(type)] + '</span>'
+
+      });
+
+
+
     })();
 
     (function() {
