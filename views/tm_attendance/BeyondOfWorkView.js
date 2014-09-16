@@ -237,7 +237,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				}
 				self.wf_data.leave.data = date_items;
 				self.wf_data.leave.hours = total_value;
-				$('#hours').val(parseFloat(total_value).toFixed(2) + '小时');
+				$('#hours').val(parseInt(total_value) + '小时');
 				//当月已加班小时数
 				var month_hour = self.wf_data.total_hour;
 				var month_max_hour = self.wf_data.month_max_hour;
@@ -419,13 +419,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			bind_event: function() {
 				var self = this;
 				$("#personal_wf_beyond_of_work-content").on('click', '.do_trans', function(event) {
+					event.preventDefault();
+					var $this = $(this);
 					if ($("#ti_comment").val() == '') {
 						alert('请填写审批意见！');
 						return;
 					}
 
-					event.preventDefault();
-					var $this = $(this);
+
 
 					var process_define_id = $("#process_define_id").val();
 					var task_define_id = $("#task_define_id").val();

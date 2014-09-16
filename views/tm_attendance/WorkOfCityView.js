@@ -152,7 +152,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				}
 				self.wf_data.leave.data = date_items;
 				self.wf_data.leave.hours = total_value;
-				$('#hours').val(parseFloat(total_value).toFixed(2) + '小时');
+				$('#hours').val(parseInt(total_value) + '小时');
 				//判断公干时间需在上班时间内。
 				if (!self.is_full_day && date_items.length == 1) {
 					if (moment.duration(date_items[0].time_zone_s) < moment.duration(date_items[0].work_on_time) || moment.duration(date_items[0].time_zone_e) > moment.duration(date_items[0].work_off_time)) {
@@ -295,13 +295,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			bind_event: function() {
 				var self = this;
 				$("#personal_wf_work_of_city-content").on('click', '.do_trans', function(event) {
+					event.preventDefault();
+					var $this = $(this);
 					if ($("#ti_comment").val() == '') {
 						alert('请填写审批意见！');
 						return;
 					}
 
-					event.preventDefault();
-					var $this = $(this);
+					
 
 					var process_define_id = $("#process_define_id").val();
 					var task_define_id = $("#task_define_id").val();

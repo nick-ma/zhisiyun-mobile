@@ -1383,7 +1383,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('hour', function(time) {
         if (time > 0) {
-          return time + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
+          return parseInt(time) + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
+        }
+
+      });
+      Handlebars.registerHelper('parse_float', function(time) {
+        if (time > 0) {
+          return parseInt(time)
+        } else {
+          return 0
         }
 
       });

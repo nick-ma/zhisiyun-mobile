@@ -115,11 +115,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							'W': '/m#godo6/',
 							'C': '/m#godo7/'
 						}
-						$.get('/admin/tm/beyond_work/wf_three_data_4_view_m/' + pi_id, function(data) {
-							var ti_id = data[0]._id;
-							var goto_url = temp_obj[String(absence_type)] + ti_id + url;
-							window.location.href = goto_url;
-						})
+						var goto_url = temp_obj[String(absence_type)] + url;
+						window.location.href = goto_url;
+
+						// $.get('/admin/tm/beyond_work/wf_three_data_4_view_m/' + pi_id, function(data) {
+						// 	var ti_id = data[0]._id;
+						// 	var goto_url = temp_obj[String(absence_type)] + ti_id + url;
+						// 	window.location.href = goto_url;
+						// })
 
 					})
 

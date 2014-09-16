@@ -276,13 +276,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			bind_event: function() {
 				var self = this;
 				$("#personal_wf_attend-content").on('click', '.do_trans', function(event) {
+					event.preventDefault();
+					var $this = $(this);
 					if ($("#ti_comment").val() == '') {
 						alert('请填写审批意见！');
 						return;
 					}
-
-					event.preventDefault();
-					var $this = $(this);
 
 					var process_define_id = $("#process_define_id").val();
 					var task_define_id = $("#task_define_id").val();
