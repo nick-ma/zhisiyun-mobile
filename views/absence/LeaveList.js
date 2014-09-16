@@ -16,7 +16,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
     });
 
     Handlebars.registerHelper('rp', function(data) {
-        var str = '无假期类型' 
+        var str = '无假期类型'
         if (data) {
             str = data;
         };
@@ -201,6 +201,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.mode_view = $(this).val();
                 self.render();
                 $("#leave_list-left-panel").panel("close");
+            }).on('click', '#btn_wf_start_userchat', function(event) {
+                event.preventDefault();
+                var url = "im://userchat/" + self.wf_data.leave.people._id;
+                console.log(url);
+                window.location.href = url;
             })
         },
 
