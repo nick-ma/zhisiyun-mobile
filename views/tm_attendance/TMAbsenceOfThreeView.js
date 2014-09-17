@@ -80,11 +80,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							'W': '#godo6/',
 							'C': '#godo7/'
 						}
-						$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
-							var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
-							console.log(goto_url);
-							window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
-						})
+						var temp_obj2 = {
+							'B': '是否申请加班流程?',
+							'W': '是否申请出差流程?',
+							'C': '是否申请公干流程?'
+						}
+						if (confirm(temp_obj2[type])) {
+
+							$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
+								var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+								console.log(goto_url);
+								window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
+							})
+						}
 
 					})
 					.on('swiperight', function(event) { //向右滑动，打开左边的面板

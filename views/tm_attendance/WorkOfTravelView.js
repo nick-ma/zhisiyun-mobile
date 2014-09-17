@@ -153,18 +153,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				self.wf_data.leave.data = date_items;
 				self.wf_data.leave.hours = total_value;
 				$('#hours').val(parseInt(total_value) + '小时');
-				//判断公干时间需在上班时间内。
-				if (!self.is_full_day && date_items.length == 1) {
-					if (moment.duration(date_items[0].time_zone_s) < moment.duration(date_items[0].work_on_time) || moment.duration(date_items[0].time_zone_e) > moment.duration(date_items[0].work_off_time)) {
-						alert('出差申请时间需在上班时间内!');
+				// //判断公干时间需在上班时间内。
+				// if (!self.is_full_day && date_items.length == 1) {
+				// 	if (moment.duration(date_items[0].time_zone_s) < moment.duration(date_items[0].work_on_time) || moment.duration(date_items[0].time_zone_e) > moment.duration(date_items[0].work_off_time)) {
+				// 		// alert('出差申请时间需在上班时间内!');
+				// 		$("#info_msg").show();
+				// 		self.wf_data.leave.data = [];
+				// 		self.wf_data.leave.hours = 0;
+				// 		$('#hours').val('');
+				// 		$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDT') + date_items[0].work_off_time);
+				// 		$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDT') + date_items[0].work_on_time);
+				// 		// window.setTimeout(function() {
+				// 		// 	$("#info_msg").hide();
+				// 		// }, 1000);
+				// 	} else {
+				// 		$("#info_msg").hide();
 
-						self.wf_data.leave.data = [];
-						self.wf_data.leave.hours = 0;
-						$('#hours').val('');
-						$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
-						$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
-					}
-				}
+				// 	}
+				// }
 
 			};
 
@@ -307,7 +313,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						return;
 					}
 
-					
+
 
 					var process_define_id = $("#process_define_id").val();
 					var task_define_id = $("#task_define_id").val();

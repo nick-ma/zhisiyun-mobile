@@ -243,7 +243,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var month_max_hour = self.wf_data.month_max_hour;
 				var month_min_hour = self.wf_data.month_min_hour;
 				if ((Number(self.wf_data.leave.hours) + Number(month_hour)) > month_max_hour) {
-					alert('已超月加班最大数额！');
+					$("#info_msg_label1").html("已超月加班最大数额！")
+					$("#info_msg1").show();
+
 					self.wf_data.leave.data = [];
 					self.wf_data.leave.hours = 0;
 					$('#hours').val('');
@@ -257,14 +259,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				}
 				if (!self.is_full_day && (Number(self.wf_data.leave.hours) > Number(month_min_hour))) {
-					alert('小于单次加班最少小时数!');
+					$("#info_msg_label").html("小于单次加班最少小时数!")
+					$("#info_msg").show();
 					self.wf_data.leave.data = [];
 					self.wf_data.leave.hours = 0;
 					$('#hours').val('');
 					$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
 					$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
 
-				}
+				} 
 
 			};
 
@@ -526,9 +529,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 						if (!self.is_full_day) {
 							if (format(end_date) != String(format(start_date))) {
-								alert('非全天不能跨天！')
+								$("#info_msg_label").html("非全天不能跨天！");
+								$("#info_msg").show();
 								var end_date = $(this).val();
 								$("#create_end_date").val(end_date)
+
+							} else {
+								$("#info_msg").hide();
 
 							}
 						}
@@ -539,9 +546,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 						if (!self.is_full_day) {
 							if (format(end_date) != String(format(start_date))) {
-								alert('非全天不能跨天！');
+								$("#info_msg_label").html("非全天不能跨天！");
+								$("#info_msg").show();
 								var start_date = $(this).val();
 								$("#create_end_date").val(start_date)
+
+							} else {
+								$("#info_msg").hide();
 
 							}
 						}
