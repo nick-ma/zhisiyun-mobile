@@ -196,19 +196,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 times_configs.push(o)
             })
         };
-        if (st.zone == 'null' || st.zone == null) {
-            var time = is_work_on_off(times_configs, type, st.date);
-            if (time) {
-                st.zone = time.work_on_time
-            };
-        };
-        if (ed.zone == 'null' || ed.zone == null) {
-            var time = is_work_on_off(times_configs, type, ed.date);
-            if (time) {
-                ed.zone = time.work_off_time
-            };
-        };
-
+        console.log(st)
+        console.log(ed)
         var date_items = [];
         if (st.date && st.zone && ed.date && ed.zone) {
             var days_between = moment(ed.date).diff(moment(st.date), 'days');
@@ -271,25 +260,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             _.each(date_items, function(dt) {
                 total_value += dt.total_time
             })
-            leave.leaves = date_items;
+            // leave.leaves = date_items;
             leave.hours = total_value;
-
+            console.log(date_items)
             $('#hours').html(total_value + '小时');
 
         };
-        if (date_items.length == 0) {
-            var c_date = moment(new Date()).format('YYYY-MM-DD')
-            var o = {
-                is_full_day: true,
-                start_date: c_date,
-                end_date: c_date,
-                time_zone_s: '09:00',
-                time_zone_e: '18:00',
-            }
-            date_items.push(o);
-        };
-        leave.create_start_date = _.first(date_items).start_date + ' ' + _.first(date_items).time_zone_s;
-        leave.create_end_date = _.last(date_items).end_date + ' ' + _.last(date_items).time_zone_e;
+
+
+
+        leave.start_date = st.date + ' ' + st.zone;
+        leave.end_date = ed.date + ' ' + ed.zone;
+        leave.time_zone_s = st.zone;
+        leave.time_zone_e = ed.zone;
 
     }
 
@@ -332,8 +315,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         // The View Constructor
         initialize: function() {
             var self = this
-            this.leaveofabsence_template = Handlebars.compile($("#leaveofabsence_view").html());
-            this.leave_details_template = Handlebars.compile($("#leave_details_view").html());
+            this.leaveofabsence_template = Handlebars.compile($("#backleaveofabsence_view").html());
+            // this.leave_details_template = Handlebars.compile($("#leave_details_view").html());
             this.leaves_list_template = Handlebars.compile($("#leaves_list_view").html());
             this.template = Handlebars.compile($("#trans_confirm_view").html()); //跳转页面
             this.model_view = '0';
@@ -349,23 +332,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             var ti = self.model.get('ti');
 
             if (self.model_view == '0') {
-                $("#leaveofabsence_name").html('假期申请单')
-                var start_date = moment(leave.create_start_date || new Date).format('YYYY-MM-DD');
-                var end_date = moment(leave.create_end_date || new Date).format('YYYY-MM-DD');
-                var time_zone_s = _.first(leave.leaves) ? _.first(leave.leaves).time_zone_s : null;
-                var time_zone_e = _.last(leave.leaves) ? _.last(leave.leaves).time_zone_e : null;
+                $("#backleaveofabsence_name").html('消假流程')
+                var sorts = _.sortBy(leave.leaveOfabsence.leaves, function(le) {
+                    return le.start_date
+                })
 
-                if (leave.allday == 'undefined' || !leave.allday) {
-                    if (leave.leaves.length) {
-                        var bool_01 = _.first(leave.leaves).is_full_day;
-                        var bool_02 = _.last(leave.leaves).is_full_day;
-                        if (!bool_01 || !bool_02) {
-                            leave.allday = false;
-                        };
-                    } else {
-                        leave.allday = true;
-                    }
-                };
+                var start_date = moment(leave.start_date || _.last(sorts).start_date).format('YYYY-MM-DD');
+                var end_date = moment(_.last(sorts).end_date).format('YYYY-MM-DD');
+
+                var time_zone_s = leave.time_zone_s || _.last(sorts).time_zone_s
+                var time_zone_e = _.last(sorts) ? _.last(sorts).time_zone_e : null;
+
 
                 assemble(self, times(start_date + 'T' + time_zone_s), times(end_date + 'T' + time_zone_e));
 
@@ -373,29 +350,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 rendered_data = self.leaveofabsence_template(self.model.attributes);
 
             } else if (self.model_view == '1') {
-                $("#leaveofabsence_name").html('假期累计明细');
-                rendered_data = self.leave_details_template(self.model.attributes);
+
+                rendered_data = self.leave_details_template(obj);
             } else if (self.model_view == '2') {
                 $("#leaveofabsence_name").html('请假明细');
-                rendered_data = self.leaves_list_template(self.model.attributes);
+                var obj = {
+                    leave: {}
+                }
+                obj['leave'].leaves = []
+                obj['leave'].leaves = leave.leaveOfabsence.leaves;
+                obj['leave'].hours = leave.leaveOfabsence.hours;
+                rendered_data = self.leaves_list_template(obj);
             } else if (self.model_view == '3') {
                 rendered_data = self.template(self.trans_data);
                 if (self.trans_data.next_td.node_type == 'END') {
                     do_trans(self.trans_data);
                 }
             };
-            $("#leaveofabsence_list-content").html(rendered_data);
-            $("#leaveofabsence_list-content").trigger('create');
-            absence_code_show(leave.absence_code, self);
-            var absences = self.model.get('absences');
-            var absence_code = $("#absence_type").val();
-            var f_d = _.find(absences, function(ab) {
-                return ab.absence_type_code == absence_code
-            })
-            if (f_d) {
-                leave.absence_id = f_d._id;
-                leave.absence_code = f_d.absence_type_code;
-            };
+            $("#backleaveofabsence_list-content").html(rendered_data);
+            $("#backleaveofabsence_list-content").trigger('create');
 
             if (self.people_id == String(leave.people._id)) {
                 $("#btn_ims_show").hide();
@@ -405,7 +378,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             } else {
                 $("#btn_ims_show").show();
-                $('#absence_type,#leave_reason,#leave_allday,#create_start_date,#create_end_date').attr('disabled', true);
+                $('#absence_type,#leave_reason,#start_date,#end_date').attr('disabled', true);
             }
             $("#leave_list #crate_leave").hide();
             $("#leave_list #btn-leave_list-back").show()
@@ -415,58 +388,44 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         bind_event: function() {
             var self = this
             var bool = true;
-            $("#leaveofabsence_list").on('click', '#btn-ct-save', function(event) {
+            $("#backleaveofabsence_list").on('click', '#btn-ct-save', function(event) {
                 var leave = self.model.get('leave');
-                var absence_type = $('#absence_type').val();
-                if (absence_type == '001' || absence_type == '005') {
-                    if (leave.hours > leave.leave_balance) {
-                        alert('请假时长不能大于假期余额！')
-                        return false
-                    };
-                } else if (absence_type == '004') {
-                    if (leave.hours > leave.ration) {
-                        alert('请假时长不能大于定额！')
-                        return false
-                    };
-
+                var start_date = moment($("#start_date").val()).format('YYYY-MM-DD');
+                var f_d = _.find(leave.leaveOfabsence.leaves, function(le) {
+                    var st = moment(le.start_date).format('YYYY-MM-DD');
+                    return st == start_date
+                })
+                if (!f_d || leave.leaveOfabsence.hours < leave.hours) {
+                    alert('请选择有效的时间段!')
+                    return false;
                 };
-                self.model.id = $("#task_instance_id").val();
 
+                self.model.id = $("#task_instance_id").val();
                 self.model.save().done(function(data) {
                     if (data) {
                         alert('数据保存成功！！')
                     };
                 })
-            }).on('change', '#create_end_date, #create_start_date', function(event) {
+            }).on('change', '#end_date, #start_date', function(event) {
                 var type = $(this).data('type');
                 if (type == 'S') {
                     var start_date = $(this).val();
-                    var end_date = $("#create_end_date").val();
+                    var end_date = $("#end_date").val();
 
                 } else {
-                    var start_date = $("#create_start_date").val();
+                    var start_date = $("#start_date").val();
                     var end_date = $(this).val();
                 }
                 st = times(start_date);
                 ed = times(end_date);
                 assemble(self, st, ed);
-            }).on('change', '#absence_type', function(event) {
-                var absences = self.model.get('absences');
-                var absence_code = $(this).val();
-                absence_code_show(absence_code, self);
-                var leave = self.model.get('leave');
-                var f_d = _.find(absences, function(ab) {
-                    return ab.absence_type_code == absence_code
-                })
-                leave.absence_id = f_d._id;
-                leave.absence_code = f_d.absence_type_code;
             }).on('click', '#leave_details_show', function(event) {
                 self.model_view = '1'
                 self.render();
             }).on('click', '#leaves_list', function(event) {
                 self.model_view = '2'
                 self.render();
-            }).on('click', '#btn-leave_list-back', function(event) {
+            }).on('click', '#btn-back_leave_list-back', function(event) {
                 if (self.model_view != '0') {
                     self.model_view = '0'
                     self.render();
@@ -476,12 +435,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             }).on('change', '#leave_reason', function(event) {
                 var leave = self.model.get('leave');
                 leave.leave_reason = $(this).val();
-            }).on('change', '#leave_allday', function(event) {
-                event.preventDefault();
-                var la = $(this).val();
-                var leave = self.model.get('leave');
-                leave.allday = (la == 'false' ? false : true);
-                self.render();
             }).on('click', '.do_trans', function(event) {
 
                 event.preventDefault();
@@ -491,18 +444,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     alert('请填写审批意见！');
                     return;
                 };
-                var absence_type = $('#absence_type').val();
-                if (absence_type == '001' || absence_type == '005') {
-                    if (leave.hours > leave.leave_balance) {
-                        alert('请假时长不能大于假期余额！')
-                        return false
-                    };
-                } else if (absence_type == '004') {
-                    if (leave.hours > leave.ration) {
-                        alert('请假时长不能大于定额！')
-                        return false
-                    };
+                var leave = self.model.get('leave');
+                var start_date = moment($("#start_date").val()).format('YYYY-MM-DD');
+                var f_d = _.find(leave.leaveOfabsence.leaves, function(le) {
+                    var st = moment(le.start_date).format('YYYY-MM-DD');
+                    return st == start_date
+                })
+                if (!f_d || leave.leaveOfabsence.hours < leave.hours) {
+                    alert('请选择有效的时间段!')
+                    return false;
                 };
+
 
                 $(this).attr('disabled', true)
                 $.mobile.loading("show");
@@ -519,8 +471,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var name = $this.data('name');
                 var roles_type = $this.data('roles_type');
                 var position_form_field = $this.data('position_form_field');
-
-                console.log(self.model)
 
                 self.model.id = $("#task_instance_id").val();
                 self.model.save().done(function(data) {

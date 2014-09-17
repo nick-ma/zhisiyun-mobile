@@ -42,6 +42,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo3/:op_id/:type": "go_do3",
                 "godo4/:op_id/:type": "go_do4",
                 "godo8/:op_id/:type": "go_do8",
+                "godo9/:op_id/:type": "go_do9",
             },
             todo_list: function() { //我的待办
                 var self = this;
@@ -342,7 +343,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var ti_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
-                window.location.href = '/m#leave_form_t/' + ti_id;
+                window.location.href = '/m#leave_form_t/' + ti_id + '/T';
+            },
+            go_do9: function(op_id, type) {
+
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+                window.location.href = '/m#back_leave_form_t/' + ti_id + '/T';
             },
 
 

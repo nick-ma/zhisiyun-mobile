@@ -112,6 +112,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 } else {
                     window.location.href = "/m#leave_list"
                 }
+            }).on('click', '#btn-create_back_leave', function(event) {
+                var leave_id = $(this).attr('leave_id');
+                if (confirm('确定启动消假流程 ？')) {
+                    // window.location.href = '#back_leave_form_t/' + leave_id
+                    console.log(leave_id)
+                    $.post('/admin/tm/wf_back_after_leave_of_absence/bb/' + null, {
+                        leave_id: leave_id
+                    }, function(data) {
+                        if (data) {
+                            window.location.href = '#back_leave_form_t/' + data.ti
+                        };
+
+                    })
+                };
             })
 
         },
