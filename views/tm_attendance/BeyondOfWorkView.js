@@ -267,7 +267,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
 					$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
 
-				} 
+				}
 
 			};
 
@@ -288,8 +288,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				leave_id: leave_id,
 				category: category,
 			}
-			post_data = _.extend(obj, wf_data.leave);
-			post_data.reason = $("#reason").val()
+			var post_data = _.extend(obj, wf_data.leave);
+			post_data.reason = $("#personal_wf_beyond_of_work-content #reason").val()
 			$.post(url, post_data, function(data) {
 				cb(data)
 			})
@@ -326,6 +326,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var self = this;
 				this.template = Handlebars.compile($("#hbtmp_wf_beyond_of_work_list_view").html());
 				this.details_template = Handlebars.compile($("#wf_three_details_view").html());
+				this.trans_template = Handlebars.compile($("#trans_confirm_view").html());
+
 				// The render method is called when CollTask Models are added to the Collection
 				this.bind_event();
 			},
@@ -385,8 +387,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					if (self.view_mode == 'trans') {
 						$("#wf_attendance_title").html('数据处理人');
 
-						this.template = Handlebars.compile($("#trans_confirm_view").html());
-						$("#personal_wf_beyond_of_work-content").html(self.template(self.trans_data));
+						$("#personal_wf_beyond_of_work-content").html(self.trans_template(self.trans_data));
 						$("#personal_wf_beyond_of_work-content").trigger('create');
 
 						if (self.trans_data.next_td.node_type == 'END') {
@@ -405,6 +406,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					return this;
 				}
 
+				//把 a 换成 span， 避免点那个滑块的时候页面跳走。
+				$(".ui-flipswitch a").each(function() {
+					$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+				});
 
 
 			},
@@ -424,10 +429,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				$("#personal_wf_beyond_of_work-content").on('click', '.do_trans', function(event) {
 					event.preventDefault();
 					var $this = $(this);
-					if ($("#ti_comment").val() == '') {
+					if ($("#personal_wf_beyond_of_work-content #ti_comment").val() == '') {
 						alert('请填写审批意见！');
 						return;
 					}
+					$(this).attr('disabled', true)
+					$.mobile.loading("show");
 
 
 
@@ -458,6 +465,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						}, function(data) {
 							self.view_mode = 'trans';
 							self.trans_data = data;
+							$.mobile.loading("hide");
+
 							self.render();
 						});
 					} else {
@@ -477,6 +486,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							}, function(data) {
 								self.view_mode = 'trans';
 								self.trans_data = data;
+								$.mobile.loading("hide");
+
 								self.render();
 							});
 						})
@@ -485,6 +496,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 
 				}).on('click', '#btn_ok', function(e) {
+					$.mobile.loading("show");
+
 					if ($("#next_user_name").val()) {
 						$("#btn_ok").attr("disabled", "disabled");
 						if (!self.view_mode) {
@@ -492,6 +505,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						} else {
 							do_trans();
 						}
+						$.mobile.loading("hide");
 
 					} else {
 						alert('请选择下一任务的处理人');
@@ -518,6 +532,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					}
 
 					self.render();
+					//把 a 换成 span， 避免点那个滑块的时候页面跳走。
+					$(".ui-flipswitch a").each(function() {
+						$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+					});
+
 				}).on('click', '#create_data', function(event) {
 					self.page_mode = 'detail';
 					self.render2();
@@ -585,6 +604,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						} else {
 							self.render();
 						}
+						//把 a 换成 span， 避免点那个滑块的时候页面跳走。
+						$(".ui-flipswitch a").each(function() {
+							$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+						});
+
 					} else if (self.page_mode == 'wf_three') {
 						window.location.href = "/m#wf_three";
 					} else {

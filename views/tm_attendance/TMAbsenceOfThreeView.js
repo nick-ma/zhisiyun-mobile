@@ -4,7 +4,7 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
-		var absence_type = 'B';
+		var absence_type = 'W';
 		// Extends Backbone.View
 		var TMAbsenceOfThreeView = Backbone.View.extend({
 
@@ -81,16 +81,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							'C': '#godo7/'
 						}
 						var temp_obj2 = {
-							'B': '是否申请加班流程?',
-							'W': '是否申请出差流程?',
-							'C': '是否申请公干流程?'
+							'B': '确定申请加班流程?',
+							'W': '确定申请出差流程?',
+							'C': '确定申请公干流程?'
 						}
 						if (confirm(temp_obj2[type])) {
-
+							$.mobile.loading("show");
+							$("#btn_wf_add").attr("disabled", "disabled");
 							$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
 								var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
 								console.log(goto_url);
 								window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
+								$.mobile.loading("hide");
+
 							})
 						}
 
@@ -119,12 +122,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						var absence_type = $(this).data("absence_type");
 						var pi_id = $(this).data("pi_id");
 						var temp_obj = {
-							'B': '/m#godo5/',
-							'W': '/m#godo6/',
-							'C': '/m#godo7/'
-						}
-						var goto_url = temp_obj[String(absence_type)] + url;
-						window.location.href = goto_url;
+								'B': '/m#godo5/',
+								'W': '/m#godo6/',
+								'C': '/m#godo7/'
+							}
+							var goto_url = temp_obj[String(absence_type)] + url;
+							window.location.href = goto_url;
 
 						// $.get('/admin/tm/beyond_work/wf_three_data_4_view_m/' + pi_id, function(data) {
 						// 	var ti_id = data[0]._id;

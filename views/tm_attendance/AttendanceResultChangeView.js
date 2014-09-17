@@ -108,6 +108,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			initialize: function() {
 				var self = this;
 				this.template = Handlebars.compile($("#hbtmp_personal_wf_attend_view").html());
+				this.trans_template = Handlebars.compile($("#trans_confirm_view").html());
+
 				// The render method is called when CollTask Models are added to the Collection
 				this.bind_event();
 			},
@@ -129,8 +131,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					if (self.view_mode == 'trans') {
 						$("#wf_attendance_title").html('数据处理人');
 
-						this.template = Handlebars.compile($("#trans_confirm_view").html());
-						$("#personal_wf_attend-content").html(self.template(self.trans_data));
+						$("#personal_wf_attend-content").html(self.trans_template(self.trans_data));
 						$("#personal_wf_attend-content").trigger('create');
 
 						if (self.trans_data.next_td.node_type == 'END') {
@@ -269,6 +270,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					$("#personal_wf_attend-content").trigger('create');
 					return this;
 				}
+				//把 a 换成 span， 避免点那个滑块的时候页面跳走。
+				$(".ui-flipswitch a").each(function() {
+					$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+				});
 
 
 
@@ -278,11 +283,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				$("#personal_wf_attend-content").on('click', '.do_trans', function(event) {
 					event.preventDefault();
 					var $this = $(this);
-					if ($("#ti_comment").val() == '') {
+					if ($("#personal_wf_attend-content #ti_comment").val() == '') {
 						alert('请填写审批意见！');
 						return;
 					}
-
+					$(this).attr('disabled', true)
+					$.mobile.loading("show");
 					var process_define_id = $("#process_define_id").val();
 					var task_define_id = $("#task_define_id").val();
 					var process_instance_id = $("#process_instance_id").val();
@@ -310,6 +316,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						}, function(data) {
 							self.view_mode = 'trans';
 							self.trans_data = data;
+							$.mobile.loading("hide");
+
 							self.render();
 						});
 					} else {
@@ -328,6 +336,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							}, function(data) {
 								self.view_mode = 'trans';
 								self.trans_data = data;
+								$.mobile.loading("hide");
+
 								self.render();
 							});
 						})
@@ -337,6 +347,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				})
 				$("#personal_wf_attend-content").on('click', '#btn_ok', function(e) {
+					$.mobile.loading("show");
+
 					if ($("#next_user_name").val()) {
 						$("#btn_ok").attr("disabled", "disabled");
 						if (!self.view_mode) {
@@ -344,6 +356,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						} else {
 							do_trans();
 						}
+						$.mobile.loading("show");
 
 					} else {
 						alert('请选择下一任务的处理人');
