@@ -3,10 +3,10 @@
 
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], function($, _, Backbone, Handlebars, async, moment) {
-    Handlebars.registerHelper('mark', function(data) {
+    Handlebars.registerHelper('marks', function(data) {
         var mark = {
             'START': '流程开始',
-            'RUNNING': '流程执行中 ',
+            'RUNNING': '审批中',
             'END': '审批结束',
             'SUSPEND': '流程挂起',
             'TERMINATE': '流程终止',
@@ -62,6 +62,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         return num
     }
 
+    function calculate_02(items) {
+        var num = 0;
+        _.each(items, function(it) {
+            num += it.total_time
+        })
+
+        return num
+    }
+
     function sort(items) {
         var sorts = _.sortBy(items, function(it) {
             return it.start_date
@@ -93,6 +102,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 } else if (state == '2') {
                     var all_cunts = _.flatten([items[0].leave_total.leaveOfabsences, items[0].leave_total.backleaveOfabsences], true)
                     $(x).find('span').html(all_cunts.length || 0);
+                } else if (state == '3') {
+                    var filters = _.filter(items[0].leaves.reverse(), function(it) {
+                        return it.process_state == 'END' && !it.is_back_after_leave_of_absence
+                    })
+                    $(x).find('span').html(filters.length || 0);
                 };
             })
 
@@ -117,22 +131,39 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     return dt.absence_code == '001'
                 })
 
-                var filter_004s = _.filter(items[0].balance.details, function(dt) {
-                    var end_date = moment(dt.end_date).format('YYYY-MM-DD')
-                    return dt.absence_code == '005'
+                var maps = _.compact(_.map(items[0].balance.details, function(ft) {
+                    if (ft.absence_code == '005') {
+                        var o = {
+                            absence_code: '005',
+                            total_time: -ft.total_time,
+                            start_date: ft.start_date,
+                            valid_end_date: ft.valid_end_date
+                        }
+                        return o
+                    } else {
+                        return null;
+                    }
+                }))
+
+                _.each(filter_002s, function(ft) {
+                    maps.push({
+                        absence_code: '005',
+                        total_time: ft.init_balance,
+                        start_date: ft.start_date,
+                        valid_end_date: '9999-12-31',
+                        balance: ft.balance,
+                    })
                 })
-                console.log(items[0].balance)
+
                 rendered_data = self.balance_template({
                     '001_bs': sort(filter_001s),
-                    '002_bs': sort(filter_002s),
+                    '002_bs': sort(maps),
                     '001_num': calculate(filter_001s),
-                    '002_num': calculate(filter_002s)
+                    '002_num': calculate_02(maps)
                 });
 
             } else if (self.mode_view == '2') {
                 var all_items = _.flatten([items[0].leave_total.leaveOfabsences, items[0].leave_total.backleaveOfabsences], true)
-
-
                 var gb = _.groupBy(all_items, function(le) {
                     return le.absence_code
                 })
@@ -164,7 +195,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     leaveOfabsences: its
                 });
 
-            };
+            } else if (self.mode_view == '3') {
+                var filters = _.filter(items[0].leaves.reverse(), function(it) {
+                    return it.process_state == 'END' && !it.is_back_after_leave_of_absence
+                })
+                rendered_data = self.leave_template({
+                    leaves: filters
+                });
+            }
+
             $("#leave_list-content").html(rendered_data);
             $("#leave_list-content").trigger('create');
             $("#leave_list #crate_leave").show();
@@ -180,7 +219,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             }).on('click', '#crate_leave', function(event) {
                 if (confirm('确定启动请假流程 ？')) {
                     self.leaveOfAbsence.save().done(function(data) {
-                        window.location.href = "#leave_form_t/" + data.ti._id;
+                        window.location.href = "#leave_form_t/" + data.ti._id + '/T';
                     })
                 };
             }).on('click', '.open-left-panel', function(event) {
@@ -203,6 +242,31 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.mode_view = $(this).val();
                 self.render();
                 $("#leave_list-left-panel").panel("close");
+            }).on('click', '#btn-back_leave_view', function(event) {
+                event.preventDefault();
+                self.mode_view = '3';
+                self.render();
+                $("#leave_list-left-panel").panel("close");
+            }).on('click', '#btn_jump', function(event) {
+                event.preventDefault();
+                var process_define = $(this).data('process_define');
+                var leave_id = $(this).data("leave_id");
+
+                if (self.mode_view == '0') {
+                    window.location.href = '#leave_form_p/' + process_define + '/L'
+                } else if (self.mode_view == '3') {
+                    if (confirm('确定启动消假流程!')) {
+                        $.post('/admin/tm/wf_back_after_leave_of_absence/bb/' + null, {
+                            leave_id: leave_id
+                        }, function(data) {
+                            console.log(data)
+                            window.location.href = "#back_leave_form_t/" + data.ti._id;
+
+                        })
+
+                    };
+                };
+
             })
         },
 

@@ -2,16 +2,25 @@
 // ====================
 define(["jquery", "backbone", "handlebars", "lzstring",
     "../collections/LeaveOfAbsenceCollection",
+    "../collections/BackLeaveOfAbsenceCollection",
+    "../models/LeaveOfAbsenceModel",
+    "../models/BackLeaveOfAbsenceModel",
     "../views/absence/LeaveList",
     "../views/absence/LeaveOfAbsenceList",
-    "../models/LeaveOfAbsenceModel",
-    "../views/absence/LeaveViewList"
+    "../views/absence/LeaveViewList",
+    "../views/absence/BackLeaveOfAbsenceList"
+
+
+
 ], function($, Backbone, Handlebars, LZString,
     LeaveOfAbsenceCollection,
+    BackLeaveOfAbsenceCollection,
+    LeaveOfAbsenceModel,
+    BackLeaveOfAbsenceModel,
     LeaveView,
     LeaveOfAbsenceView,
-    LeaveOfAbsenceModel,
-    LeaveShowList
+    LeaveShowList,
+    BackLeaveOfAbsenceView
     // SkillRecommendModel
 ) {
     var AbsenceRouter = Backbone.Router.extend({
@@ -21,7 +30,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.init_collections();
             // self.data_collections = [];
             self.init_views();
-            self.init_config_data();
             // this.init_data();
             // self.bind_events();
             console.info('app message: skill recommand router initialized');
@@ -30,14 +38,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         routes: {
             // 假期
             "leave_list": "leave_list",
-            "leave_form_t/:ti_id": "leave_form",
-            "leave_form_p/:ti_id": "list_view",
+            "leave_form_t/:ti_id/:type": "leave_form",
+            "leave_form_p/:ti_id/:type": "list_view",
+            //消假
+            // "back_leave_list": "leave_list",
+            "back_leave_form_t/:ti_id/:type": "back_leave_form",
+
+
         },
 
 
         leave_list: function() {
             var self = this;
-
             self.leaveOfAbsences.fetch().done(function() {
                 self.leaveView.leaveOfAbsence = self.leaveOfAbsence;
                 self.leaveView.render();
@@ -47,12 +59,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
             })
         },
-        leave_form: function(ti_id) {
+        leave_form: function(ti_id, type) {
             var login_people = $("#login_people").val();
             var self = this;
             self.leaveOfAbsence.id = ti_id;
             self.leaveOfAbsence.fetch().done(function() {
                 self.leaveOfAbsenceView.people_id = login_people;
+                self.leaveOfAbsenceView.type = type;
                 self.leaveOfAbsenceView.render();
                 $("body").pagecontainer("change", "#leaveofabsence_list", {
                     reverse: false,
@@ -60,7 +73,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
             })
         },
-        list_view: function(pi_id) {
+        list_view: function(pi_id, type) {
             var self = this;
             $.get('/admin/tm/wf_leave_of_absence/view_json/' + pi_id, function(data) {
                 console.log(data)
@@ -73,8 +86,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             })
 
         },
-
-
+        back_leave_form: function(ti_id, type) {
+            var login_people = $("#login_people").val();
+            var self = this;
+            self.backLeaveOfAbsenceView.model.id = ti_id;
+            self.backLeaveOfAbsenceView.model.fetch().done(function() {
+                self.backLeaveOfAbsenceView.people_id = login_people;
+                self.backLeaveOfAbsenceView.type = type;
+                self.backLeaveOfAbsenceView.render();
+                $("body").pagecontainer("change", "#backleaveofabsence_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            })
+        },
         init_views: function() {
             var self = this;
             this.leaveView = new LeaveView({
@@ -87,25 +112,23 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             });
             this.leaveShowList = new LeaveShowList({
                 el: "#leaveofabsence_list-content",
-                // model: self.leaveOfAbsence,
             });
-
+            this.backLeaveOfAbsenceView = new BackLeaveOfAbsenceView({
+                el: "#backleaveofabsence_list-content",
+                model: self.backLeaveOfAbsence,
+            });
 
         },
         init_models: function() {
             this.leaveOfAbsence = new LeaveOfAbsenceModel();
+            this.backLeaveOfAbsence = new BackLeaveOfAbsenceModel();
         },
         init_collections: function() {
-            this.leaveOfAbsences = new LeaveOfAbsenceCollection(); //所有人
-
-        },
-        init_config_data: function() {
-            // var self = this;
-            // var leave_people = $("#leave_people").val();
-            // console.log(leave_people)
-
+            this.leaveOfAbsences = new LeaveOfAbsenceCollection(); //请假数据
+            this.backLeaveOfAbsences = new BackLeaveOfAbsenceCollection() //消假数据
 
         }
+
 
     });
 
