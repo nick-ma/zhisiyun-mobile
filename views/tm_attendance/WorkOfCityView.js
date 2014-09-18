@@ -275,7 +275,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						$("#personal_wf_work_of_city-content").html(self.template(obj));
 						$("#personal_wf_work_of_city-content").trigger('create');
 						$("#btn_save").hide();
-						$('#create_start_date,#create_end_date,#textarea').attr('disabled', true);
+						$("#personal_wf_work_of_city-content #create_start_date,#create_end_date,#hours,#reason").attr("readonly", true);
 
 						return this;
 					}
@@ -406,7 +406,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					ed = time_parse(end_date);
 					if (self.is_self) {
 						assemble(self, st, ed);
-						self.wf_data.leave.reason = $("#reason").val();
+						self.wf_data.leave.reason = $("#personal_wf_work_of_city-content #reason").val();
 
 						self.render();
 
@@ -419,6 +419,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				}).on('click', '#create_data', function(event) {
 					self.page_mode = 'detail';
+					self.wf_data.leave.reason = $("#personal_wf_work_of_city-content #reason").val();
+
 					self.render2();
 				}).on('change', '#create_end_date, #create_start_date', function(event) {
 					var type = $(this).data('type');

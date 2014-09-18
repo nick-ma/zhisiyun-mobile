@@ -125,97 +125,101 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                         },
                         function(data, cb) {
-                            var people = data.leave.people._id;
-                            self.singleBeyondOfWorkView.people = people;
-                            $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
-                                var times = data.times;
-                                self.singleBeyondOfWorkView.time_type = data.type;
-                                self.singleBeyondOfWorkView.times = times;
+                            if (data.task_state != 'FINISHED') {
+                                var people = data.leave.people._id;
+                                self.singleBeyondOfWorkView.people = people;
+                                $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
+                                    var times = data.times;
+                                    self.singleBeyondOfWorkView.time_type = data.type;
+                                    self.singleBeyondOfWorkView.times = times;
 
-                                var type = data.type;
-                                var datas = data.datas;
-                                self.singleBeyondOfWorkView.times_configs = [];
-                                if (type == '0') {
-                                    var group = _.groupBy(datas, function(data) {
-                                        return data.work_time
-                                    })
-                                    _.each(group, function(ys, k) {
-                                        var o = {};
-                                        o.calendar_data = ys;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(k)
-                                        });
-                                        o.time = f_d;
-                                        self.singleBeyondOfWorkView.times_configs.push(o)
-                                    })
-                                } else if (type == '1') {
-                                    _.each(datas, function(dt) {
-                                        var o = {};
-                                        o.calendar_data = dt.calendar_data;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(dt.work_time)
-                                        });
-                                        o.time = f_d;
-                                        self.singleBeyondOfWorkView.times_configs.push(o)
-                                    })
-                                } else if (type == '2') {
-                                    var group = _.groupBy(datas, function(data) {
-                                        return data.work_time
-                                    })
-                                    _.each(group, function(ys, k) {
-                                        var o = {};
-                                        o.calendar_data = ys;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(k)
-                                        });
-                                        o.time = f_d;
-                                        self.singleBeyondOfWorkView.times_configs.push(o)
-                                    })
-                                };
-                                cb(null, 'OK');
+                                    var type = data.type;
+                                    var datas = data.datas;
+                                    self.singleBeyondOfWorkView.times_configs = [];
+                                    if (type == '0') {
+                                        var group = _.groupBy(datas, function(data) {
+                                            return data.work_time
+                                        })
+                                        _.each(group, function(ys, k) {
+                                            var o = {};
+                                            o.calendar_data = ys;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(k)
+                                            });
+                                            o.time = f_d;
+                                            self.singleBeyondOfWorkView.times_configs.push(o)
+                                        })
+                                    } else if (type == '1') {
+                                        _.each(datas, function(dt) {
+                                            var o = {};
+                                            o.calendar_data = dt.calendar_data;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(dt.work_time)
+                                            });
+                                            o.time = f_d;
+                                            self.singleBeyondOfWorkView.times_configs.push(o)
+                                        })
+                                    } else if (type == '2') {
+                                        var group = _.groupBy(datas, function(data) {
+                                            return data.work_time
+                                        })
+                                        _.each(group, function(ys, k) {
+                                            var o = {};
+                                            o.calendar_data = ys;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(k)
+                                            });
+                                            o.time = f_d;
+                                            self.singleBeyondOfWorkView.times_configs.push(o)
+                                        })
+                                    };
+                                    cb(null, 'OK');
 
-                            })
+                                })
+                            } else {
+                                cb(null, null)
+                            }
+
                         }
                     ], cb);
                 }
             }, function(err, ret) {
-                var is_self = self.singleBeyondOfWorkView.people == String($("#login_people").val());
-                if (is_self) {
-                    self.singleBeyondOfWorkView.view_mode = '';
-
+                if (self.singleBeyondOfWorkView.wf_data.task_state == 'FINISHED') {
+                    window.location = '/m#godo5_view/' + self.singleBeyondOfWorkView.wf_data.process_instance
                 } else {
-                    self.singleBeyondOfWorkView.view_mode = 'deal_with';
+                    var is_self = self.singleBeyondOfWorkView.people == String($("#login_people").val());
+                    if (is_self) {
+                        self.singleBeyondOfWorkView.view_mode = '';
+
+                    } else {
+                        self.singleBeyondOfWorkView.view_mode = 'deal_with';
+
+                    }
+                    self.singleBeyondOfWorkView.is_full_day = true;
+                    self.singleBeyondOfWorkView.page_mode = 'wf_three';
+                    self.singleBeyondOfWorkView.mode = type;
+                    self.singleBeyondOfWorkView.is_self = is_self;
+
+                    self.singleBeyondOfWorkView.render();
+                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                    $(".ui-flipswitch a").each(function() {
+                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                    });
+                    if (!is_self) {
+                        $("#category").attr("disabled", true);
+                        $("#personal_wf_beyond_of_work-content #create_end_date").attr("readonly", true);
+                        $("#personal_wf_beyond_of_work-content #create_start_date").attr("readonly", true);
+                        $("#personal_wf_beyond_of_work-content #reason").attr("readonly", true);
+                        $("#personal_wf_beyond_of_work-content #hours").attr("readonly", true);
+
+                        $("#exchange").show();
+                    }
+                    $("body").pagecontainer("change", "#wf_beyond_of_work", {
+                        reverse: false,
+                        changeHash: false,
+                    });
 
                 }
-                self.singleBeyondOfWorkView.is_full_day = true;
-                self.singleBeyondOfWorkView.page_mode = 'wf_three';
-                self.singleBeyondOfWorkView.mode = type;
-                self.singleBeyondOfWorkView.is_self = is_self;
-
-                self.singleBeyondOfWorkView.render();
-                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
-                $(".ui-flipswitch a").each(function() {
-                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
-                });
-                if (!is_self) {
-                    $("#category").attr("disabled", true);
-                    $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
-                    $("#exchange").show();
-                }
-                if (type == '2') {
-                    $("#personal_wf_beyond_of_work-content").find("textarea").attr("disabled", true);
-                    $("#wf_beyond_of_work_title").html("加班流程查看")
-                    $("#personal_wf_beyond_of_work-content").find("button").attr("disabled", true);
-                    $("#personal_wf_beyond_of_work-content").find("input").attr("disabled", true);
-                    $("#personal_wf_beyond_of_work-content").find("a").attr("disabled", true);
-                    $("#personal_wf_beyond_of_work-content").find("select").attr("disabled", true);
-                    $("#personal_wf_beyond_of_work-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
-
-                }
-                $("body").pagecontainer("change", "#wf_beyond_of_work", {
-                    reverse: false,
-                    changeHash: false,
-                });
             })
 
         },
@@ -241,7 +245,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $(".ui-flipswitch a").each(function() {
                     $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                 });
-                $("#personal_wf_beyond_of_work-content2").find("textarea").attr("disabled", true);
+                // $("#personal_wf_beyond_of_work-content2").find("textarea").attr("disabled", true);
 
                 $("#wf_work_of_travel_title2").html("出差流程查看")
                 // $("#personal_wf_beyond_of_work-content2").find("button").attr("disabled", true);
@@ -277,99 +281,102 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             })
                         },
                         function(data, cb) {
-                            var people = data.leave.people._id;
-                            self.singleWorkOfTravelView.people = people;
-                            $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
-                                var times = data.times;
-                                self.singleWorkOfTravelView.time_type = data.type;
-                                self.singleWorkOfTravelView.times = times;
+                            if (data.task_state != 'FINISHED') {
+                                var people = data.leave.people._id;
+                                self.singleWorkOfTravelView.people = people;
+                                $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
+                                    var times = data.times;
+                                    self.singleWorkOfTravelView.time_type = data.type;
+                                    self.singleWorkOfTravelView.times = times;
 
-                                var type = data.type;
-                                var datas = data.datas;
-                                self.singleWorkOfTravelView.times_configs = [];
-                                if (type == '0') {
-                                    var group = _.groupBy(datas, function(data) {
-                                        return data.work_time
-                                    })
-                                    _.each(group, function(ys, k) {
-                                        var o = {};
-                                        o.calendar_data = ys;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(k)
-                                        });
-                                        o.time = f_d;
-                                        self.singleWorkOfTravelView.times_configs.push(o)
-                                    })
-                                } else if (type == '1') {
-                                    _.each(datas, function(dt) {
-                                        var o = {};
-                                        o.calendar_data = dt.calendar_data;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(dt.work_time)
-                                        });
-                                        o.time = f_d;
-                                        self.singleWorkOfTravelView.times_configs.push(o)
-                                    })
-                                } else if (type == '2') {
-                                    var group = _.groupBy(datas, function(data) {
-                                        return data.work_time
-                                    })
-                                    _.each(group, function(ys, k) {
-                                        var o = {};
-                                        o.calendar_data = ys;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(k)
-                                        });
-                                        o.time = f_d;
-                                        self.singleWorkOfTravelView.times_configs.push(o)
-                                    })
-                                };
-                                cb(null, 'OK');
+                                    var type = data.type;
+                                    var datas = data.datas;
+                                    self.singleWorkOfTravelView.times_configs = [];
+                                    if (type == '0') {
+                                        var group = _.groupBy(datas, function(data) {
+                                            return data.work_time
+                                        })
+                                        _.each(group, function(ys, k) {
+                                            var o = {};
+                                            o.calendar_data = ys;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(k)
+                                            });
+                                            o.time = f_d;
+                                            self.singleWorkOfTravelView.times_configs.push(o)
+                                        })
+                                    } else if (type == '1') {
+                                        _.each(datas, function(dt) {
+                                            var o = {};
+                                            o.calendar_data = dt.calendar_data;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(dt.work_time)
+                                            });
+                                            o.time = f_d;
+                                            self.singleWorkOfTravelView.times_configs.push(o)
+                                        })
+                                    } else if (type == '2') {
+                                        var group = _.groupBy(datas, function(data) {
+                                            return data.work_time
+                                        })
+                                        _.each(group, function(ys, k) {
+                                            var o = {};
+                                            o.calendar_data = ys;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(k)
+                                            });
+                                            o.time = f_d;
+                                            self.singleWorkOfTravelView.times_configs.push(o)
+                                        })
+                                    };
+                                    cb(null, 'OK');
 
-                            })
+                                })
+                            } else {
+                                cb(null, null)
+                            }
+
                         }
                     ], cb);
                 }
             }, function(err, ret) {
-                var is_self = self.singleWorkOfTravelView.people == String($("#login_people").val());
-                if (is_self) {
-                    self.singleWorkOfTravelView.view_mode = '';
+                console.log(self.singleWorkOfTravelView.wf_data.task_state)
 
+                if (self.singleWorkOfTravelView.wf_data.task_state == 'FINISHED') {
+                    window.location = '/m#godo6_view/' + self.singleWorkOfTravelView.wf_data.process_instance
                 } else {
-                    self.singleWorkOfTravelView.view_mode = 'deal_with';
+                    var is_self = self.singleWorkOfTravelView.people == String($("#login_people").val());
+                    if (is_self) {
+                        self.singleWorkOfTravelView.view_mode = '';
 
-                }
-                self.singleWorkOfTravelView.is_full_day = true;
-                self.singleWorkOfTravelView.page_mode = 'wf_three';
-                self.singleWorkOfTravelView.mode = type;
-                self.singleWorkOfTravelView.is_self = is_self;
-                self.singleWorkOfTravelView.render();
-                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
-                $(".ui-flipswitch a").each(function() {
-                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
-                });
-                if (!is_self) {
-                    $("#reason").attr("disabled", true);
-                    $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
-                    $("#create_destination_data").find("h2").html("查看出差目的地");
-                    $("#create_destination_data").parent().remove();
-                }
-                if (type == '2') {
-                    $("#personal_wf_work_of_travel-content").find("textarea").attr("disabled", true);
+                    } else {
+                        self.singleWorkOfTravelView.view_mode = 'deal_with';
 
-                    $("#wf_work_of_travel_title").html("出差流程查看")
-                    $("#personal_wf_work_of_travel-content").find("button").attr("disabled", true);
-                    $("#personal_wf_work_of_travel-content").find("input").attr("disabled", true);
-                    $("#personal_wf_work_of_travel-content").find("a").attr("disabled", true);
-                    $("#personal_wf_work_of_travel-content").find("select").attr("disabled", true);
-                    $("#personal_wf_work_of_travel-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
-                    $("#personal_wf_work_of_travel-content").find("a[id='create_destination_data']").parent().remove();
-
+                    }
+                    self.singleWorkOfTravelView.is_full_day = true;
+                    self.singleWorkOfTravelView.page_mode = 'wf_three';
+                    self.singleWorkOfTravelView.mode = type;
+                    self.singleWorkOfTravelView.is_self = is_self;
+                    self.singleWorkOfTravelView.render();
+                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                    $(".ui-flipswitch a").each(function() {
+                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                    });
+                    if (!is_self) {
+                        $("#category").attr("disabled", true);
+                        $("#personal_wf_work_of_travel-content #create_end_date").attr("readonly", true);
+                        $("#personal_wf_work_of_travel-content #create_start_date").attr("readonly", true);
+                        $("#personal_wf_work_of_travel-content #reason").attr("readonly", true);
+                        $("#personal_wf_work_of_travel-content #hours").attr("readonly", true);
+                        $("#create_destination_data").find("h2").html("查看出差目的地");
+                        $("#create_destination_data").parent().remove();
+                    }
+                    $("body").pagecontainer("change", "#wf_work_of_travel", {
+                        reverse: false,
+                        changeHash: false,
+                    });
                 }
-                $("body").pagecontainer("change", "#wf_work_of_travel", {
-                    reverse: false,
-                    changeHash: false,
-                });
+
             })
 
         },
@@ -396,7 +403,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $(".ui-flipswitch a").each(function() {
                     $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                 });
-                $("#personal_wf_work_of_travel-content2").find("textarea").attr("disabled", true);
+                // $("#personal_wf_work_of_travel-content2").find("textarea").attr("disabled", true);
 
                 $("#wf_work_of_travel_title2").html("出差流程查看")
                 // $("#personal_wf_work_of_travel-content2").find("button").attr("disabled", true);
@@ -432,97 +439,107 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                         },
                         function(data, cb) {
-                            var people = data.leave.people._id;
-                            self.singleWorkOfCityView.people = people;
-                            $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
-                                var times = data.times;
-                                self.singleWorkOfCityView.time_type = data.type;
-                                self.singleWorkOfCityView.times = times;
+                            if (data.task_state != 'FINISHED') {
+                                var people = data.leave.people._id;
+                                self.singleWorkOfCityView.people = people;
+                                $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
+                                    var times = data.times;
+                                    self.singleWorkOfCityView.time_type = data.type;
+                                    self.singleWorkOfCityView.times = times;
 
-                                var type = data.type;
-                                var datas = data.datas;
-                                self.singleWorkOfCityView.times_configs = [];
-                                if (type == '0') {
-                                    var group = _.groupBy(datas, function(data) {
-                                        return data.work_time
-                                    })
-                                    _.each(group, function(ys, k) {
-                                        var o = {};
-                                        o.calendar_data = ys;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(k)
-                                        });
-                                        o.time = f_d;
-                                        self.singleWorkOfCityView.times_configs.push(o)
-                                    })
-                                } else if (type == '1') {
-                                    _.each(datas, function(dt) {
-                                        var o = {};
-                                        o.calendar_data = dt.calendar_data;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(dt.work_time)
-                                        });
-                                        o.time = f_d;
-                                        self.singleWorkOfCityView.times_configs.push(o)
-                                    })
-                                } else if (type == '2') {
-                                    var group = _.groupBy(datas, function(data) {
-                                        return data.work_time
-                                    })
-                                    _.each(group, function(ys, k) {
-                                        var o = {};
-                                        o.calendar_data = ys;
-                                        var f_d = _.find(times, function(time) {
-                                            return time._id == String(k)
-                                        });
-                                        o.time = f_d;
-                                        self.singleWorkOfCityView.times_configs.push(o)
-                                    })
-                                };
-                                cb(null, 'OK');
+                                    var type = data.type;
+                                    var datas = data.datas;
+                                    self.singleWorkOfCityView.times_configs = [];
+                                    if (type == '0') {
+                                        var group = _.groupBy(datas, function(data) {
+                                            return data.work_time
+                                        })
+                                        _.each(group, function(ys, k) {
+                                            var o = {};
+                                            o.calendar_data = ys;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(k)
+                                            });
+                                            o.time = f_d;
+                                            self.singleWorkOfCityView.times_configs.push(o)
+                                        })
+                                    } else if (type == '1') {
+                                        _.each(datas, function(dt) {
+                                            var o = {};
+                                            o.calendar_data = dt.calendar_data;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(dt.work_time)
+                                            });
+                                            o.time = f_d;
+                                            self.singleWorkOfCityView.times_configs.push(o)
+                                        })
+                                    } else if (type == '2') {
+                                        var group = _.groupBy(datas, function(data) {
+                                            return data.work_time
+                                        })
+                                        _.each(group, function(ys, k) {
+                                            var o = {};
+                                            o.calendar_data = ys;
+                                            var f_d = _.find(times, function(time) {
+                                                return time._id == String(k)
+                                            });
+                                            o.time = f_d;
+                                            self.singleWorkOfCityView.times_configs.push(o)
+                                        })
+                                    };
+                                    cb(null, 'OK');
 
-                            })
+                                })
+                            } else {
+                                cb(null, null)
+                            }
+
                         }
                     ], cb);
                 }
             }, function(err, ret) {
-                var is_self = self.singleWorkOfCityView.people == String($("#login_people").val());
-                if (is_self) {
-                    self.singleWorkOfCityView.view_mode = '';
-
+                if (self.singleWorkOfCityView.wf_data.task_state == 'FINISHED') {
+                    window.location = '/m#godo7_view/' + self.singleWorkOfCityView.wf_data.process_instance
                 } else {
-                    self.singleWorkOfCityView.view_mode = 'deal_with';
+                    var is_self = self.singleWorkOfCityView.people == String($("#login_people").val());
+                    if (is_self) {
+                        self.singleWorkOfCityView.view_mode = '';
+
+                    } else {
+                        self.singleWorkOfCityView.view_mode = 'deal_with';
+
+                    }
+                    self.singleWorkOfCityView.is_full_day = true;
+                    self.singleWorkOfCityView.page_mode = 'wf_three';
+                    self.singleWorkOfCityView.mode = type;
+                    self.singleWorkOfCityView.is_self = is_self;
+
+                    self.singleWorkOfCityView.render();
+                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                    $(".ui-flipswitch a").each(function() {
+                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                    });
+                    if (!is_self) {
+                        $("#personal_wf_work_of_city-content #create_start_date,#create_end_date,#hours,#reason").attr("readonly", true);
+
+                    }
+                    if (type == '2') {
+                        $("#personal_wf_work_of_city-content").find("textarea").attr("disabled", true);
+                        $("#wf_work_of_city_title").html("市区公干流程查看")
+                        $("#personal_wf_work_of_city-content").find("button").attr("disabled", true);
+                        $("#personal_wf_work_of_city-content").find("input").attr("disabled", true);
+                        $("#personal_wf_work_of_city-content").find("a").attr("disabled", true);
+                        $("#personal_wf_work_of_city-content").find("select").attr("disabled", true);
+                        $("#personal_wf_work_of_city-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
+
+                    }
+                    $("body").pagecontainer("change", "#wf_work_of_city", {
+                        reverse: false,
+                        changeHash: false,
+                    });
 
                 }
-                self.singleWorkOfCityView.is_full_day = true;
-                self.singleWorkOfCityView.page_mode = 'wf_three';
-                self.singleWorkOfCityView.mode = type;
-                self.singleWorkOfCityView.is_self = is_self;
 
-                self.singleWorkOfCityView.render();
-                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
-                $(".ui-flipswitch a").each(function() {
-                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
-                });
-                if (!is_self) {
-                    $("#reason").attr("disabled", true);
-                    $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
-
-                }
-                if (type == '2') {
-                    $("#personal_wf_work_of_city-content").find("textarea").attr("disabled", true);
-                    $("#wf_work_of_city_title").html("市区公干流程查看")
-                    $("#personal_wf_work_of_city-content").find("button").attr("disabled", true);
-                    $("#personal_wf_work_of_city-content").find("input").attr("disabled", true);
-                    $("#personal_wf_work_of_city-content").find("a").attr("disabled", true);
-                    $("#personal_wf_work_of_city-content").find("select").attr("disabled", true);
-                    $("#personal_wf_work_of_city-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
-
-                }
-                $("body").pagecontainer("change", "#wf_work_of_city", {
-                    reverse: false,
-                    changeHash: false,
-                });
             })
 
         },
@@ -549,7 +566,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $(".ui-flipswitch a").each(function() {
                     $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                 });
-                $("#personal_wf_work_of_city-content2").find("textarea").attr("disabled", true);
+                // $("#personal_wf_work_of_city-content2").find("textarea").attr("disabled", true);
 
                 $("#wf_work_of_travel_title2").html("公干流程查看")
                 $("#personal_wf_work_of_city-content2").find("select").attr("disabled", true);

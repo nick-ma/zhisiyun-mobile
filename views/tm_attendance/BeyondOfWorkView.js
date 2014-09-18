@@ -416,7 +416,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						$("#personal_wf_beyond_of_work-content").html(self.template(obj));
 						$("#personal_wf_beyond_of_work-content").trigger('create');
 						$("#btn_save").hide();
-						$('#create_start_date,#create_end_date,#textarea').attr('disabled', true);
+						$("#personal_wf_beyond_of_work-content #create_start_date,#create_end_date,#hours,#reason").attr("readonly", true);
+
 						return this;
 					}
 				} else {
