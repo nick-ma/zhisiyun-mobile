@@ -384,6 +384,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             var self = this
             var bool = true;
             $("#backleaveofabsence_list").on('click', '#btn-ct-save', function(event) {
+                event.preventDefault();
                 var leave = self.model.get('leave');
                 var start_date = moment($("#start_date").val()).format('YYYY-MM-DD');
                 var f_d = _.find(leave.leaveOfabsence.leaves, function(le) {
@@ -402,6 +403,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     };
                 })
             }).on('change', '#end_date, #start_date', function(event) {
+                event.preventDefault();
                 var type = $(this).data('type');
                 if (type == 'S') {
                     var start_date = $(this).val();
@@ -415,12 +417,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 ed = times(end_date);
                 assemble(self, st, ed);
             }).on('click', '#leave_details_show', function(event) {
+                event.preventDefault();
                 self.model_view = '1'
                 self.render();
             }).on('click', '#leaves_list', function(event) {
+                event.preventDefault();
                 self.model_view = '2'
                 self.render();
             }).on('click', '#btn-back_leave_list-back', function(event) {
+                event.preventDefault();
                 if (self.model_view != '0') {
                     self.model_view = '0'
                     self.render();
@@ -428,6 +433,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     window.location.href = "/m#leave_list"
                 }
             }).on('change', '#leave_reason', function(event) {
+                event.preventDefault();
                 var leave = self.model.get('leave');
                 leave.leave_reason = $(this).val();
             }).on('click', '.do_trans', function(event) {
@@ -492,6 +498,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 event.preventDefault();
                 window.location.reload();
             }).on('click', '#btn_ok', function(e) {
+                event.preventDefault();
                 $.mobile.loading("show");
                 if ($("#next_user_name").val()) {
                     $("#btn_ok").attr("disabled", "disabled");
