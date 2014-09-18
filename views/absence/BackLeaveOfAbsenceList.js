@@ -366,12 +366,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             $("#backleaveofabsence_list-content").html(rendered_data);
             $("#backleaveofabsence_list-content").trigger('create');
 
+            console.log(self.people_id + '======' + String(leave.people));
+            console.log(self.people_id == String(leave.people))
             if (self.people_id == String(leave.people)) {
                 $("#btn_ims_show").hide();
-                if (self.type == 'L') {
-                    // $('a, .do_trans, #btn-ct-save, #absence_type,#leave_reason,#leave_allday,#create_start_date,#create_end_date').attr('disabled', true);
-                };
-
+                $('absence_type,#leave_reason,#leave_allday,#create_start_date,#create_end_date').removeAttr('disabled');
             } else {
                 $("#btn_ims_show").show();
                 $('#absence_type,#leave_reason,#start_date,#end_date').attr('disabled', true);
