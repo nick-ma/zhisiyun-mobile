@@ -196,8 +196,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 times_configs.push(o)
             })
         };
-        console.log(st)
-        console.log(ed)
+
         var date_items = [];
         if (st.date && st.zone && ed.date && ed.zone) {
             var days_between = moment(ed.date).diff(moment(st.date), 'days');
@@ -262,9 +261,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             })
             // leave.leaves = date_items;
             leave.hours = total_value;
-            console.log(date_items)
             $('#hours').html(total_value + '小时');
-
         };
 
 
@@ -327,7 +324,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             var self = this;
             var rendered_data = '';
-            console.log(self)
             var leave = self.model.get('leave');
             var ti = self.model.get('ti');
 
@@ -370,7 +366,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             $("#backleaveofabsence_list-content").html(rendered_data);
             $("#backleaveofabsence_list-content").trigger('create');
 
-            if (self.people_id == String(leave.people._id)) {
+            if (self.people_id == String(leave.people)) {
                 $("#btn_ims_show").hide();
                 if (self.type == 'L') {
                     // $('a, .do_trans, #btn-ct-save, #absence_type,#leave_reason,#leave_allday,#create_start_date,#create_end_date').attr('disabled', true);
@@ -440,7 +436,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 event.preventDefault();
                 var leave = self.model.get('leave');
                 var $this = $(this);
-                if (!$("#ti_comment").val()) {
+                if ($("#backleaveofabsence_list-content #ti_comment").val()) {
                     alert('请填写审批意见！');
                     return;
                 };
@@ -486,7 +482,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         next_tdid: target_id,
                         direction: direction
                     }, function(data) {
-                        console.log(data)
                         self.model_view = '3';
                         self.trans_data = data;
                         $.mobile.loading("hide");
