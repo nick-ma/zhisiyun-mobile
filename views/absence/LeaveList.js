@@ -78,6 +78,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         return sorts.reverse()
     }
 
+    function sort_02(items) {
+        var sorts = _.sortBy(items, function(ls) {
+            return ls.crate_date
+        })
+        return sorts.reverse()
+    }
+
     var AbsenceListView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
@@ -111,10 +118,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 } else if (state == '4') {
                     var url = ' /admin/tm/wf_back_after_leave_of_absence/bb';
                     $.get(url, function(data) {
-                        console.log(data)
                         self.banck_leaves = data.leaves;
                         self.absences = data.absences;
-
                         $(x).find('span').html(data.leaves.length || 0);
 
                     });
@@ -123,7 +128,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             if (self.mode_view == '0') {
                 rendered_data = self.leave_template({
-                    leaves: items[0].leaves.reverse()
+                    leaves: sort_02(items[0].leaves)
                 });
             } else if (self.mode_view == '1') {
                 var current_date = moment(new Date()).format('YYYY-MM-DD')
@@ -211,12 +216,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     return it.process_state == 'END' && !it.is_back_after_leave_of_absence
                 })
                 rendered_data = self.leave_template({
-                    leaves: filters
+                    leaves: sort_02(filters)
                 });
             } else if (self.mode_view == '4') {
                 var items = []
                 _.each(self.banck_leaves, function(bl) {
-                    console.log(bl)
                     var f_d = _.find(self.absences, function(ls) {
                         return ls.absence_type_code == bl.absence_code
                     })
@@ -231,10 +235,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     })
 
                 })
-
-
+                console.log(self)
                 rendered_data = self.back_leave_template({
-                    leaves: items
+                    leaves: sort_02(items)
                 });
             }
 
