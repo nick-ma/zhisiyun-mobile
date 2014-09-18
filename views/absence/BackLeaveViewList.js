@@ -107,7 +107,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         leave_id: leave_id
                     }, function(data) {
                         if (data) {
-                            window.location.href = '#back_leave_form_t/' + data.ti
+                            window.location.href = '#back_leave_form_t/' + data.ti + '/T'
                         };
 
                     })
