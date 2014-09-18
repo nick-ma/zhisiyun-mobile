@@ -235,7 +235,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     })
 
                 })
-                console.log(self)
                 rendered_data = self.back_leave_template({
                     leaves: sort_02(items)
                 });
@@ -297,7 +296,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                             leave_id: leave_id
                         }, function(data) {
                             console.log(data)
-                            window.location.href = "#back_leave_form_t/" + data.ti._id;
+                            window.location.href = "#back_leave_form_t/" + data.ti._id + '/T';
 
                         })
 

@@ -436,7 +436,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 event.preventDefault();
                 var leave = self.model.get('leave');
                 var $this = $(this);
-                if ($("#backleaveofabsence_list-content #ti_comment").val()) {
+                if ($("#backleaveofabsence_list-content #ti_comment").val() == '') {
                     alert('请填写审批意见！');
                     return;
                 };
