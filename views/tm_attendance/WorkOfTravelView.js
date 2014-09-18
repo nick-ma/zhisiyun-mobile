@@ -409,10 +409,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					ed = time_parse(end_date);
 					if (self.is_self) {
 						assemble(self, st, ed);
+						self.wf_data.leave.reason = $("#reason").val();
 						self.render();
 
 					}
-					self.wf_data.leave.reason = $("#reason").val();
 					//把 a 换成 span， 避免点那个滑块的时候页面跳走。
 					$(".ui-flipswitch a").each(function() {
 						$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
