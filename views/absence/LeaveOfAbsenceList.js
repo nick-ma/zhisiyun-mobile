@@ -367,7 +367,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             var rendered_data = '';
             var leave = self.model.get('leave');
             var ti = self.model.get('ti');
-
+            console.log(self)
             if (self.model_view == '0') {
                 $("#leaveofabsence_name").html('假期申请单')
                 var start_date = moment(leave.create_start_date || new Date).format('YYYY-MM-DD');
