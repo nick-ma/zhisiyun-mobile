@@ -21,6 +21,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         var accumulates = self.model.get('accumulates');
         var balance = self.model.get('leavebalance');
         var leave = self.model.get('leave');
+
         var f_d = _.find(absences, function(ab) {
             return ab.absence_type_code == absence_code
         })
@@ -28,6 +29,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
 
         if (absence_code == '001' || absence_code == '005') {
+            leave.leave_balance = 0;
             $("#balance_show,#history").show();
             $("#detail_show,#ration_show").hide();
             if (balance) {
@@ -367,7 +369,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             var rendered_data = '';
             var leave = self.model.get('leave');
             var ti = self.model.get('ti');
-            console.log(self)
+
             if (self.model_view == '0') {
                 $("#leaveofabsence_name").html('假期申请单')
                 var start_date = moment(leave.create_start_date || new Date).format('YYYY-MM-DD');
@@ -439,6 +441,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             var self = this
             var bool = true;
             $("#leaveofabsence_list").on('click', '#btn-ct-save', function(event) {
+                event.preventDefault();
                 var leave = self.model.get('leave');
                 var absence_type = $('#absence_type').val();
                 if (absence_type == '001' || absence_type == '005') {
@@ -461,6 +464,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     };
                 })
             }).on('change', '#create_end_date, #create_start_date', function(event) {
+                event.preventDefault();
                 var type = $(this).data('type');
                 if (type == 'S') {
                     var start_date = $(this).val();
@@ -474,6 +478,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 ed = times(end_date);
                 assemble(self, st, ed);
             }).on('change', '#absence_type', function(event) {
+                event.preventDefault();
                 var absences = self.model.get('absences');
                 var absence_code = $(this).val();
                 absence_code_show(absence_code, self);
@@ -484,12 +489,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 leave.absence_id = f_d._id;
                 leave.absence_code = f_d.absence_type_code;
             }).on('click', '#leave_details_show', function(event) {
+                event.preventDefault();
                 self.model_view = '1'
                 self.render();
             }).on('click', '#leaves_list', function(event) {
+                event.preventDefault();
                 self.model_view = '2'
                 self.render();
             }).on('click', '#btn-leave_list-back', function(event) {
+                event.preventDefault();
                 if (self.model_view != '0') {
                     self.model_view = '0'
                     self.render();
@@ -497,6 +505,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     window.location.href = "/m#leave_list"
                 }
             }).on('change', '#leave_reason', function(event) {
+                event.preventDefault();
                 var leave = self.model.get('leave');
                 leave.leave_reason = $(this).val();
             }).on('change', '#leave_allday', function(event) {
@@ -505,6 +514,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var leave = self.model.get('leave');
                 leave.allday = (la == 'false' ? false : true);
                 self.render();
+                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                });
             }).on('click', '.do_trans', function(event) {
 
                 event.preventDefault();

@@ -254,7 +254,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.render()
             }).on('click', '#crate_leave', function(event) {
                 if (confirm('确定启动请假流程 ？')) {
+                    $.mobile.loading("show");
                     self.leaveOfAbsence.save().done(function(data) {
+                        $.mobile.loading("hide");
                         window.location.href = "#leave_form_t/" + data.ti._id + '/T';
                     })
                 };
@@ -292,10 +294,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     window.location.href = '#leave_form_p/' + process_define + '/L'
                 } else if (self.mode_view == '3') {
                     if (confirm('确定启动消假流程!')) {
+                        $.mobile.loading("show");
                         $.post('/admin/tm/wf_back_after_leave_of_absence/bb/' + null, {
                             leave_id: leave_id
                         }, function(data) {
-                            console.log(data)
+                            $.mobile.loading("hide");
                             window.location.href = "#back_leave_form_t/" + data.ti._id + '/T';
 
                         })
