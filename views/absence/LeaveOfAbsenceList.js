@@ -142,6 +142,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
         return time
     }
+    //只获取工作时间
+    function is_work_on_off_time(times_configs, time_type, data) {
+        var time = null;
+        _.each(times_configs, function(config) {
+            var f_d = _.find(config.calendar_data, function(dt) {
+                if (time_type == '2') {
+                    return moment(data).isBefore(dt.expire_off) && moment(data).isAfter(dt.expire_on)
+                } else {
+                    return dt.job_date == moment(data).format('YYYY-MM-DD')
+                }
+            })
+            if (f_d) {
+                time = config.time;
+                return
+            };
+        })
+
+        return time
+    }
 
     //判断这天是不是半天
     function compare(st_zone, ed_zone, ost_zone, oed_zone) {
@@ -197,13 +216,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             })
         };
         if (st.zone == 'null' || st.zone == null) {
-            var time = is_work_on_off(times_configs, type, st.date);
+            var time = is_work_on_off_time(times_configs, type, st.date);
             if (time) {
                 st.zone = time.work_on_time
             };
         };
         if (ed.zone == 'null' || ed.zone == null) {
-            var time = is_work_on_off(times_configs, type, ed.date);
+            var time = is_work_on_off_time(times_configs, type, ed.date);
             if (time) {
                 ed.zone = time.work_off_time
             };
@@ -262,11 +281,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
                         }
                         date_items.push(o)
-                    };
+                    }
 
                 };
 
             }
+
+            date_items = _.compact(date_items);
             var total_value = 0;
             _.each(date_items, function(dt) {
                 total_value += dt.total_time
@@ -344,7 +365,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             var self = this;
             var rendered_data = '';
-            console.log(self)
             var leave = self.model.get('leave');
             var ti = self.model.get('ti');
 
@@ -487,10 +507,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 event.preventDefault();
                 var leave = self.model.get('leave');
                 var $this = $(this);
-                if (!$("#ti_comment").val()) {
+                if ($("#leaveofabsence_list-content #ti_comment").val() == '') {
                     alert('请填写审批意见！');
                     return;
                 };
+
+
                 var absence_type = $('#absence_type').val();
                 if (absence_type == '001' || absence_type == '005') {
                     if (leave.hours > leave.leave_balance) {
@@ -520,7 +542,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var roles_type = $this.data('roles_type');
                 var position_form_field = $this.data('position_form_field');
 
-                console.log(self.model)
 
                 self.model.id = $("#task_instance_id").val();
                 self.model.save().done(function(data) {
@@ -536,7 +557,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         next_tdid: target_id,
                         direction: direction
                     }, function(data) {
-                        console.log(data)
                         self.model_view = '3';
                         self.trans_data = data;
                         $.mobile.loading("hide");

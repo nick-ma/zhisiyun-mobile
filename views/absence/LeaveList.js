@@ -84,6 +84,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             this.leave_template = Handlebars.compile($("#leave_view").html());
             this.balance_template = Handlebars.compile($("#balance_view").html());
             this.balance_total_template = Handlebars.compile($("#balance_total_view").html());
+            this.back_leave_template = Handlebars.compile($("#back_leave_view").html());
             this.month = moment(new Date()).month() + 1;
             this.bind_event();
             this.mode_view = '0';
@@ -112,6 +113,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     $.get(url, function(data) {
                         console.log(data)
                         self.banck_leaves = data.leaves;
+                        self.absences = data.absences;
 
                         $(x).find('span').html(data.leaves.length || 0);
 
@@ -212,10 +214,29 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     leaves: filters
                 });
             } else if (self.mode_view == '4') {
-                rendered_data = self.leave_template({
-                    leaves: self.banck_leaves
+                var items = []
+                _.each(self.banck_leaves, function(bl) {
+                    console.log(bl)
+                    var f_d = _.find(self.absences, function(ls) {
+                        return ls.absence_type_code == bl.absence_code
+                    })
+                    items.push({
+                        absence_name: f_d ? f_d.absence_type_name : '',
+                        crate_date: bl.crate_date,
+                        hours: bl.hours,
+                        process_define: bl.process_define,
+                        process_define: bl.process_define,
+                        leave_id: bl.leave_id,
+                        process_state: bl.process_state,
+                    })
+
+                })
+
+
+                rendered_data = self.back_leave_template({
+                    leaves: items
                 });
-            };
+            }
 
             $("#leave_list-content").html(rendered_data);
             $("#leave_list-content").trigger('create');
@@ -278,7 +299,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         })
 
                     };
-                };
+                } else if (self.mode_view == '4') {
+                    window.location.href = '#back_leave_form_p/' + process_define + '/L'
+                }
 
             })
         },

@@ -8,7 +8,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/absence/LeaveList",
     "../views/absence/LeaveOfAbsenceList",
     "../views/absence/LeaveViewList",
-    "../views/absence/BackLeaveOfAbsenceList"
+    "../views/absence/BackLeaveOfAbsenceList",
+    "../views/absence/BackLeaveViewList",
 
 
 
@@ -20,7 +21,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     LeaveView,
     LeaveOfAbsenceView,
     LeaveShowList,
-    BackLeaveOfAbsenceView
+    BackLeaveOfAbsenceView,
+    BackLeaveShowList
     // SkillRecommendModel
 ) {
     var AbsenceRouter = Backbone.Router.extend({
@@ -41,9 +43,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             "leave_form_t/:ti_id/:type": "leave_form",
             "leave_form_p/:ti_id/:type": "list_view",
             //消假
-            // "back_leave_list": "leave_list",
             "back_leave_form_t/:ti_id/:type": "back_leave_form",
-
+            "back_leave_form_p/:ti_id/:type": "back_list_view",
 
         },
 
@@ -100,6 +101,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
             })
         },
+        back_list_view: function(pi_id, type) {
+            var self = this;
+            $.get('/admin/tm/wf_back_after_leave_of_absence/view_json/' + pi_id, function(data) {
+                console.log(data)
+                self.backleaveShowList.obj = data
+                self.backleaveShowList.render();
+                $("body").pagecontainer("change", "#back_leave_view_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            })
+        },
         init_views: function() {
             var self = this;
             this.leaveView = new LeaveView({
@@ -116,6 +129,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             this.backLeaveOfAbsenceView = new BackLeaveOfAbsenceView({
                 el: "#backleaveofabsence_list-content",
                 model: self.backLeaveOfAbsence,
+            });
+            this.backleaveShowList = new BackLeaveShowList({
+                el: "#backleaveofabsence_list-content",
             });
 
         },
