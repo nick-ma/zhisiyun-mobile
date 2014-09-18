@@ -7,8 +7,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
     "../views/tm_attendance/AttendanceResultChangeView",
     "../views/tm_attendance/TMAbsenceOfThreeView",
     "../views/tm_attendance/BeyondOfWorkView",
+    "../views/tm_attendance/BeyondOfWork2View",
     "../views/tm_attendance/WorkOfTravelView",
+    "../views/tm_attendance/WorkOfTravel2View",
     "../views/tm_attendance/WorkOfCityView",
+    "../views/tm_attendance/WorkOfCity2View",
     "../views/tm_attendance/CitiesView",
     "../views/tm_attendance/MyCardRecordView",
     "../views/tm_attendance/BeyondOfWorkReportView",
@@ -24,8 +27,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
     AttendanceResultChangeView,
     TMAbsenceOfThreeView,
     BeyondOfWorkView,
+    BeyondOfWork2View,
     WorkOfTravelView,
+    WorkOfTravel2View,
     WorkOfCityView,
+    WorkOfCity2View,
     CitiesView,
     MyCardRecordView,
     BeyondOfWorkReportView,
@@ -50,7 +56,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             "godo7/:op_id/:type": "go_do7", //市区公干流程
             "cities/:task_id": "cities", //城市数据
             "attend_report": "attend_report", //加班统计报表
-            "card_record": "card_record" //打卡记录列表查看
+            "card_record": "card_record", //打卡记录列表查看
+            "godo5_view/:pi_id": "go_do5_view", //员工加班流程查看
+            "godo6_view/:pi_id": "go_do6_view", //外出差旅流程查看
+            "godo7_view/:pi_id": "go_do7_view", //市区公干流程查看
 
         },
 
@@ -74,7 +83,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             var self = this;
             $.get('/admin/tm/beyond_work/wf_three_data_4_m', function(data) {
                 if (data) {
-                    self.singleTMAbsenceOfThreeView.wf_data = data;
+                    var temp_arr = [],
+                        wf_data = [];
+                    //取掉重复掉流程实例
+                    _.each(data, function(temp) {
+                        if (!~temp_arr.indexOf(String(temp.pi_id))) {
+                            wf_data.push(temp)
+                        }
+                        temp_arr.push(temp.pi_id)
+                    })
+                    self.singleTMAbsenceOfThreeView.wf_data = wf_data;
 
                 }
                 self.singleTMAbsenceOfThreeView.render();
@@ -200,6 +218,43 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             })
 
         },
+        go_do5_view: function(pi_id) {
+            var self = this;
+            async.parallel({
+                data1: function(cb) {
+                    //此处会将任务状态变更为处理中，需小心调用。
+                    $.get('/admin/tm/work_travel/view_m/' + pi_id, function(data) {
+                        if (data) {
+                            self.singleBeyondOfWork2View.wf_data = data;
+                            cb(null, data)
+                        } else {
+                            cb(null, null);
+                        }
+                    })
+
+                }
+            }, function(err, ret) {
+                self.singleBeyondOfWork2View.page_mode = 'wf_three';
+                self.singleBeyondOfWork2View.render();
+                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                });
+                $("#personal_wf_beyond_of_work-content2").find("textarea").attr("disabled", true);
+
+                $("#wf_work_of_travel_title2").html("出差流程查看")
+                // $("#personal_wf_beyond_of_work-content2").find("button").attr("disabled", true);
+                // $("#personal_wf_beyond_of_work-content2").find("input").attr("disabled", true);
+                // $("#personal_wf_beyond_of_work-content2").find("a").attr("disabled", true);
+                $("#personal_wf_beyond_of_work-content2").find("select").attr("disabled", true);
+
+                $("body").pagecontainer("change", "#wf_beyond_of_work2", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            })
+
+        },
         go_do6: function(op_id, type) {
             var self = this;
             var ti_id = op_id.split("-")[0];
@@ -210,6 +265,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     async.waterfall([
 
                         function(cb) {
+                            //此处会将任务状态变更为处理中，需小心调用。
                             $.get('/admin/tm/work_travel/edit_m/' + ti_id, function(data) {
                                 if (data) {
                                     self.singleWorkOfTravelView.wf_data = data;
@@ -218,7 +274,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                     cb(null, null);
                                 }
                             })
-
                         },
                         function(data, cb) {
                             var people = data.leave.people._id;
@@ -286,7 +341,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.singleWorkOfTravelView.is_full_day = true;
                 self.singleWorkOfTravelView.page_mode = 'wf_three';
                 self.singleWorkOfTravelView.mode = type;
-
+                self.singleWorkOfTravelView.is_self = is_self;
                 self.singleWorkOfTravelView.render();
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                 $(".ui-flipswitch a").each(function() {
@@ -296,6 +351,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     $("#reason").attr("disabled", true);
                     $("#create_start_date,#create_end_date,#reason").attr("disabled", true);
                     $("#create_destination_data").find("h2").html("查看出差目的地");
+                    $("#create_destination_data").parent().remove();
                 }
                 if (type == '2') {
                     $("#personal_wf_work_of_travel-content").find("textarea").attr("disabled", true);
@@ -316,7 +372,44 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             })
 
         },
+        go_do6_view: function(pi_id) {
+            var self = this;
+            async.parallel({
+                data1: function(cb) {
 
+                    //此处会将任务状态变更为处理中，需小心调用。
+                    $.get('/admin/tm/work_travel/view_m/' + pi_id, function(data) {
+                        if (data) {
+                            self.singleWorkOfTravel2View.wf_data = data;
+                            cb(null, data)
+                        } else {
+                            cb(null, null);
+                        }
+                    })
+
+                }
+            }, function(err, ret) {
+                self.singleWorkOfTravel2View.page_mode = 'wf_three';
+                self.singleWorkOfTravel2View.render();
+                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                });
+                $("#personal_wf_work_of_travel-content2").find("textarea").attr("disabled", true);
+
+                $("#wf_work_of_travel_title2").html("出差流程查看")
+                // $("#personal_wf_work_of_travel-content2").find("button").attr("disabled", true);
+                // $("#personal_wf_work_of_travel-content2").find("input").attr("disabled", true);
+                // $("#personal_wf_work_of_travel-content2").find("a").attr("disabled", true);
+                $("#personal_wf_work_of_travel-content2").find("select").attr("disabled", true);
+
+                $("body").pagecontainer("change", "#wf_work_of_travel2", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            })
+
+        },
         go_do7: function(op_id, type) {
             var self = this;
             var ti_id = op_id.split("-")[0];
@@ -403,6 +496,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.singleWorkOfCityView.is_full_day = true;
                 self.singleWorkOfCityView.page_mode = 'wf_three';
                 self.singleWorkOfCityView.mode = type;
+                self.singleWorkOfCityView.is_self = is_self;
 
                 self.singleWorkOfCityView.render();
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。
@@ -425,6 +519,41 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 }
                 $("body").pagecontainer("change", "#wf_work_of_city", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            })
+
+        },
+        go_do7_view: function(pi_id) {
+            var self = this;
+            async.parallel({
+                data1: function(cb) {
+
+                    //此处会将任务状态变更为处理中，需小心调用。
+                    $.get('/admin/tm/work_travel/view_m/' + pi_id, function(data) {
+                        if (data) {
+                            self.singleWorkOfCity2View.wf_data = data;
+                            cb(null, data)
+                        } else {
+                            cb(null, null);
+                        }
+                    })
+
+                }
+            }, function(err, ret) {
+                self.singleWorkOfCity2View.page_mode = 'wf_three';
+                self.singleWorkOfCity2View.render();
+                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                });
+                $("#personal_wf_work_of_city-content2").find("textarea").attr("disabled", true);
+
+                $("#wf_work_of_travel_title2").html("公干流程查看")
+                $("#personal_wf_work_of_city-content2").find("select").attr("disabled", true);
+
+                $("body").pagecontainer("change", "#wf_work_of_city2", {
                     reverse: false,
                     changeHash: false,
                 });
@@ -497,11 +626,20 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             this.singleBeyondOfWorkView = new BeyondOfWorkView({
                 el: "#personal_wf_beyond_of_work-content",
             });
+            this.singleBeyondOfWork2View = new BeyondOfWork2View({
+                el: "#personal_wf_beyond_of_work-content2",
+            });
             this.singleWorkOfTravelView = new WorkOfTravelView({
                 el: "#personal_wf_work_of_travel-content",
             });
+            this.singleWorkOfTravel2View = new WorkOfTravel2View({
+                el: "#personal_wf_work_of_travel-content2",
+            });
             this.singleWorkOfCityView = new WorkOfCityView({
                 el: "#personal_wf_work_of_city-content",
+            });
+            this.singleWorkOfCity2View = new WorkOfCity2View({
+                el: "#personal_wf_work_of_city-content2",
             });
             this.singleCitiesView = new CitiesView({
                 el: "#show_destinations-content",

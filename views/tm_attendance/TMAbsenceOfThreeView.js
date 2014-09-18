@@ -97,6 +97,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							})
 						}
 
+					}).on('click', '.open-left-panel', function(event) {
+						event.preventDefault();
+						$("#show_attendance_result-left-panel").panel("open");
 					})
 					.on('swiperight', function(event) { //向右滑动，打开左边的面板
 						event.preventDefault();
@@ -122,18 +125,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						var absence_type = $(this).data("absence_type");
 						var pi_id = $(this).data("pi_id");
 						var temp_obj = {
-								'B': '/m#godo5/',
-								'W': '/m#godo6/',
-								'C': '/m#godo7/'
-							}
-							var goto_url = temp_obj[String(absence_type)] + url;
-							window.location.href = goto_url;
+							'B': '/m#godo5_view/',
+							'W': '/m#godo6_view/',
+							'C': '/m#godo7_view/'
+						}
+						var goto_url = temp_obj[String(absence_type)] + pi_id;
+						window.location.href = goto_url;
 
-						// $.get('/admin/tm/beyond_work/wf_three_data_4_view_m/' + pi_id, function(data) {
-						// 	var ti_id = data[0]._id;
-						// 	var goto_url = temp_obj[String(absence_type)] + ti_id + url;
-						// 	window.location.href = goto_url;
-						// })
 
 					})
 

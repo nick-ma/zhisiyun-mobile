@@ -241,31 +241,37 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				//当月已加班小时数
 				var month_hour = self.wf_data.total_hour;
 				var month_max_hour = self.wf_data.month_max_hour;
-				var month_min_hour = self.wf_data.month_min_hour;
+				var single_min_hour = self.wf_data.single_min_hour;
 				if ((Number(self.wf_data.leave.hours) + Number(month_hour)) > month_max_hour) {
 					$("#info_msg_label1").html("已超月加班最大数额！")
 					$("#info_msg1").show();
 
-					self.wf_data.leave.data = [];
-					self.wf_data.leave.hours = 0;
-					$('#hours').val('');
-					if (!self.is_full_day) {
-						$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
-						$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
-					} else {
-						$("#create_end_date").val(format(new Date()));
-						$("#create_start_date").val(format(new Date()));
-					}
+					// self.wf_data.leave.data = [];
+					// self.wf_data.leave.hours = 0;
+					// $('#hours').val('');
+					// if (!self.is_full_day) {
+					// 	$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
+					// 	$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
+					// } else {
+					// 	$("#create_end_date").val(format(new Date()));
+					// 	$("#create_start_date").val(format(new Date()));
+					// }
+
+				} else {
+					$("#info_msg1").hide();
 
 				}
-				if (!self.is_full_day && (Number(self.wf_data.leave.hours) > Number(month_min_hour))) {
+				if (!self.is_full_day && (Number(self.wf_data.leave.hours) < Number(single_min_hour))) {
 					$("#info_msg_label").html("小于单次加班最少小时数!")
 					$("#info_msg").show();
-					self.wf_data.leave.data = [];
-					self.wf_data.leave.hours = 0;
-					$('#hours').val('');
-					$("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
-					$("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
+					// self.wf_data.leave.data = [];
+					// self.wf_data.leave.hours = 0;
+					// $('#hours').val('');
+					// $("#create_end_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
+					// $("#create_start_date").val(moment(new Date()).format('YYYY-MM-DDTHH:mm'));
+
+				} else {
+					$("#info_msg").hide();
 
 				}
 
@@ -313,7 +319,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				if (data.code == 'OK') {
 
 					window.location = '#todo';
-				};
+				} else {
+					window.location = '#todo';
+
+				}
 			})
 			// })
 		}
@@ -525,17 +534,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					self.is_full_day = is_full_day == "false" ? false : true;
 					var end_date = $("#create_end_date").val();
 					var start_date = $("#create_start_date").val();
-					if (format(end_date) != String(format(start_date))) {
-						var end_date = start_date;
-						$("#create_end_date").val(end_date)
+					// if (!self.is_full_day && format(end_date) != String(format(start_date))) {
+					// 	var end_date = start_date;
+					// 	$("#create_end_date").val(end_date)
 
-					}
+					// }
+					self.wf_data.leave.reason = $("#reason").val();
 
 					self.render();
 					//把 a 换成 span， 避免点那个滑块的时候页面跳走。
 					$(".ui-flipswitch a").each(function() {
 						$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
 					});
+					
 
 				}).on('click', '#create_data', function(event) {
 					self.page_mode = 'detail';
@@ -548,13 +559,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 						if (!self.is_full_day) {
 							if (format(end_date) != String(format(start_date))) {
-								$("#info_msg_label").html("非全天不能跨天！");
-								$("#info_msg").show();
-								var end_date = $(this).val();
-								$("#create_end_date").val(end_date)
+								$("#info_msg_label2").html("非全天不能跨天！");
+								$("#info_msg2").show();
+								// var end_date = $(this).val();
+								// $("#create_end_date").val(end_date)
 
 							} else {
-								$("#info_msg").hide();
+								$("#info_msg2").hide();
 
 							}
 						}
@@ -565,13 +576,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 						if (!self.is_full_day) {
 							if (format(end_date) != String(format(start_date))) {
-								$("#info_msg_label").html("非全天不能跨天！");
-								$("#info_msg").show();
-								var start_date = $(this).val();
-								$("#create_end_date").val(start_date)
+								$("#info_msg_label2").html("非全天不能跨天！");
+								$("#info_msg2").show();
+								// var start_date = $(this).val();
+								// $("#create_end_date").val(start_date)
 
 							} else {
-								$("#info_msg").hide();
+								$("#info_msg2").hide();
 
 							}
 						}
@@ -600,6 +611,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							$("#personal_wf_beyond_of_work-content").find("a").attr("disabled", true);
 							$("#personal_wf_beyond_of_work-content").find("select").attr("disabled", true);
 							$("#personal_wf_beyond_of_work-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
+							$("#create_destination_data").find("h2").html("查看出差目的地");
+							$("#create_destination_data").parent().remove();
 
 						} else {
 							self.render();

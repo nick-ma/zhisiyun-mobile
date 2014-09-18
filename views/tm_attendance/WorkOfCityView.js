@@ -253,7 +253,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				obj.leave.create_end_date = wf_data.leave.create_end_date ? wf_data.leave.create_end_date : new Date();
 				//当天工作时间
 				var today_time = is_work_on_off(new Date(), self.is_full_day);
-				var day_hours = 0;
+				var day_hours = 8;
 				obj.leave.hours = wf_data.leave.hours ? wf_data.leave.hours : day_hours;
 				if (self.view_mode) {
 					if (self.view_mode == 'trans') {
@@ -396,9 +396,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					self.is_full_day = is_full_day == "false" ? false : true;
 					var end_date = $("#create_end_date").val();
 					var start_date = $("#create_start_date").val();
+					st = time_parse(start_date);
+					ed = time_parse(end_date);
+					if (self.is_self) {
+						assemble(self, st, ed);
+						self.render();
 
+					}
+					self.wf_data.leave.reason = $("#reason").val();
 
-					self.render();
 					//把 a 换成 span， 避免点那个滑块的时候页面跳走。
 					$(".ui-flipswitch a").each(function() {
 						$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");

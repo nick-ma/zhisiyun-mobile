@@ -95,17 +95,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 $("#show_destinations")
                     .on('click', '#destination_selected', function(event) {
                         event.preventDefault();
+                        $.mobile.loading("show");
                         self.page_mode = 'destination_selected';
                         self.render();
+                        $.mobile.loading("hide");
+
                     }).on('click', '#show_cities', function(event) {
                         event.preventDefault();
+                        $.mobile.loading("show");
+
                         self.page_mode = 'show_cities';
                         self.render();
-
-
+                        $.mobile.loading("hide");
                     })
                     .on('click', '#save_city_name', function(event) {
                         event.preventDefault();
+                        $.mobile.loading("show");
+
                         var wf_data = self.wf_data;
                         var leave_id = $(this).data("_id");
                         var city_id = $(this).data("city_id");
@@ -119,14 +125,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                     return temp._id != String(city_id)
                                 })
                                 self.render();
+                                $.mobile.loading("hide");
+
                             })
                         } else {
                             self.render();
+                            $.mobile.loading("hide");
+
                         }
 
                     })
                     .on('click', '#delete_city', function(event) {
                         event.preventDefault();
+                        $.mobile.loading("show");
+
                         var wf_data = self.wf_data;
                         var leave_id = $(this).data("_id");
                         var city_id = $(this).data("city_id");
@@ -136,6 +148,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.wf_data.leave.destination = destination;
                         save_form_data(destination, wf_data, 'delete', function(data) {
                             self.render();
+                            $.mobile.loading("hide");
+
                         })
 
                     })

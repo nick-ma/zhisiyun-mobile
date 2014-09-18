@@ -407,12 +407,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					var start_date = $("#create_start_date").val();
 					st = time_parse(start_date);
 					ed = time_parse(end_date);
-					assemble(self, st, ed);
-					self.render();
+					if (self.is_self) {
+						assemble(self, st, ed);
+						self.render();
+
+					}
+					self.wf_data.leave.reason = $("#reason").val();
 					//把 a 换成 span， 避免点那个滑块的时候页面跳走。
 					$(".ui-flipswitch a").each(function() {
 						$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
 					});
+					if (!self.is_self) {
+						$("#create_destination_data").parent().remove();
+
+					}
 
 				}).on('click', '#create_data', function(event) {
 					var end_date = $("#create_end_date").val();
@@ -450,18 +458,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					if (self.page_mode == 'detail') {
 						$("#wf_work_of_travel_title").html("出差申请流程");
 						self.page_mode = 'wf_three';
-						if (self.mode == '2') {
+						if (!self.is_self) {
 							self.render();
-							$("#personal_wf_work_of_travel-content").find("textarea").attr("disabled", true);
 
-							$("#wf_work_of_travel_title").html("出差流程查看")
-							$("#personal_wf_work_of_travel-content").find("button").attr("disabled", true);
-							$("#personal_wf_work_of_travel-content").find("input").attr("disabled", true);
-							$("#personal_wf_work_of_travel-content").find("a").attr("disabled", true);
-							$("#personal_wf_work_of_travel-content").find("select").attr("disabled", true);
-							$("#personal_wf_work_of_travel-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
-							$("#personal_wf_work_of_travel-content").find("a[id='create_destination_data']").parent().remove();
-
+							$("#create_destination_data").parent().remove();
 						} else {
 							self.render();
 						}
