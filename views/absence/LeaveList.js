@@ -107,6 +107,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         return it.process_state == 'END' && !it.is_back_after_leave_of_absence
                     })
                     $(x).find('span').html(filters.length || 0);
+                } else if (state == '4') {
+                    var url = ' /admin/tm/wf_back_after_leave_of_absence/bb';
+                    $.get(url, function(data) {
+                        console.log(data)
+                        self.banck_leaves = data.leaves;
+
+                        $(x).find('span').html(data.leaves.length || 0);
+
+                    });
                 };
             })
 
@@ -202,7 +211,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 rendered_data = self.leave_template({
                     leaves: filters
                 });
-            }
+            } else if (self.mode_view == '4') {
+                rendered_data = self.leave_template({
+                    leaves: self.banck_leaves
+                });
+            };
 
             $("#leave_list-content").html(rendered_data);
             $("#leave_list-content").trigger('create');
