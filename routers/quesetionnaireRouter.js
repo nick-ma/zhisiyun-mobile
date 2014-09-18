@@ -6,13 +6,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/QuestionnairManageCollection",
         "../collections/PeopleCompetencyScoreCollection",
         "../collections/MBTIQuestionInstanceCollection",
+        "../collections/EGQuestionInstanceCollection",
         "../models/PeopleCompetencyScoreModel",
         "../models/QuestionnairInstanceModel",
         "../models/MBTIQuestionInstanceModel",
+        "../models/EGQuestionInstanceModel",
         "../views/quesetionnaire/EditGradeList",
         "../views/quesetionnaire/EditGradeCommonList",
         "../views/quesetionnaire/EditGradeManageList",
-        "../views/quesetionnaire/EditGradeMBTIList"
+        "../views/quesetionnaire/EditGradeMBTIList",
+        "../views/quesetionnaire/EditGradeEGList"
 
     ],
     function($, Backbone, Handlebars, LZString, async,
@@ -20,13 +23,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         QuestionnairManageCollection,
         PeopleCompetencyScoreCollection,
         MBTIQuestionInstanceCollection,
+        EGQuestionInstanceCollection,
         PeopleCompetencyScoreModel,
         QuestionnairInstanceModel,
         MBTIQuestionInstanceModel,
+        EGQuestionInstanceModel,
         EditGradeList,
         EditGradeCommonList,
         EditGradeManageList,
-        EditGradeMBTIList
+        EditGradeMBTIList,
+        EditGradeEGList
 
     ) {
 
@@ -86,6 +92,19 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         })
 
                     })
+                } else if (type == '5') {
+                    self.EGQuestionInstance.id = qi_id;
+                    self.EGQuestionInstance.fetch().done(function() {
+                        self.EGQuestionInstances.fetch().done(function() {
+                            self.editGradeEGList.collection = self.EGQuestionInstances;
+                            self.editGradeEGList.render();
+                            $("body").pagecontainer("change", "#quesetionnaire_eg_list", {
+                                reverse: false,
+                                changeHash: false,
+                            });
+                        })
+
+                    })
                 }
 
             },
@@ -124,13 +143,17 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#quesetionnaire_nbti_list",
                     model: self.MBTIQuestionInstance,
                 })
-
+                this.editGradeEGList = new EditGradeEGList({
+                    el: "#quesetionnaire_eg_list",
+                    model: self.EGQuestionInstance,
+                })
             },
             init_models: function() {
                 var self = this;
                 self.questionnairInstance = new QuestionnairInstanceModel();
                 self.peopleCompetencyScore = new PeopleCompetencyScoreModel();
-                self.MBTIQuestionInstance = new MBTIQuestionInstanceModel()
+                self.MBTIQuestionInstance = new MBTIQuestionInstanceModel();
+                self.EGQuestionInstance = new EGQuestionInstanceModel()
             },
             init_collections: function() {
                 var self = this;
@@ -138,6 +161,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.questionnairManages = new QuestionnairManageCollection();
                 self.peopleCompetencyScores = new PeopleCompetencyScoreCollection();
                 self.MBTIQuestionInstances = new MBTIQuestionInstanceCollection();
+                self.EGQuestionInstances = new EGQuestionInstanceCollection();
             },
             init_my_data: function() {
                 var self = this;
