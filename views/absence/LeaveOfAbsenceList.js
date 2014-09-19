@@ -359,10 +359,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             this.leave_details_template = Handlebars.compile($("#leave_details_view").html());
             this.leaves_list_template = Handlebars.compile($("#leaves_list_view").html());
             this.template = Handlebars.compile($("#trans_confirm_view").html()); //跳转页面
+            this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.model_view = '0';
             this.bind_event();
         },
         // Renders all of the Task models on the UI
+        pre_render: function() {
+            var self = this;
+            $("#leaveofabsence_list-content").html(self.loading_template({
+                info_msg: '数据加载中...请稍候'
+            }));
+            $("#leaveofabsence_list-content").trigger('create');
+            return this;
+        },
         render: function() {
 
             var self = this;
