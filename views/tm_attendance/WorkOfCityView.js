@@ -199,16 +199,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 		var do_trans = function() {
 			// save_form_data_b(function() {
 			var post_data = {
-				process_instance_id: $("#process_instance_id").val(),
-				task_instance_id: $("#task_instance_id").val(),
-				process_define_id: $("#process_define_id").val(),
-				next_tdid: $("#next_tdid").val(),
-				next_user: $("#next_user_id").val() || null, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
-				trans_name: $("#trans_name").val(), // 转移过来的名称
-				comment_msg: $("#comment_msg").val(), // 任务批注 
+				process_instance_id: $("#personal_wf_work_of_city-content #process_instance_id").val(),
+				task_instance_id: $("#personal_wf_work_of_city-content #task_instance_id").val(),
+				process_define_id: $("#personal_wf_work_of_city-content #process_define_id").val(),
+				next_tdid: $("#personal_wf_work_of_city-content #next_tdid").val(),
+				next_user: $("#personal_wf_work_of_city-content #next_user_id").val() || null, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
+				trans_name: $("#personal_wf_work_of_city-content #trans_name").val(), // 转移过来的名称
+				comment_msg: $("#personal_wf_work_of_city-content #comment_msg").val(), // 任务批注 
 			};
-			var post_url = $("#task_process_url").val();
-			post_url = post_url.replace('<TASK_ID>', $("#task_instance_id").val());
+			var post_url = $("#personal_wf_work_of_city-content #task_process_url").val();
+			post_url = post_url.replace('<TASK_ID>', $("#personal_wf_work_of_city-content #task_instance_id").val());
 
 			$.post(post_url, post_data, function(data) {
 				if (data.code == 'OK') {
@@ -304,7 +304,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var self = this;
 				var obj = self.wf_data;
 				save_form_data(obj, function() {
-					$("#wf_beyond_of_work_title").html("公干明细");
+					$("#wf_work_of_city_title").html("公干明细");
 					$("#personal_wf_work_of_city-content").html(self.details_template(obj));
 					$("#personal_wf_work_of_city-content").trigger('create');
 					return this;
@@ -323,11 +323,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					$(this).attr('disabled', true)
 					$.mobile.loading("show");
 
-					var process_define_id = $("#process_define_id").val();
-					var task_define_id = $("#task_define_id").val();
-					var process_instance_id = $("#process_instance_id").val();
-					var task_process_url = $("#task_process_url").val();
-					var task_instance_id = $("#task_instance_id").val();
+					var process_define_id = $("#personal_wf_work_of_city-content #process_define_id").val();
+					var task_define_id = $("#personal_wf_work_of_city-content #task_define_id").val();
+					var process_instance_id = $("#personal_wf_work_of_city-content #process_instance_id").val();
+					var task_process_url = $("#personal_wf_work_of_city-content #task_process_url").val();
+					var task_instance_id = $("#personal_wf_work_of_city-content #task_instance_id").val();
 
 					var direction = $this.data('direction');
 					var target_id = $this.data('target_id');
@@ -343,7 +343,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							task_process_url: task_process_url,
 							next_tdname: task_name,
 							trans_name: name,
-							ti_comment: $("#ti_comment").val(),
+							ti_comment: $("#personal_wf_work_of_city-content #ti_comment").val(),
 							task_instance_id: task_instance_id,
 							next_tdid: target_id,
 							direction: direction
@@ -364,7 +364,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 								task_process_url: task_process_url,
 								next_tdname: task_name,
 								trans_name: name,
-								ti_comment: $("#ti_comment").val(),
+								ti_comment: $("#personal_wf_work_of_city-content #ti_comment").val(),
 								task_instance_id: task_instance_id,
 								next_tdid: target_id,
 								direction: direction
@@ -427,6 +427,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				}).on('click', '#create_data', function(event) {
 					self.page_mode = 'detail';
+					self.wf_data.leave.create_start_date = $("#personal_wf_work_of_city-content #create_start_date").val();
+					self.wf_data.leave.create_end_date = $("#personal_wf_work_of_city-content #create_end_date").val();
+					self.wf_data.leave.hours = $("#personal_wf_work_of_city-content #hours").val();
+					var end_date = $("#personal_wf_work_of_city-content #create_end_date").val();
+					var start_date = $("#personal_wf_work_of_city-content #create_start_date").val();
+					st = time_parse(start_date);
+					ed = time_parse(end_date);
+					assemble(self, st, ed);
 					self.wf_data.leave.reason = $("#personal_wf_work_of_city-content #reason").val();
 
 					self.render2();

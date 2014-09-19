@@ -314,16 +314,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 		var do_trans = function() {
 			// save_form_data_b(function() {
 			var post_data = {
-				process_instance_id: $("#process_instance_id").val(),
-				task_instance_id: $("#task_instance_id").val(),
-				process_define_id: $("#process_define_id").val(),
-				next_tdid: $("#next_tdid").val(),
-				next_user: $("#next_user_id").val() || null, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
-				trans_name: $("#trans_name").val(), // 转移过来的名称
-				comment_msg: $("#comment_msg").val(), // 任务批注 
+				process_instance_id: $("#personal_wf_beyond_of_work-content #process_instance_id").val(),
+				task_instance_id: $("#personal_wf_beyond_of_work-content #task_instance_id").val(),
+				process_define_id: $("#personal_wf_beyond_of_work-content #process_define_id").val(),
+				next_tdid: $("#personal_wf_beyond_of_work-content #next_tdid").val(),
+				next_user: $("#personal_wf_beyond_of_work-content #next_user_id").val() || null, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
+				trans_name: $("#personal_wf_beyond_of_work-content #trans_name").val(), // 转移过来的名称
+				comment_msg: $("#personal_wf_beyond_of_work-content #comment_msg").val(), // 任务批注 
 			};
-			var post_url = $("#task_process_url").val();
-			post_url = post_url.replace('<TASK_ID>', $("#task_instance_id").val());
+			var post_url = $("#personal_wf_beyond_of_work-content #task_process_url").val();
+			post_url = post_url.replace('<TASK_ID>', $("#personal_wf_beyond_of_work-content #task_instance_id").val());
 
 			$.post(post_url, post_data, function(data) {
 				if (data.code == 'OK') {
@@ -468,11 +468,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 
 
-					var process_define_id = $("#process_define_id").val();
-					var task_define_id = $("#task_define_id").val();
-					var process_instance_id = $("#process_instance_id").val();
-					var task_process_url = $("#task_process_url").val();
-					var task_instance_id = $("#task_instance_id").val();
+					var process_define_id = $("#personal_wf_beyond_of_work-content #process_define_id").val();
+					var task_define_id = $("#personal_wf_beyond_of_work-content #task_define_id").val();
+					var process_instance_id = $("#personal_wf_beyond_of_work-content #process_instance_id").val();
+					var task_process_url = $("#personal_wf_beyond_of_work-content #task_process_url").val();
+					var task_instance_id = $("#personal_wf_beyond_of_work-content #task_instance_id").val();
 
 					var direction = $this.data('direction');
 					var target_id = $this.data('target_id');
@@ -488,7 +488,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							task_process_url: task_process_url,
 							next_tdname: task_name,
 							trans_name: name,
-							ti_comment: $("#ti_comment").val(),
+							ti_comment: $("#personal_wf_beyond_of_work-content #ti_comment").val(),
 							task_instance_id: task_instance_id,
 							next_tdid: target_id,
 							direction: direction
@@ -509,7 +509,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 								task_process_url: task_process_url,
 								next_tdname: task_name,
 								trans_name: name,
-								ti_comment: $("#ti_comment").val(),
+								ti_comment: $("#personal_wf_beyond_of_work-content #ti_comment").val(),
 								task_instance_id: task_instance_id,
 								next_tdid: target_id,
 								direction: direction
