@@ -31,13 +31,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.quesetionnaire_next_mbti_template = Handlebars.compile($("#quesetionnaire_next_mbti_list_view").html());
             this.quesetionnaire_mbti_result_template = Handlebars.compile($("#quesetionnaire_mbti_result_list_view").html());
 
-
+            this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.model_view = '0';
             this.model.on("sync", this.render, this);
             this.bind_event();
             this.num1 = 0; //已完成数目
             this.num2 = 0; //题目总数
             this.config_items = [] //题目总数
+        },
+
+        pre_render: function() {
+            var self = this;
+            $("#quesetionnaire_nbti_list-content").html(self.loading_template({
+                info_msg: '数据加载中...请稍候'
+            }));
+            $("#quesetionnaire_nbti_list-content").trigger('create');
+            return this;
         },
         // Renders all of the Task models on the UI
         render: function() {

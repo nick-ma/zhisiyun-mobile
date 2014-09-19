@@ -76,7 +76,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.quesetionnaire_my_manage_template = Handlebars.compile($("#quesetionnaire_my_manage_list_view").html());
             this.quesetionnaire_survey_template = Handlebars.compile($("#quesetionnaire_survey_manage_list_view").html());
             this.quesetionnaire_exam_template = Handlebars.compile($("#quesetionnaire_exam_manage_list_view").html());
-
+            this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.collection.on("sync", this.render, this);
             this.view_mode = '1';
             this.date_typeset = '0'; //过滤类型
@@ -84,6 +84,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.qti_items = [];
             this.bind_event();
 
+        },
+        pre_render: function() {
+            var self = this;
+            $("#quesetionnaire_manage_list-content").html(self.loading_template({
+                info_msg: '数据加载中...请稍候'
+            }));
+            $("#quesetionnaire_manage_list-content").trigger('create');
+            return this;
         },
         // Renders all of the Task models on the UI
         render: function() {
@@ -155,7 +163,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $("#show_tip").html('没有已提交问卷！')
             } else if (self.view_mode == '3') {
                 console.log("==========")
-                var nums = ['3', '4', '5','6']
+                var nums = ['3', '4', '5', '6']
                 var mbtis = _.filter(data_items, function(x) {
                     return !!~nums.indexOf(x.mark);
                 });
@@ -394,7 +402,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 event.preventDefault();
                 var type = $(this).data('type')
                 var mark = $(this).data('mark')
-                if (type && (type == '4'||type == '5')) {
+                if (type && (type == '4' || type == '5')) {
                     window.location.href = '#godo/' + $(this).data('operation_id') + '/' + type
                 } else if (type && type == '3') {
                     var operation_id = $(this).data('operation_id');

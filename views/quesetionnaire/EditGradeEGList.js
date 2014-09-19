@@ -24,7 +24,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         return str;
     });
 
-    var qt_result = ['', 0, 0, 0, 0, 0, 0, 0, 0, 0]; 
+    var qt_result = ['', 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     var Quesetionnaire_egListView = Backbone.View.extend({
         // The View Constructor
@@ -33,13 +33,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.quesetionnaire_next_eg_template = Handlebars.compile($("#quesetionnaire_next_eg_list_view").html());
             this.quesetionnaire_eg_result_template = Handlebars.compile($("#quesetionnaire_eg_result_list_view").html());
 
-
+            this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.model_view = '0';
             this.model.on("sync", this.render, this);
             this.bind_event();
             this.num1 = 0; //已完成数目
             this.num2 = 0; //题目总数
             this.config_items = [] //题目总数
+        },
+        pre_render: function() {
+            var self = this;
+            $("#quesetionnaire_eg_list-content").html(self.loading_template({
+                info_msg: '数据加载中...请稍候'
+            }));
+            $("#quesetionnaire_eg_list-content").trigger('create');
+            return this;
         },
         // Renders all of the Task models on the UI
         render: function() {
