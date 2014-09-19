@@ -61,18 +61,28 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             })
         },
         leave_form: function(ti_id, type) {
-            var login_people = $("#login_people").val();
             var self = this;
+            $("body").pagecontainer("change", "#leaveofabsence_list", {
+                reverse: false,
+                changeHash: false,
+            });
+
+            $.mobile.loading("show");
+            self.leaveOfAbsenceView.pre_render();
+            var login_people = $("#login_people").val();
+
             self.leaveOfAbsence.id = ti_id;
-            self.leaveOfAbsence.fetch().done(function() {
-                self.leaveOfAbsenceView.people_id = login_people;
-                self.leaveOfAbsenceView.type = type;
-                self.leaveOfAbsenceView.model_view = '0';
-                self.leaveOfAbsenceView.render();
-                $("body").pagecontainer("change", "#leaveofabsence_list", {
-                    reverse: false,
-                    changeHash: false,
-                });
+            self.leaveOfAbsence.fetch().done(function(data) {
+                if (data.task_state && data.task_state == 'FINISHED') {
+                    window.location = "#leave_form_p/" + data.process_instance + "/L";
+                } else {
+                    self.leaveOfAbsenceView.people_id = login_people;
+                    self.leaveOfAbsenceView.type = type;
+                    self.leaveOfAbsenceView.model_view = '0';
+                    self.leaveOfAbsenceView.render();
+                }
+                $.mobile.loading("hide");
+
             })
         },
         list_view: function(pi_id, type) {
@@ -89,19 +99,32 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         },
         back_leave_form: function(ti_id, type) {
-            var login_people = $("#login_people").val();
-            var self = this;
-            self.backLeaveOfAbsenceView.model.id = ti_id;
-            self.backLeaveOfAbsenceView.model.fetch().done(function() {
-                self.backLeaveOfAbsenceView.people_id = login_people;
-                self.backLeaveOfAbsenceView.model_view = '0';
-                self.backLeaveOfAbsenceView.type = type;
-                self.backLeaveOfAbsenceView.render();
 
-                $("body").pagecontainer("change", "#backleaveofabsence_list", {
-                    reverse: false,
-                    changeHash: false,
-                });
+            var self = this;
+            $("body").pagecontainer("change", "#backleaveofabsence_list", {
+                reverse: false,
+                changeHash: false,
+            });
+
+            $.mobile.loading("show");
+
+            self.backLeaveOfAbsenceView.pre_render();
+
+            var login_people = $("#login_people").val();
+
+            self.backLeaveOfAbsenceView.model.id = ti_id;
+            self.backLeaveOfAbsenceView.model.fetch().done(function(data) {
+
+                if (data.task_state && data.task_state == 'FINISHED') {
+                    window.location = "#back_leave_form_p/" + data.process_instance + "/L";
+                } else {
+                    self.backLeaveOfAbsenceView.people_id = login_people;
+                    self.backLeaveOfAbsenceView.model_view = '0';
+                    self.backLeaveOfAbsenceView.type = type;
+
+                    self.backLeaveOfAbsenceView.render();
+                }
+                $.mobile.loading("hide");
             })
         },
         back_list_view: function(pi_id, type) {
