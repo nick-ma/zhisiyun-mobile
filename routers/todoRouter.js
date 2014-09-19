@@ -48,13 +48,18 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var self = this;
                 //从待办进入时，做标记，后面做返回时用到
                 localStorage.setItem('view_mode_state', '1');
-                self.todoListView.collection.fetch().done(function() {
-                    self.todoListView.render();
-                })
+
                 $("body").pagecontainer("change", "#todo_list", {
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.todoListView.pre_render();
+
+                self.todoListView.collection.fetch().done(function() {
+                    self.todoListView.render();
+                    $.mobile.loading("hide");
+                })
             },
             go_do1: function(op_id, type) {
                 var self = this;
@@ -77,16 +82,24 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                 });
                             },
                             function(wf_data, cb) {
-                                self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
-                                self.ai.fetch().done(function() {
-                                    cb(null, self.ai);
-                                });
+                                if (wf_data.attributes.ti) {
+                                    self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
+                                    self.ai.fetch().done(function() {
+                                        cb(null, self.ai);
+                                    });
+                                } else {
+                                    cb(null, null);
+                                }
                             },
                             function(ai, cb) {
-                                self.team_data.id = ai.attributes.people;
-                                self.team_data.fetch().done(function() {
-                                    cb(null, null); //不需要传递
-                                });
+                                if (ai) {
+                                    self.team_data.id = ai.attributes.people;
+                                    self.team_data.fetch().done(function() {
+                                        cb(null, null); //不需要传递
+                                    });
+                                } else {
+                                    cb(null, null);
+                                }
                             },
                         ], cb);
                     },
@@ -97,19 +110,23 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         });
                     },
                 }, function(err, ret) {
-                    self.wf01View.wf_data = self.wf_data;
-                    self.wf01View.ai = self.ai;
-                    self.wf01View.team_data = self.team_data;
-                    self.wf01View.ai_datas = self.ai_datas;
-                    if (self.view_mode_state) {
-                        self.wf01View.view_mode = '';
-                    }
-                    self.wf01View.render();
+                    if (self.wf_data.attributes.ti) {
+                        self.wf01View.wf_data = self.wf_data;
+                        self.wf01View.ai = self.ai;
+                        self.wf01View.team_data = self.team_data;
+                        self.wf01View.ai_datas = self.ai_datas;
+                        if (self.view_mode_state) {
+                            self.wf01View.view_mode = '';
+                        }
+                        self.wf01View.render();
 
-                    $("body").pagecontainer("change", "#ai_wf", {
-                        reverse: false,
-                        changeHash: false,
-                    });
+                        $("body").pagecontainer("change", "#ai_wf", {
+                            reverse: false,
+                            changeHash: false,
+                        });
+                    } else {
+                        alert('该任务已经办理完成！');
+                    }
                 })
             },
             go_do2: function(op_id, type) {
@@ -122,20 +139,24 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 self.wf_data.id = ti_id;
                 self.wf_data.fetch().done(function(data) {
-                    self.dc.id = data.ti.process_instance.collection_id;
-                    self.dc.fetch().done(function(data1) {
-                        self.wf02View.wf_data = self.wf_data;
-                        self.wf02View.dc = self.dc;
-                        if (self.view_mode_state) {
-                            self.wf02View.view_mode = '';
-                        }
-                        self.wf02View.render();
+                    if (self.wf_data.attributes.ti) {
+                        self.dc.id = data.ti.process_instance.collection_id;
+                        self.dc.fetch().done(function(data1) {
+                            self.wf02View.wf_data = self.wf_data;
+                            self.wf02View.dc = self.dc;
+                            if (self.view_mode_state) {
+                                self.wf02View.view_mode = '';
+                            }
+                            self.wf02View.render();
 
-                        $("body").pagecontainer("change", "#dc_wf", {
-                            reverse: false,
-                            changeHash: false,
+                            $("body").pagecontainer("change", "#dc_wf", {
+                                reverse: false,
+                                changeHash: false,
+                            });
                         });
-                    });
+                    } else {
+                        alert('该任务已经办理完成！');
+                    }
                 });
             },
             go_do3: function(op_id, type) {
@@ -145,32 +166,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var ti_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
-
-                // self.wf_data.id = ti_id;
-                // self.wf_data.fetch().done(function(data) {
-                //     self.ai.id = data.ti.process_instance.collection_id;
-                //     self.ai.fetch().done(function(data1) {
-                //         self.team_data.id = self.ai.attributes.people;
-                //         self.team_data.fetch().done(function(data2) {
-                //             self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
-                //             self.ai_datas.fetch().done(function(data2) {
-                //                 self.wf03View.wf_data = self.wf_data;
-                //                 self.wf03View.ai = self.ai;
-                //                 self.wf03View.team_data = self.team_data;
-                //                 self.wf03View.ai_datas = self.ai_datas;
-                //                 if (self.view_mode_state) {
-                //                     self.wf03View.view_mode = '';
-                //                 }
-                //                 self.wf03View.render();
-
-                //                 $("body").pagecontainer("change", "#ai_wf1", {
-                //                     reverse: false,
-                //                     changeHash: false,
-                //                 });
-                //             })
-                //         })
-                //     });
-                // });
 
                 async.parallel({
                     data1: function(cb) {
@@ -183,10 +178,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                 });
                             },
                             function(wf_data, cb) {
-                                self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
-                                self.ai.fetch().done(function() {
-                                    cb(null, self.ai);
-                                });
+                                if (wf_data.attributes.ti) {
+                                    self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
+                                    self.ai.fetch().done(function() {
+                                        cb(null, self.ai);
+                                    });
+                                } else {
+                                    cb(null, null);
+                                }
                             },
                         ], cb);
                     },
@@ -197,18 +196,25 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         });
                     },
                 }, function(err, ret) {
-                    self.wf03View.wf_data = self.wf_data;
-                    self.wf03View.ai = self.ai;
-                    self.wf03View.ai_datas = self.ai_datas;
-                    if (self.view_mode_state) {
-                        self.wf03View.view_mode = '';
-                    }
-                    self.wf03View.render();
+                    if (self.wf_data.attributes.ti) {
+                        self.wf03View.wf_data = self.wf_data;
+                        self.wf03View.ai = self.ai;
+                        self.wf03View.ai_datas = self.ai_datas;
+                        if (self.view_mode_state) {
+                            self.wf03View.view_mode = '';
+                        }
+                        self.wf03View.render();
 
-                    $("body").pagecontainer("change", "#ai_wf1", {
-                        reverse: false,
-                        changeHash: false,
-                    });
+                        $("body").pagecontainer("change", "#ai_wf1", {
+                            reverse: false,
+                            changeHash: false,
+                        });
+                    } else {
+                        alert('该任务已经办理完成！');
+                        // self.todoListView.collection.fetch().done(function() {
+                        //     self.todoListView.render();
+                        // })
+                    }
                 })
             },
             go_do4: function(op_id, type) {

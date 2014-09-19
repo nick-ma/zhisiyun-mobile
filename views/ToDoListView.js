@@ -15,8 +15,17 @@ define(["jquery", "underscore", "backbone", "handlebars", ], function($, _, Back
         // The View Constructor
         initialize: function() {
             this.template = Handlebars.compile($("#todo_view").html());
+            this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.collection.on("sync", this.render, this);
             this.bind_event();
+        },
+        pre_render: function() {
+            var self = this;
+            $("#personal_wf_work_of_travel-content").html(self.loading_template({
+                info_msg: '数据加载中...请稍候'
+            }));
+            $("#personal_wf_work_of_travel-content").trigger('create');
+            return this;
         },
         // Renders all of the Task models on the UI
         render: function() {
@@ -35,8 +44,10 @@ define(["jquery", "underscore", "backbone", "handlebars", ], function($, _, Back
             var self = this;
             $("#btn-todo-back").on('click', function(event) {
                 event.preventDefault();
+                $.mobile.loading("show");
                 self.collection.fetch().done(function() {
                     self.render();
+                    $.mobile.loading("hide");
                 })
             })
         }
