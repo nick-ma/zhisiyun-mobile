@@ -346,10 +346,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				this.template = Handlebars.compile($("#hbtmp_wf_beyond_of_work_list_view").html());
 				this.details_template = Handlebars.compile($("#wf_three_details_view").html());
 				this.trans_template = Handlebars.compile($("#trans_confirm_view").html());
+				this.loading_template = Handlebars.compile($("#loading_template_view").html());
 
 				// The render method is called when CollTask Models are added to the Collection
 				this.bind_event();
 			},
+			pre_render: function() {
+				var self = this;
+				$("#personal_wf_beyond_of_work-content").html(self.loading_template({
+					info_msg: '数据加载中...请稍候'
+				}));
+				$("#personal_wf_beyond_of_work-content").trigger('create');
+				return this;
+			},
+
 
 			// Renders all of the CollTask models on the UI
 			render: function() {

@@ -109,6 +109,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             var ti_id = op_id.split("-")[0];
             var pd_id = op_id.split("-")[1];
             var pd_code = op_id.split("-")[2];
+            $("body").pagecontainer("change", "#wf_beyond_of_work", {
+                reverse: false,
+                changeHash: false,
+            });
+            $.mobile.loading("show");
+            self.singleBeyondOfWorkView.pre_render();
+
             async.parallel({
                 data1: function(cb) {
                     async.waterfall([
@@ -214,10 +221,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                         $("#exchange").show();
                     }
-                    $("body").pagecontainer("change", "#wf_beyond_of_work", {
-                        reverse: false,
-                        changeHash: false,
-                    });
+                    $.mobile.loading("hide");
+
 
                 }
             })
@@ -270,6 +275,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             var ti_id = op_id.split("-")[0];
             var pd_id = op_id.split("-")[1];
             var pd_code = op_id.split("-")[2];
+            $("body").pagecontainer("change", "#wf_work_of_travel", {
+                reverse: false,
+                changeHash: false,
+            });
+            $.mobile.loading("show");
+            self.singleWorkOfTravelView.pre_render();
+
+
             async.parallel({
                 data1: function(cb) {
                     async.waterfall([
@@ -376,10 +389,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         $("#create_destination_data").find("h2").html("查看出差目的地");
                         $("#create_destination_data").parent().remove();
                     }
-                    $("body").pagecontainer("change", "#wf_work_of_travel", {
-                        reverse: false,
-                        changeHash: false,
-                    });
+                    $.mobile.loading("hide");
+
                 }
 
             })
@@ -428,6 +439,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             var ti_id = op_id.split("-")[0];
             var pd_id = op_id.split("-")[1];
             var pd_code = op_id.split("-")[2];
+            $("body").pagecontainer("change", "#wf_work_of_city", {
+                reverse: false,
+                changeHash: false,
+            });
+            $.mobile.loading("show");
+            self.singleWorkOfCityView.pre_render();
             async.parallel({
                 data1: function(cb) {
                     async.waterfall([
@@ -538,10 +555,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         $("#personal_wf_work_of_city-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
 
                     }
-                    $("body").pagecontainer("change", "#wf_work_of_city", {
-                        reverse: false,
-                        changeHash: false,
-                    });
+                    $.mobile.loading("hide");
+
 
                 }
 
