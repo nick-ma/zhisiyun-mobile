@@ -110,6 +110,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					} else {
 						window.location.href = "/m";
 					}
+				}).on('click', 'img', function(event) {
+					event.preventDefault();
+					// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+					var img_view = '<img src="' + this.src + '">';
+					// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+					$("#fullscreen-overlay").html(img_view).fadeIn('fast');
 				})
 			},
 			get_datas: function() {

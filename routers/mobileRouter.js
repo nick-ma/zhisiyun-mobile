@@ -1160,7 +1160,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('genContactRoleOptions', function(role) {
         var ret = [];
-        var roles = ['无', '合作伙伴', '供应商', '客户','决策者', '影响者', '参与者', '支持者', '中立者', '反对者'];
+        var roles = ['无', '合作伙伴', '供应商', '客户', '决策者', '影响者', '参与者', '支持者', '中立者', '反对者'];
         _.each(roles, function(x) {
           ret.push('<option value="' + x + '" ' + ((x == role) ? 'selected' : '') + '>');
           ret.push(x);
@@ -1472,8 +1472,30 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return '<span class="label label-info">' + obj[String(type)] + '</span>'
 
       });
+      //判断是否可以上传附件
+      Handlebars.registerHelper('about_attach', function(about_attach) {
 
+        if (about_attach == 'U') {
+          return true;
+        } else {
+          return false;
+        }
 
+      });
+      //判断是否可以上传附件
+      Handlebars.registerHelper('attach', function(attachments) {
+
+        if (attachments) {
+          if (attachments._id) {
+            return attachments._id
+          } else {
+            return attachments
+          }
+        } else {
+          return null
+        }
+
+      });
 
     })();
 
