@@ -233,7 +233,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				// The render method is called when CollTask Models are added to the Collection
 				this.bind_event();
 			},
-
 			// Renders all of the CollTask models on the UI
 			render: function() {
 				var self = this;

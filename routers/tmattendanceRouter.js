@@ -225,6 +225,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         },
         go_do5_view: function(pi_id) {
             var self = this;
+            $("body").pagecontainer("change", "#wf_beyond_of_work2", {
+                reverse: false,
+                changeHash: false,
+            });
+            $.mobile.loading("show");
+            self.singleBeyondOfWork2View.pre_render();
+
             async.parallel({
                 data1: function(cb) {
                     //此处会将任务状态变更为处理中，需小心调用。
@@ -252,11 +259,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 // $("#personal_wf_beyond_of_work-content2").find("input").attr("disabled", true);
                 // $("#personal_wf_beyond_of_work-content2").find("a").attr("disabled", true);
                 $("#personal_wf_beyond_of_work-content2").find("select").attr("disabled", true);
+                $.mobile.loading("hide");
 
-                $("body").pagecontainer("change", "#wf_beyond_of_work2", {
-                    reverse: false,
-                    changeHash: false,
-                });
+
             })
 
         },
@@ -382,6 +387,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         },
         go_do6_view: function(pi_id) {
             var self = this;
+            $("body").pagecontainer("change", "#wf_work_of_travel2", {
+                reverse: false,
+                changeHash: false,
+            });
+            $.mobile.loading("show");
+            self.singleWorkOfTravel2View.pre_render();
             async.parallel({
                 data1: function(cb) {
 
@@ -406,15 +417,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 // $("#personal_wf_work_of_travel-content2").find("textarea").attr("disabled", true);
 
                 $("#wf_work_of_travel_title2").html("出差流程查看")
-                // $("#personal_wf_work_of_travel-content2").find("button").attr("disabled", true);
-                // $("#personal_wf_work_of_travel-content2").find("input").attr("disabled", true);
-                // $("#personal_wf_work_of_travel-content2").find("a").attr("disabled", true);
                 $("#personal_wf_work_of_travel-content2").find("select").attr("disabled", true);
 
-                $("body").pagecontainer("change", "#wf_work_of_travel2", {
-                    reverse: false,
-                    changeHash: false,
-                });
+                $.mobile.loading("hide");
             })
 
         },
@@ -545,6 +550,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         },
         go_do7_view: function(pi_id) {
             var self = this;
+            $("body").pagecontainer("change", "#wf_work_of_city2", {
+                reverse: false,
+                changeHash: false,
+            });
+            $.mobile.loading("show");
+            self.singleWorkOfCity2View.pre_render();
+
             async.parallel({
                 data1: function(cb) {
 
@@ -570,11 +582,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 $("#wf_work_of_travel_title2").html("公干流程查看")
                 $("#personal_wf_work_of_city-content2").find("select").attr("disabled", true);
+                $.mobile.loading("hide");
 
-                $("body").pagecontainer("change", "#wf_work_of_city2", {
-                    reverse: false,
-                    changeHash: false,
-                });
             })
 
         },
