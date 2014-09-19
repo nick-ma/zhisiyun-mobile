@@ -23,7 +23,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 this.view_mode = 'basic'; //初始化为基本信息界面
                 this.bind_event();
             },
-
+            pre_render:function  () { //预先render
+                $("#colltask_detail-content").html('<div>正在加载数据...</div>');
+                $("#colltask_detail-content").trigger('create');
+            },
             // Renders all of the CollTask models on the UI
             render: function() {
 

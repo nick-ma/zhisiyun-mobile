@@ -64,6 +64,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     changeHash: false,
                 });
                 $.mobile.loading("show");
+                self.collTaskDetailView.pre_render();
                 if (self.c_colltask.get(ct_id)) {
                     self.collTaskDetailView.model = self.c_colltask.get(ct_id);
                     self.collTaskDetailView.model.fetch().done(function() {
