@@ -287,21 +287,35 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
 
     var do_trans = function(trans_data) {
+        // var post_data = {
+        //     process_instance_id: $("#backleaveofabsence_list-content #process_instance_id").val() || trans_data.process_instance_id,
+        //     task_instance_id: $("#backleaveofabsence_list-content #task_instance_id").val() || trans_data.task_instance_id,
+        //     process_define_id: $("#backleaveofabsence_list-content #process_define_id").val() || trans_data.process_define_id,
+        //     next_tdid: $("#next_tdid").val() || trans_data.next_tdid,
+        //     next_user: $("#next_user_id").val() || trans_data.next_user, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
+        //     trans_name: $("#trans_name").val() || trans_data.trans_name, // 转移过来的名称
+        //     comment_msg: $("#comment_msg").val() || trans_data.comment_msg, // 任务批注 
+        //     // 任务批注 
+        // };
         var post_data = {
-            process_instance_id: $("#process_instance_id").val(),
-            task_instance_id: $("#task_instance_id").val(),
-            process_define_id: $("#process_define_id").val(),
+            process_instance_id: trans_data.process_instance_id || $("#backleaveofabsence_list-content #process_instance_id").val(),
+            task_instance_id: trans_data.task_instance_id || $("#backleaveofabsence_list-content #task_instance_id").val(),
+            process_define_id: trans_data.process_define_id || $("#backleaveofabsence_list-content #process_define_id").val(),
             next_tdid: $("#next_tdid").val() || trans_data.next_tdid,
             next_user: $("#next_user_id").val() || trans_data.next_user, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
             trans_name: $("#trans_name").val() || trans_data.trans_name, // 转移过来的名称
             comment_msg: $("#comment_msg").val() || trans_data.comment_msg, // 任务批注 
             // 任务批注 
         };
-        var post_url = $("#task_process_url").val();
+        var post_url = $("#backleaveofabsence_list-content #task_process_url").val();
         post_url = post_url.replace('<TASK_ID>', $("#task_instance_id").val());
+
         $.post(post_url, post_data, function(data) {
             if (data.code == 'OK') {
-
+                $("#next_tdid").val(' ');
+                $("#next_user_id").val(' ');
+                $("#trans_name").val(' ');
+                $("#comment_msg").val(' ');
                 window.location = '#todo';
             };
         })
@@ -316,17 +330,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             // this.leave_details_template = Handlebars.compile($("#leave_details_view").html());
             this.leaves_list_template = Handlebars.compile($("#leaves_list_view").html());
             this.template = Handlebars.compile($("#trans_confirm_view").html()); //跳转页面
-            this.model_view = '0';
+            // this.model_view = '0';
             this.bind_event();
         },
-        // Renders all of the Task models on the UI
+
         render: function() {
 
             var self = this;
             var rendered_data = '';
             var leave = self.model.get('leave');
             var ti = self.model.get('ti');
-
             if (self.model_view == '0') {
                 $("#backleaveofabsence_name").html('消假流程')
                 var sorts = _.sortBy(leave.leaveOfabsence.leaves, function(le) {
@@ -358,16 +371,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 obj['leave'].hours = leave.leaveOfabsence.hours;
                 rendered_data = self.leaves_list_template(obj);
             } else if (self.model_view == '3') {
-                rendered_data = self.template(self.trans_data);
-                if (self.trans_data.next_td.node_type == 'END') {
-                    do_trans(self.trans_data);
+                rendered_data = self.template(self.trans_data_02);
+                if (self.trans_data_02.next_td.node_type == 'END') {
+                    do_trans(self.trans_data_02);
                 }
             };
             $("#backleaveofabsence_list-content").html(rendered_data);
             $("#backleaveofabsence_list-content").trigger('create');
 
-            console.log(self.people_id + '======' + String(leave.people));
-            console.log(self.people_id == String(leave.people))
             if (self.people_id == String(leave.people)) {
                 $("#btn_ims_show").hide();
                 $('absence_type,#leave_reason,#leave_allday,#create_start_date,#create_end_date').removeAttr('disabled');
@@ -396,7 +407,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     return false;
                 };
 
-                self.model.id = $("#task_instance_id").val();
+                self.model.id = $("#backleaveofabsence_list-content #leave_id").val();
                 self.model.save().done(function(data) {
                     if (data) {
                         alert('数据保存成功！！')
@@ -416,6 +427,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 st = times(start_date);
                 ed = times(end_date);
                 assemble(self, st, ed);
+
             }).on('click', '#leave_details_show', function(event) {
                 event.preventDefault();
                 self.model_view = '1'
@@ -437,7 +449,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var leave = self.model.get('leave');
                 leave.leave_reason = $(this).val();
             }).on('click', '.do_trans', function(event) {
-
                 event.preventDefault();
                 var leave = self.model.get('leave');
                 var $this = $(this);
@@ -460,11 +471,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 $(this).attr('disabled', true)
                 $.mobile.loading("show");
 
-                var process_define_id = $("#process_define_id").val();
-                var task_define_id = $("#task_define_id").val();
-                var process_instance_id = $("#process_instance_id").val();
-                var task_process_url = $("#task_process_url").val();
-                var task_instance_id = $("#task_instance_id").val();
+                var process_define_id = $("#backleaveofabsence_list-content #process_define_id").val();
+                var task_define_id = $("#backleaveofabsence_list-content #task_define_id").val();
+                var process_instance_id = $("#backleaveofabsence_list-content #process_instance_id").val();
+                var task_process_url = $("#backleaveofabsence_list-content #task_process_url").val();
+                var task_instance_id = $("#backleaveofabsence_list-content #task_instance_id").val();
 
                 var direction = $this.data('direction');
                 var target_id = $this.data('target_id');
@@ -473,7 +484,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var roles_type = $this.data('roles_type');
                 var position_form_field = $this.data('position_form_field');
 
-                self.model.id = $("#task_instance_id").val();
+                self.model.id = $("#backleaveofabsence_list-content #leave_id").val();
                 self.model.save().done(function(data) {
                     $.post('/admin/wf/trans_confirm_form_4m', {
                         process_define_id: process_define_id,
@@ -482,13 +493,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         task_process_url: task_process_url,
                         next_tdname: task_name,
                         trans_name: name,
-                        ti_comment: $("#ti_comment").val(),
+                        ti_comment: $("#backleaveofabsence_list-content #ti_comment").val(),
                         task_instance_id: task_instance_id,
                         next_tdid: target_id,
                         direction: direction
                     }, function(data) {
                         self.model_view = '3';
-                        self.trans_data = data;
+                        self.trans_data_02 = data;
                         $.mobile.loading("hide");
                         self.render();
                     });
@@ -502,7 +513,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 $.mobile.loading("show");
                 if ($("#next_user_name").val()) {
                     $("#btn_ok").attr("disabled", "disabled");
-                    do_trans(self.trans_data);
+                    do_trans(self.trans_data_02);
                     $.mobile.loading("hide");
                 } else {
                     alert('请选择下一任务的处理人');

@@ -231,6 +231,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         };
 
         var date_items = [];
+
         if (st.date && st.zone && ed.date && ed.zone) {
             var days_between = moment(ed.date).diff(moment(st.date), 'days');
 
@@ -288,7 +289,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 };
 
             }
-
             date_items = _.compact(date_items);
             var total_value = 0;
             _.each(date_items, function(dt) {
@@ -456,7 +456,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     };
 
                 };
-                self.model.id = $("#task_instance_id").val();
+                self.model.id = $("#leaveofabsence_list-content #leave_id").val();
 
                 self.model.save().done(function(data) {
                     if (data) {
@@ -545,11 +545,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 $(this).attr('disabled', true)
                 $.mobile.loading("show");
 
-                var process_define_id = $("#process_define_id").val();
-                var task_define_id = $("#task_define_id").val();
-                var process_instance_id = $("#process_instance_id").val();
-                var task_process_url = $("#task_process_url").val();
-                var task_instance_id = $("#task_instance_id").val();
+
+                var process_define_id = $("#leaveofabsence_list-content #process_define_id").val();
+                var task_define_id = $("#leaveofabsence_list-content #task_define_id").val();
+                var process_instance_id = $("#leaveofabsence_list-content #process_instance_id").val();
+                var task_process_url = $("#leaveofabsence_list-content #task_process_url").val();
+                var task_instance_id = $("#leaveofabsence_list-content #task_instance_id").val();
+
+
 
                 var direction = $this.data('direction');
                 var target_id = $this.data('target_id');
@@ -559,7 +562,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var position_form_field = $this.data('position_form_field');
 
 
-                self.model.id = $("#task_instance_id").val();
+                self.model.id = $("#leaveofabsence_list-content #leave_id").val();
                 self.model.save().done(function(data) {
                     $.post('/admin/wf/trans_confirm_form_4m', {
                         process_define_id: process_define_id,
@@ -568,7 +571,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         task_process_url: task_process_url,
                         next_tdname: task_name,
                         trans_name: name,
-                        ti_comment: $("#ti_comment").val(),
+                        ti_comment: $("#leaveofabsence_list-content #ti_comment").val(),
                         task_instance_id: task_instance_id,
                         next_tdid: target_id,
                         direction: direction

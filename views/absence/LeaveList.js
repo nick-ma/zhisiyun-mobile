@@ -132,35 +132,36 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 });
             } else if (self.mode_view == '1') {
                 var current_date = moment(new Date()).format('YYYY-MM-DD')
-                var filter_001s = _.filter(items[0].balance.data, function(dt) {
-                    var end_date = moment(dt.end_date).format('YYYY-MM-DD')
-                    return dt.absence_code == '001' && (end_date == current_date || end_date > current_date)
-                })
+                if (items[0].balance) {
+                    var filter_001s = _.filter(items[0].balance.data, function(dt) {
+                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
+                        return dt.absence_code == '001' && (end_date == current_date || end_date > current_date)
+                    })
 
-                var filter_002s = _.filter(items[0].balance.data, function(dt) {
-                    var end_date = moment(dt.end_date).format('YYYY-MM-DD')
-                    return dt.absence_code == '005' && dt.balance > 0
-                })
+                    var filter_002s = _.filter(items[0].balance.data, function(dt) {
+                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
+                        return dt.absence_code == '005'
+                    })
 
-                var filter_003s = _.filter(items[0].balance.details, function(dt) {
-                    var end_date = moment(dt.end_date).format('YYYY-MM-DD')
-                    return dt.absence_code == '001'
-                })
+                    var filter_003s = _.filter(items[0].balance.details, function(dt) {
+                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
+                        return dt.absence_code == '001'
+                    })
 
-                var maps = _.compact(_.map(items[0].balance.details, function(ft) {
-                    if (ft.absence_code == '005') {
-                        var o = {
-                            absence_code: '005',
-                            total_time: -ft.total_time,
-                            start_date: ft.start_date,
-                            valid_end_date: ft.valid_end_date
+                    var maps = _.compact(_.map(items[0].balance.details, function(ft) {
+                        if (ft.absence_code == '005') {
+                            var o = {
+                                absence_code: '005',
+                                total_time: -ft.total_time,
+                                start_date: ft.start_date,
+                                valid_end_date: ft.valid_end_date
+                            }
+                            return o
+                        } else {
+                            return null;
                         }
-                        return o
-                    } else {
-                        return null;
-                    }
-                }))
-
+                    }))
+                };
                 _.each(filter_002s, function(ft) {
                     maps.push({
                         absence_code: '005',

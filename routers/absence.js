@@ -67,6 +67,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.leaveOfAbsence.fetch().done(function() {
                 self.leaveOfAbsenceView.people_id = login_people;
                 self.leaveOfAbsenceView.type = type;
+                self.leaveOfAbsenceView.model_view = '0';
                 self.leaveOfAbsenceView.render();
                 $("body").pagecontainer("change", "#leaveofabsence_list", {
                     reverse: false,
@@ -93,8 +94,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.backLeaveOfAbsenceView.model.id = ti_id;
             self.backLeaveOfAbsenceView.model.fetch().done(function() {
                 self.backLeaveOfAbsenceView.people_id = login_people;
+                self.backLeaveOfAbsenceView.model_view = '0';
                 self.backLeaveOfAbsenceView.type = type;
                 self.backLeaveOfAbsenceView.render();
+
                 $("body").pagecontainer("change", "#backleaveofabsence_list", {
                     reverse: false,
                     changeHash: false,
@@ -104,7 +107,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         back_list_view: function(pi_id, type) {
             var self = this;
             $.get('/admin/tm/wf_back_after_leave_of_absence/view_json/' + pi_id, function(data) {
-                console.log(data)
                 self.backleaveShowList.obj = data
                 self.backleaveShowList.render();
                 $("body").pagecontainer("change", "#back_leave_view_list", {
