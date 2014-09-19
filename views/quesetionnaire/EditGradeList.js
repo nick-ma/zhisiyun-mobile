@@ -130,10 +130,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         initialize: function() {
             this.quesetionnaire_360_template = Handlebars.compile($("#quesetionnaire_360_list_view").html());
             this.quesetionnaire_360_qt_template = Handlebars.compile($("#quesetionnaire_360_grade_list_view").html());
+            this.loading_template = Handlebars.compile($("#loading_template_view").html());
+
             this.collection.on("sync", this.render, this);
             this.dimension_enum = ['', '自评', '下级', '同级', '上级', '下下级', '他评'];
             this.model_view = '0';
             this.bind_event();
+        },
+        pre_render: function() {
+            var self = this;
+            $("#quesetionnaire_list-content").html(self.loading_template({
+                info_msg: '数据加载中...请稍候'
+            }));
+            $("#quesetionnaire_list-content").trigger('create');
+            return this;
         },
         // Renders all of the Task models on the UI
         render: function() {

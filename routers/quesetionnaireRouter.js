@@ -57,51 +57,89 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var self = this;
                 if (type == '2') {
 
+                    $("body").pagecontainer("change", "#quesetionnaire_list", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+
+                    $.mobile.loading("show");
+                    self.editGradeList.pre_render();
+
                     self.questionnair360s.qi_id = qi_id;
                     self.questionnair360s.fetch().done(function() {
                         self.peopleCompetencyScores.fetch().done(function() {
                             self.editGradeList.peopleCompetencyScores = self.peopleCompetencyScores;
                             self.editGradeList.peopleCompetencyScore = self.peopleCompetencyScore;
                             self.editGradeList.render();
-                            $("body").pagecontainer("change", "#quesetionnaire_list", {
-                                reverse: false,
-                                changeHash: false,
-                            });
+                            $.mobile.loading("hide");
                         })
                     })
 
                 } else if (type == '3') {
+
+                    $("body").pagecontainer("change", "#quesetionnaire_common_list", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                    $.mobile.loading("show");
+                    self.editGradeCommonList.pre_render();
+
+
+
                     self.questionnairInstance.id = qi_id.split('-')[0];
                     self.questionnairInstance.fetch().done(function() {
                         self.editGradeCommonList.render();
-                        $("body").pagecontainer("change", "#quesetionnaire_common_list", {
-                            reverse: false,
-                            changeHash: false,
-                        });
+                        $.mobile.loading("hide");
+                        // $("body").pagecontainer("change", "#quesetionnaire_common_list", {
+                        //     reverse: false,
+                        //     changeHash: false,
+                        // });
                     })
                 } else if (type == '4') {
+
+                    $("body").pagecontainer("change", "#quesetionnaire_nbti_list", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                    $.mobile.loading("show");
+                    self.editGradeMBTIList.pre_render();
+
+
+
                     self.MBTIQuestionInstance.id = qi_id;
                     self.MBTIQuestionInstance.fetch().done(function() {
                         self.MBTIQuestionInstances.fetch().done(function() {
                             self.editGradeMBTIList.collection = self.MBTIQuestionInstances;
                             self.editGradeMBTIList.render();
-                            $("body").pagecontainer("change", "#quesetionnaire_nbti_list", {
-                                reverse: false,
-                                changeHash: false,
-                            });
+
+                            $.mobile.loading("hide");
+                            // $("body").pagecontainer("change", "#quesetionnaire_nbti_list", {
+                            //     reverse: false,
+                            //     changeHash: false,
+                            // });
                         })
 
                     })
                 } else if (type == '5') {
+
+                    $("body").pagecontainer("change", "#quesetionnaire_eg_list", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                    $.mobile.loading("show");
+                    self.editGradeEGList.pre_render();
+
+
                     self.EGQuestionInstance.id = qi_id;
                     self.EGQuestionInstance.fetch().done(function() {
                         self.EGQuestionInstances.fetch().done(function() {
                             self.editGradeEGList.collection = self.EGQuestionInstances;
                             self.editGradeEGList.render();
-                            $("body").pagecontainer("change", "#quesetionnaire_eg_list", {
-                                reverse: false,
-                                changeHash: false,
-                            });
+                            $.mobile.loading("hide");
+                            // $("body").pagecontainer("change", "#quesetionnaire_eg_list", {
+                            //     reverse: false,
+                            //     changeHash: false,
+                            // });
                         })
 
                     })
@@ -110,15 +148,22 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             qt_manage: function() {
                 var self = this;
+                $("body").pagecontainer("change", "#quesetionnaire_manage_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.editGradeManageList.pre_render();
+
                 self.questionnairManages.pp_id = $("#login_people").val();
                 self.questionnairManages.fetch().done(function() {
                     // self.editGradeManageList.my_question = self.my_question;
                     self.editGradeManageList.render();
-
-                    $("body").pagecontainer("change", "#quesetionnaire_manage_list", {
-                        reverse: false,
-                        changeHash: false,
-                    });
+                    $.mobile.loading("hide");
+                    // $("body").pagecontainer("change", "#quesetionnaire_manage_list", {
+                    //     reverse: false,
+                    //     changeHash: false,
+                    // });
                 })
 
             },

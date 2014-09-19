@@ -48,11 +48,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.quesetionnaire_grade_common_template = Handlebars.compile($("#quesetionnaire_grade_common_list_view").html());
             this.quesetionnaire_option_common_template = Handlebars.compile($("#quesetionnaire_option_common_list_view").html());
             this.quesetionnaire_test_common_template = Handlebars.compile($("#quesetionnaire_test_common_list_view").html());
-
+            this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.model.on("sync", this.render, this);
             this.bind_event();
         },
         // Renders all of the Task models on the UI
+        pre_render: function() {
+            var self = this;
+            $("#quesetionnaire_common_list-content").html(self.loading_template({
+                info_msg: '数据加载中...请稍候'
+            }));
+            $("#quesetionnaire_common_list-content").trigger('create');
+            return this;
+        },
         render: function() {
             var self = this;
             var rendered_data = '';
