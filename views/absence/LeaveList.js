@@ -256,9 +256,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             }).on('click', '#crate_leave', function(event) {
                 if (confirm('确定启动请假流程 ？')) {
                     $.mobile.loading("show");
-                    self.leaveOfAbsence.save().done(function(data) {
+                    // self.leaveOfAbsence.model.id = null;
+                    // self.leaveOfAbsence.save().done(function(data) {
+                    //     $.mobile.loading("hide");
+                    //     window.location.href = "#leave_form_t/" + data.ti._id + '/T';
+                    // })
+                    $.post('/admin/tm/wf_leave_of_absence/bb/' + null, {
+
+                    }, function(data) {
                         $.mobile.loading("hide");
                         window.location.href = "#leave_form_t/" + data.ti._id + '/T';
+
                     })
                 };
             }).on('click', '.open-left-panel', function(event) {
