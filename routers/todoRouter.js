@@ -3,13 +3,24 @@
 
 define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View", "../views/AIWF03View", "../views/TransConfirmView",
+        "../views/tm_attendance/AttendanceResultChangeView",
+        "../views/tm_attendance/TMAbsenceOfThreeView",
         "../collections/ToDoListCollection",
-        "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel"
+        "../collections/TmAttendanceCollection",
+
+        "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel",
+        "../models/TmAttendanceModel",
+        "../models/TMAbsenceOfThreeModel"
+
     ],
     function($, Backbone, Handlebars, LZString, async,
         ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView,
+        AttendanceResultChangeView,
+        TMAbsenceOfThreeView,
         ToDoListCollection,
-        WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel
+        TmAttendanceCollection,
+        WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel,
+        TmAttendanceModel, TMAbsenceOfThreeModel
     ) {
 
         var ToDoRouter = Backbone.Router.extend({
@@ -29,6 +40,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo1/:op_id/:type": "go_do1",
                 "godo2/:op_id/:type": "go_do2",
                 "godo3/:op_id/:type": "go_do3",
+                "godo4/:op_id/:type": "go_do4",
+                "godo8/:op_id/:type": "go_do8",
+                "godo9/:op_id/:type": "go_do9",
             },
             todo_list: function() { //我的待办
                 var self = this;
@@ -197,6 +211,158 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     });
                 })
             },
+            go_do4: function(op_id, type) {
+                var self = this;
+                // self.view_mode_state = localStorage.getItem('view_mode_state') || null;
+                // localStorage.removeItem('view_mode_state'); //用完删掉 
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+                async.parallel({
+                    data1: function(cb) {
+                        async.waterfall([
+
+                            function(cb) {
+                                $.get('/admin/tm/beyond_work/wf_task/' + ti_id, function(data) {
+                                    if (data) {
+                                        self.singleAttendanceResultChangeView.wf_data = data;
+                                        cb(null, data)
+                                    } else {
+                                        cb(null, null);
+                                    }
+                                })
+
+                            },
+                            function(wf_data, cb) {
+                                var attendance_id = wf_data.ti.process_instance.collection_id;
+                                $.get('/admin/tm/tm_wf/get_collection_data/' + attendance_id, function(data) {
+                                    if (data) {
+                                        self.singleAttendanceResultChangeView.attendance = data;
+                                        cb(null, data)
+                                    } else {
+                                        cb(null, null);
+                                    }
+                                })
+                            },
+                            function(data, cb) {
+                                var people = data.people;
+                                self.singleAttendanceResultChangeView.people = people;
+                                async.parallel({
+                                    model: function(cb) {
+                                        self.tmattendance.url = '/admin/tm/cardrecord/m_bb/' + people;
+                                        self.tmattendance.fetch().done(function() {
+                                            self.tmattendances.remove(self.tmattendance);
+                                            self.tmattendances.push(self.tmattendance);
+                                            self.singleAttendanceResultChangeView.model = self.tmattendance;
+                                            self.singleAttendanceResultChangeView.date = data ? data.change_date : '';
+                                            cb(null, 'OK');
+
+                                        })
+                                    },
+                                    get_work_time: function(cb) {
+                                        $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
+                                            var times = data.times;
+                                            self.singleAttendanceResultChangeView.time_type = data.type;
+                                            self.singleAttendanceResultChangeView.times = times;
+
+                                            var type = data.type;
+                                            var datas = data.datas;
+                                            self.singleAttendanceResultChangeView.times_configs = [];
+                                            if (type == '0') {
+                                                var group = _.groupBy(datas, function(data) {
+                                                    return data.work_time
+                                                })
+                                                _.each(group, function(ys, k) {
+                                                    var o = {};
+                                                    o.calendar_data = ys;
+                                                    var f_d = _.find(times, function(time) {
+                                                        return time._id == String(k)
+                                                    });
+                                                    o.time = f_d;
+                                                    self.singleAttendanceResultChangeView.times_configs.push(o)
+                                                })
+                                            } else if (type == '1') {
+                                                _.each(datas, function(dt) {
+                                                    var o = {};
+                                                    o.calendar_data = dt.calendar_data;
+                                                    var f_d = _.find(times, function(time) {
+                                                        return time._id == String(dt.work_time)
+                                                    });
+                                                    o.time = f_d;
+                                                    self.singleAttendanceResultChangeView.times_configs.push(o)
+                                                })
+                                            } else if (type == '2') {
+                                                var group = _.groupBy(datas, function(data) {
+                                                    return data.work_time
+                                                })
+                                                _.each(group, function(ys, k) {
+                                                    var o = {};
+                                                    o.calendar_data = ys;
+                                                    var f_d = _.find(times, function(time) {
+                                                        return time._id == String(k)
+                                                    });
+                                                    o.time = f_d;
+                                                    self.singleAttendanceResultChangeView.times_configs.push(o)
+                                                })
+                                            };
+                                            cb(null, 'OK');
+
+                                        })
+                                    },
+                                }, cb)
+                            }
+                        ], cb);
+                    }
+                }, function(err, ret) {
+                    var is_self = self.singleAttendanceResultChangeView.people == String($("#login_people").val());
+                    if (is_self) {
+                        self.singleAttendanceResultChangeView.view_mode = '';
+
+                    } else {
+                        self.singleAttendanceResultChangeView.view_mode = 'deal_with';
+
+                    }
+                    self.singleAttendanceResultChangeView.is_self = is_self;
+                    self.singleAttendanceResultChangeView.mode = type;
+
+                    self.singleAttendanceResultChangeView.render();
+                    if (type == '2') {
+                        $("#personal_wf_attend-content").find("button").attr("disabled", true);
+                        $("#personal_wf_attend-content").find("input").attr("disabled", true);
+                        $("#personal_wf_attend-content").find("textarea").attr("disabled", true);
+
+                    }
+                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                    $(".ui-flipswitch a").each(function() {
+                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                    });
+                    if (!is_self) {
+                        $("#change_no_card_on").attr("disabled", true);
+                        $("#change_reason").attr("disabled", true);
+
+                    }
+                    $("body").pagecontainer("change", "#wf_attendance", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                })
+            },
+            go_do8: function(op_id, type) {
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+                window.location.href = '/m#leave_form_t/' + ti_id + '/T';
+            },
+            go_do9: function(op_id, type) {
+
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+                window.location.href = '/m#back_leave_form_t/' + ti_id + '/T';
+            },
+
+
+
             init_views: function() {
                 var self = this;
                 this.todoListView = new ToDoListView({
@@ -219,6 +385,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 this.transConfirmView = new TransConfirmView({
                     el: "#trans_confirm",
                 })
+                this.singleAttendanceResultChangeView = new AttendanceResultChangeView({
+                    el: "#personal_wf_attend-content",
+                });
+
             },
             init_models: function() {
                 var self = this;
@@ -227,10 +397,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.team_data = new TeamModel();
                 self.ai_datas = new AIDatasModel();
                 self.dc = new DataCollectionModel();
+                this.tmattendance = new TmAttendanceModel();
+
             },
             init_collections: function() {
                 var self = this;
                 self.todoList = new ToDoListCollection();
+                this.tmattendances = new TmAttendanceCollection(); //所有人
+
             },
             init_data: function() {
                 // var self = this;
