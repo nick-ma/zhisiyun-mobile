@@ -1109,7 +1109,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('genContactRoleOptions', function(role) {
         var ret = [];
-        var roles = ['无', '决策者', '影响者', '参与者', '支持者', '中立者', '反对者'];
+        var roles = ['无', '合作伙伴', '供应商', '客户','决策者', '影响者', '参与者', '支持者', '中立者', '反对者'];
         _.each(roles, function(x) {
           ret.push('<option value="' + x + '" ' + ((x == role) ? 'selected' : '') + '>');
           ret.push(x);

@@ -154,7 +154,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $("#quesetionnaire_manage_list-content").trigger('create');
                 $("#show_tip").html('没有已提交问卷！')
             } else if (self.view_mode == '3') {
-                var nums = ['3', '4', '5']
+                console.log("==========")
+                var nums = ['3', '4', '5','6']
                 var mbtis = _.filter(data_items, function(x) {
                     return !!~nums.indexOf(x.mark);
                 });
@@ -393,7 +394,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 event.preventDefault();
                 var type = $(this).data('type')
                 var mark = $(this).data('mark')
-                if (type && type == '4') {
+                if (type && (type == '4'||type == '5')) {
                     window.location.href = '#godo/' + $(this).data('operation_id') + '/' + type
                 } else if (type && type == '3') {
                     var operation_id = $(this).data('operation_id');
