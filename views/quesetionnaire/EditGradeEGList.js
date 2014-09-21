@@ -24,7 +24,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         return str;
     });
 
-    var qt_result = ['', 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var qt_result = ['', 0, 0, 0, 0, 0, 0, 0, 0, 0]; 
 
     var Quesetionnaire_egListView = Backbone.View.extend({
         // The View Constructor
