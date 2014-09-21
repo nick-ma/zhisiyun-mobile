@@ -190,6 +190,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.singleBeyondOfWorkView.is_full_day = true;
                 self.singleBeyondOfWorkView.page_mode = 'wf_three';
                 self.singleBeyondOfWorkView.mode = type;
+                self.singleBeyondOfWorkView.is_self = is_self;
 
                 self.singleBeyondOfWorkView.render();
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。

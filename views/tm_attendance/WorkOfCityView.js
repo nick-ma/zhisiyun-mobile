@@ -39,10 +39,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 			var s_down = s_hour >= rest_end && s_hour <= work_off_time;
 			var e_down = e_hour >= rest_end && e_hour <= work_off_time; //同在下午
+
+			var s_center = s_hour >= work_on_time && s_hour <= work_off_time; //同在上班时间段(包括上边两个判断了)
+			var e_center = e_hour >= work_on_time && e_hour <= work_off_time;
 			if (s_up && e_up || s_down && e_down) {
 				time_long = (e_hour - s_hour) / 60000 / 60
-			} else {
+			} else if (s_center && e_center) {
 				time_long = ((rest_start - s_hour) + (e_hour - rest_end)) / 60000 / 60
+			} else {
+				time_long = (e_hour - s_hour) / 60000 / 60
+
 			}
 
 
@@ -400,10 +406,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					ed = time_parse(end_date);
 					if (self.is_self) {
 						assemble(self, st, ed);
+						self.wf_data.leave.reason = $("#reason").val();
+
 						self.render();
 
 					}
-					self.wf_data.leave.reason = $("#reason").val();
 
 					//把 a 换成 span， 避免点那个滑块的时候页面跳走。
 					$(".ui-flipswitch a").each(function() {

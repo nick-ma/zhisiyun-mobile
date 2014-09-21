@@ -147,9 +147,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					}
 
 				} else {
-					time = _.find(times, function(temp) {
-						return temp._id == String(f_d.work_time)
-					})
+					if (f_d) {
+						time = _.find(times, function(temp) {
+							return temp._id == String(f_d.work_time)
+						})
+					}
+
 					return
 				}
 			})
@@ -294,8 +297,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				leave_id: leave_id,
 				category: category,
 			}
+
 			var post_data = _.extend(obj, wf_data.leave);
-			post_data.reason = $("#personal_wf_beyond_of_work-content #reason").val()
+			post_data.reason = $("#personal_wf_beyond_of_work-content #reason").val();
+			if (!self.is_self) {
+				var bool = ($("#is_exchange").val() == "true" ? true : false);
+				post_data.is_exchange = bool
+				wf_data.leave.is_exchange = bool;
+
+			}
 			$.post(url, post_data, function(data) {
 				cb(data)
 			})
@@ -539,14 +549,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					// 	$("#create_end_date").val(end_date)
 
 					// }
-					self.wf_data.leave.reason = $("#reason").val();
+					if (self.is_self) {
+						self.wf_data.leave.reason = $("#personal_wf_beyond_of_work-content #reason").val();;
+						self.wf_data.leave.category = $("#category").val();;
 
-					self.render();
+						self.render();
+
+					}
 					//把 a 换成 span， 避免点那个滑块的时候页面跳走。
 					$(".ui-flipswitch a").each(function() {
 						$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
 					});
-					
+
 
 				}).on('click', '#create_data', function(event) {
 					self.page_mode = 'detail';
@@ -602,18 +616,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					if (self.page_mode == 'detail') {
 						$("#wf_beyond_of_work_title").html("加班申请流程");
 						self.page_mode = 'wf_three';
-						if (self.mode == '2') {
-							self.render();
-							$("#personal_wf_beyond_of_work-content").find("textarea").attr("disabled", true);
-							$("#wf_beyond_of_work_title").html("加班流程查看")
-							$("#personal_wf_beyond_of_work-content").find("button").attr("disabled", true);
-							$("#personal_wf_beyond_of_work-content").find("input").attr("disabled", true);
-							$("#personal_wf_beyond_of_work-content").find("a").attr("disabled", true);
-							$("#personal_wf_beyond_of_work-content").find("select").attr("disabled", true);
-							$("#personal_wf_beyond_of_work-content").find("select[id='is_full_day']").parent().parent().parent().parent().remove() // self.render();
-							$("#create_destination_data").find("h2").html("查看出差目的地");
-							$("#create_destination_data").parent().remove();
+						// self.wf_data.leave.reason = $("#personal_wf_beyond_of_work-content #reason").val();
 
+						if (!self.is_self) {
+							self.render();
+							$("#exchange").show();
 						} else {
 							self.render();
 						}
