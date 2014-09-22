@@ -259,7 +259,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				//流程数据
 				var wf_data = self.wf_data;
-				console.log(self)
 				var obj = _.extend(wf_data, {});
 				//是否全天任务判断
 				var is_full_day = self.is_full_day;

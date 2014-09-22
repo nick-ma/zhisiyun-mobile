@@ -26,8 +26,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         "city_name": single_city.city_name,
                         "city": single_city._id,
                         "city_code": single_city.city_code,
-                        "province_name": single_city.province.province_name["zh"],
-                        "province": single_city.province._id
+                        "province_name": (single_city.province ? single_city.province.province_name["zh"] : null) || null,
+                        "province": (single_city.province ? single_city.province._id : null) || null
                     });
                 } else {
 
@@ -35,8 +35,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         "city_name": single_city.city_name,
                         "city": single_city._id,
                         "city_code": single_city.city_code,
-                        "province_name": single_city.province.province_name["zh"],
-                        "province": single_city.province._id
+                        "province_name": (single_city.province ? single_city.province.province_name["zh"] : null) || null,
+                        "province": (single_city.province ? single_city.province._id : null) || null
                     });
                 }
             } else if (type == 'delete') {
@@ -57,6 +57,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             post_data = _.extend(obj, {});
             $.post(url, post_data, function(data) {
                 cb(temp_destinations)
+            })
+        }
+
+        function save_city_data(city_name, city_code, cb) {
+            var url = '/admin/ddic/city_client/add';
+
+            // self.wf_data.leave.destinations = destinations;
+            var obj = {
+                city_code: city_code,
+                city_name: city_name
+            }
+            post_data = _.extend(obj, {});
+            $.post(url, post_data, function(data) {
+                cb(data)
             })
         }
         // Extends Backbone.View
@@ -83,9 +97,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     $("#show_destinations-content").trigger('create');
                     $("#show_destinations").find("fieldset[id='is_show_filter']").hide();
                 } else if (self.page_mode == 'show_cities') {
-                    $("#show_destinations-content").html(self.list_template(self.wf_data));
+                    if (self.city_name) {
+                        var filter_cities = _.filter(self.wf_data.cities, function(temp) {
+                            return temp.city_name.indexOf(String(self.city_name)) == 0 ? true : false
+                        })
+                        var city_data = {
+                            cities: filter_cities
+                        }
+                    } else {
+                        var city_data = self.wf_data;
+                    }
+
+                    $("#show_destinations-content").html(self.list_template(city_data));
                     $("#show_destinations-content").trigger('create');
-                    $("#show_destinations").find("fieldset[id='is_show_filter']").show();
+                    $("#show_destinations #is_show_filter").show();
+
                 }
 
                 return this
@@ -152,6 +178,66 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
                         })
 
+                    })
+                    .on('keyup', '#filter_city', function(event) {
+                        event.preventDefault();
+                        self.city_name = $(this).val();
+                        self.render();
+                    }).on('click', '#btn_create_city', function(event) {
+                        event.preventDefault();
+
+                        var wf_data = self.wf_data;
+                        var city_name = $("#show_destinations #filter_city").val();
+                        var single_city = _.find(self.wf_data.cities, function(temp) {
+                            return temp.city_name == String(city_name);
+                        })
+                        if (single_city) {
+                            alert('该城市名称已存在!!!')
+                            self.render();
+
+                        } else {
+                            $.mobile.loading("show");
+                            var city_code = prompt("请输入城市代码:");
+                            var single_city_code = _.find(self.wf_data.cities, function(temp) {
+                                return temp.city_code == String(city_code);
+                            })
+                            if (!single_city_code && city_code) {
+                                save_city_data(city_name, city_code, function(data) {
+                                    self.wf_data.cities.push(data.data);
+                                    if (data.data) {
+                                        var city_id = data.data._id;
+                                        var single_city = _.find(self.wf_data.cities, function(temp) {
+                                            return temp._id == String(city_id);
+                                        })
+                                        if (single_city) {
+                                            save_form_data(single_city, self.wf_data, 'save', function(data) {
+                                                self.wf_data.leave.destination = data;
+                                                self.wf_data.cities = _.filter(self.wf_data.cities, function(temp) {
+                                                    return temp._id != String(city_id)
+                                                })
+                                                $("#filter_city").val('');
+                                                $("#filter_city").trigger("keyup");
+                                                $("#destination_selected").trigger("click");
+                                                // self.render();
+                                                $.mobile.loading("hide");
+
+                                            })
+                                        } else {
+                                            self.render();
+                                            $.mobile.loading("hide");
+
+                                        }
+                                    }
+
+
+                                })
+                            } else {
+                                alert('该城市代码已存在，请重新输入!!!');
+                                $("#btn_create_city").trigger('click');
+                            }
+
+
+                        }
                     })
             }
         });
