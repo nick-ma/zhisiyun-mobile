@@ -344,6 +344,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
 
     var do_trans = function(trans_data) {
+        console.log(trans_data)
         var post_data = {
             process_instance_id: $("#process_instance_id").val(),
             task_instance_id: $("#task_instance_id").val(),
@@ -352,7 +353,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             next_user: $("#next_user_id").val() || trans_data.next_user, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
             trans_name: $("#trans_name").val() || trans_data.trans_name, // 转移过来的名称
             comment_msg: $("#comment_msg").val() || trans_data.comment_msg, // 任务批注 
-            attachments: JSON.stringify(trans_data.attachments ? trans_data.attachments[0].attachments : []) || null
+            attachments: trans_data.attachments || []
             // 任务批注 
         };
         // console.log(post_data)
