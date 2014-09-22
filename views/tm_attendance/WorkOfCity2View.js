@@ -18,7 +18,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			},
 			pre_render: function() {
 				var self = this;
-				$("#personal_wf_work_of_city-content2").html(self.loading_template({info_msg:'数据加载中...请稍候'}));
+				$("#personal_wf_work_of_city-content2").html(self.loading_template({
+					info_msg: '数据加载中...请稍候'
+				}));
 				$("#personal_wf_work_of_city-content2").trigger('create');
 				return this;
 			},
@@ -88,6 +90,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					} else {
 						window.location.href = "/m";
 					}
+				}).on('click', 'img', function(event) {
+					event.preventDefault();
+					// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+					var img_view = '<img src="' + this.src + '">';
+					// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+					$("#fullscreen-overlay").html(img_view).fadeIn('fast');
 				})
 			},
 			get_datas: function() {

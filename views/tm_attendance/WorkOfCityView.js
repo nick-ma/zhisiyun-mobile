@@ -196,7 +196,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			})
 		}
 
-		var do_trans = function() {
+		var do_trans = function(trans_data) {
 			// save_form_data_b(function() {
 			var post_data = {
 				process_instance_id: $("#personal_wf_work_of_city-content #process_instance_id").val(),
@@ -206,6 +206,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				next_user: $("#personal_wf_work_of_city-content #next_user_id").val() || null, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
 				trans_name: $("#personal_wf_work_of_city-content #trans_name").val(), // 转移过来的名称
 				comment_msg: $("#personal_wf_work_of_city-content #comment_msg").val(), // 任务批注 
+				attachments: trans_data.attachments || null
+
 			};
 			var post_url = $("#personal_wf_work_of_city-content #task_process_url").val();
 			post_url = post_url.replace('<TASK_ID>', $("#personal_wf_work_of_city-content #task_instance_id").val());
@@ -248,6 +250,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				times_configs = self.times_configs;
 				time_type = self.time_type;
 				times = self.times;
+				//附件数据
+				if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
+					self.wf_data = JSON.parse(localStorage.getItem('upload_model_back')).model;
+					localStorage.removeItem('upload_model_back'); //用完删掉
+				};
+
 				//流程数据
 				var wf_data = self.wf_data;
 				var obj = _.extend(wf_data, {});
@@ -277,7 +285,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						$("#personal_wf_work_of_city-content").trigger('create');
 
 						if (self.trans_data.next_td.node_type == 'END') {
-							do_trans();
+							do_trans(self.trans_data);
 						}
 					} else if (self.view_mode == 'deal_with') {
 						$("#personal_wf_work_of_city-content").html(self.template(obj));
@@ -346,7 +354,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							ti_comment: $("#personal_wf_work_of_city-content #ti_comment").val(),
 							task_instance_id: task_instance_id,
 							next_tdid: target_id,
-							direction: direction
+							direction: direction,
+							attachments: self.wf_data.attachments
+
 						}, function(data) {
 							self.view_mode = 'trans';
 							self.trans_data = data;
@@ -367,7 +377,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 								ti_comment: $("#personal_wf_work_of_city-content #ti_comment").val(),
 								task_instance_id: task_instance_id,
 								next_tdid: target_id,
-								direction: direction
+								direction: direction,
+								attachments: self.wf_data.attachments
+
 							}, function(data) {
 								self.view_mode = 'trans';
 								self.trans_data = data;
@@ -385,9 +397,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					if ($("#next_user_name").val()) {
 						$("#btn_ok").attr("disabled", "disabled");
 						if (!self.view_mode) {
-							do_trans();
+							do_trans(self.trans_data);
 						} else {
-							do_trans();
+							do_trans(self.trans_data);
 						}
 						$.mobile.loading("hide");
 
@@ -486,6 +498,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					} else {
 						window.location.href = "/m";
 					}
+				}).on('click', '#btn_upload_attachment', function(event) {
+					//转到上传图片的页面
+					localStorage.removeItem('upload_model_back'); //先清掉
+					var next_url = '#upload_pic';
+					localStorage.setItem('upload_model', JSON.stringify({
+						model: self.wf_data,
+						field: 'attachments',
+						back_url: window.location.hash
+					}))
+					window.location.href = next_url;
+
+				}).on('click', 'img', function(event) {
+					event.preventDefault();
+					// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+					var img_view = '<img src="' + this.src + '">';
+					// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+					$("#fullscreen-overlay").html(img_view).fadeIn('fast');
 				})
 				// $("#wf_attendance")
 			},
