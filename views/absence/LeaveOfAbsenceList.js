@@ -14,6 +14,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
     //     }
     //     return mark[data]
     // });
+    Handlebars.registerHelper('attach', function(attachments) {
+
+        if (attachments) {
+            if (attachments._id) {
+                return attachments._id
+            } else {
+                return attachments
+            }
+        } else {
+            return null
+        }
+    });
+
+
 
     function absence_code_show(absence_code, self) {
         var absence_code = (absence_code || '001');
@@ -338,8 +352,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             next_user: $("#next_user_id").val() || trans_data.next_user, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
             trans_name: $("#trans_name").val() || trans_data.trans_name, // 转移过来的名称
             comment_msg: $("#comment_msg").val() || trans_data.comment_msg, // 任务批注 
+            attachments: JSON.stringify(trans_data.attachments ? trans_data.attachments[0].attachments : []) || null
             // 任务批注 
         };
+        // console.log(post_data)
         var post_url = $("#task_process_url").val();
         post_url = post_url.replace('<TASK_ID>', $("#task_instance_id").val());
         $.post(post_url, post_data, function(data) {
@@ -377,8 +393,34 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             var self = this;
             var rendered_data = '';
             var leave = self.model.get('leave');
+            var attachments = self.model.get('attachments');
             var ti = self.model.get('ti');
 
+
+            //附件数据
+            if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
+                leave = JSON.parse(localStorage.getItem('upload_model_back')).model;
+                if (_.isUndefined(leave.attis)) {
+                    leave.attis = [];
+                    leave.attis.push(leave.attachments)
+                } else {
+                    leave.attis.push(leave.attachments)
+                }
+                attachments = _.map(attachments, function(att) {
+                    if (att._id) {
+                        return att._id
+                    } else {
+                        return att
+                    }
+                })
+                self.model.set('leave', leave);
+                _.each(leave.attis, function(ti) {
+                    self.model.get('attachments').push(ti)
+                })
+
+                // self.model.set('attachments', _.flatten([attachments, leave.attis], true))
+                localStorage.removeItem('upload_model_back'); //用完删掉
+            };
             if (self.model_view == '0') {
                 $("#leaveofabsence_name").html('假期申请单')
                 var start_date = moment(leave.create_start_date || new Date).format('YYYY-MM-DD');
@@ -415,6 +457,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     do_trans(self.trans_data);
                 }
             };
+
+
+
             $("#leaveofabsence_list-content").html(rendered_data);
             $("#leaveofabsence_list-content").trigger('create');
             absence_code_show(leave.absence_code, self);
@@ -531,6 +576,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
                 event.preventDefault();
                 var leave = self.model.get('leave');
+                var attachments = self.model.get('attachments');
                 var $this = $(this);
                 if ($("#leaveofabsence_list-content #ti_comment").val() == '') {
                     alert('请填写审批意见！');
@@ -583,7 +629,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         ti_comment: $("#leaveofabsence_list-content #ti_comment").val(),
                         task_instance_id: task_instance_id,
                         next_tdid: target_id,
-                        direction: direction
+                        direction: direction,
+                        attachments: attachments,
                     }, function(data) {
                         self.model_view = '3';
                         self.trans_data = data;
@@ -609,6 +656,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var leave = self.model.get('leave');
                 var url = "im://userchat/" + leave.people._id;
                 window.location.href = url;
+            }).on('click', '#btn_upload_attachment', function(event) {
+                //转到上传图片的页面
+                var leave = self.model.get('leave');
+                localStorage.removeItem('upload_model_back'); //先清掉
+                var next_url = '#upload_pic';
+                localStorage.setItem('upload_model', JSON.stringify({
+                    model: leave,
+                    field: 'attachments',
+                    back_url: window.location.hash
+                }))
+                window.location.href = next_url;
+
+            }).on('click', 'img', function(event) {
+                event.preventDefault();
+                // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+                var img_view = '<img src="' + this.src + '">';
+                // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+                $("#fullscreen-overlay").html(img_view).fadeIn('fast');
             })
         },
 

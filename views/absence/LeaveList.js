@@ -43,7 +43,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
     Handlebars.registerHelper('num', function(data) {
         var num = 0;
         if (data) {
-            num = data
+            num = parseInt(data)
         };
         return num;
     });
