@@ -18,13 +18,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
-
             $("#btn-task-edit").attr('href', "#task_edit/" + self.model.get('_id'));
-            $("#task_detail-content").html(self.template(self.model.toJSON()));
-            $("#task_detail-content").trigger('create');
+
+            $.get('/admin/checkin/list/event/' + self.model.get('_id'), function(data) {
+                var render_data = self.model.toJSON();
+                if (data.code == 'OK') {
+                    render_data.checkin_records = data.data;
+                };
+                $("#task_detail-content").html(self.template(render_data));
+                $("#task_detail-content").trigger('create');
+            })
             // Maintains chainability
             return this;
-
         },
 
         bind_events: function() {
@@ -49,6 +54,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     self.model.save().done(function() {
                         window.location.href = "#task";
                     });
+                })
+                .on('click', '#btn-task-checkin', function(event) {
+                    event.preventDefault();
+                    var syscmd_url = 'cmd://app/checkin/event/' + self.model.get('_id');
+                    // console.log(syscmd_url);
+                    window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
                 });
         }
 

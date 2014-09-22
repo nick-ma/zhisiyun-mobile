@@ -260,7 +260,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     .on('click', '#btn-ct-checkin', function(event) {
                         event.preventDefault();
                         var syscmd_url = 'cmd://app/checkin/coll_task/' + self.model.get('_id');
-                        console.log(syscmd_url);
+                        // console.log(syscmd_url);
                         window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
                     });
 
