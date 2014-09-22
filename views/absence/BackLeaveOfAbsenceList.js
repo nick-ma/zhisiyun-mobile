@@ -317,7 +317,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             next_user: $("#next_user_id").val() || trans_data.next_user, //'516cf9a1d26ad4fe48000001', //以后从列表中选出
             trans_name: $("#trans_name").val() || trans_data.trans_name, // 转移过来的名称
             comment_msg: $("#comment_msg").val() || trans_data.comment_msg, // 任务批注 
-            attachments: JSON.stringify(trans_data.attachments ? trans_data.attachments[0].attachments : []) || []
+            attachments: trans_data.attachments || []
             // 任务批注 
         };
         var post_url = $("#backleaveofabsence_list-content #task_process_url").val();
