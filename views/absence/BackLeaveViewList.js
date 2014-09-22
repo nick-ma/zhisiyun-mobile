@@ -48,6 +48,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             this.model_view = '0';
         },
         // Renders all of the Task models on the UI
+        
         render: function() {
             $("#leaveofabsence_name").html('假期查看')
             var self = this;

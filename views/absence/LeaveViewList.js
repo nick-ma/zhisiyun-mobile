@@ -53,7 +53,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             $("#leaveofabsence_name").html('假期查看')
             var self = this;
             var rendered_data = '';
-
+            console.log(self)
             if (self.model_view == '0') {
                 rendered_data = self.leave_template(self.obj);
 
@@ -126,6 +126,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
                     })
                 };
+            }).on('click', 'img', function(event) {
+                event.preventDefault();
+                // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+                var img_view = '<img src="' + this.src + '">';
+                // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+                $("#fullscreen-overlay").html(img_view).fadeIn('fast');
             })
 
         },
