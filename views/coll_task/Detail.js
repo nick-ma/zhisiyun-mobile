@@ -18,12 +18,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 this.template_revise = Handlebars.compile($("#hbtmp_coll_task_detail_view_revise").html());
                 this.template_attachment = Handlebars.compile($("#hbtmp_coll_task_detail_view_attachment").html());
                 this.template_score = Handlebars.compile($("#hbtmp_coll_task_detail_view_score").html());
+                this.template_checkin = Handlebars.compile($("#hbtmp_coll_task_detail_view_checkin").html());
                 // The render method is called when CollTask Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
                 this.view_mode = 'basic'; //初始化为基本信息界面
                 this.bind_event();
             },
-            pre_render:function  () { //预先render
+            pre_render: function() { //预先render
                 $("#colltask_detail-content").html('<div>正在加载数据...</div>');
                 $("#colltask_detail-content").trigger('create');
             },
@@ -100,6 +101,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     rendered = self.template_attachment(render_data)
                 } else if (self.view_mode == 'score') {
                     rendered = self.template_score(render_data)
+                } else if (self.view_mode == 'checkin') { //获取签到信息列表
+                    $.get('/admin/checkin/list/coll_task/' + self.model.get('_id'), function(data) {
+                        if (data.code == 'OK') {
+                            $("#colltask_detail-content").html(self.template_checkin({
+                                checkin_records: data.data
+                            }));
+                            $("#colltask_detail-content").trigger('create');
+                        };
+                    })
                 };
                 $("#colltask_detail-content").html(rendered);
                 $("#colltask_detail-content").trigger('create');
@@ -246,7 +256,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                             window.location.href = this.src;
                         };
                         // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+                    })
+                    .on('click', '#btn-ct-checkin', function(event) {
+                        event.preventDefault();
+                        var syscmd_url = 'cmd://app/checkin/coll_task/' + self.model.get('_id');
+                        console.log(syscmd_url);
+                        window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
                     });
+
                 $("#colltask_detail-footer")
                     .on('click', '#btn-colltask_detail-remove', function(event) {
                         event.preventDefault();
@@ -368,13 +385,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                             if (data) {
                                 var groupid = data.groupid;
                                 var syscmd_url = 'im://groupchat/' + groupid;
-                                console.log(syscmd_url);
+                                // console.log(syscmd_url);
                                 window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
                             };
 
                             $.mobile.loading("hide");
                         })
                     });
+
                 $("#colltask_detail")
                     .on('click', '.open-left-panel', function(event) {
                         event.preventDefault();
