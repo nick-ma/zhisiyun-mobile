@@ -42,6 +42,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./workreportRouter",
     "./tmattendanceRouter",
     "./absence",
+    "./talentRouter",
 
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
@@ -73,6 +74,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     WorkReportRouter,
     TmAttendanceRouter,
     Absence,
+    TalentRouter,
     async, moment
 
 
@@ -104,6 +106,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new WorkReportRouter();
         new TmAttendanceRouter();
         new Absence();
+        new TalentRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -1496,6 +1499,46 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           }
         } else {
           return null
+        }
+
+      });
+      Handlebars.registerHelper('spanDate', function(start, end) {
+
+        var spanDate = '<span class="label label-success btn-dp" style="cursor: pointer;">起</span><span style="padding-right:2px">' + moment(start).format('YYYY-MM-DD') + '</span><span class="label label-success btn-dp" style="cursor: pointer;">止</span><span style="padding-right:2px">' + moment(end).format('YYYY-MM-DD') + '</span>';
+        return spanDate;
+
+      });
+      Handlebars.registerHelper('plan_num', function(plan_divide) {
+
+        return plan_divide.length;
+
+      });
+      Handlebars.registerHelper('plan_state', function(start, end, is_delete) {
+        var state_obj = {
+          '1': '未开始',
+          '2': '进行中',
+          '3': '已到期',
+          '4': '已废弃'
+
+        }
+
+        function span(num) {
+          return '<span class="label label-info">' + state_obj[num] + '</span>'
+        }
+
+        function format(date) {
+          return moment(date).format("YYYYMMDD")
+        }
+        if (is_delete) {
+          return span('4');
+        } else {
+          if (format(new Date()) > format(end)) {
+            return span('3')
+          } else if (format(new Date()) < format(start)) {
+            return span('1')
+          } else {
+            return span('2')
+          }
         }
 
       });
