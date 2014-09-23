@@ -133,8 +133,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             return s.status == state;
                         });
                     } else {
-                        var nums = ['3', '4', '5']
-                        var mbtis = _.filter(data_items, function(x) {
+                        var nums = ['3', '4', '5', '6']
+                        var mbtis = _.filter(self.collection.toJSON(), function(x) {
                             return !!~nums.indexOf(x.mark);
                         });
                         filters = _.flatten([self.qis, mbtis], true);
@@ -162,7 +162,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $("#quesetionnaire_manage_list-content").trigger('create');
                 $("#show_tip").html('没有已提交问卷！')
             } else if (self.view_mode == '3') {
-                console.log("==========")
                 var nums = ['3', '4', '5', '6']
                 var mbtis = _.filter(data_items, function(x) {
                     return !!~nums.indexOf(x.mark);
