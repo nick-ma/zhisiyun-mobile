@@ -391,15 +391,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					console.log(url);
 					window.location.href = url;
 				}).on('click', '#btn_upload_attachment', function(event) {
-					//转到上传图片的页面
-					localStorage.removeItem('upload_model_back'); //先清掉
-					var next_url = '#upload_pic';
-					localStorage.setItem('upload_model', JSON.stringify({
-						model: self.wf_data,
-						field: 'attachments',
-						back_url: window.location.hash
-					}))
-					window.location.href = next_url;
+					save_form_data(function(data) {
+						//转到上传图片的页面
+						localStorage.removeItem('upload_model_back'); //先清掉
+						var next_url = '#upload_pic';
+						localStorage.setItem('upload_model', JSON.stringify({
+							model: self.wf_data,
+							field: 'attachments',
+							back_url: window.location.hash
+						}))
+						window.location.href = next_url;
+					})
+
 
 				}).on('click', 'img', function(event) {
 					event.preventDefault();

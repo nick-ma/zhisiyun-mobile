@@ -251,25 +251,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				times_configs = self.times_configs;
 				time_type = self.time_type;
 				times = self.times;
-								//附件数据
+				//附件数据
 				if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
 					self.wf_data = JSON.parse(localStorage.getItem('upload_model_back')).model;
 					localStorage.removeItem('upload_model_back'); //用完删掉
 				};
-
 				//流程数据
 				var wf_data = self.wf_data;
 				var obj = _.extend(wf_data, {});
 				//是否全天任务判断
-				var is_full_day = self.is_full_day;
-				if (wf_data.leave.data > 0) {
+				var is_full_day = self.wf_data.is_full_day;
+				// if (wf_data.leave.data.length > 0) {
 
-					var is_full_day_data = _.find(leave.data, function(temp) {
-						return temp.is_full_day == false
-					})
-					is_full_day = is_full_day_data ? false : true;
-
-				}
+				// 	var is_full_day_data = _.find(wf_data.leave.data, function(temp) {
+				// 		return temp.is_full_day == false
+				// 	})
+				// 	console.log(is_full_day_data)
+				// 	is_full_day = is_full_day_data == undefined ? true : false;
+				// 	console.log(is_full_day)
+				// }
 				obj.is_full_day = is_full_day;
 				//判断是否有开始和结束时间
 				obj.leave.create_start_date = wf_data.leave.create_start_date ? wf_data.leave.create_start_date : new Date();
@@ -422,7 +422,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					})
 				}).on('change', '#is_full_day', function(event) {
 					var is_full_day = $(this).val();
-					self.is_full_day = is_full_day == "false" ? false : true;
+					self.wf_data.is_full_day = is_full_day == "false" ? false : true;
 					var end_date = $("#create_end_date").val();
 					var start_date = $("#create_start_date").val();
 					st = time_parse(start_date);
@@ -498,15 +498,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						window.location.href = "/m";
 					}
 				}).on('click', '#btn_upload_attachment', function(event) {
+					self.wf_data.leave.reason = $("#personal_wf_work_of_travel-content #reason").val();
+					self.wf_data.leave.create_start_date = $("#personal_wf_work_of_travel-content #create_start_date").val();
+					self.wf_data.leave.create_end_date = $("#personal_wf_work_of_travel-content #create_end_date").val();
+					self.wf_data.is_full_day = $("#personal_wf_work_of_travel-content #is_full_day").val() == 'true' ? true : false;
+
 					//转到上传图片的页面
-					localStorage.removeItem('upload_model_back'); //先清掉
-					var next_url = '#upload_pic';
-					localStorage.setItem('upload_model', JSON.stringify({
-						model: self.wf_data,
-						field: 'attachments',
-						back_url: window.location.hash
-					}))
-					window.location.href = next_url;
+					var obj = self.wf_data;
+					save_form_data(obj, function() {
+						localStorage.removeItem('upload_model_back'); //先清掉
+						var next_url = '#upload_pic';
+						localStorage.setItem('upload_model', JSON.stringify({
+							model: self.wf_data,
+							field: 'attachments',
+							back_url: window.location.hash
+						}))
+						window.location.href = next_url;
+					})
+
 
 				}).on('click', 'img', function(event) {
 					event.preventDefault();

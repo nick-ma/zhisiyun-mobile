@@ -23,8 +23,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
                 if (self.skill) {
                     var filters = _.filter(self.collection, function(filter) {
-                        return filter.skill_name.indexOf(self.skill) == 0 ? true : false
+                        return (filter.skill_name).toUpperCase().indexOf(self.skill.toUpperCase()) >= 0;
                     })
+
                 } else {
                     var filters = self.collection;
                 }
