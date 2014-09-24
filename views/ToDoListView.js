@@ -16,7 +16,7 @@ define(["jquery", "underscore", "backbone", "handlebars", ], function($, _, Back
         initialize: function() {
             this.template = Handlebars.compile($("#todo_view").html());
             this.loading_template = Handlebars.compile($("#loading_template_view").html());
-            this.collection.on("sync", this.render, this);
+            // this.collection.on("sync", this.render, this);
             this.bind_event();
         },
         pre_render: function() {

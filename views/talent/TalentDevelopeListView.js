@@ -6,7 +6,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
     function($, _, Backbone, Handlebars) {
 
         // Extends Backbone.View
-        var DevelopePlanListlView = Backbone.View.extend({
+        var DevelopePlanListView = Backbone.View.extend({
 
             // The View Constructor
             initialize: function() {
@@ -61,12 +61,15 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 }).on('swiperight', function(event) { //向右滑动，打开左边的面板
                     event.preventDefault();
                     $("#show_talent_develope_plan-left-panel").panel("open");
+                }).on('click','#btn_show_talent_twitter_view', function(event) {
+                    event.preventDefault();
+                    window.location.href = "#twitter_list";
                 })
             }
 
         });
 
         // Returns the View class
-        return DevelopePlanListlView;
+        return DevelopePlanListView;
 
     });
