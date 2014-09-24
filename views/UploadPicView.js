@@ -39,14 +39,26 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 $("#upload_pic-content")
                     .on('click', '#choosefile', function(event) {
                         event.preventDefault();
-
+                        // workaround for android 4.4~4.4.2
+                        // var syscmd = 'cmd://app/choosefile/file4upload';
+                        // console.log(syscmd);
+                        // window.location.href = syscmd;
                         $("#upload_pic-content input[type=file]").trigger("click");
-
+                    })
+                    .on('click', '#choosefile2', function(event) {
+                        event.preventDefault();
+                        // workaround for android 4.4~4.4.2
+                        if (window.AndroidUploader) {
+                            window.AndroidUploader.upload("javascript:android_uploader_callback('<file_id>')");
+                        } else {
+                            alert("当前系统不支持Android本地上传功能");
+                        };
                     })
                     .on('click', '#do_upload', function(event) {
                         event.preventDefault();
                         var file = $("#upload_pic-content input[type=file]")[0].files[0];
                         if (file) {
+                            console.log(file);
                             $(this).text("正在上传...");
                             // $("#frmUploadPic").submit();
                             // change a new method for resize and upload images
@@ -67,6 +79,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     })
                     .on('change', 'input[type=file]', function(event) {
                         var file = $("input[type=file]")[0].files[0];
+                        console.log(file);
                         $("#preview").empty();
                         self.displayAsImage3(file, "preview");
 
@@ -87,36 +100,42 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         $fileinfo.listview("refresh");
 
                     });
-                $("body").on('pagecontainerload', function(event, ui) {
-                    event.preventDefault();
-                    if (ui.textStatus == 'success') {
-                        var server_res = JSON.parse(ui.xhr.responseText);
-                        if (server_res.success) {
-                            // localStorage.setItem()
-                            $("#do_upload").text('上传成功');
-                            // 利用local storage传递数据
-                            _.each(server_res.success, function(x) {
-                                if (_.isArray(self.model[self.field])) { //如果是数组，就push
-                                    self.model[self.field].push(x._id);
-                                } else { //否则，直接替换－》人员头像
-                                    self.model[self.field] = x._id;
-                                };
-                            })
-                            localStorage.setItem('upload_model_back', JSON.stringify({
-                                model: self.model
-                            }))
-                            localStorage.removeItem('upload_model'); //用完删掉
+                $("body")
+                    .on('pagecontainerload', function(event, ui) {
+                        event.preventDefault();
+                        if (ui.textStatus == 'success') {
+                            var server_res = JSON.parse(ui.xhr.responseText);
+                            if (server_res.success) {
+                                // localStorage.setItem()
+                                $("#do_upload").text('上传成功');
+                                // 利用local storage传递数据
+                                _.each(server_res.success, function(x) {
+                                    if (_.isArray(self.model[self.field])) { //如果是数组，就push
+                                        self.model[self.field].push(x._id);
+                                    } else { //否则，直接替换－》人员头像
+                                        self.model[self.field] = x._id;
+                                    };
+                                })
+                                localStorage.setItem('upload_model_back', JSON.stringify({
+                                    model: self.model
+                                }))
+                                localStorage.removeItem('upload_model'); //用完删掉
 
-                            // 返回调用页面
+                                // 返回调用页面
 
-                            window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
-                                window.location.href = '/m' + self.back_url;
-                            }, 200);
+                                window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
+                                    window.location.href = '/m' + self.back_url;
+                                }, 200);
+                            };
+                            // console.log(server_res);
                         };
-                        // console.log(server_res);
-                    };
-                    // console.log(ui);
-                });
+                        // console.log(ui);
+                    })
+                    .on('change', '#android_upload_file_id', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        alert('上传的文件id是： ' + $this.val());
+                    });
             },
             displayAsImage3: function(file, containerid) {
                 if (typeof FileReader !== "undefined") {
