@@ -175,7 +175,14 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
       this.resizeTiles();
       this.showCopyright();
 
-
+      window.android_uploader_callback = function(file_id) {
+        if (document.getElementById('android_upload_file_id')) {
+          $('#android_upload_file_id').val(file_id).trigger('change');
+          return true;
+        } else {
+          return false;
+        };
+      }
 
     }
   )
@@ -279,9 +286,3 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
   // console.info('app message: backbone MAIN router started!');
 
 });
-
-var android_uploader_callback = function(file_id) {
-  if (document.getElementById('android_upload_file_id')) {
-    document.getElementById('android_upload_file_id').value = file_id;
-  };
-}

@@ -49,7 +49,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         event.preventDefault();
                         // workaround for android 4.4~4.4.2
                         if (window.AndroidUploader) {
-                            window.AndroidUploader.upload("javascript:android_uploader_callback('<file_id>')");
+                            if (window.AndroidUploader.upload) {
+                                window.AndroidUploader.upload("javascript:android_uploader_callback('<file_id>')");
+                            } else {
+                                alert("当前系统不支持AndroidUploader.upload()");
+                            };
                         } else {
                             alert("当前系统不支持Android本地上传功能");
                         };
@@ -131,7 +135,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         };
                         // console.log(ui);
                     })
-                    .on('change', '#android_upload_file_id', function(event) {
+                    .on('change', '#android_upload_file_id', function(event) { //通过android上传器上传的文件的id
                         event.preventDefault();
                         var $this = $(this);
                         alert('上传的文件id是： ' + $this.val());
