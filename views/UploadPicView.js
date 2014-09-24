@@ -138,7 +138,23 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     .on('change', '#android_upload_file_id', function(event) { //通过android上传器上传的文件的id
                         event.preventDefault();
                         var $this = $(this);
-                        alert('上传的文件id是： ' + $this.val());
+                        var file_id = $this.val();
+                        if (_.isArray(self.model[self.field])) { //如果是数组，就push
+                            self.model[self.field].push(file_id);
+                        } else { //否则，直接替换－》人员头像
+                            self.model[self.field] = file_id;
+                        };
+                        localStorage.setItem('upload_model_back', JSON.stringify({
+                            model: self.model
+                        }))
+                        localStorage.removeItem('upload_model'); //用完删掉
+
+                        // 返回调用页面
+
+                        window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
+                            window.location.href = '/m' + self.back_url;
+                        }, 200);
+                        console.log('上传的文件id是： ' + $this.val());
                     });
             },
             displayAsImage3: function(file, containerid) {
