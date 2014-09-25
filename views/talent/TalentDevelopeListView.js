@@ -29,7 +29,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-                console.log(self)
                 var develope_data = self.collection.models;
                 var talent_data = _.map(develope_data, function(temp) {
                     return temp.attributes

@@ -1542,7 +1542,181 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         }
 
       });
+      //人才管理
+      Handlebars.registerHelper('people_trans', function(people, _id, field) {
+        var filter_people = _.find(people, function(temp) {
+          return temp._id == String(_id)
+        })
+        return filter_people[field];
 
+      });
+      Handlebars.registerHelper('TalentAvatar', function(people, _id, field) {
+        var filter_people = _.find(people, function(temp) {
+          return temp._id == String(_id)
+        })
+        return (filter_people[field]) ? '/gridfs/get/' + filter_people[field] : '/img/no-avatar.jpg';
+      });
+      Handlebars.registerHelper('opt_ret', function(exist, data, data_b) {
+        var item = [],
+          id_arr = [],
+          name_arr = [],
+          id_arr_b = [],
+          name_arr_b = [];
+        _.each(data, function(temp) {
+          id_arr.push(_.keys(temp))
+          name_arr.push(_.values(temp))
+        })
+        _.each(data_b, function(temp) {
+          id_arr_b.push(_.keys(temp))
+          name_arr_b.push(_.values(temp))
+        })
+        var obj_temp = _.object(id_arr, name_arr);
+        var obj_temp_b = _.object(id_arr_b, name_arr_b);
+        if (exist) {
+          item.push('<option data-name="' + obj_temp_b[exist] + '" value="' + exist + '" >' + obj_temp_b[exist] + '</option>')
+
+        } else {
+          if (data.length > 0 && data[0] != '') {
+            _.each(id_arr, function(temp) {
+              item.push('<option data-name="' + obj_temp[temp] + '" value="' + temp + '" >' + obj_temp[temp] + '</option>')
+            })
+          } else {
+            item.push('<option></option>')
+            _.each(id_arr_b, function(temp) {
+              item.push('<option data-name="' + obj_temp_b[temp] + '" value="' + temp + '" >' + obj_temp_b[temp] + '</option>')
+            })
+          }
+
+        }
+
+        return item.join('');
+      });
+      Handlebars.registerHelper('opt_ret_car', function(direct, exist, position, data, data_b) {
+        var
+          item = [];
+        if (exist) {
+          //读取已有的数据
+          var direct_data = _.find(data_b, function(temp) {
+            return temp.attributes._id == String(direct)
+          })
+          if (direct_data) {
+            var career_data = _.find(direct_data.attributes.data, function(temp) {
+              return temp.des_career == String(exist)
+            })
+            if (career_data) {
+              var temp_arr = [];
+              temp_arr.push(career_data.des_career);
+              temp_arr.push(career_data.des_career_name);
+              item.push('<option value="' + temp_arr + '" >' + career_data.des_career_name + '</option>')
+
+            }
+
+          }
+
+
+        } else {
+          if (data.length > 0) {
+            //当候选对象存在于多个培养方向时
+            //选第一个培养方向中的推荐培养职务
+            _.each(data[0].attributes.data, function(car) {
+              var twitter_pos = _.find(car.des_position_data, function(pos) {
+                var can_pos = [];
+                _.each(pos.can_position_data, function(can) {
+                  can_pos.push(String(can.can_position))
+                })
+                return !!~can_pos.indexOf(String(position))
+              })
+              var temp_arr = [];
+              temp_arr.push(car.des_career);
+              temp_arr.push(car.des_career_name)
+              if (twitter_pos) {
+                item.push('<option value="' + temp_arr + '" selected>' + car.des_career_name + '</option>')
+
+              } else {
+                item.push('<option value="' + temp_arr + '" >' + car.des_career_name + '</option>')
+
+              }
+
+            })
+
+
+          }
+        }
+
+
+        return item.join('');
+
+
+      });
+      Handlebars.registerHelper('opt_ret_des', function(direct, career, exist, position, data, data_b) {
+        var
+          item = [];
+        if (exist) {
+          var direct_data = _.find(data_b, function(temp) {
+            return temp.attributes._id == String(direct)
+          })
+          if (direct_data) {
+            var career_data = _.find(direct_data.attributes.data, function(temp) {
+              return temp.des_career == String(career)
+            })
+            if (career_data) {
+              var pos_data = _.find(career_data.des_position_data, function(temp) {
+                return temp.des_position == String(exist)
+              })
+              var temp_arr = [];
+              if (pos_data) {
+                temp_arr.push(pos_data.des_position);
+                temp_arr.push(pos_data.des_position_name)
+                item.push('<option value="' + temp_arr + '" selected>' + pos_data.des_position_name + '</option>')
+
+              }
+
+
+            }
+
+          }
+
+        } else {
+          if (data.length > 0) {
+            //当候选对象存在于多个培养方向时
+            //选第一个培养方向中的推荐培养职务
+            _.each(data[0].attributes.data, function(car) {
+              var twitter_pos = _.find(car.des_position_data, function(pos) {
+                  var can_pos = [];
+                  _.each(pos.can_position_data, function(can) {
+                    can_pos.push(String(can.can_position))
+                  })
+                  return !!~can_pos.indexOf(String(position))
+                })
+                //对应的目标职务
+              if (twitter_pos) {
+                _.each(car.des_position_data, function(pos) {
+                  var temp_arr = [];
+                  temp_arr.push(pos.des_position);
+                  temp_arr.push(pos.des_position_name)
+                  var can_pos_temp = _.find(pos.can_position_data, function(can) {
+                    String(can.can_position) == String(position)
+                  })
+                  if (can_pos_temp) {
+                    item.push('<option value="' + temp_arr + '" selected>' + pos.des_position_name + '</option>')
+                  } else {
+                    item.push('<option value="' + temp_arr + '" >' + pos.des_position_name + '</option>')
+
+                  }
+                })
+
+              }
+
+            })
+
+
+          }
+        }
+
+        return item.join('');
+
+
+      });
     })();
 
     (function() {

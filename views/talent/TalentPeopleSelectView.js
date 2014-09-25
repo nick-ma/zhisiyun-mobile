@@ -17,11 +17,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-                console.log(self)
                 var myteam = _.filter(self.collection.models, function(x) {
                     return x.attributes.myteam;
                 })
-                console.log(myteam)
                 var tmp = _.sortBy(_.map(myteam, function(x) {
                     return x.toJSON();
                 }), function(x) {
@@ -31,7 +29,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     people: tmp,
                     // cp_id: self.cp_id,
                 }
-                console.log(render_data)
                 $("#talent_people_select-content").html(self.template(render_data));
                 $("#talent_people_select-content").trigger('create');
 
@@ -76,17 +73,15 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             $.post('/admin/pm/talent_wf/wf_create', obj, function(data) {
                                 var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
                                 console.log(goto_url);
-                                // window.location.href = '/m#godo10' + goto_url + '/' + 1;
+                                window.location.href = '/m#godo10/' + goto_url + '/' + 1;
                                 $.mobile.loading("hide");
 
                             })
-                            console.log(obj)
                         }
 
                     } else {
                         alert("请选择提名人员!!!")
                     }
-                    console.log(people_selected)
                 })
 
             },

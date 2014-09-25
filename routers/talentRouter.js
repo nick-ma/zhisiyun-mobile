@@ -6,6 +6,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/talent/TalentWfSuperiorTwitterView",
         "../views/talent/TalentPeopleSelectView",
         "../views/talent/SuperiorTwitterFormView",
+        "../views/talent/SuperiorTwitterForm2View",
         "../collections/DevelopePlanCollection",
         "../collections/DevelopeDirectCollection",
         "../collections/DevelopeTypeCollection",
@@ -23,6 +24,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         TalentWfSuperiorTwitterView, //人才提名流程
         TalentPeopleSelectView, //人才选择界面
         SuperiorTwitterFormView, //人才提名流程表单
+        SuperiorTwitterForm2View, //人才提名流程表单
         DevelopePlanCollection,
         DevelopeDirectCollection,
         DevelopeTypeCollection,
@@ -49,7 +51,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "twitter_list": "twitter_list",
                 "talent_twitter_people": "talent_twitter_people",
                 "godo10/:op_id/:type": "go_do10",
-                // "godo10_view/:pi_id": "go_do10_view", //市区公干流程查看
+                "godo10_view/:pi_id": "go_do10_view", //市区公干流程查看
 
             },
             plan_list: function() { //我的培养计划列表
@@ -129,20 +131,25 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $.mobile.loading("show");
                 self.SuperiorTwitterFormView.pre_render();
                 var people = $("#login_people").val();
-                self.SuperiorTwitterFormView.people = people;
                 self.ddCollection.fetch();
                 self.SuperiorTwitterFormView.direct = self.ddCollection.models;
-
+                self.SuperiorTwitterFormView.model = self.stModel;
                 async.parallel({
                     data1: function(cb) {
                         $.get('/admin/pm/talent_wf/edit_m/' + ti_id, function(data) {
                             if (data) {
                                 self.SuperiorTwitterFormView.wf_data = data;
-                                self.SuperiorTwitterFormView.collection.url = '/admin/pm/talent_wf/superior/' + data.ti.process_instance.collection_id;
-                                self.SuperiorTwitterFormView.collection.fetch().done(function() {
-                                    cb(null, self.SuperiorTwitterFormView.wf_data)
+                                if (data.task_state != 'FINISHED') {
+                                    self.SuperiorTwitterFormView.people = data.twitter.superior._id;
+                                    self.SuperiorTwitterFormView.collection.url = '/admin/pm/talent_wf/superior/' + data.ti.process_instance.collection_id;
+                                    self.SuperiorTwitterFormView.collection.fetch().done(function() {
+                                        cb(null, self.SuperiorTwitterFormView.wf_data)
 
-                                })
+                                    })
+                                } else {
+                                    cb(null, null)
+                                }
+
                             } else {
                                 cb(null, null);
                             }
@@ -162,6 +169,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         }
                         self.SuperiorTwitterFormView.is_self = is_self;
                         self.SuperiorTwitterFormView.render();
+                        if (!is_self) {
+                            $("#superior_twitter_form select").attr("disabled", true);
+                        }
                         $.mobile.loading("hide");
 
 
@@ -169,7 +179,40 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 })
 
             },
+            go_do10_view: function(pi_id) {
+                var self = this;
+                $("body").pagecontainer("change", "#superior_twitter_form2", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.SuperiorTwitterForm2View.pre_render();
+                self.ddCollection.fetch();
+                self.SuperiorTwitterForm2View.direct = self.ddCollection.models;
+                self.SuperiorTwitterForm2View.model = self.stModel;
+                async.parallel({
+                    data1: function(cb) {
+                        $.get('/admin/pm/talent_wf/view_m/' + pi_id, function(data) {
+                            if (data) {
+                                self.SuperiorTwitterForm2View.wf_data = data;
+                                self.SuperiorTwitterForm2View.collection.url = '/admin/pm/talent_wf/superior/' + data.pi.collection_id;
+                                self.SuperiorTwitterForm2View.collection.fetch().done(function() {
+                                    cb(null, data)
+                                })
+                            } else {
+                                cb(null, null);
+                            }
+                        })
+                    }
+                }, function(err, ret) {
+                    self.SuperiorTwitterForm2View.render();
+                    $("#superior_twitter_form_title2").html("人才提名流程查看")
+                    $("#superior_twitter_form2 select").attr("disabled", true);
+                    $.mobile.loading("hide");
 
+
+                })
+            },
             init_views: function() {
                 var self = this;
                 self.DevelopePlanListView = new DevelopePlanListView({
@@ -186,6 +229,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 });
                 this.SuperiorTwitterFormView = new SuperiorTwitterFormView({
                     el: "#superior_twitter_form-content",
+                    collection: self.stModel,
+                });
+                this.SuperiorTwitterForm2View = new SuperiorTwitterForm2View({
+                    el: "#superior_twitter_form2-content",
                     collection: self.stModel,
                 })
 

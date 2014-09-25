@@ -29,7 +29,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
-                console.log(self)
                 var twitter_data = self.collection.models;
                 var temp_arr = [],
                     wf_data = [];
@@ -55,7 +54,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     talent_data: talent_data,
                     direct: direct,
                 }
-                console.log(obj)
                 $("#personal_superior_twitter-content").html(self.template(obj));
                 $("#personal_superior_twitter-content").trigger('create');
 
