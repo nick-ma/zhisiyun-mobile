@@ -1717,6 +1717,35 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
 
       });
+      //人才培养计划明细
+
+      Handlebars.registerHelper('Status', function(plan_s, plan_e) {
+        var status = null;
+        if (moment(plan_s).isBefore(new Date()) && moment(plan_e).isAfter(new Date())) {
+          status = '进行中'
+        } else if (moment(plan_s).isAfter(new Date())) {
+          status = '未开始'
+        } else {
+          status = '已结束'
+        }
+        return status;
+      });
+      Handlebars.registerHelper('Result', function(pass) {
+        var status = null;
+        if (pass) {
+          status = '已通过'
+        } else {
+          status = '未通过'
+        }
+        return status;
+      });
+      Handlebars.registerHelper('FirstPosition', function(history) {
+        var filter_position = _.first(_.sortBy(history, function(temp) {
+          return temp.start_time
+        }))
+        return filter_position.position_name
+      });
+
     })();
 
     (function() {

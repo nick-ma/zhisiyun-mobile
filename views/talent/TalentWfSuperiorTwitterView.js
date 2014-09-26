@@ -75,6 +75,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 }).on('click', '#btn_show_talent_twitter_select_view', function(event) {
                     event.preventDefault();
                     window.location.href = "#talent_twitter_people";
+                }).on('vmousemove', 'img', function(event) {
+                    event.preventDefault();
+                    var img_view = '<img src="' + this.src + '">';
+                    $("#fullscreen-overlay").html(img_view).fadeIn('fast');
                 })
             }
 

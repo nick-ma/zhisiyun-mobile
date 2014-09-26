@@ -7,6 +7,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/talent/TalentPeopleSelectView",
         "../views/talent/SuperiorTwitterFormView",
         "../views/talent/SuperiorTwitterForm2View",
+        "../views/talent/TalentDevelopeDetailListView", //培养计划明细列表
+        "../views/talent/TalentDevelopeDetailOperationListView", //培养计划明细列表
         "../collections/DevelopePlanCollection",
         "../collections/DevelopeDirectCollection",
         "../collections/DevelopeTypeCollection",
@@ -25,6 +27,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         TalentPeopleSelectView, //人才选择界面
         SuperiorTwitterFormView, //人才提名流程表单
         SuperiorTwitterForm2View, //人才提名流程表单
+        DevelopePlanDetailListView,
+        DevelopePlanDetailOperationListView,
         DevelopePlanCollection,
         DevelopeDirectCollection,
         DevelopeTypeCollection,
@@ -47,11 +51,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 console.info('app message: TALENT router initialized');
             },
             routes: {
-                "plan_list": "plan_list",
-                "twitter_list": "twitter_list",
-                "talent_twitter_people": "talent_twitter_people",
+                "plan_list": "plan_list", //人才培养计划列表
+                "twitter_list": "twitter_list", //人才提名历史数据
+                "talent_twitter_people": "talent_twitter_people", //人员选择（人才提名）
                 "godo10/:op_id/:type": "go_do10",
                 "godo10_view/:pi_id": "go_do10_view", //市区公干流程查看
+                "plan_list_detail/:plan_id": "plan_list_detail", //人才培养计划明细
+                "plan_list_detail/:plan_id/:divide_id": "plan_list_detail_operation" //人才培养计划明细
 
             },
             plan_list: function() { //我的培养计划列表
@@ -66,6 +72,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.DevelopePlanListView.people = people;
                 self.ddCollection.fetch();
                 self.dtCollection.fetch();
+                // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
+                self.c_people.fetch();
+                self.DevelopePlanListView.c_people = self.c_people; //人员数据
                 self.DevelopePlanListView.direct = self.ddCollection.models;
                 self.DevelopePlanListView.type = self.dtCollection.models;
 
@@ -213,6 +222,85 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 })
             },
+            plan_list_detail: function(plan_id) { //人才培养计划明细列表
+                var self = this;
+                $("body").pagecontainer("change", "#talent_develope_detail_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.DevelopePlanDetailListView.pre_render();
+                var people = $("#login_people").val();
+                self.DevelopePlanDetailListView.people = people;
+                self.ddCollection.fetch();
+                self.dtCollection.fetch();
+                // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
+                self.c_people.fetch();
+                self.DevelopePlanDetailListView.c_people = self.c_people; //人员数据
+                self.DevelopePlanDetailListView.direct = self.ddCollection.models;
+                self.DevelopePlanDetailListView.type = self.dtCollection.models;
+
+                async.parallel({
+                    status: function(cb) {
+                        $.get('/admin/pm/talent_develope/people', function(data) {
+                            if (data) {
+                                self.DevelopePlanDetailListView.people_data = data.data;
+                                self.DevelopePlanDetailListView.status_data = data.status;
+                            }
+                            cb(null, 'OK')
+                        })
+                    },
+
+                }, function(err, result) {
+                    self.DevelopePlanDetailListView.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                    self.DevelopePlanDetailListView.collection.fetch().done(function() {
+                        self.DevelopePlanDetailListView.render();
+                        $.mobile.loading("hide");
+
+                    })
+                })
+
+            },
+            plan_list_detail_operation: function(plan_id,divide_id) { //人才培养计划明细列表
+                var self = this;
+                $("body").pagecontainer("change", "#talent_develope_detail_operation_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.DevelopePlanDetailOperationListView.pre_render();
+                var people = $("#login_people").val();
+                self.DevelopePlanDetailOperationListView.people = people;
+                self.ddCollection.fetch();
+                self.dtCollection.fetch();
+                // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
+                self.c_people.fetch();
+                self.DevelopePlanDetailOperationListView.c_people = self.c_people; //人员数据
+                self.DevelopePlanDetailOperationListView.direct = self.ddCollection.models;
+                self.DevelopePlanDetailOperationListView.type = self.dtCollection.models;
+
+                async.parallel({
+                    status: function(cb) {
+                        $.get('/admin/pm/talent_develope/people', function(data) {
+                            if (data) {
+                                self.DevelopePlanDetailOperationListView.people_data = data.data;
+                                self.DevelopePlanDetailOperationListView.status_data = data.status;
+                            }
+                            cb(null, 'OK')
+                        })
+                    },
+
+                }, function(err, result) {
+                    self.DevelopePlanDetailOperationListView.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                    self.DevelopePlanDetailOperationListView.collection.fetch().done(function() {
+                        self.DevelopePlanDetailOperationListView.render();
+                        $.mobile.loading("hide");
+
+                    })
+                })
+
+            },
+
             init_views: function() {
                 var self = this;
                 self.DevelopePlanListView = new DevelopePlanListView({
@@ -234,6 +322,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 this.SuperiorTwitterForm2View = new SuperiorTwitterForm2View({
                     el: "#superior_twitter_form2-content",
                     collection: self.stModel,
+                });
+                this.DevelopePlanDetailListView = new DevelopePlanDetailListView({
+                    el: "#talent_develope_detail-content",
+                    collection: self.dpCollection,
+                })
+                this.DevelopePlanDetailOperationListView = new DevelopePlanDetailOperationListView({
+                    el: "#talent_develope_detail_operation-content",
+                    collection: self.dpCollection,
                 })
 
             },

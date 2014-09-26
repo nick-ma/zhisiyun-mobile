@@ -446,6 +446,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                         }
                     })
+                }).on('click', '#btn_wf_talent_start_userchat', function(event) {
+                    event.preventDefault();
+                    var url = "im://userchat/" + self.wf_data.people;
+                    console.log(url);
+                    window.location.href = url;
                 })
 
             },
