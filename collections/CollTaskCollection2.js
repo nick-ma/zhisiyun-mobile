@@ -1,8 +1,8 @@
-// Coll Project Collection 项目
-// ===========================
+// Coll Task Collection 协作任务
+// ===================
 
 // Includes file dependencies
-define(["jquery", "backbone", "models/CollProjectModel"], function($, Backbone, CollProjectModel) {
+define(["jquery", "backbone", "models/CollTaskModel"], function($, Backbone, CollTaskModel) {
 
     // Extends Backbone.Router
     var Collection = Backbone.Collection.extend({
@@ -12,10 +12,10 @@ define(["jquery", "backbone", "models/CollProjectModel"], function($, Backbone, 
             this.date_offset = 30; //默认取30天
         },
         url: function() {
-            return '/admin/pm/coll_project/bb?date_offset=' + this.date_offset + '&date_pj_typeset=' + this.date_pj_typeset + '&ct=' + (new Date()).getTime() + '&people_id=' + this.people_id;
+            return '/admin/pm/coll_task/bb2?date_offset=' + this.date_offset + '&ct=' + (new Date()).getTime() + '&people_id=' + this.people_id;
         },
         // Sets the Collection model property to be a Task Model
-        model: CollProjectModel,
+        model: CollTaskModel,
     });
 
     // Returns the Model class
