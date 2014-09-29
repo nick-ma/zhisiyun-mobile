@@ -58,7 +58,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     return x.toJSON();
                 })
                 render_data.login_people = $("#login_people").val();
-
+                //设定列表的返回路径，自己或下属
+                $("#btn-colltask_detail-list").attr('href', self.colltask_detail_back_url);
                 //设定返回按钮的地址
                 if (!self.colltask_detail_back_url) {
                     if (self.model.get('p_task')) { //有父级任务，返回
@@ -113,6 +114,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 };
                 $("#colltask_detail-content").html(rendered);
                 $("#colltask_detail-content").trigger('create');
+                if($("#login_people").val() == self.model.attributes.th._id){
+                    $("#colltask_detail-footer").show();
+                }else{
+                    $("#colltask_detail-footer").hide();
+                }
+                
                 //确定权限
                 var login_people = $("#login_people").val();
                 var rights = [0, 0, 0, 0];

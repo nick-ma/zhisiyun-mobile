@@ -43,7 +43,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./tmattendanceRouter",
     "./absence",
     "./talentRouter",
-
+    "./imRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
 
@@ -75,6 +75,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     TmAttendanceRouter,
     Absence,
     TalentRouter,
+    ImRouter,
     async, moment
 
 
@@ -107,6 +108,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new TmAttendanceRouter();
         new Absence();
         new TalentRouter();
+        new ImRouter()
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
