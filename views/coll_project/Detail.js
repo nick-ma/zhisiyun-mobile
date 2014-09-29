@@ -71,6 +71,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 // })
                 render_data.login_people = $("#login_people").val();
 
+                //设定列表的返回路径，自己或下属
+                $("#btn-collproject_detail-list").attr('href', self.collproject_detail_back_url);
                 //设定返回按钮的地址
 
                 $("#btn-collproject_detail-back").attr('href', self.collproject_detail_back_url);
@@ -154,6 +156,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 };
                 $("#collproject_detail-content").html(rendered);
                 $("#collproject_detail-content").trigger('create');
+                if($("#login_people").val() == self.model.attributes.pm._id){
+                    $("#collproject_detail-footer").show();
+                }else{
+                    $("#collproject_detail-footer").hide();
+                }
+                
                 //确定权限
                 var login_people = $("#login_people").val();
                 var rights = [0, 0, 0, 0, 0, 0, 0];

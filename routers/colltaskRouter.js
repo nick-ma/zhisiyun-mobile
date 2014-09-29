@@ -4,15 +4,15 @@
 define(["jquery", "backbone", "handlebars", "lzstring", "moment",
         // 协作任务
         "../models/CollTaskModel",
-        "../collections/CollProjectCollection", "../collections/CollTaskCollection",
-        "../views/coll_task/List", "../views/coll_task/Detail", "../views/coll_task/Edit",
+        "../collections/CollProjectCollection", "../collections/CollTaskCollection","../collections/CollTaskCollection2",
+        "../views/coll_task/List", "../views/coll_task/List2", "../views/coll_task/Detail", "../views/coll_task/Edit",
         // 协作项目－配套协作任务的
         "../views/coll_project/List",
     ],
     function($, Backbone, Handlebars, LZString, moment,
         CollTaskModel,
-        CollProjectCollection, CollTaskCollection,
-        CollTaskListView, CollTaskDetailView, CollTaskEditView,
+        CollProjectCollection, CollTaskCollection, CollTaskCollection2,
+        CollTaskListView, CollTaskListView2, CollTaskDetailView, CollTaskEditView,
         CollProjectListView
     ) {
 
@@ -29,6 +29,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
             routes: {
                 // 协作任务
                 "colltask": "colltask",
+                "colltask2/:people_id": "colltask2",
                 "colltask_detail/:ct_id": "colltask_detail",
                 // "colltask_edit/:ct_id": "colltask_edit",
                 "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
@@ -54,6 +55,22 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 $.mobile.loading("show");
                 self.c_colltask.fetch().done(function() {
                     self.collTaskListView.render();
+                    $.mobile.loading("hide");
+                })
+            },
+            colltask2: function(people_id) {
+                localStorage.setItem('colltask_detail_back_url', window.location.href);
+                var self = this;
+                $("body").pagecontainer("change", "#colltask2", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+
+                self.c_colltask2.people_id = people_id;
+                self.c_colltask2.fetch().done(function() {
+                    self.collTaskListView2.people_id = people_id;
+                    self.collTaskListView2.render();
                     $.mobile.loading("hide");
                 })
             },
@@ -184,6 +201,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     el: "#colltask-content",
                     collection: self.c_colltask
                 })
+                this.collTaskListView2 = new CollTaskListView2({
+                    el: "#colltask-content2",
+                    collection: self.c_colltask2
+                })
                 this.collTaskEditView = new CollTaskEditView({
                     el: "#colltask_edit-content",
                 })
@@ -203,6 +224,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
             },
             init_collections: function() {
                 this.c_colltask = new CollTaskCollection(); //协作任务
+                this.c_colltask2 = new CollTaskCollection2(); //下属的协作任务
                 this.c_collproject = new CollProjectCollection(); //协作项目
 
                 // this.c_colltask.on('sync', function(event) { //放到local storage

@@ -8,7 +8,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 协作项目－配套协作任务的
         "../views/coll_project/EditContact",
         "../views/coll_project/EditExtend",
-        "../views/coll_project/List", "../views/coll_project/ListAll", "../views/coll_project/Edit", "../views/coll_project/Detail",
+        "../views/coll_project/List", "../views/coll_project/ListAll", "../views/coll_project/ListAll2", "../views/coll_project/Edit", "../views/coll_project/Detail",
     ],
     function($, Backbone, Handlebars, LZString,
         CollProjectModel,
@@ -16,7 +16,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         CollProjectEditContactView,
         CollProjectEditExtendView,
-        CollProjectListView, CollProjectListViewAll, CollProjectEditView, CollProjectDetailView
+        CollProjectListView, CollProjectListViewAll,CollProjectListViewAll2, CollProjectEditView, CollProjectDetailView
     ) {
 
         var CollProjectRouter = Backbone.Router.extend({
@@ -35,6 +35,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             routes: {
                 // 协作项目
                 "projectlist": "projectlist",
+                "projectlist2/:people_id": "projectlist2",
                 "collproject_detail/:cp_id": "collproject_detail",
                 // "colltask_edit/:ct_id": "colltask_edit",
                 // "colltask_edit/:ct_id(/:p_task)": "colltask_edit",
@@ -61,6 +62,27 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     self.collProjectListViewAll.cpfd = self.cpfd;
                     // self.collProjectListViewAll.date_pj_typeset = '0'
                     self.collProjectListViewAll.render()
+                    $.mobile.loading("hide");
+                });
+                // };
+            },
+            projectlist2: function(people_id) {
+                // colltasklistView.
+                localStorage.setItem('collproject_detail_back_url', window.location.href);
+                var self = this;
+                $("body").pagecontainer("change", "#collproject2", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                // if (!this.c_collproject.models.length) {
+                self.c_collproject.people_id = people_id;
+                self.c_collproject.fetch().done(function() {
+                    self.collProjectListViewAll2.people_id = people_id;
+                    self.collProjectListViewAll2.cp_types = self.cp_types;
+                    self.collProjectListViewAll2.cpfd = self.cpfd;
+                    // self.collProjectListViewAll2.date_pj_typeset = '0'
+                    self.collProjectListViewAll2.render()
                     $.mobile.loading("hide");
                 });
                 // };
@@ -182,7 +204,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     el: "#collproject-content",
                     collection: self.c_collproject,
                 })
-
+                this.collProjectListViewAll2 = new CollProjectListViewAll2({
+                    el: "#collproject-content2",
+                    collection: self.c_collproject,
+                })
                 this.collProjectEditContactView = new CollProjectEditContactView({
                     el: "#collproject_edit_contact-content",
                 })
