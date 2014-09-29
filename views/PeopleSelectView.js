@@ -54,6 +54,16 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         $("#people_select-content").find('#rd-' + sph.model[self.target_field]['_id']).attr('checked', true);
                         first_el = '#rd-' + sph.model[self.target_field]['_id'];
                     }
+                } else if (self.select_mode == 't') { //人才管理调用界面
+                    $("#people_select-content").html(self.template_m(render_data));
+                    //当前应该选中的变成选中
+                    var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                    if (sph.model) {
+                        var $container = $("#people_select-content");
+                        _.each(sph.model, function(x) {
+                            $container.find("#cb-" + x.people).attr('checked', true);
+                        })
+                    };
                 };
                 $("#people_select-content").trigger('create');
                 // 设定顶部过滤按钮的样式
@@ -98,6 +108,17 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             //写回去
                             localStorage.setItem('sp_helper_back', JSON.stringify(sph));
                             window.location.href = sph.back_url; //返回调用界面
+                        } else if (self.select_mode == 't') { //人才管理调用
+                            var people_selected = _.map($("#people_select-content input[type=checkbox]:checked"), function(x) {
+                                return self.collection.get(x.value);
+                            }); //获取相关的helper数据
+                            var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                            sph.model = _.map(people_selected, function(x) {
+                                return _.pick(x.toJSON(), ['_id', 'people_name', 'position_name']);
+                            }) //写回去
+                            localStorage.setItem('sp_helper_back', JSON.stringify(sph));
+                            window.location.href = sph.back_url; //返回调用界面
+
                         };
 
                     })

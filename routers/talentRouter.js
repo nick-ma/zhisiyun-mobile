@@ -9,15 +9,22 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/talent/SuperiorTwitterForm2View",
         "../views/talent/TalentDevelopeDetailListView", //培养计划明细列表
         "../views/talent/TalentDevelopeDetailOperationListView", //培养计划明细列表
+        "../views/talent/CourseView", //课程选择
         "../collections/DevelopePlanCollection",
         "../collections/DevelopeDirectCollection",
         "../collections/DevelopeTypeCollection",
+        "../collections/DevelopeCheckCollection",
+        "../collections/DevelopeLearnCollection",
         "../collections/SuperiorTwitterCollection",
         "../collections/PeopleCollection",
+        "../collections/CourseCollection", //课程
         "../models/DevelopePlanModel",
         "../models/DevelopeDirectModel",
         "../models/DevelopeTypeModel",
-        "../models/SuperiorTwitterModel"
+        "../models/DevelopeCheckModel",
+        "../models/DevelopeLearnModel",
+        "../models/SuperiorTwitterModel",
+        "../models/CourseModel" //课程
 
 
     ],
@@ -29,15 +36,22 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         SuperiorTwitterForm2View, //人才提名流程表单
         DevelopePlanDetailListView,
         DevelopePlanDetailOperationListView,
+        CourseView,
         DevelopePlanCollection,
         DevelopeDirectCollection,
         DevelopeTypeCollection,
+        DevelopeCheckCollection,
+        DevelopeLearnCollection,
         SuperiorTwitterCollection,
         PeopleCollection,
+        CourseCollection,
         DevelopePlanModel,
         DevelopeDirectModel,
         DevelopeTypeModel,
-        SuperiorTwitterModel
+        DevelopeCheckModel,
+        DevelopeLearnModel,
+        SuperiorTwitterModel,
+        CourseModel
     ) {
 
         var TalentRouter = Backbone.Router.extend({
@@ -57,7 +71,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo10/:op_id/:type": "go_do10",
                 "godo10_view/:pi_id": "go_do10_view", //市区公干流程查看
                 "plan_list_detail/:plan_id": "plan_list_detail", //人才培养计划明细
-                "plan_list_detail/:plan_id/:divide_id": "plan_list_detail_operation" //人才培养计划明细
+                "plan_list_detail/:plan_id/:divide_id": "plan_list_detail_operation", //人才培养计划明细
+                "course": "course" //课程选择
 
             },
             plan_list: function() { //我的培养计划列表
@@ -234,11 +249,15 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.DevelopePlanDetailListView.people = people;
                 self.ddCollection.fetch();
                 self.dtCollection.fetch();
+                self.dcCollection.fetch();
+                self.dlCollection.fetch();
                 // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
                 self.c_people.fetch();
                 self.DevelopePlanDetailListView.c_people = self.c_people; //人员数据
                 self.DevelopePlanDetailListView.direct = self.ddCollection.models;
                 self.DevelopePlanDetailListView.type = self.dtCollection.models;
+                self.DevelopePlanDetailListView.check = self.dcCollection.models;
+                self.DevelopePlanDetailListView.learn = self.dlCollection.models;
 
                 async.parallel({
                     status: function(cb) {
@@ -261,7 +280,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 })
 
             },
-            plan_list_detail_operation: function(plan_id,divide_id) { //人才培养计划明细列表
+            plan_list_detail_operation: function(plan_id, divide_id) { //人才培养计划明细列表
                 var self = this;
                 $("body").pagecontainer("change", "#talent_develope_detail_operation_list", {
                     reverse: false,
@@ -278,7 +297,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.DevelopePlanDetailOperationListView.c_people = self.c_people; //人员数据
                 self.DevelopePlanDetailOperationListView.direct = self.ddCollection.models;
                 self.DevelopePlanDetailOperationListView.type = self.dtCollection.models;
-
+                //明细计划
+                self.DevelopePlanDetailOperationListView.divide_id = divide_id;
                 async.parallel({
                     status: function(cb) {
                         $.get('/admin/pm/talent_develope/people', function(data) {
@@ -289,18 +309,44 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             cb(null, 'OK')
                         })
                     },
+                    file: function(cb) {
+                        $.get('/admin/pm/talent_develope/file', function(data) {
+                            if (data) {
+                                self.DevelopePlanDetailOperationListView.file = data.data;
+                            }
+                            cb(null, 'OK')
+                        })
+
+                    }
 
                 }, function(err, result) {
                     self.DevelopePlanDetailOperationListView.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                     self.DevelopePlanDetailOperationListView.collection.fetch().done(function() {
                         self.DevelopePlanDetailOperationListView.render();
+                        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                        $(".ui-flipswitch a").each(function() {
+                            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                        })
                         $.mobile.loading("hide");
+
 
                     })
                 })
 
             },
+            course: function() {
+                var self = this;
+                self.courseSelectView.people = $("#login_people").val();
+                $("body").pagecontainer("change", "#course_select", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                self.cCollection.fetch().done(function() {
+                    self.courseSelectView.render();
 
+                });
+                // self.courseSelectView.course = self.cCollection.models;
+            },
             init_views: function() {
                 var self = this;
                 self.DevelopePlanListView = new DevelopePlanListView({
@@ -331,6 +377,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#talent_develope_detail_operation-content",
                     collection: self.dpCollection,
                 })
+                this.courseSelectView = new CourseView({
+                    el: "#course_select-content",
+                    collection: self.cCollection,
+                });
 
             },
             init_models: function() {
@@ -338,8 +388,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.dpModel = new DevelopePlanModel();
                 self.ddModel = new DevelopeDirectModel();
                 self.dtModel = new DevelopeTypeModel();
+                self.dcModel = new DevelopeCheckModel();
+                self.dlModel = new DevelopeLearnModel();
                 self.stModel = new SuperiorTwitterModel();
                 this.c_people = new PeopleCollection();
+                this.cModel = new CourseModel();
 
             },
             init_collections: function() {
@@ -347,7 +400,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.dpCollection = new DevelopePlanCollection();
                 self.ddCollection = new DevelopeDirectCollection();
                 self.dtCollection = new DevelopeTypeCollection();
+                self.dcCollection = new DevelopeCheckCollection(); //
+                self.dlCollection = new DevelopeLearnCollection();
                 self.stCollection = new SuperiorTwitterCollection();
+                self.cCollection = new CourseCollection(); //课程
 
             },
             init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch

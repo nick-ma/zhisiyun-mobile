@@ -1547,7 +1547,39 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var filter_people = _.find(people, function(temp) {
           return temp._id == String(_id)
         })
-        return filter_people[field];
+        return filter_people ? filter_people[field] : '';
+
+      });
+      Handlebars.registerHelper('TalentFile', function(data, _id, field) {
+        var filter_file = _.find(data, function(temp) {
+          return temp._id == String(_id)
+        })
+        if (filter_file) {
+          if (field == 'length') {
+            var size = parseInt(filter_file.length);
+            if (size < 1024) {
+              return sprintf('%0.2f B', size);
+            } else if (size >= 1024 && size < 1048576) { //1024 * 1024
+              return sprintf('%0.2f KB', size / 1024);
+            } else if (size >= 1048576 && size < 1073741824) { //1024^3
+              return sprintf('%0.2f MB', size / 1048576);
+            } else if (size >= 1073741824) {
+              return springf('%0.2f GB', size / 1073741824);
+            };
+          } else if (field == 'uploadDate') {
+            return moment(filter_file.uploadDate).format("YYYY-MM-DD")
+          } else if (field == 'file_name') {
+            var fn_parts = filter_file.filename.split('.');
+            if (fn_parts.length > 1) {
+              return fn_parts[fn_parts.length - 1];
+            } else {
+              return '';
+            };
+          }
+        } else {
+          return ''
+        }
+
 
       });
       Handlebars.registerHelper('TalentAvatar', function(people, _id, field) {
@@ -1744,6 +1776,233 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return temp.start_time
         }))
         return filter_position.position_name
+      });
+      //人才培养计划明细
+      Handlebars.registerHelper('opt_ret', function(develope_type, type_data, pri_state) {
+        var item = [];
+        if (develope_type) {
+          var type_temp = _.find(type_data, function(temp) {
+              return temp._id == String(develope_type)
+            })
+            //过滤没有操作培养手段权限的培养方式
+          var r_data = _.filter(type_data, function(r) {
+            if (r.develope_style) {
+              var f_data = _.filter(r.develope_style, function(d) {
+                var data = [];
+                if (d.priviledge) {
+                  _.each(d.priviledge, function(temp) {
+                    data.push(String(temp.pri));
+                  })
+                }
+                return !!~data.indexOf(String(pri_state));
+
+
+              })
+              return f_data.length > 0
+            }
+
+          })
+          _.each(r_data, function(temp) {
+            var temp_arr = [];
+            temp_arr.push(temp._id);
+            temp_arr.push(temp.type_name)
+            if (temp._id == String(develope_type)) {
+
+              item.push('<option value="' + temp_arr + '" selected>' + temp.type_name + '</option>')
+
+            } else {
+              item.push('<option value="' + temp_arr + '" >' + temp.type_name + '</option>')
+
+            }
+          })
+          // item.push('<option value="' + type_temp._id + '" >' + type_temp.type_name + '</option>')
+
+        } else {
+          item.push('<option>请选择培养方式</option>');
+          var r_data = _.filter(type_data, function(r) {
+            if (r.develope_style) {
+              var f_data = _.filter(r.develope_style, function(d) {
+                var data = [];
+                if (d.priviledge) {
+                  _.each(d.priviledge, function(temp) {
+                    data.push(String(temp.pri));
+                  })
+                }
+                return !!~data.indexOf(String(pri_state));
+
+
+              })
+              return f_data.length > 0
+            }
+
+          })
+          _.each(r_data, function(temp) {
+            var temp_arr = [];
+            temp_arr.push(temp._id);
+            temp_arr.push(temp.type_name)
+            item.push('<option data-name="' + temp.type_name + '" value="' + temp_arr + '" >' + temp.type_name + '</option>')
+          })
+        }
+        return item.join('');
+      });
+      Handlebars.registerHelper('opt_style_ret', function(develope_type, style_id, type_data, pri_state) {
+        var item = [];
+        if (develope_type) {
+          var type_temp = _.find(type_data, function(temp) {
+            return temp._id == String(develope_type)
+          })
+          if (style_id) {
+            var style_temp = _.find(type_temp.develope_style, function(temp) {
+                return temp._id == String(style_id)
+              })
+              // if(style_temp)
+              // var temp_arr = [];
+              // temp_arr.push(style_temp._id);
+              // temp_arr.push(style_temp.style_name)
+            item.push('<option>请选择培养手段</option>')
+
+            _.each(type_temp.develope_style, function(temp) {
+              var priviledge = _.map(temp.priviledge, function(p) {
+                return String(p.pri)
+              })
+              if (!!~priviledge.indexOf(String(pri_state))) {
+                var temp_arr = [];
+                temp_arr.push(temp._id);
+                temp_arr.push(temp.style_name);
+                if (temp._id == String(style_id)) {
+                  item.push('<option value="' + temp_arr + '" selected>' + style_temp.style_name + '</option>')
+
+                } else {
+                  item.push('<option value="' + temp_arr + '" >' + temp.style_name + '</option>')
+
+                }
+              }
+            })
+
+          } else {
+            item.push('<option>请选择培养手段</option>')
+
+            _.each(type_temp.develope_style, function(temp) {
+              //判断权限
+              var priviledge = _.map(temp.priviledge, function(p) {
+                return String(p.pri)
+              })
+              if (!!~priviledge.indexOf(String(pri_state))) {
+
+                var temp_arr = [];
+                temp_arr.push(temp._id);
+                temp_arr.push(temp.style_name)
+                item.push('<option value="' + temp_arr + '" >' + temp.style_name + '</option>')
+              }
+            })
+
+          }
+
+
+        }
+        return item.join('');
+      });
+      Handlebars.registerHelper('opt_learn_ret', function(develope_type, style_id, learn_style, type_data, learn, pri_state) {
+        var item = [];
+        if (develope_type && style_id) {
+          var type_temp = _.find(type_data, function(temp) {
+            return temp._id == String(develope_type)
+          })
+          var style_temp = _.find(type_temp.develope_style, function(temp) {
+            return temp._id == String(style_id)
+          })
+          var obj = {};
+          _.each(learn, function(temp) {
+            obj[temp._id] = temp.type_name
+          })
+          if (learn_style) {
+            // var learn_temp = _.find(style_temp.learn_style, function(temp) {
+            //     return temp == String(learn_style)
+            // })
+            if (style_temp) {
+              item.push('<option>请选择培养安排方式</option>');
+
+              _.each(style_temp.learn_style, function(temp) {
+                var temp_arr = [];
+                temp_arr.push(temp);
+                temp_arr.push(obj[temp])
+                if (learn_style == String(temp)) {
+                  item.push('<option value="' + temp_arr + '" selected>' + obj[temp] + '</option>')
+
+                } else {
+                  item.push('<option value="' + temp_arr + '">' + obj[temp] + '</option>')
+                }
+
+              })
+            }
+
+          } else {
+            item.push('<option>请选择培养安排方式</option>')
+            if (style_temp) {
+              _.each(style_temp.learn_style, function(temp) {
+                var temp_arr = [];
+                temp_arr.push(temp);
+                temp_arr.push(obj[temp])
+                item.push('<option value="' + temp_arr + '" >' + obj[temp] + '</option>')
+              })
+            }
+
+          }
+
+
+        }
+        return item.join('');
+      });
+      Handlebars.registerHelper('opt_check_ret', function(develope_type, style_id, check_style, type_data, check, pri_state) {
+        var item = [];
+        if (develope_type && style_id) {
+          var type_temp = _.find(type_data, function(temp) {
+            return temp._id == String(develope_type)
+          })
+          var style_temp = _.find(type_temp.develope_style, function(temp) {
+            return temp._id == String(style_id)
+          })
+          var obj = {};
+          _.each(check, function(temp) {
+            obj[temp._id] = temp.type_name
+          })
+          if (check_style) {
+            // var check_temp = _.find(style_temp.check_style, function(temp) {
+            //     return temp == String(check_style)
+            // })
+            if (style_temp) {
+              item.push('<option>请选择成果评估方式</option>');
+
+              _.each(style_temp.check_style, function(temp) {
+                var temp_arr = [];
+                temp_arr.push(temp);
+                temp_arr.push(obj[temp])
+                if (check_style == String(temp)) {
+                  item.push('<option value="' + temp_arr + '" selected>' + obj[temp] + '</option>')
+
+                } else {
+                  item.push('<option value="' + temp_arr + '">' + obj[temp] + '</option>')
+                }
+
+              })
+            }
+
+          } else {
+            item.push('<option>请选择成果评估方式</option>');
+            if (style_temp) {
+              _.each(style_temp.check_style, function(temp) {
+                var temp_arr = [];
+                temp_arr.push(temp);
+                temp_arr.push(obj[temp])
+                item.push('<option value="' + temp_arr + '" >' + obj[temp] + '</option>')
+              })
+            }
+
+          }
+
+
+        }
+        return item.join('');
       });
 
     })();
