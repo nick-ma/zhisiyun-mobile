@@ -1,5 +1,5 @@
 // Includes file dependencies
-define(["jquery", "backbone", ], function($, Backbone) {
+define(["jquery", "backbone", "models/ImModel"], function($, Backbone, ImModel) {
 
     // Extends Backbone.Router
     var Collection = Backbone.Collection.extend({
@@ -13,7 +13,7 @@ define(["jquery", "backbone", ], function($, Backbone) {
         },
 
         // Sets the Collection model property to be a People Model
-        // model: SkillModel,
+        model: ImModel,
     });
 
     // Returns the Model class

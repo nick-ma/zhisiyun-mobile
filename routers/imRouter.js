@@ -29,8 +29,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         routes: {
             // 假期
             "im_list": "im_list",
-            "im_view/:im_id/:im_type": "im_view",
-            "im_form": "im_form",
+            "im_view_R/:im_id": "im_view",
+            "im_view_S/:im_id": "im_form",
         },
 
 
@@ -48,7 +48,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 $.mobile.loading("hide");
             })
         },
-        im_view: function(im_id, im_type) {
+        im_view: function(im_id) {
             var self = this;
             $("body").pagecontainer("change", "#im_edit_list", {
                 reverse: false,
@@ -56,13 +56,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             });
             $.mobile.loading("show");
             self.imEditView.pre_render();
-            $.get('/admin/im/get_im_json/' + im_id + '/' + im_type, function(data) {
-                self.imEditView.im = data
-                self.imEditView.render()
+            self.im.id = im_id;
+            self.im.fetch().done(function() {
+                self.imEditView.render();
                 $.mobile.loading("hide");
             })
         },
-        im_form: function() {
+        im_form: function(im_id) {
             var self = this;
             $("body").pagecontainer("change", "#im_create_list", {
                 reverse: false,
@@ -71,14 +71,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             $.mobile.loading("show");
             self.imCreateView.pre_render();
             self.imCreateView.people = $('#login_people').val();
-            self.imCreateView.im = {
-                im_format: 'plain',
-                is_email: false,
-                peoples: [],
-                people_selected: [],
-            };
-            self.imCreateView.render();
-            $.mobile.loading("hide");
+
+            self.im.id = im_id;
+            self.im.fetch().done(function() {
+                self.imCreateView.render();
+                $.mobile.loading("hide");
+            })
         },
         init_views: function() {
             var self = this;
@@ -88,11 +86,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             });
             this.imEditView = new ImEditView({
                 el: "#im_edit_list-content",
-                // model: self.im,
+                model: self.im,
             });
             this.imCreateView = new ImCreateView({
                 el: "#im_create_list-content",
-                // model: self.im,
+                model: self.im,
             });
 
         },
