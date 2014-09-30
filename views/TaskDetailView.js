@@ -59,7 +59,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     event.preventDefault();
                     var now = new Date();
                     var end = new Date(self.model.get('end'));
-                    if (self.model.is_complete) {
+                    if (self.model.get('is_complete')) {
                         alert('任务已完成，不能签到。');
                         return;
                     };
