@@ -4,6 +4,9 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars"],
     function($, _, Backbone, Handlebars) {
+        function format(date) {
+            return moment(date).format("YYYYMMDD");
+        }
 
         // Extends Backbone.View
         var DevelopePlanDetailOperationListView = Backbone.View.extend({
@@ -44,6 +47,18 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         x.attributes.people_data = find_people.attributes;
 
                     }
+                    //     //是否已到期
+                    _.each(x.attributes.plan_divide, function(temp) {
+                        temp.is_disabled = false;
+                        if (format(temp.plan_e) < format(moment(new Date()))) {
+                            temp.is_disabled = true;
+                        } else if (format(temp.plan_s) > format(moment(new Date()))) {
+                            temp.is_disabled = false;
+                        } else {
+                            temp.is_disabled = false;
+                        }
+                    })
+
                     return x.toJSON();
                 })
                 var divide_data = _.find(talent_data[0].plan_divide, function(p) {
@@ -53,8 +68,21 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     return x.toJSON()
                 })
                 var filter_people = _.find(people_data, function(temp) {
-                    return temp._id == String(self.people)
+                        return temp._id == String(self.people)
+                    })
+                    //取积分上下限数据
+                var type_data = _.map(self.type, function(p) {
+                    return p.toJSON()
                 })
+                var single_type_data = _.find(type_data, function(temp) {
+                    return temp._id == String(divide_data.develope_type)
+                })
+                if (single_type_data) {
+                    var single_style_data = _.find(single_type_data.develope_style, function(temp) {
+                        return temp._id == String(divide_data.style_id)
+                    })
+                }
+
                 self.filter_people = filter_people;
                 var obj = {
                     talent_data: talent_data[0],
@@ -62,7 +90,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     divide_data: divide_data,
                     people_data: people_data,
                     login_people: $("#login_people").val(),
-                    file_data: self.file
+                    file_data: self.file,
+                    type_data: type_data,
+                    single_style_data: single_style_data ? single_style_data : null
                 }
                 obj.is_self = ($("#login_people").val() == talent_data[0].people);
                 if (self.view_mode == 'comment') {
@@ -164,7 +194,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                     })
 
-                }).on('taphold', '.mentor', function(event) {
+                }).on('taphold', '.mentor', function(event) { //删除导师
                     event.preventDefault();
                     if (confirm("确认删除该导师吗？")) {
                         var mentor_id = $(this).data("up_id");
@@ -189,7 +219,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             error: function(model, xhr, options) {}
                         });
                     }
-                }).on('taphold', '.course', function(event) {
+                }).on('taphold', '.course', function(event) { //删除课程
                     event.preventDefault();
                     if (confirm("确认删除该课程吗？")) {
                         var course_id = $(this).data("up_id");
@@ -214,7 +244,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             error: function(model, xhr, options) {}
                         });
                     }
-                }).on('click', '#btn-talent-add_mentor', function(event) {
+                }).on('click', '#btn-talent-add_mentor', function(event) { //添加导师
                     event.preventDefault();
                     var plan_id = $(this).data("plan_id");
                     var divide_id = $(this).data("divide_id");
@@ -256,7 +286,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         },
                         error: function(model, xhr, options) {}
                     });
-                }).on('click', '#btn-ct-add_course', function(event) {
+                }).on('click', '#btn-ct-add_course', function(event) { //添加课程
                     event.preventDefault();
                     var plan_id = $(this).data("plan_id");
                     var divide_id = $(this).data("divide_id");
@@ -272,7 +302,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         back_url: window.location.hash,
                     })); //放到local storage里面，便于后面选择屏幕进行操作
                     window.location.href = url;
-                }).on('click', '#btn-talent-add_comment', function(event) {
+                }).on('click', '#btn-talent-add_comment', function(event) { //添加交流记录
                     event.preventDefault();
                     var plan_id = $(this).data("plan_id");
                     var divide_id = $(this).data("divide_id");
@@ -301,7 +331,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         alert('请输入沟通记录!')
                     }
 
-                }).on('click', '#btn-ct-add_comment', function(event) {
+                }).on('click', '#btn-ct-add_comment', function(event) { //添加他评
                     event.preventDefault();
                     var plan_id = $(this).data("plan_id");
                     var divide_id = $(this).data("divide_id");
@@ -339,7 +369,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         window.location.href = this.src;
                     };
                     // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
-                }).on('click', '#btn_upload_attachment', function(event) {
+                }).on('click', '#btn_upload_attachment', function(event) { //添加附件
                     event.preventDefault();
                     var plan_id = $(this).data("plan_id");
                     var divide_id = $(this).data("divide_id");
@@ -361,6 +391,54 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }))
                     window.location.href = next_url;
 
+                }).on('click', '.open-left-panel', function(event) {
+                    event.preventDefault();
+                    $("#talent_develope_detail_operation-basic-left-panel").panel("open");
+                }).on('change', '#check_summary', function(event) {
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id");
+                    var divide_id = $(this).data("divide_id");
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    })
+                    var check_summary = $("#talent_develope_detail_operation_list #check_summary").val();
+                    if (check_summary) {
+
+                        divide_single_datas.check_summary = check_summary;
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                self.collection.fetch();
+                                self.render();
+                            },
+                            error: function(model, xhr, options) {}
+                        });
+                    } else {
+                        alert('请输入自评!')
+                    }
+                }).on('click', "#go_back", function(event) {
+                    event.preventDefault();
+                    window.location.href = '#plan_list_detail/' + self.collection.models[0].attributes._id;
+                }).on('change', "#pass", function(event) {
+                    event.preventDefault();
+                    var pass = $(this).val();
+                    var plan_id = $(this).data("plan_id");
+                    var divide_id = $(this).data("divide_id");
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    })
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                            self.collection.fetch();
+                            self.render();
+                            //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                            $(".ui-flipswitch a").each(function() {
+                                $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                            })
+                        },
+                        error: function(model, xhr, options) {}
+                    });
                 })
 
             }

@@ -33,14 +33,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var talent_data = self.filter_data;
                 } else {
                     var talent_data = _.map(self.collection.models, function(x) {
-                        var find_people=_.find(self.c_people.models, function(temp) {
+                        var find_people = _.find(self.c_people.models, function(temp) {
                             return temp.attributes._id == String(x.attributes.people)
                         })
-                        var find_direct = _.find(self.direct,function(temp){
+                        var find_direct = _.find(self.direct, function(temp) {
                             return temp.attributes._id == String(x.attributes.develope_direct)
                         })
                         x.attributes.people_data = find_people.attributes;
                         x.attributes.direct = find_direct.attributes;
+                        x.attributes.integral = _.reduce(_.map(x.attributes.plan_divide, function(temp) {
+                            return temp.pass ? temp.integral : 0
+                        }), function(mem, num) {
+                            return mem + num
+                        }, 0)
                         return x.toJSON();
                     })
                 }
@@ -86,6 +91,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var people_data = _.map(self.c_people.models, function(x) {
                         return x.toJSON()
                     })
+                    var direct = _.map(self.direct, function(temp) {
+                        return temp.attributes
+                    })
                     if (team_obj[select] == 'self') {
                         self.collection.url = '/admin/pm/talent_develope/plan?people_id=' + self.people;
                         self.collection.fetch().done(function() {
@@ -93,6 +101,15 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 var find_people = _.find(people_data, function(temp) {
                                     return temp._id == String(x.attributes.people)
                                 })
+                                var find_direct = _.find(direct, function(temp) {
+                                    return temp._id == String(x.attributes.develope_direct)
+                                })
+                                x.attributes.direct = find_direct;
+                                x.attributes.integral = _.reduce(_.map(x.attributes.plan_divide, function(temp) {
+                                    return temp.pass ? temp.integral : 0
+                                }), function(mem, num) {
+                                    return mem + num
+                                }, 0)
                                 x.attributes.people_data = find_people;
                                 return x.toJSON()
                             });
@@ -108,6 +125,15 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 var find_people = _.find(people_data, function(temp) {
                                     return temp._id == String(x.attributes.people)
                                 })
+                                var find_direct = _.find(direct, function(temp) {
+                                    return temp._id == String(x.attributes.develope_direct)
+                                })
+                                x.attributes.direct = find_direct;
+                                x.attributes.integral = _.reduce(_.map(x.attributes.plan_divide, function(temp) {
+                                    return temp.pass ? temp.integral : 0
+                                }), function(mem, num) {
+                                    return mem + num
+                                }, 0)
                                 x.attributes.people_data = find_people;
                                 return x.toJSON()
                             })
@@ -155,6 +181,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     event.preventDefault();
                     var img_view = '<img src="' + this.src + '">';
                     $("#fullscreen-overlay").html(img_view).fadeIn('fast');
+                }).on('click', '#btn_show_myteam_view', function(event) {
+                    event.preventDefault();
+                    window.location.href = "#myteam";
+                }).on('click', '#btn_show_talent_twitter_select_view', function(event) {
+                    event.preventDefault();
+                    window.location.href = "#talent_twitter_people";
                 })
             }
 

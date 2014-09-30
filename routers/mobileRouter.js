@@ -2006,6 +2006,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         }
         return item.join('');
       });
+      Handlebars.registerHelper('toISODateRangeTalent', function(start, end) {
+        return moment(start).format("YYYY-MM-DD")+'&rarr;'+moment(end).format("YYYY-MM-DD");
+      });
 
     })();
 
