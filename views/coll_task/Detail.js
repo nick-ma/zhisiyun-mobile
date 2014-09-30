@@ -114,12 +114,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 };
                 $("#colltask_detail-content").html(rendered);
                 $("#colltask_detail-content").trigger('create');
-                if($("#login_people").val() == self.model.attributes.th._id){
+                if ($("#login_people").val() == self.model.attributes.th._id) {
                     $("#colltask_detail-footer").show();
-                }else{
+                } else {
                     $("#colltask_detail-footer").hide();
                 }
-                
+
                 //确定权限
                 var login_people = $("#login_people").val();
                 var rights = [0, 0, 0, 0];
@@ -266,9 +266,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     .on('click', '#btn-ct-checkin', function(event) {
                         event.preventDefault();
+                        var now = new Date();
+                        var end = new Date(self.model.get('end'));
+                        if (self.model.isfinished) {
+                            alert('任务已完成，不能签到。');
+                            return;
+                        };
+                        if (now.getTime() > end.getTime()) {
+                            alert('已经超过任务截止时间，不能签到。');
+                            return;
+                        };
                         var syscmd_url = 'cmd://app/checkin/coll_task/' + self.model.get('_id');
-                        // console.log(syscmd_url);
                         window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
+
                     });
 
                 $("#colltask_detail-footer")

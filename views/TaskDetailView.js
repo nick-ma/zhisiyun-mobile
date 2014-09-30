@@ -57,8 +57,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                 })
                 .on('click', '#btn-task-checkin', function(event) {
                     event.preventDefault();
+                    var now = new Date();
+                    var end = new Date(self.model.get('end'));
+                    if (self.model.is_complete) {
+                        alert('任务已完成，不能签到。');
+                        return;
+                    };
+                    if (now.getTime() > end.getTime()) {
+                        alert('已经超过任务截止时间，不能签到。');
+                        return;
+                    };
                     var syscmd_url = 'cmd://app/checkin/event/' + self.model.get('_id');
-                    // console.log(syscmd_url);
                     window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
                 });
         }
