@@ -47,29 +47,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 if (self.model_view == '0') {
                     $("#im_view_list #receive_list").addClass('ui-btn-active')
                     obj.ims = sort_im(_.filter(self.collection.toJSON(), function(im) {
-                        return im.r_user.people == self.people || !im.r_user
+                        return im.msg_mark == 'R'
                     }))
 
                     obj.im_type = 'R'
                 } else {
                     $("#im_view_list #send_list").addClass('ui-btn-active')
-
-
-                    var items = _.filter(self.collection.toJSON(), function(im) {
-                        var people_id = im.s_user ? im.s_user.people : null;
-                        return people_id == self.people
-                    })
-
-
-                    var goups = _.groupBy(items, function(it) {
-                        return it.msg_theme + '-' + it.msg_type
-                    })
-                    _.each(goups, function(ys, k) {
-                        obj.ims.push(_.first(ys))
-
-                    })
-                    console.log(obj.ims)
-                    obj.ims = sort_im(obj.ims)
+                    var items = sort_im(_.filter(self.collection.toJSON(), function(im) {
+                        return im.msg_mark == 'S'
+                    }))
+                    obj.ims = items
                     obj.im_type = 'S'
                 }
                 $("#im_list-content").html(self.template_im(obj));
@@ -88,6 +75,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         event.preventDefault();
                         self.model_view = '1';
                         self.render()
+                    }).on('click', '#im_ceate', function(event) {
+                        event.preventDefault();
+                        if (confirm('确定新建通知 ？')) {
+                            $.mobile.loading("show");
+                            $.post('/admin/im/bb/' + null, {
+                                msg_theme: '新建通知',
+                                im_format: 'plain'
+                            }, function(data) {
+                                window.location.href = '#im_view_S/' + data._id
+                                $.mobile.loading("hide");
+
+                            })
+
+                        };
                     })
             }
         });

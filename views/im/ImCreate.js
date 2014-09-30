@@ -20,6 +20,53 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             }
             return str
         });
+
+        function times(start_date) {
+            s_date = start_date.split('T')[0];
+            s_zone = start_date.split('T')[1] || null;
+            var o = {
+                date: s_date,
+                zone: s_zone,
+            }
+            return o
+        }
+
+
+        function do_save(self, type) {
+
+
+            $.mobile.loading("show");
+            var imgs = []
+            _.each(self.model.get('attachments'), function(att) {
+                if (att._id) {
+                    imgs.push(att._id)
+                } else {
+                    imgs.push(att)
+                }
+            })
+
+
+
+            self.model.set('r_users', _.compact(_.pluck(self.model.get('r_users'), '_id')));
+            self.model.set('attachments', imgs);
+
+            self.model.save(self.model.attributes, {
+                success: function(model, response, options) {
+                    // fetch_im(im_id)
+                    var str = (type == 'S' ? '通知保存成功！！' : '通知发送成功！！')
+                    $.mobile.loading("hide");
+                    alert(str)
+
+                },
+                error: function(model, xhr, options) {
+                    var str = (type == 'S' ? '通知保存失败！！' : '通知发送失败！！')
+                    $.mobile.loading("hide");
+                    alert(str)
+
+                }
+            })
+
+        }
         // Extends Backbone.View
         var ImListView = Backbone.View.extend({
 
@@ -45,12 +92,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             },
             render: function() {
                 var self = this;
-
                 var rendered_data = '';
+                console.log(self)
+
+                //附件数据
+                if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
+                    var img_obj = JSON.parse(localStorage.getItem('upload_model_back')).model;
+                    self.model.set('attachments', img_obj.attachments)
+                    localStorage.removeItem('upload_model_back'); //用完删掉
+                };
+
                 if (self.model_view == '0') {
                     $("#im_create_list #btn-create_list-back").addClass('ui-icon-back').removeClass('ui-icon-check')
-                    console.log(self)
-                    rendered_data = self.template_im_create(self.im)
+                    rendered_data = self.template_im_create(self.model.attributes)
                 } else {
                     $("#im_create_list #btn-create_list-back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
                     rendered_data = self.people_select_template({
@@ -59,6 +113,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 }
                 $("#im_create_list-content").html(rendered_data);
                 $("#im_create_list-content").trigger('create');
+
                 return this
             },
             bind_event: function() {
@@ -78,12 +133,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                 var f_d = _.find(self.peoples, function(pp) {
                                     return pp._id == String(x.value)
                                 })
-                                return f_d;
+                                return {
+                                    _id: f_d.user,
+                                    people_name: f_d.people_name
+                                };
                             });
-                            self.im.people_selected = people_selected;
-
-                            console.log(people_selected)
-
+                            self.model.set('r_users', people_selected)
                             self.render();
                         } else {
                             window.location.href = '#im_list'
@@ -93,35 +148,80 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         event.preventDefault();
                         var field = $(this).data('field');
                         var val = $(this).val();
-                        self.im[field] = val
+                        self.model.set(field, val)
                     }).on('change', 'select', function(event) {
                         event.preventDefault();
                         var field = $(this).data('field');
-                        var val = $(this).val();
-                        self.im[field] = (val == 'true' ? true : false)
-                    }).on('click', '#btn-im_send', function(event) {
+                        var la = $(this).val();
+                        self.model.set(field, (la == 'false' ? false : true))
+                        self.render();
+                        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                        $(".ui-flipswitch a").each(function() {
+                            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                        });
+                    }).on('change', '#m_start_date, #m_end_date', function(event) {
                         event.preventDefault();
-                        if (!self.im.msg_theme || self.im.msg_theme == '') {
+                        var type = $(this).data('type');
+                        var field = $(this).data('field');
+                        var current_date = $(this).val();
+
+                        self.model.set(field, current_date)
+                        if (type == "S") {
+                            self.model.set(field, times(current_date).date + ' ' + times(current_date).zone)
+                            self.model.set('time_zone_s', times(current_date).zone)
+                        } else {
+                            self.model.set(field, times(current_date).date + ' ' + times(current_date).zone)
+                            self.model.set('time_zone_e', times(current_date).zone)
+                        }
+                    }).on('click', '#btn-save', function(event) {
+                        event.preventDefault();
+                        self.model.set('is_send', false);
+                        if (self.model.get('msg_theme') == null || self.model.get('msg_theme') == '') {
                             alert('主题不能为空!')
                             return false
                         };
-                        if (!self.im.msg_body || self.im.msg_body == '') {
+                        if (self.model.get('msg_body') == null || self.model.get('msg_body') == '') {
                             alert('发送内容不能为空!')
                             return false
                         };
-                        if (self.im.people_selected.length == 0) {
+                        do_save(self, 'S');
+                    }).on('click', '#btn-save_send', function(event) {
+                        event.preventDefault();
+                        self.model.set('is_send', true);
+                        if (self.model.get('r_users').length == 0) {
                             alert('请选择发送对象!')
                             return false
                         };
-                        if (confirm('确定发送通知吗?\n成功后将跳转到列表！')) {
-                            $(this).attr('disabled', true);
-                            $.mobile.loading("show");
-                            $.post('/admin/im/send_im', self.im, function(data) {
-                                console.log(data)
-                                $.mobile.loading("hide");
-                                window.location.href = '#im_list'
-                            })
+                        if (self.model.get('msg_theme') == null || self.model.get('msg_theme') == '') {
+                            alert('主题不能为空!')
+                            return false
+                        };
+                        if (self.model.get('msg_body') == null || self.model.get('msg_body') == '') {
+                            alert('发送内容不能为空!')
+                            return false
+                        };
+
+                        if (confirm('确定发送通知吗?')) {
+                            do_save(self, 'T');
                         }
+                    }).on('click', '#btn_upload_attachment', function(event) {
+                        //转到上传图片的页面
+                        // var leave = self.model.get('leave');
+                        localStorage.removeItem('upload_model_back'); //先清掉
+                        var next_url = '#upload_pic';
+                        localStorage.setItem('upload_model', JSON.stringify({
+                            model: self.model,
+                            field: 'attachments',
+                            back_url: window.location.hash
+                        }))
+                        window.location.href = next_url;
+
+                    }).on('click', 'img', function(event) {
+                        event.preventDefault();
+                        // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+                        var img_view = '<img src="' + this.src + '">';
+                        // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+                        $("#fullscreen-overlay").html(img_view).fadeIn('fast');
                     })
 
             }
