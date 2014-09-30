@@ -21,7 +21,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.init_collections();
             // self.data_collections = [];
             self.init_views();
-            // this.init_data();
+            self.init_data();
             // self.bind_events();
             console.info('app message: im recommand router initialized');
             // Backbone.history.start();
@@ -74,7 +74,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
             self.im.id = im_id;
             self.im.fetch().done(function() {
+                self.imCreateView.peoples = self.peoples
                 self.imCreateView.render();
+
                 $.mobile.loading("hide");
             })
         },
@@ -100,8 +102,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         init_collections: function() {
             this.ims = new ImCollection(); //请假数据
 
+        },
+        init_data: function() {
+            var self = this;
+            $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
+                self.peoples = peoples
+            })
         }
-
 
     });
 

@@ -120,11 +120,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var self = this;
                 $("#im_create_list")
                     .on('click', '#show_peoples', function(event) {
-                        $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
-                            self.model_view = '1';
-                            self.peoples = peoples
-                            self.render();
-                        })
+                        $.mobile.loading("show");
+                        // $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
+                        self.model_view = '1';
+                        // self.peoples = peoples
+                        self.render();
+                        $.mobile.loading("hide");
+                        // })
                     }).on('click', '#btn-create_list-back', function(event) {
                         event.preventDefault();
                         if (self.model_view == '1') {
