@@ -53,12 +53,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             $("#leaveofabsence_name").html('假期查看')
             var self = this;
             var rendered_data = '';
-            console.log(self)
+
             if (self.model_view == '0') {
+                if (self.obj.leave.leaves.length) {
+                    var first_data = _.first(self.obj.leave.leaves);
+                    var last_data = _.last(self.obj.leave.leaves);
+                    self.obj.leave.is_start = first_data.is_full_day
+                    self.obj.leave.is_start_time = moment(first_data.start_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_s
+                    self.obj.leave.is_last = last_data.is_full_day
+                    self.obj.leave.is_end_time = moment(first_data.end_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_e
+                };
                 rendered_data = self.leave_template(self.obj);
 
             } else if (self.model_view == '1') {
                 $("#leaveofabsence_name").html('假期累计明细');
+
+
                 rendered_data = self.leave_details_template(self.obj);
             } else if (self.model_view == '2') {
                 $("#leaveofabsence_name").html('请假明细');
