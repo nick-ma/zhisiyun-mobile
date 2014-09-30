@@ -34,7 +34,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.init_views();
             // this.init_data();
             // self.bind_events();
-            console.info('app message: skill recommand router initialized');
+            console.info('app message: absence recommand router initialized');
             // Backbone.history.start();
         },
         routes: {
@@ -88,7 +88,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         list_view: function(pi_id, type) {
             var self = this;
             $.get('/admin/tm/wf_leave_of_absence/view_json/' + pi_id, function(data) {
-                console.log(data)
                 self.leaveShowList.obj = data
                 self.leaveShowList.render();
                 $("body").pagecontainer("change", "#leave_view_list", {

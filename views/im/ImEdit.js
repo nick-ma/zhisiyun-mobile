@@ -38,9 +38,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             },
             render: function() {
                 var self = this;
-                console.log('=================')
-                console.log(self.im)
-                $("#im_edit_list-content").html(self.template_im_edit(self.im));
+                $("#im_edit_list-content").html(self.template_im_edit(self.model.attributes));
                 $("#im_edit_list-content").trigger('create');
                 return this
             },
