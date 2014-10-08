@@ -170,13 +170,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var type = $(this).data('type');
                         var field = $(this).data('field');
                         var current_date = $(this).val();
-
-                        self.model.set(field, current_date)
-                        if (type == "S") {
-                            self.model.set(field, times(current_date).date + ' ' + times(current_date).zone)
-                            self.model.set('time_zone_s', times(current_date).zone)
+                        var is_all_day = self.model.get('is_all_day');
+                        if (is_all_day) {
+                            self.model.set(field, times(current_date).date)
                         } else {
                             self.model.set(field, times(current_date).date + ' ' + times(current_date).zone)
+                        }
+                        if (type == "S") {
+                            self.model.set('time_zone_s', times(current_date).zone)
+                        } else {
                             self.model.set('time_zone_e', times(current_date).zone)
                         }
                     }).on('click', '#btn-save', function(event) {
