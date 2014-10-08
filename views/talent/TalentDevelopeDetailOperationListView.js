@@ -427,6 +427,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                         return x._id == String(divide_id)
                     })
+                    divide_single_datas.pass = !divide_single_datas.pass;
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
                             self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
@@ -439,6 +440,31 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         },
                         error: function(model, xhr, options) {}
                     });
+                }).on('change', ".integral", function(event) {
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id");
+                    var divide_id = $(this).data("divide_id");
+                    var integral_up = $(this).data("integral_up");
+                    var integral_down = $(this).data("integral_down");
+                    var current_val = $(this).val();
+                    if (current_val < integral_up || current_val > integral_down) {
+                        alert("该积分值不在区间内,请重新输入!")
+                        $(this).val("");
+                    } else {
+                        var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                            return x._id == String(divide_id)
+                        })
+                        divide_single_datas.integral = $(this).val();
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                self.collection.fetch();
+                                self.render();
+                            },
+                            error: function(model, xhr, options) {}
+                        });
+                    }
+
                 })
 
             }

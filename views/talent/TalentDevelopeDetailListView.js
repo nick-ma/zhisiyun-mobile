@@ -2,8 +2,8 @@
 // ===================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars"],
-    function($, _, Backbone, Handlebars) {
+define(["jquery", "underscore", "backbone", "handlebars", "async"],
+    function($, _, Backbone, Handlebars, async) {
         var pri_state = null;
 
         function get_data(id, talent) {
@@ -15,6 +15,29 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
         function format(date) {
             return moment(date).format("YYYYMMDD");
+        }
+        //im_send
+        function im_send(temp_data, tag) {
+            var require_data = [];
+            require_data.push({
+                'plan_id': temp_data._id,
+                'plan_name': temp_data.plan_name,
+                'develope_direct': temp_data.develope_direct,
+                'people': temp_data.people,
+                'people_no': temp_data.people_no,
+                'people_name': temp_data.people_name,
+                'period_start': temp_data.period_start,
+                'period_end': temp_data.period_end,
+                'des_career': temp_data.des_career,
+                'des_career_name': temp_data.des_career_name,
+                'des_position': temp_data.des_position,
+                'des_position_name': temp_data.des_position_name,
+            });
+            var post_data = 'require_data=' + JSON.stringify(require_data);
+            post_data += '&tag=' + tag;
+            $.post('/admin/pm/talent_develope/im_send', post_data, function(data) {
+                console.log(data)
+            })
         }
         // Extends Backbone.View
         var DevelopePlanDetailListView = Backbone.View.extend({
@@ -63,9 +86,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                         }
                     })
-                    x.attributes.people_data = find_people.attributes;
-                    x.attributes.direct = find_direct.attributes;
+                    if (find_people) {
+                        x.attributes.people_data = find_people.attributes;
+                    }
+                    if (find_direct) {
+                        x.attributes.direct = find_direct.attributes;
 
+                    }
                     return x.toJSON();
                 })
                 var direct = _.map(self.direct, function(temp) {
@@ -82,7 +109,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 })
 
                 var plan_divide_sort = _.sortBy(talent_data[0].plan_divide, function(temp) {
-                    return temp.period_start
+                    return temp.plan_s
                 })
                 plan_divide_sort.reverse();
                 talent_data[0].plan_divide = plan_divide_sort;
@@ -118,7 +145,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     if (pass == "false") {
                         var bool = temp.pass == null || temp.pass == false
                     } else {
-                        var bool = temp.pass == true ;
+                        var bool = temp.pass == true;
                     }
                     return temp.state == state && bool
                 })
@@ -160,46 +187,81 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     if (found) {
                         found[field1] = _id;
                         found[field2] = name;
-                        self.collection.models[0].save(self.collection.models[0].attributes, {
-                            success: function(model, response, options) {
-                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                // plan.trigger('sync')
-                                self.render();
+                        async.parallel({
+                            save_data: function(cb) {
+                                self.collection.models[0].save(self.collection.models[0].attributes, {
+                                    success: function(model, response, options) {
+                                        self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                        self.collection.fetch();
+                                        // plan.trigger('sync')
+                                        self.render();
+                                        cb(null, 'OK')
+                                    },
+                                    error: function(model, xhr, options) {
+                                        cb(null, 'ERR')
+                                    }
+                                });
                             },
-                            error: function(model, xhr, options) {}
-                        });
-                        //通过Tag标签来控制与候选人培养计划的消息发送,共用一个接口
-                        if (change == 1) {
-                            var require_data = [];
-                            var temp_data = self.collection.models[0].attributes;
-                            require_data.push({
-                                'plan_name': temp_data.plan_name,
-                                'develope_direct': temp_data.develope_direct,
-                                'people': temp_data.people,
-                                'people_no': temp_data.people_no,
-                                'people_name': temp_data.people_name,
-                                'period_start': temp_data.period_start,
-                                'period_end': temp_data.period_end,
-                                'des_career': temp_data.des_career,
-                                'des_career_name': temp_data.des_career_name,
-                                'des_position': temp_data.des_position,
-                                'des_position_name': temp_data.des_position_name,
-                            });
-                            var post_data = 'require_data=' + JSON.stringify(require_data);
-                            post_data += '&tag=change';
-                            if (post_data) {
-                                $.post('/admin/pm/talent_develope/email_send', post_data)
+                            im_send: function(cb) { //im消息发送
+                                if (change == 1) {
+                                    change++;
+                                    var require_data = [];
+                                    var temp_data = self.collection.models[0].attributes;
+                                    require_data.push({
+                                        'plan_id': temp_data._id,
+                                        'plan_name': temp_data.plan_name,
+                                        'develope_direct': temp_data.develope_direct,
+                                        'people': temp_data.people,
+                                        'people_no': temp_data.people_no,
+                                        'people_name': temp_data.people_name,
+                                        'period_start': temp_data.period_start,
+                                        'period_end': temp_data.period_end,
+                                        'des_career': temp_data.des_career,
+                                        'des_career_name': temp_data.des_career_name,
+                                        'des_position': temp_data.des_position,
+                                        'des_position_name': temp_data.des_position_name,
+                                    });
+                                    var post_data = 'require_data=' + JSON.stringify(require_data);
+                                    post_data += '&tag=change';
+                                    $.post('/admin/pm/talent_develope/im_send', post_data, cb)
+                                } else {
+                                    cb(null, 'ok')
+                                }
+
                             }
-                            change++;
-                        }
+                        })
+
+                        // //通过Tag标签来控制与候选人培养计划的消息发送,共用一个接口
+                        // if (change == 1) {
+                        //     var require_data = [];
+                        //     var temp_data = self.collection.models[0].attributes;
+                        //     require_data.push({
+                        //         'plan_name': temp_data.plan_name,
+                        //         'develope_direct': temp_data.develope_direct,
+                        //         'people': temp_data.people,
+                        //         'people_no': temp_data.people_no,
+                        //         'people_name': temp_data.people_name,
+                        //         'period_start': temp_data.period_start,
+                        //         'period_end': temp_data.period_end,
+                        //         'des_career': temp_data.des_career,
+                        //         'des_career_name': temp_data.des_career_name,
+                        //         'des_position': temp_data.des_position,
+                        //         'des_position_name': temp_data.des_position_name,
+                        //     });
+                        //     var post_data = 'require_data=' + JSON.stringify(require_data);
+                        //     post_data += '&tag=change';
+                        //     if (post_data) {
+                        //         $.post('/admin/pm/talent_develope/email_send', post_data)
+                        //     }
+                        //     change++;
+                        // }
 
 
                     }
 
                 }).on('click', '#btn_delete', function(event) { //删除明细计划
                     event.preventDefault();
-                    var plan_id = $(this).data("plan_id");
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                     var divide_id = $(this).data("divide_id");
                     if (confirm("确认删除该明细计划吗?")) {
                         var filter_plan_data = _.filter(self.collection.models[0].attributes.plan_divide, function(x) {
@@ -209,9 +271,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                alert("该培养计划明细删除成功!")
-                                self.render();
+                                self.collection.fetch().done(function() {
+                                    alert("该培养计划明细删除成功!")
+                                    self.render();
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, 'delete');
+                                });
+
+
                             },
                             error: function(model, xhr, options) {
                                 alert("内部服务器错误,请联系系统管理员!")
@@ -235,9 +302,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             self.collection.models[0].save(self.collection.models[0].attributes, {
                                 success: function(model, response, options) {
                                     self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                    self.collection.fetch();
-                                    alert('培养明细计划添加成功')
-                                    self.render();
+                                    self.collection.fetch().done(function() {
+                                        alert('培养明细计划添加成功')
+                                        self.render();
+                                        var temp_data = self.collection.models[0].attributes;
+                                        im_send(temp_data, 'add');
+                                    });
+
                                 },
                                 error: function(model, xhr, options) {
                                     alert("内部服务器错误,请联系系统管理员!")
@@ -252,9 +323,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             self.collection.models[0].save(self.collection.models[0].attributes, {
                                 success: function(model, response, options) {
                                     self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                    self.collection.fetch();
-                                    alert('培养明细计划添加成功')
-                                    self.render();
+                                    self.collection.fetch().done(function() {
+                                        alert('培养明细计划添加成功')
+                                        self.render();
+                                        var temp_data = self.collection.models[0].attributes;
+                                        im_send(temp_data, 'add');
+                                    });
+
                                 },
                                 error: function(model, xhr, options) {
                                     alert("内部服务器错误,请联系系统管理员!")
@@ -303,7 +378,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                                 self.collection.fetch();
-                                alert("该培养计划明细删除成功!")
                                 self.render();
                             },
                             error: function(model, xhr, options) {
@@ -324,7 +398,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                                 self.collection.fetch();
-                                alert("该培养计划明细删除成功!")
                                 self.render();
                             },
                             error: function(model, xhr, options) {
