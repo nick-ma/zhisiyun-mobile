@@ -51,6 +51,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
+
+            self.quesetionnaire_list_back_url = localStorage.getItem('quesetionnaire_list_back_url') || null;
+            localStorage.removeItem('quesetionnaire_list_back_url'); //用完删掉 
+
             var rendered_data = '';
             $("#nbti_name").html('MBTI测试')
             var status = self.model.get('status');
@@ -110,6 +114,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     obj.desc = f_d;
                     console.log(obj);
                     rendered_data = self.quesetionnaire_mbti_result_template(obj);
+                    //设定列表的返回路径
+                    if(self.quesetionnaire_list_back_url){
+                        $("#btn-quesetionnaire_nbti_list-back").attr('href', self.quesetionnaire_list_back_url);
+                    }
+                    
                     $("#quesetionnaire_nbti_list-content").html(rendered_data);
                     $("#quesetionnaire_nbti_list-content").trigger('create');
                 })
@@ -117,6 +126,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             $("#quesetionnaire_nbti_list-content").html(rendered_data);
             $("#quesetionnaire_nbti_list-content").trigger('create');
+
             $("#show_qti_num").html("已完成 " + self.num1 + " 题/共 " + self.num2 + " 题")
             // if (self.model.get('status') !== '0') {
             //     $('.btn_dis').attr('disabled', true)
