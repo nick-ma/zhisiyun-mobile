@@ -75,7 +75,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var self = this;
                 this.template_im_create = Handlebars.compile($("#im_create_view").html());
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
-                this.people_select_template = Handlebars.compile($("#hbtmp_people_select_view").html());
+                this.people_select_template = Handlebars.compile($("#im_people_select_view").html());
 
                 // The render method is called when CollTask Models are added to the Collection
                 this.bind_event();
@@ -131,15 +131,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         event.preventDefault();
                         if (self.model_view == '1') {
                             self.model_view = '0';
-                            var people_selected = _.map($("#im_create_list-content input[type=checkbox]:checked"), function(x) {
+                            var people_selected = _.compact(_.map($("#im_create_list-content input[type=checkbox]:checked"), function(x) {
                                 var f_d = _.find(self.peoples, function(pp) {
                                     return pp._id == String(x.value)
                                 })
-                                return {
-                                    _id: f_d.user,
-                                    people_name: f_d.people_name
-                                };
-                            });
+                                if (f_d) {
+                                    return {
+                                        _id: f_d.user,
+                                        people_name: f_d.people_name
+                                    };
+                                } else {
+                                    return null
+                                }
+                            }));
                             self.model.set('r_users', people_selected)
                             self.render();
                         } else {
@@ -224,6 +228,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var img_view = '<img src="' + this.src + '">';
                         // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
                         $("#fullscreen-overlay").html(img_view).fadeIn('fast');
+                    }).on('change', '#checked_all_people', function(event) {
+                        event.preventDefault();
+                        var bool = ($(this).attr('data-cacheval') == 'true' ? false : true);
+                        if (bool) {
+                            var set = $("#im_create_list-content input[type=checkbox]").each(function() {
+                                $(this).attr('checked', true)
+                                $(this).prev().removeClass('ui-checkbox-off').addClass('ui-checkbox-on')
+                                $(this).attr("data-cacheval", false);
+                            })
+                        } else {
+                            var set = $("#im_create_list-content input[type=checkbox]").each(function() {
+                                $(this).attr('checked', false)
+                                $(this).prev().removeClass('ui-checkbox-on').addClass('ui-checkbox-off')
+                                $(this).attr("data-cacheval", true);
+                            })
+                        }
+
                     })
 
             }
