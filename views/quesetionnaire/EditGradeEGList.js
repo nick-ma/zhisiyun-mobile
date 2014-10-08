@@ -52,6 +52,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
+            self.quesetionnaire_list_back_url = localStorage.getItem('quesetionnaire_list_back_url') || null;
+            localStorage.removeItem('quesetionnaire_list_back_url'); //用完删掉 
             var rendered_data = '';
             $("#eg_name").html('九型测试')
             var status = self.model.get('status');
@@ -110,6 +112,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     })
                     obj.desc = f_d;
                     rendered_data = self.quesetionnaire_eg_result_template(obj);
+
+                    //设定列表的返回路径
+                    if (self.quesetionnaire_list_back_url) {
+                        $("#btn-quesetionnaire_nbti_list-back").attr('href', self.quesetionnaire_list_back_url);
+                    }
+
                     $("#quesetionnaire_eg_list-content").html(rendered_data);
                     $("#quesetionnaire_eg_list-content").trigger('create');
                 })

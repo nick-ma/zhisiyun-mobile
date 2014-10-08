@@ -7,6 +7,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/PeopleCompetencyScoreCollection",
         "../collections/MBTIQuestionInstanceCollection",
         "../collections/EGQuestionInstanceCollection",
+        "../collections/QICharacterCollection",
         "../models/PeopleCompetencyScoreModel",
         "../models/QuestionnairInstanceModel",
         "../models/MBTIQuestionInstanceModel",
@@ -15,7 +16,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/quesetionnaire/EditGradeCommonList",
         "../views/quesetionnaire/EditGradeManageList",
         "../views/quesetionnaire/EditGradeMBTIList",
-        "../views/quesetionnaire/EditGradeEGList"
+        "../views/quesetionnaire/EditGradeEGList",
+        "../views/quesetionnaire/QISubListView"
 
     ],
     function($, Backbone, Handlebars, LZString, async,
@@ -24,6 +26,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         PeopleCompetencyScoreCollection,
         MBTIQuestionInstanceCollection,
         EGQuestionInstanceCollection,
+        QICharacterCollection,
         PeopleCompetencyScoreModel,
         QuestionnairInstanceModel,
         MBTIQuestionInstanceModel,
@@ -32,8 +35,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         EditGradeCommonList,
         EditGradeManageList,
         EditGradeMBTIList,
-        EditGradeEGList
-
+        EditGradeEGList,
+        QISubListView
     ) {
 
         var QuesetionnaireRouter = Backbone.Router.extend({
@@ -51,6 +54,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             routes: {
                 "godo/:qi_id/:type": "quesetionnaire_list",
                 "qt_manage": "qt_manage",
+                "qi_sub/:people_id": "qi_sub",
                 // "my_qt_dateil/qt_id": "my_qt_dateil",
             },
             quesetionnaire_list: function(qi_id, type) { //我的待办
@@ -147,6 +151,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
             },
             qt_manage: function() {
+                localStorage.setItem('quesetionnaire_list_back_url', window.location.href);
                 var self = this;
                 $("body").pagecontainer("change", "#quesetionnaire_manage_list", {
                     reverse: false,
@@ -164,6 +169,24 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     //     reverse: false,
                     //     changeHash: false,
                     // });
+                })
+
+            },
+            qi_sub: function(people_id) {
+                localStorage.setItem('quesetionnaire_list_back_url', window.location.href);
+                var self = this;
+                $("body").pagecontainer("change", "#qi_sub_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.qiSubListView.people_id = people_id;
+                self.qiSubListView.pre_render();
+
+                self.qiCharacters.pp_id = people_id;
+                self.qiCharacters.fetch().done(function() {
+                    self.qiSubListView.render();
+                    $.mobile.loading("hide");
                 })
 
             },
@@ -192,6 +215,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#quesetionnaire_eg_list",
                     model: self.EGQuestionInstance,
                 })
+                this.qiSubListView = new QISubListView({
+                    el: "#qi_sub_list",
+                    collection: self.qiCharacters,
+                })
             },
             init_models: function() {
                 var self = this;
@@ -207,6 +234,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.peopleCompetencyScores = new PeopleCompetencyScoreCollection();
                 self.MBTIQuestionInstances = new MBTIQuestionInstanceCollection();
                 self.EGQuestionInstances = new EGQuestionInstanceCollection();
+                self.qiCharacters = new QICharacterCollection();
             },
             init_my_data: function() {
                 var self = this;
