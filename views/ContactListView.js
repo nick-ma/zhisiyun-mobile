@@ -24,7 +24,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 // console.log(self.filter_mode);
                 // var rendered = ;
                 var render_data = {
-                    people: _.sortBy(_.map(this.collection.models, function(x) {
+                    people: _.sortBy(_.map(self.collection.models, function(x) {
                         return x.toJSON();
                     }), function(x) {
                         return x.fl;
@@ -66,6 +66,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                         event.preventDefault();
                         self.filter_mode = 'favorite';
                         self.render();
+                    })
+                    .on('click', '#btn_refresh_people', function(event) {
+                        event.preventDefault();
+                        $.mobile.loading("show");
+                        self.collection.fetch().done(function() {
+                            $.mobile.loading("hide");
+                            self.render();
+                            localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.collection)));
+                        })
                     });
             }
 
