@@ -115,7 +115,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                     //设定列表的返回路径
                     if (self.quesetionnaire_list_back_url) {
-                        $("#btn-quesetionnaire_nbti_list-back").attr('href', self.quesetionnaire_list_back_url);
+                        $("#btn-quesetionnaire_eg_list-back").attr('href', self.quesetionnaire_list_back_url);
                     }
 
                     $("#quesetionnaire_eg_list-content").html(rendered_data);
