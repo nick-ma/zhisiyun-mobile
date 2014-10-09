@@ -1390,17 +1390,28 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
       });
       Handlebars.registerHelper('hour', function(time) {
-        if (time > 0) {
-          return parseInt(time) + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
+        var total_value = 0;
+        if (String(time).indexOf('.') != -1) {
+          total_value = parseFloat(time).toFixed(2)
+        } else {
+          total_value = parseInt(time)
+        }
+        if (total_value > 0) {
+          return total_value + '&nbsp;&nbsp;<span class="label label-warning">小时</span>'
         }
 
       });
-      Handlebars.registerHelper('parse_float', function(time) {
-        if (time > 0) {
-          return parseInt(time)
+      Handlebars.registerHelper('parse_float', function(total_value) {
+        if (String(total_value).indexOf('.') != -1) {
+          return parseFloat(total_value).toFixed(2)
         } else {
-          return 0
+          return parseInt(total_value)
         }
+        // if (time > 0) {
+        //   return parseInt(time)
+        // } else {
+        //   return 0
+        // }
 
       });
       Handlebars.registerHelper('travel', function(absence_type, destination) {
@@ -2007,7 +2018,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return item.join('');
       });
       Handlebars.registerHelper('toISODateRangeTalent', function(start, end) {
-        return moment(start).format("YYYY-MM-DD")+'&rarr;'+moment(end).format("YYYY-MM-DD");
+        return moment(start).format("YYYY-MM-DD") + '&rarr;' + moment(end).format("YYYY-MM-DD");
       });
 
     })();

@@ -181,12 +181,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     event.preventDefault();
                     var img_view = '<img src="' + this.src + '">';
                     $("#fullscreen-overlay").html(img_view).fadeIn('fast');
-                }).on('click', '#btn_show_myteam_view', function(event) {
+                }).on('click', '#btn_show_myteam_view', function(event) {//人才对比
                     event.preventDefault();
-                    window.location.href = "#myteam";
-                }).on('click', '#btn_show_talent_twitter_select_view', function(event) {
+                    window.location.href = "#talent_twitter_people/c";
+                }).on('click', '#btn_show_talent_twitter_select_view', function(event) {//人才提名
                     event.preventDefault();
-                    window.location.href = "#talent_twitter_people";
+                    window.location.href = "#talent_twitter_people/t";
                 })
             }
 

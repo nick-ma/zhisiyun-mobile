@@ -7,7 +7,44 @@ define(["jquery", "underscore", "backbone", "handlebars"],
         function format(date) {
             return moment(date).format("YYYYMMDD");
         }
-
+        //im_send
+        function im_send(temp_data, divide_id, tag, name, cb) {
+            var require_data = [];
+            var obj = {
+                'plan_data': temp_data,
+                'plan_id': temp_data._id,
+                'divide_id': divide_id,
+                'plan_name': temp_data.plan_name,
+                'develope_direct': temp_data.develope_direct,
+                'people': temp_data.people,
+                'people_no': temp_data.people_no,
+                'people_name': temp_data.people_name,
+                'period_start': temp_data.period_start,
+                'period_end': temp_data.period_end,
+                'des_career': temp_data.des_career,
+                'des_career_name': temp_data.des_career_name,
+                'des_position': temp_data.des_position,
+                'des_position_name': temp_data.des_position_name,
+            }
+            if (tag == 'delete_mentor') {
+                obj.mentor = name;
+            } else if (tag == 'delete_course') {
+                obj.course = name;
+            } else if (tag == 'add_comment') {
+                obj.comment = name;
+            }
+            require_data.push(obj);
+            var post_data = 'require_data=' + JSON.stringify(require_data);
+            post_data += '&tag=' + tag;
+            $.post('/admin/pm/talent_develope/im_send_detail', post_data, function(data) {
+                console.log(data)
+                if (data.code == 'OK') {
+                    cb(data.data)
+                } else {
+                    cb(null)
+                }
+            })
+        }
         // Extends Backbone.View
         var DevelopePlanDetailOperationListView = Backbone.View.extend({
 
@@ -37,7 +74,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             },
             // Renders all of the People models on the UI
             render: function() {
-
                 var self = this;
                 var talent_data = _.map(self.collection.models, function(x) {
                     var find_people = _.find(self.c_people.models, function(temp) {
@@ -198,7 +234,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     event.preventDefault();
                     if (confirm("确认删除该导师吗？")) {
                         var mentor_id = $(this).data("up_id");
-                        var plan_id = $(this).data("plan_id");
+                        var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                         var divide_id = $(this).data("divide_id");
                         var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                             return x._id == String(divide_id)
@@ -213,8 +249,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                self.render();
+                                self.collection.fetch().done(function() {
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'delete_mentor', found.people_name, function(data) {
+                                        self.render();
+                                    })
+                                });
                             },
                             error: function(model, xhr, options) {}
                         });
@@ -223,7 +263,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     event.preventDefault();
                     if (confirm("确认删除该课程吗？")) {
                         var course_id = $(this).data("up_id");
-                        var plan_id = $(this).data("plan_id");
+                        var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                         var divide_id = $(this).data("divide_id");
                         var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                             return x._id == String(divide_id)
@@ -238,8 +278,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                self.render();
+                                self.collection.fetch().done(function() {
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'delete_course', found.c_name, function(data) {
+                                        self.render();
+                                    })
+                                });
                             },
                             error: function(model, xhr, options) {}
                         });
@@ -260,7 +304,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         paln_id: plan_id,
                         back_url: window.location.hash,
                     })); //放到local storage里面，便于后面选择屏幕进行操作
-                    window.location.href = url;
+                    var temp_data = self.collection.models[0].attributes;
+                    im_send(temp_data, divide_id, 'add_mentor', null, function(data) {
+                        window.location.href = url;
+                    })
+
                 }).on('click', '#btn-talent-refresh', function(event) {
                     event.preventDefault();
                     $.mobile.loading("show");
@@ -281,6 +329,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         success: function(model, response, options) {
                             self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                             self.collection.fetch();
+                            localStorage.setItem('sp_helper_back', null);
+                            localStorage.setItem('course_helper_back', null);
+                            localStorage.setItem('sp_helper', null);
+                            localStorage.setItem('course_helper', null);
                             self.render();
                             alert("数据保存成功!")
                         },
@@ -301,7 +353,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         paln_id: plan_id,
                         back_url: window.location.hash,
                     })); //放到local storage里面，便于后面选择屏幕进行操作
-                    window.location.href = url;
+                    var temp_data = self.collection.models[0].attributes;
+                    im_send(temp_data, divide_id, 'add_course', null, function(data) {
+                        window.location.href = url;
+                    })
                 }).on('click', '#btn-talent-add_comment', function(event) { //添加交流记录
                     event.preventDefault();
                     var plan_id = $(this).data("plan_id");
@@ -322,8 +377,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                self.render();
+                                self.collection.fetch().done(function() {
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'add_message', message, function(data) {
+                                        self.render();
+                                    })
+                                });
                             },
                             error: function(model, xhr, options) {}
                         });
@@ -351,8 +410,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                self.render();
+                                self.collection.fetch().done(function() {
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'add_comment', message, function(data) {
+                                        self.render();
+                                    })
+                                });
                             },
                             error: function(model, xhr, options) {}
                         });
@@ -371,7 +434,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
                 }).on('click', '#btn_upload_attachment', function(event) { //添加附件
                     event.preventDefault();
-                    var plan_id = $(this).data("plan_id");
+                    var plan_id = $(this).data("plan_id")|| self.collection.models[0].attributes._id;
                     var divide_id = $(this).data("divide_id");
                     var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                             return x._id == String(divide_id)
@@ -389,8 +452,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         field: 'attachments',
                         back_url: window.location.hash
                     }))
-                    window.location.href = next_url;
-
+                    var temp_data = self.collection.models[0].attributes;
+                    im_send(temp_data, divide_id, 'add_attachment', null, function(data) {
+                        window.location.href = next_url;
+                    })
                 }).on('click', '.open-left-panel', function(event) {
                     event.preventDefault();
                     $("#talent_develope_detail_operation-basic-left-panel").panel("open");
