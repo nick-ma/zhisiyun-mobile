@@ -240,7 +240,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				}
 				self.wf_data.leave.data = date_items;
 				self.wf_data.leave.hours = total_value;
-				$('#hours').val(parseInt(total_value) + '小时');
+				// $('#hours').val(parseInt(total_value) + '小时');
+				if (String(total_value).indexOf('.') != -1) {
+					$('#hours').val(parseFloat(total_value).toFixed(2) + '小时');
+				} else {
+					$('#hours').val(parseInt(total_value) + '小时');
+
+				}
 				//当月已加班小时数
 				var month_hour = self.wf_data.total_hour;
 				var month_max_hour = self.wf_data.month_max_hour;
@@ -407,8 +413,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				}
 				obj.is_full_day = is_full_day;
 				//判断是否有开始和结束时间
-				obj.leave.create_start_date = wf_data.leave.create_start_date ? wf_data.leave.create_start_date : new Date();
-				obj.leave.create_end_date = wf_data.leave.create_end_date ? wf_data.leave.create_end_date : new Date();
+				var start_date = moment(wf_data.leave.create_start_date || new Date).format('YYYY-MM-DD');
+				var end_date = moment(wf_data.leave.create_end_date || new Date).format('YYYY-MM-DD');
+				var time_zone_s = _.first(wf_data.leave.data) ? _.first(wf_data.leave.data).time_zone_s : null;
+				var time_zone_e = _.last(wf_data.leave.data) ? _.last(wf_data.leave.data).time_zone_e : null;
+				assemble(self, time_parse(start_date + 'T' + time_zone_s), time_parse(end_date + 'T' + time_zone_e));
 				//当天工作时间
 				var today_time = is_work_on_off(new Date(), self.is_full_day);
 				// console.log(today_time);

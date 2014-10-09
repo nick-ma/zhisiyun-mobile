@@ -10,6 +10,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/talent/TalentDevelopeDetailListView", //培养计划明细列表
         "../views/talent/TalentDevelopeDetailOperationListView", //培养计划明细列表
         "../views/talent/CourseView", //课程选择
+        "../views/talent/LambdaListView", //人才对比
         "../collections/DevelopePlanCollection",
         "../collections/DevelopeDirectCollection",
         "../collections/DevelopeTypeCollection",
@@ -18,6 +19,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/SuperiorTwitterCollection",
         "../collections/PeopleCollection",
         "../collections/CourseCollection", //课程
+        "../collections/TalentCollection", //人才
+        "../collections/CompetencyCollection", //能力素质
+        "../collections/AssessmentCollection", //绩效得分
         "../models/DevelopePlanModel",
         "../models/DevelopeDirectModel",
         "../models/DevelopeTypeModel",
@@ -37,6 +41,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         DevelopePlanDetailListView,
         DevelopePlanDetailOperationListView,
         CourseView,
+        LambdaListView, //人才对比
         DevelopePlanCollection,
         DevelopeDirectCollection,
         DevelopeTypeCollection,
@@ -45,6 +50,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         SuperiorTwitterCollection,
         PeopleCollection,
         CourseCollection,
+        TalentCollection, //人才
+        CompetencyCollection, //能力素质
+        AssessmentCollection, //绩效得分
         DevelopePlanModel,
         DevelopeDirectModel,
         DevelopeTypeModel,
@@ -67,12 +75,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             routes: {
                 "plan_list": "plan_list", //人才培养计划列表
                 "twitter_list": "twitter_list", //人才提名历史数据
-                "talent_twitter_people": "talent_twitter_people", //人员选择（人才提名）
+                "talent_twitter_people/:type": "talent_twitter_people", //人员选择（人才提名）
                 "godo10/:op_id/:type": "go_do10",
                 "godo10_view/:pi_id": "go_do10_view", //市区公干流程查看
                 "plan_list_detail/:plan_id": "plan_list_detail", //人才培养计划明细
                 "plan_list_detail/:plan_id/:divide_id": "plan_list_detail_operation", //人才培养计划明细
-                "course": "course" //课程选择
+                "course": "course", //课程选择
+                "lambda_list": "lambda_list"  //人才对比列表
 
             },
             plan_list: function() { //我的培养计划列表
@@ -346,6 +355,23 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 });
                 // self.courseSelectView.course = self.cCollection.models;
+            }, //人才对比
+            lambda_list: function() {
+                var self = this;
+                $("body").pagecontainer("change", "#talent_lambda_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                var people = $("#login_people").val();
+                self.c_talent.fetch();
+                self.c_competency.fetch();
+                self.c_assessment.fetch();
+                self.LambdaListView.people = self.people;
+                self.LambdaListView.c_talent = self.c_talent;
+                self.LambdaListView.c_competency = self.c_competency;
+                self.LambdaListView.c_assessment = self.c_assessment;
+                self.LambdaListView.render();
+                // self.courseSelectView.course = self.cCollection.models;
             },
             init_views: function() {
                 var self = this;
@@ -381,7 +407,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#course_select-content",
                     collection: self.cCollection,
                 });
+                //人才对比
+                this.LambdaListView = new LambdaListView({
+                    el: "#talent_lambda_list-content",
+                    collection: self.c_people
 
+                })
             },
             init_models: function() {
                 var self = this;
@@ -404,6 +435,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.dlCollection = new DevelopeLearnCollection();
                 self.stCollection = new SuperiorTwitterCollection();
                 self.cCollection = new CourseCollection(); //课程
+                this.c_talent = new TalentCollection(); //人才
+                this.c_competency = new CompetencyCollection(); //能力素质
+                this.c_assessment = new AssessmentCollection(); //绩效得分
 
             },
             init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch

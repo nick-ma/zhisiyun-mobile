@@ -63,8 +63,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				}
 				obj.is_full_day = is_full_day;
 				//判断是否有开始和结束时间
-				obj.leave.create_start_date = wf_data.leave.create_start_date ? wf_data.leave.create_start_date : '';
-				obj.leave.create_end_date = wf_data.leave.create_end_date ? wf_data.leave.create_end_date : '';
+				//判断是否有开始和结束时间
+				var first_data = _.first(wf_data.leave.data);
+				var last_data = _.last(wf_data.leave.data);
+				self.wf_data.leave.create_start_date = moment(first_data.start_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_s
+				self.wf_data.leave.create_end_date = moment(first_data.end_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_e
+				obj.create_start_date = moment(first_data.start_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_s;
+				obj.create_end_date = moment(first_data.end_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_e;
 				//当天工作时间
 				obj.leave.hours = wf_data.leave.hours ? wf_data.leave.hours : '';
 				$("#personal_wf_beyond_of_work-content2").html(self.template(obj));

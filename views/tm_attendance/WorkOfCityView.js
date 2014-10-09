@@ -158,7 +158,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				}
 				self.wf_data.leave.data = date_items;
 				self.wf_data.leave.hours = total_value;
-				$('#hours').val(parseInt(total_value) + '小时');
+				if (String(total_value).indexOf('.') != -1) {
+					$('#hours').val(parseFloat(total_value).toFixed(2) + '小时');
+				} else {
+					$('#hours').val(parseInt(total_value) + '小时');
+
+				}
 				//判断公干时间需在上班时间内。
 				// if (!self.is_full_day && date_items.length == 1) {
 				// 	if (moment.duration(date_items[0].time_zone_s) < moment.duration(date_items[0].work_on_time) || moment.duration(date_items[0].time_zone_e) > moment.duration(date_items[0].work_off_time)) {
@@ -268,8 +273,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				// }
 				obj.is_full_day = is_full_day;
 				//判断是否有开始和结束时间
-				obj.leave.create_start_date = wf_data.leave.create_start_date ? wf_data.leave.create_start_date : new Date();
-				obj.leave.create_end_date = wf_data.leave.create_end_date ? wf_data.leave.create_end_date : new Date();
+				var start_date = moment(wf_data.leave.create_start_date || new Date).format('YYYY-MM-DD');
+				var end_date = moment(wf_data.leave.create_end_date || new Date).format('YYYY-MM-DD');
+				var time_zone_s = _.first(wf_data.leave.data) ? _.first(wf_data.leave.data).time_zone_s : null;
+				var time_zone_e = _.last(wf_data.leave.data) ? _.last(wf_data.leave.data).time_zone_e : null;
+				assemble(self, time_parse(start_date + 'T' + time_zone_s), time_parse(end_date + 'T' + time_zone_e));
+
+				// obj.leave.create_start_date = wf_data.leave.create_start_date ? wf_data.leave.create_start_date : new Date();
+				// obj.leave.create_end_date = wf_data.leave.create_end_date ? wf_data.leave.create_end_date : new Date();
 				//当天工作时间
 				var today_time = is_work_on_off(new Date(), self.is_full_day);
 				var day_hours = 8;
@@ -437,8 +448,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				}).on('click', '#create_data', function(event) {
 					self.page_mode = 'detail';
-					self.wf_data.leave.create_start_date = $("#personal_wf_work_of_city-content #create_start_date").val();
-					self.wf_data.leave.create_end_date = $("#personal_wf_work_of_city-content #create_end_date").val();
+					// self.wf_data.leave.create_start_date = $("#personal_wf_work_of_city-content #create_start_date").val();
+					// self.wf_data.leave.create_end_date = $("#personal_wf_work_of_city-content #create_end_date").val();
 					self.wf_data.leave.hours = $("#personal_wf_work_of_city-content #hours").val();
 					var end_date = $("#personal_wf_work_of_city-content #create_end_date").val();
 					var start_date = $("#personal_wf_work_of_city-content #create_start_date").val();
@@ -450,6 +461,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					self.render2();
 				}).on('change', '#create_end_date, #create_start_date', function(event) {
 					var type = $(this).data('type');
+					// self.wf_data.leave.create_start_date = $("#personal_wf_work_of_city-content #create_start_date").val();
+					// self.wf_data.leave.create_end_date = $("#personal_wf_work_of_city-content #create_end_date").val();
+
 					if (type == 'S') {
 						var start_date = $(this).val();
 						var end_date = $("#create_end_date").val();

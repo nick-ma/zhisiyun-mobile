@@ -82,6 +82,21 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     } else {
                         alert("请选择提名人员!!!")
                     }
+                }).on('click', '#btn-people_select-lambda', function(event) {
+                    event.preventDefault();
+                    var people_selected = _.map($("#talent_people_select-content input[type=checkbox]:checked"), function(x) {
+                        return self.collection.get(x.value);
+                    });
+                    var people_arr = _.map(people_selected, function(temp) {
+                        return temp.attributes._id
+                    })
+                    if (people_selected.length > 0) { //人才对比当地存储
+                        localStorage.setItem('lambda_helper', JSON.stringify(people_arr)); //放到local storage里面，便于后面选择屏幕进行操作
+                        window.location.href = "/m#lambda_list";
+                    } else {
+                        alert("请选择对比人才!!!")
+
+                    }
                 })
 
             },
