@@ -12,7 +12,11 @@ define(["jquery", "backbone", "models/CollTaskModel"], function($, Backbone, Col
             this.date_offset = 30; //默认取30天
         },
         url: function() {
-            return '/admin/pm/coll_task/bb2?date_offset=' + this.date_offset + '&ct=' + (new Date()).getTime() + '&people_id=' + this.people_id;
+            var url = '/admin/pm/coll_task/bb2?date_offset=' + this.date_offset + '&ct=' + (new Date()).getTime();
+            if (this.people_id) {
+                url += '&people_id=' + this.people_id;
+            };
+            return url;
         },
         // Sets the Collection model property to be a Task Model
         model: CollTaskModel,
