@@ -12,7 +12,15 @@ define(["jquery", "backbone", "models/CollProjectModel"], function($, Backbone, 
             this.date_offset = 30; //默认取30天
         },
         url: function() {
-            return '/admin/pm/coll_project/bb?date_offset=' + this.date_offset + '&date_pj_typeset=' + this.date_pj_typeset + '&ct=' + (new Date()).getTime() + '&people_id=' + this.people_id;
+            var url = '/admin/pm/coll_project/bb?date_offset=' + this.date_offset;
+            if (this.date_pj_typeset) {
+                url += '&date_pj_typeset=' + this.date_pj_typeset;
+            };
+            if (this.people_id) {
+                url += '&people_id=' + this.people_id;
+            };
+            url += '&ct=' + (new Date()).getTime();
+            return url;
         },
         // Sets the Collection model property to be a Task Model
         model: CollProjectModel,
