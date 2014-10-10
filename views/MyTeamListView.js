@@ -84,6 +84,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         $("#myteam_list-left-panel").panel("close");
                         // console.log($this.val());
                     })
+                    .on('click', '#btn_refresh_people', function(event) {
+                        event.preventDefault();
+                        $.mobile.loading("show");
+                        self.collection.fetch().done(function() {
+                            $.mobile.loading("hide");
+                            self.render();
+                            localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.collection)));
+                        })
+                    });
             }
 
         });
