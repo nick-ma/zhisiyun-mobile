@@ -28,7 +28,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../models/DevelopeCheckModel",
         "../models/DevelopeLearnModel",
         "../models/SuperiorTwitterModel",
-        "../models/CourseModel" //课程
+        "../models/CourseModel", //课程
+        "../models/AssessmentModel",
+        "../models/CompetencyModel",
+        "../models/TalentModel",
+
 
 
     ],
@@ -59,7 +63,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         DevelopeCheckModel,
         DevelopeLearnModel,
         SuperiorTwitterModel,
-        CourseModel
+        CourseModel,
+        AssessmentModel,
+        CompetencyModel,
+        TalentModel
     ) {
 
         var TalentRouter = Backbone.Router.extend({
@@ -362,15 +369,36 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.LambdaListView.pre_render();
+
                 var people = $("#login_people").val();
-                self.c_talent.fetch();
-                self.c_competency.fetch();
-                self.c_assessment.fetch();
-                self.LambdaListView.people = self.people;
-                self.LambdaListView.c_talent = self.c_talent;
-                self.LambdaListView.c_competency = self.c_competency;
-                self.LambdaListView.c_assessment = self.c_assessment;
-                self.LambdaListView.render();
+                async.parallel({
+                    talent: function(cb) {
+                        self.c_talent.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                    assessment: function(cb) {
+                        self.c_assessment.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                    competency: function(cb) {
+                        self.c_competency.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    }
+                }, function(err, data) {
+                    self.LambdaListView.people = people;
+                    self.LambdaListView.c_talent = self.c_talent;
+                    self.LambdaListView.c_competency = self.c_competency;
+                    self.LambdaListView.c_assessment = self.c_assessment;
+                    self.LambdaListView.render();
+                    $.mobile.loading("hide");
+
+                })
+
                 // self.courseSelectView.course = self.cCollection.models;
             },
             init_views: function() {
@@ -424,6 +452,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.stModel = new SuperiorTwitterModel();
                 this.c_people = new PeopleCollection();
                 this.cModel = new CourseModel();
+                self.AssessmentModel = new AssessmentModel();
+                self.TalentModel = new TalentModel();
+                self.CompetencyModel = new CompetencyModel();
 
             },
             init_collections: function() {
@@ -435,9 +466,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.dlCollection = new DevelopeLearnCollection();
                 self.stCollection = new SuperiorTwitterCollection();
                 self.cCollection = new CourseCollection(); //课程
-                this.c_talent = new TalentCollection(); //人才
-                this.c_competency = new CompetencyCollection(); //能力素质
-                this.c_assessment = new AssessmentCollection(); //绩效得分
+                self.c_talent = new TalentCollection(); //人才
+                self.c_competency = new CompetencyCollection(); //能力素质
+                self.c_assessment = new AssessmentCollection(); //绩效得分
 
             },
             init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
