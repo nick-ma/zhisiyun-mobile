@@ -96,8 +96,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				$.post(post_url, post_data, function(data) {
 					if (data.code == 'OK') {
-
 						window.location = '#todo';
+					} else {
+						window.location = '#todo';
+
 					};
 				})
 			})
@@ -126,9 +128,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				//附件数据
 				if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
 					self.wf_data = JSON.parse(localStorage.getItem('upload_model_back')).model;
+
 					localStorage.removeItem('upload_model_back'); //用完删掉
 				};
-
 				//流程数据
 				var wf_data = self.wf_data;
 				var attendance = self.attendance;
