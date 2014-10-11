@@ -1798,7 +1798,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return filter_position.position_name
       });
       //人才培养计划明细
-      Handlebars.registerHelper('opt_ret', function(develope_type, type_data, pri_state) {
+      Handlebars.registerHelper('opt_type_ret', function(develope_type, type_data, pri_state) {
         var item = [];
         if (develope_type) {
           var type_temp = _.find(type_data, function(temp) {
