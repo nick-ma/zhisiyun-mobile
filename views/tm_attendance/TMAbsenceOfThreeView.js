@@ -105,6 +105,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						event.preventDefault();
 						$("#show_attendance_result-left-panel").panel("open");
 					})
+					.on('click', '#btn-show_my_work_plan_view', function(event) {
+						event.preventDefault();
+						window.location = '#work_plan'
+						$("#show_attendance_result-left-panel").panel("close");
+					})
 					.on('click', '#btn-show_attendance_result-change_view', function(event) {
 						event.preventDefault();
 						window.location = '#attendance'

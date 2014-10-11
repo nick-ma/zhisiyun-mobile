@@ -2027,7 +2027,40 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('toISODateRangeTalent', function(start, end) {
         return moment(start).format("YYYY-MM-DD") + '&rarr;' + moment(end).format("YYYY-MM-DD");
       });
-
+      //我的工作计划
+      Handlebars.registerHelper('bool', function(bool) {
+        return bool ? '<span class="label label-warning" style="border-radius:10px">是<span>' : '<span class="label label-info" style="border-radius:10px">否</span>';
+      });
+      Handlebars.registerHelper('week', function(date, work_time) {
+        var week = {
+          '0': '星期日',
+          '1': '星期一',
+          '2': '星期二',
+          '3': '星期三',
+          '4': '星期四',
+          '5': '星期五',
+          '6': '星期六',
+        };
+        return week[moment(date).days()]
+      })
+      Handlebars.registerHelper('even_odd', function(date) {
+        if (moment(date).weeks() % 2) {
+          return '奇数周'
+        } else {
+          return '偶数周'
+        }
+      });
+      Handlebars.registerHelper('hol', function(is_holiday) {
+        return is_holiday ? '<span class="label label-info" style="border-radius:10px">是<span>' : '<span class="label label-warning" style="border-radius:10px">否</span>';
+      });
+      Handlebars.registerHelper('is_full_day', function(is_job_day, is_holiday, holiday_data) {
+        if ((is_job_day && !is_holiday) || (is_job_day && is_holiday && holiday_data.property == 'f')) {
+          var prop_f = '全';
+        } else {
+          var prop_h = '半';
+        }
+        return prop_f ? '<span class="label label-info" style="border-radius:10px">' + prop_f + '</span>' : '<span class="label label-warning" style="border-radius:10px">' + prop_h + '</span>';
+      })
     })();
 
     (function() {

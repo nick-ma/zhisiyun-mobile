@@ -3,6 +3,7 @@
 define(["jquery", "backbone", "handlebars", "lzstring", "async",
     "../collections/TmAttendanceCollection",
     "../collections/TMAbsenceOfThreeCollection",
+    "../collections/TmWorkPlanCollection",
     "../views/tm_attendance/PeopleAttendanceResult",
     "../views/tm_attendance/AttendanceResultChangeView",
     "../views/tm_attendance/TMAbsenceOfThreeView",
@@ -16,13 +17,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
     "../views/tm_attendance/MyCardRecordView",
     "../views/tm_attendance/BeyondOfWorkReportView",
     "../views/TransConfirmView",
+    "../views/tm_attendance/MyWorkPlanView", //我的工作计划
     "../models/WFDataModel",
     "../models/TmAttendanceModel",
     "../models/TMAbsenceOfThreeModel",
+    "../models/TmWorkPlanModel",
 
 ], function($, Backbone, Handlebars, LZString, async,
     TmAttendanceCollection,
     TMAbsenceOfThreeCollection,
+    TmWorkPlanCollection,
     PeopleAttendanceResult,
     AttendanceResultChangeView,
     TMAbsenceOfThreeView,
@@ -36,9 +40,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
     MyCardRecordView,
     BeyondOfWorkReportView,
     TransConfirmView,
+    MyWorkPlanView,
     WFDataModel,
     TmAttendanceModel,
-    TMAbsenceOfThreeModel
+    TMAbsenceOfThreeModel,
+    TmWorkPlanModel
 ) {
     var TmAttendanceRouter = Backbone.Router.extend({
         initialize: function() {
@@ -60,6 +66,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             "godo5_view/:pi_id": "go_do5_view", //员工加班流程查看
             "godo6_view/:pi_id": "go_do6_view", //外出差旅流程查看
             "godo7_view/:pi_id": "go_do7_view", //市区公干流程查看
+            "work_plan": "work_plan", //我的工作计划
 
         },
 
@@ -657,6 +664,27 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             })
 
         },
+        //---我的工作计划--//
+        work_plan: function() {
+            var self = this
+            $("body").pagecontainer("change", "#my_work_plan_list", {
+                reverse: false,
+                changeHash: false,
+            });
+            $.mobile.loading("show");
+            self.WorkPlanView.pre_render();
+            var login_people = $("#login_people").val();
+            this.work_plan_m.url = '/admin/tm/workplan/pep_bb?people=' + login_people;
+            this.work_plan_m.fetch().done(function() {
+                self.work_plan_c.remove(self.work_plan_m);
+                self.work_plan_c.push(self.work_plan_m);
+                self.WorkPlanView.work_plan =  self.work_plan_c;
+                console.log(self.WorkPlanView)
+                self.WorkPlanView.render();
+                $.mobile.loading("hide");
+
+            })
+        },
         init_views: function() {
             var self = this;
             this.PeopleAttendanceResult = new PeopleAttendanceResult({
@@ -696,6 +724,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             this.transConfirmView = new TransConfirmView({
                 el: "#trans_confirm",
             })
+            this.WorkPlanView = new MyWorkPlanView({
+                el: "#show_my_work_plan-content",
+            })
 
 
 
@@ -704,11 +735,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             this.tmattendance = new TmAttendanceModel();
             this.tm_absence_three = new TMAbsenceOfThreeModel();
             self.wf_data = new WFDataModel();
+            this.work_plan_m = new TmWorkPlanModel();
 
         },
         init_collections: function() {
             this.tmattendances = new TmAttendanceCollection(); //所有人
             this.tm_absence_threes = new TMAbsenceOfThreeCollection();
+            this.work_plan_c = new TmWorkPlanCollection();
         },
     });
 
