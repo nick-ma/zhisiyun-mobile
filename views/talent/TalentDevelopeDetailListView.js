@@ -63,7 +63,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
             render: function() {
 
                 var self = this;
-                var state = self.state || 2;
+                var state = self.state || 3;
                 var pass = (self.pass == "true") ? "true" : String($("#talent_develope_detail-basic-left-panel #talent_result").val());
                 var talent_data = _.map(self.collection.models, function(x) {
                     var find_people = _.find(self.c_people.models, function(temp) {
@@ -77,12 +77,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                         temp.is_disabled = false;
                         if (format(temp.plan_e) < format(moment(new Date()))) {
                             temp.is_disabled = true;
-                            temp.state = '2'
+                            temp.state = '2';
+                            temp.all_state = '3';
                         } else if (format(temp.plan_s) > format(moment(new Date()))) {
                             temp.state = '0'
+                            temp.all_state = '3';
 
                         } else {
                             temp.state = '1';
+                            temp.all_state = '3';
 
                         }
                     })
@@ -137,9 +140,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                 var ts_count = _.countBy(talent_data[0].plan_divide, function(x) {
                     return x.state;
                 });
+                var ts_count_all = _.countBy(talent_data[0].plan_divide, function(x) {
+                    return x.all_state;
+                });
                 _.each($("#talent_develope_detail-basic-left-panel label"), function(x) {
                     // console.log(x);
-                    $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    if ($(x).data('state') == '3') {
+                        $(x).find('span').html(ts_count_all[$(x).data('state')] || 0);
+
+                    } else {
+                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+
+                    }
+
                 })
                 obj.talent_data.plan_divide = _.filter(obj.talent_data.plan_divide, function(temp) {
                     if (pass == "false") {
@@ -147,7 +160,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     } else {
                         var bool = temp.pass == true;
                     }
-                    return temp.state == state && bool
+                    if (state == '3') {
+                        var bool2 = true;
+                        return bool2
+                    } else {
+                        return temp.state == state && bool
+                    }
                 })
                 $("#talent_develope_detail-content").html(self.template(obj));
                 $("#talent_develope_detail-content").trigger('create');

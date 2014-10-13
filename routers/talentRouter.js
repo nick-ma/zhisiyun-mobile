@@ -101,6 +101,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.DevelopePlanListView.pre_render();
                 var people = $("#login_people").val();
                 self.DevelopePlanListView.people = people;
+                async.parallel({
+                    dd:function(cb){
+                        // self.ddCollection.fetch().do
+                    }
+                })
                 self.ddCollection.fetch();
                 self.dtCollection.fetch();
                 // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
@@ -157,7 +162,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
-                self.peopleSelectView.render();
+                self.c_people.fetch().done(function() {
+                    self.peopleSelectView.render();
+
+                })
             },
             go_do10: function(op_id, type, mode) {
                 var self = this;

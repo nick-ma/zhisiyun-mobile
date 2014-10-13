@@ -121,27 +121,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             $("#lambda_data_a" + people).hide();
             $("#lambda_data_b" + people).hide();
           }
-        }).on('taphold', '.people_name', function(event) {
-          event.preventDefault();
-          var people = $(this).data("people");
-          var people_arr = JSON.parse(localStorage.getItem("lambda_helper")) || null;
-          if (people_arr) {
-            people_arr = _.filter(people_arr, function(x) {
-              return x != String(people)
-            })
-            localStorage.setItem("lambda_helper", JSON.stringify(people_arr));
-            self.collection.models = _.filter(self.collection.models, function(temp) {
-              return !!~people_arr.indexOf(String(temp.attributes._id));
-            })
-            self.render();
-          } else {
-            self.collection.models = _.filter(self.collection.models, function(temp) {
-              return String(people) != temp.attributes._id;
-            })
-            self.render();
-
-          }
-          // alert(people)
         }).on('click', '#btn-people_select-ok', function(event) {
           event.preventDefault();
 
@@ -183,6 +162,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
           var img_view = '<img src="' + this.src + '">';
           // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
           $("#fullscreen-overlay").html(img_view).fadeIn('fast');
+        }).on('click', '#btn_delete', function(event) {
+          event.preventDefault();
+          var people = $(this).data("people");
+          var people_arr = JSON.parse(localStorage.getItem("lambda_helper")) || null;
+          if (people_arr) {
+            people_arr = _.filter(people_arr, function(x) {
+              return x != String(people)
+            })
+            localStorage.setItem("lambda_helper", JSON.stringify(people_arr));
+            self.collection.models = _.filter(self.collection.models, function(temp) {
+              return !!~people_arr.indexOf(String(temp.attributes._id));
+            })
+            self.render();
+          } else {
+            self.collection.models = _.filter(self.collection.models, function(temp) {
+              return String(people) != temp.attributes._id;
+            })
+            self.render();
+
+          }
+          // alert(people)
         })
       }
 
