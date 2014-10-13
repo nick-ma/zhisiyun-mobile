@@ -55,7 +55,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     // fetch_im(im_id)
                     var str = (type == 'S' ? '通知保存成功！！' : '通知发送成功！！')
                     $.mobile.loading("hide");
-                    alert(str)
+                    if (type == 'S') {
+                        alert(str)
+                    } else {
+                        window.location.href = '/m#im_list'
+                    }
 
                 },
                 error: function(model, xhr, options) {
@@ -209,7 +213,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             return false
                         };
 
-                        if (confirm('确定发送通知吗?')) {
+                        if (confirm('确定发送通知吗?\n发送成功将跳转到列表！')) {
                             do_save(self, 'T');
                         }
                     }).on('click', '#btn_upload_attachment', function(event) {
