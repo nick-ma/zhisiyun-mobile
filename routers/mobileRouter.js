@@ -44,6 +44,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./absence",
     "./talentRouter",
     "./imRouter",
+    "./wfapproveRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
 
@@ -76,6 +77,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     Absence,
     TalentRouter,
     ImRouter,
+    WFApproveRouter,
     async, moment
 
 
@@ -108,7 +110,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new TmAttendanceRouter();
         new Absence();
         new TalentRouter();
-        new ImRouter()
+        new ImRouter();
+        new WFApproveRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -2060,7 +2063,25 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           var prop_h = '半';
         }
         return prop_f ? '<span class="label label-info" style="border-radius:10px">' + prop_f + '</span>' : '<span class="label label-warning" style="border-radius:10px">' + prop_h + '</span>';
-      })
+      });
+      Handlebars.registerHelper('showFAState', function(state) {
+        if (state == 'START') {
+          return '<span class="label label-info" >办理中</span>'
+        } else if (state == 'END') {
+          return '<span class="label label-success" >已办结</span>'
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('showFAOP', function(op) {
+        if (op == '通过') {
+          return '<span class="text-success" style="border: solid 1px; padding: 1px 1px;">通过</span>'
+        } else if (op == '拒绝') {
+          return '<span class="text-danger" style="border: solid 1px; padding: 1px 1px;">拒绝</span>'
+        } else {
+          return '';
+        };
+      });
     })();
 
     (function() {
