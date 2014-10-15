@@ -1003,6 +1003,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return options.inverse(this);
         };
       });
+      Handlebars.registerHelper('gt', function(data1, data2, options) {
+        if (data1 > data2) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('gte', function(data1, data2, options) {
+        if (data1 >= data2) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
       Handlebars.registerHelper('segname', function(data) {
         return (data == '-') ? '' : '[' + data + ']';
       });
@@ -2081,6 +2095,24 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         } else {
           return '';
         };
+      });
+      Handlebars.registerHelper('showFATaskOP', function(op) {
+        if (op) {
+          if (op == '起草') {
+            return '<span class="label label-default">' + op + '</span>';
+          } else if (op == '提交') {
+            return '<span class="label label-success">' + op + '</span>';
+          } else if (op == '驳回') {
+            return '<span class="label label-danger">' + op + '</span>';
+          } else if (op == '完成') {
+            return '<span class="label label-info">' + op + '</span>';
+          } else {
+            return '<span class="label label-default">' + op + '</span>';
+          };
+        } else {
+          return '';
+        };
+
       });
     })();
 

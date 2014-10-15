@@ -1,4 +1,4 @@
-// CollTask Edit View
+// WFApprove Edit View
 // =================
 
 // Includes file dependencies
@@ -6,19 +6,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
     function($, _, Backbone, Handlebars, moment) {
 
         // Extends Backbone.View
-        var CollTaskEditView = Backbone.View.extend({
+        var WFApproveEditView = Backbone.View.extend({
 
             // The View Constructor
             initialize: function() {
                 var self = this;
-                this.template = Handlebars.compile($("#hbtmp_coll_task_edit_view").html());
-                // The render method is called when CollTask Models are added to the Collection
+                this.template = Handlebars.compile($("#hbtmp_wf_approve_edit_view").html());
+                // The render method is called when WFApprove Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
                 // bind event
-                self.bind_event();
+                // self.bind_event();
             },
 
-            // Renders all of the CollTask models on the UI
+            // Renders all of the WFApprove models on the UI
             render: function() {
 
                 var self = this;
@@ -42,28 +42,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 if (sphb) {
                     self.model.set(sphb.model);
                 };
-
-                // 指标选择
-                var spihb = JSON.parse(localStorage.getItem('spi_helper_back') || null);
-                localStorage.removeItem('spi_helper_back'); //获取完之后，删掉，避免后面重复使用。
-                if (spihb) {
-                    self.model.set(spihb.model);
-                };
-
-                // 技能选择
-                var skhb = JSON.parse(localStorage.getItem('sk_helper_back') || null);
-                localStorage.removeItem('sk_helper_back'); //获取完之后，删掉，避免后面重复使用。
-                if (skhb) {
-                    self.model.set(skhb.model);
-                };
-
-                if (self.ct_id) {
-                    $("#btn-colltask_edit-back").attr('href', '#colltask_detail/' + self.ct_id);
-                } else {
-                    $("#btn-colltask_edit-back").attr('href', '#colltask');
-                };
-                $("#colltask_edit-content").html(self.template(self.model.toJSON()));
-                $("#colltask_edit-content").trigger('create');
+                var render_data = self.model.toJSON();
+                render_data.login_people = $("#login_people").val();
+                $("#wf_approve_edit-content").html(self.template(self.model.toJSON(render_data)));
+                $("#wf_approve_edit-content").trigger('create');
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                 $(".ui-flipswitch a").each(function() {
                     $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
@@ -73,47 +55,36 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             },
             bind_event: function() {
                 var self = this;
-                $("#colltask_edit-content")
-                    .on('click', '#btn-ct-remove', function(event) {
-                        // event.preventDefault();
-                        /* Act on the event */
-                    })
-                    .on('click', '#btn-ct-save', function(event) {
-                        // event.preventDefault();
-                        // self.model.set('task_name', $("#ct_task_name").val());
-                        if (self.model.isValid()) {
-                            self.model.save().done(function() { //保存
-                                if (self.ct_id) {
-                                    alert('任务保存成功')
-                                    window.setTimeout(function() {
-                                        var next_page = "#colltask_detail/" + self.model.get('_id');
-                                        window.location.href = next_page;
-                                    }, 100);
-                                } else {
-                                    self.render();
-                                };
+                $("#wf_approve_edit_edit-content")
+                    .on('click', '#btn-fa-upload', function(event) {
 
-                            })
-                        } else {
-                            alert(self.model.validationError);
-                        }
                     })
-                    .on('click', 'a', function(event) {
-                        event.preventDefault();
-                        var url = this.href;
-                        localStorage.setItem('sp_helper', JSON.stringify({
-                            model: self.model.toJSON(),
-                            back_url: '#colltask_edit/' + self.model.get('_id'),
-                        })); //放到local storage里面，便于后面选择屏幕进行操作
-                        localStorage.setItem('spi_helper', JSON.stringify({
-                            model: self.model.toJSON(),
-                            back_url: '#colltask_edit/' + self.model.get('_id'),
-                        })); //放到local storage里面，便于后面选择屏幕进行操作
-                        localStorage.setItem('sk_helper', JSON.stringify({
-                            model: self.model.toJSON(),
-                            back_url: '#colltask_edit/' + self.model.get('_id'),
-                        })); //放到local storage里面，便于后面选择屏幕进行操作
-                        window.location.href = url;
+                    .on('click', '#btn-fa-save', function(event) {
+                        //set current task comment
+                        var comment = $("#faform #comment").val();
+                        var current_task = _.find(fa.get('tasks'), function(x) {
+                            return x.task_no == fa.get('current_task_no');
+                        })
+                        if (current_task) {
+                            current_task.comment = comment;
+                        };
+                        fa.save().done(function() {
+                            show_notify_msg('保存成功', 'OK');
+                        }).fail(function() {
+                            show_notify_msg('保存失败', 'ERR');
+                        })
+                    })
+                    .on('click', '#btn-fa-approve', function(event) {
+
+                    })
+                    .on('click', '#btn-fa-reject', function(event) {
+
+                    })
+                    .on('click', '#btn-fa-end_approve', function(event) {
+
+                    })
+                    .on('click', '#btn-fa-end_reject', function(event) {
+
                     })
                     .on('change', 'input, textarea, select', function(event) {
                         event.preventDefault();
@@ -122,33 +93,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var value = $this.val();
                         self.model.set(field, value);
                     })
-                    .on('change', '#ct_task-allday', function(event) {
-                        var value = $(this).val();
 
-                        if (value === 'true') {
-                            self.model.set('allday', true);
-                            self.$el.find("#ct_task-start").attr('type', 'date').val(moment(self.model.get('start')).format('YYYY-MM-DD'));
-                            self.$el.find("#ct_task-end").attr('type', 'date').val(moment(self.model.get('end')).format('YYYY-MM-DD'));
-                        } else {
-                            self.model.set('allday', false);
-                            self.$el.find("#ct_task-start").attr('type', 'datetime-local').val(moment(self.model.get('start')).format('YYYY-MM-DDTHH:mm'));
-                            self.$el.find("#ct_task-end").attr('type', 'datetime-local').val(moment(self.model.get('end')).format('YYYY-MM-DDTHH:mm'));
-                        }
-                    })
-                    .on('change', '#ct_task-lock_remove', function(event) {
-                        var value = $(this).val();
-
-                        if (value === 'true') {
-                            self.model.set('lock_remove', true);
-                        } else {
-                            self.model.set('lock_remove', false);
-                        }
-                    })
             }
 
         });
 
         // Returns the View class
-        return CollTaskEditView;
+        return WFApproveEditView;
 
     });

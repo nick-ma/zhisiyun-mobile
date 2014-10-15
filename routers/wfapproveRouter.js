@@ -28,11 +28,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 "wf_approve": "wf_approve",
                 "wf_approve_detail/:fa_id": "wf_approve_detail",
                 // "wf_approve_edit/:fa_id": "wf_approve_edit",
-                "wf_approve_edit/:fa_id(/:p_task)": "wf_approve_edit",
+                "wf_approve_edit/:fa_id": "wf_approve_edit",
                 
             },
 
-            //--------协作任务--------//
+            //--------报批事项--------//
             wf_approve: function() {
 
                 // localStorage.setItem('wf_approve_detail_back_url', window.location.href);
@@ -75,15 +75,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     }).fail(function() { //针对手机app版
                         console.log('message fail');
                         $.mobile.loading("hide");
-                        alert('任务已被删除')
+                        alert('流程不存在')
                         window.location.href = "#"
                     })
                 };
             },
-            wf_approve_edit: function(fa_id, p_task) {
-                var ct;
+            wf_approve_edit: function(fa_id) {
+                console.log(fa_id);
+                var fa;
                 var self = this;
-                if (fa_id == 'add') { //新增
+                if (fa_id == 'add') { //新建一个流程
                     ct = self.c_wf_approve.add({
                         task_name: '新建任务',
                         start: new Date(),
@@ -93,18 +94,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                         comments: [],
 
                     });
-                    if (p_task) { //取出上级任务的相关信息
-                        var pt = self.c_wf_approve.get(p_task);
-                        // console.log(pt);
-                        ct.set('root_task', pt.get('root_task'));
-                        ct.set('cp', pt.get('cp'));
-                        ct.set('cp_name', pt.get('cp_name'));
-                    };
-                    //设定上级为默认的观察员-改为服务器端获取
-                    // var upper_people = JSON.parse($("#upper_people").val());
-                    // if (upper_people) { //有上级的才放进去
-                    //     ct.set('ntms', [upper_people]);
-                    // };
+                    
                     ct.save().done(function() {
                         ct.fetch().done(function() {
                             self.wfapproveEditView.model = ct;
@@ -113,18 +103,18 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     })
 
                 } else {
-                    ct = self.c_wf_approve.get(fa_id);
-                    if (ct) {
-                        self.wfapproveEditView.model = ct;
+                    fa = self.c_wf_approve.get(fa_id);
+                    if (fa) {
+                        self.wfapproveEditView.model = fa;
                         self.wfapproveEditView.render();
 
                     } else {
-                        ct = new WFApproveModel({
+                        fa = new WFApproveModel({
                             _id: fa_id
                         });
-                        ct.fetch().done(function() {
-                            self.c_wf_approve.push(ct); //放到collection里面
-                            self.wfapproveEditView.model = ct;
+                        fa.fetch().done(function() {
+                            self.c_wf_approve.push(fa); //放到collection里面
+                            self.wfapproveEditView.model = fa;
                             self.wfapproveEditView.render();
                         })
                     };
