@@ -23,19 +23,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
                 var self = this;
                 self.ct_id = self.model.get('_id') || null;
-                // var rendered = ;
-                // var render_data = {
-                //         cts: _.sortBy(_.map(this.collection.models, function(x) {
-                //             return x.toJSON();
-                //         }), function(x) {
-                //             return x.fl;
-                //         })
-                //     }
-                // _.each(this.collection.models, function(x) {
-                //     x.attributes.pi_count = x.attributes.qualitative_pis.items.length + x.attributes.quantitative_pis.items.length;
-                //     rendered.push(self.template(x.attributes));
-                // });
-                // self.template(render_data);
+
                 // 人员选择
                 var sphb = JSON.parse(localStorage.getItem('sp_helper_back') || null);
                 localStorage.removeItem('sp_helper_back'); //获取完之后，删掉，避免后面重复使用。
@@ -94,10 +82,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         window.location.href = next_url;
                     })
                     .on('click', '#btn-fa-save', function(event) {
-                        self.save_model(function() {
-                            self.render();
-                            alert('保存成功');
-                        })
+                        var vld = self.valid();
+                        if (vld.flag) {
+                            self.save_model(function() {
+                                self.render();
+                                alert('保存成功');
+                            })
+                        } else {
+                            alert(vld.errmsg.join('\n'));
+                        };
                     })
                     .on('click', '#btn-fa-approve', function(event) {
                         var vld = self.valid();

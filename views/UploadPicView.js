@@ -25,7 +25,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 self.field = um.field;
                 self.back_url = um.back_url;
                 self.new_width = um.new_width; //直接定义的新宽度
-                console.log(um);
+                // console.log(um); //need comment out when prd
                 var render_data = {};
                 $("#btn-upload_pic-back").attr('href', self.back_url);
                 $("#upload_pic-content").html(self.template(render_data));

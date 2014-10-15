@@ -28,7 +28,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 var self = this;
 
                 var render_data = self.model.toJSON();
-
+                render_data.login_people = $("#login_people").val();
                 var rendered = self.template(render_data);
 
                 $("#wf_approve_detail-content").html(rendered);
@@ -39,6 +39,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
             },
             bind_event: function() {
                 var self = this;
+                $("#wf_approve_detail-content")
+                    .on('click', '#btn-fa-delete', function(event) {
+                        event.preventDefault();
+                        if (self.model && confirm('确定要删除当前流程么？\n一旦删除将无法恢复。')) {
+                            self.model.destroy({
+                                success: function(model, response, options) {
+                                    alert('流程删除成功');
+                                    var url = '#wf_approve';
+                                    window.location.href = url;
+                                },
+                                error: function(model, response, options) {
+                                    alert('流程删除失败 ' + response);
+                                }
+                            })
+                        };
+                    });
+
 
             },
 

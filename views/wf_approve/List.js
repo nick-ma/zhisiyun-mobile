@@ -2,8 +2,8 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment"],
-    function($, _, Backbone, Handlebars, moment) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../models/WFApproveModel"],
+    function($, _, Backbone, Handlebars, moment, WFApproveModel) {
 
         // Extends Backbone.View
         var WFApproveListView = Backbone.View.extend({
@@ -37,7 +37,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var tmp = _.map(self.collection.models, function(x) {
                     return x.toJSON();
                 });
-                console.log(tmp);
+                // console.log(tmp);
                 //根据条件进行过滤
                 if (self.search_term) {
                     var st = /./;
@@ -146,6 +146,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.search_term = $this.val();
                         self.render();
                     })
+                    .on('click', '#btn-wf_approve-add', function(event) { //新建一个流程
+                        event.preventDefault();
+                        var name = prompt("请输入报批流程的标题");
+                        if (name) {
+                            var new_wf = new WFApproveModel({
+                                name: name,
+                                content: '手机创建'
+                            });
+                            new_wf
+                                .save()
+                                .done(function() {
+                                    alert('流程启动成功');
+                                    var url = '#wf_approve_edit/' + new_wf.get('_id');
+                                    window.location.href = url;
+                                })
+                        } else {
+                            alert("必须输入标题才启动报批流程");
+                        };
+                    });
 
             }
 
