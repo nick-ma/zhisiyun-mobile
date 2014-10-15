@@ -198,16 +198,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             obj.divide_data.mentor.push({
                                 people: temp._id,
                                 people_name: temp.people_name,
-                                position_name: temp.position_name
+                                position_name: temp.position_name,
+                                creator: $("#login_people").val()
                             })
                         })
+                        localStorage.removeItem("sp_helper_back");
                     }
                     if (sphb_course) {
                         obj.divide_data.course = sphb_course.model;
+                        localStorage.removeItem("course_helper_back");
+
                     }
 
                     $("#talent_develope_detail_operation_title").html("导师与课程")
-
                     $("#talent_develope_detail_operation-content").html(self.template_mentor(obj));
 
                 }
@@ -237,7 +240,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                     })
 
-                }).on('taphold', '.mentor', function(event) { //删除导师
+                }).on('click', '.mentor', function(event) { //删除导师
                     event.preventDefault();
                     if (confirm("确认删除该导师吗？")) {
                         var mentor_id = $(this).data("up_id");
@@ -266,7 +269,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             error: function(model, xhr, options) {}
                         });
                     }
-                }).on('taphold', '.course', function(event) { //删除课程
+                }).on('click', '.course', function(event) { //删除课程
                     event.preventDefault();
                     if (confirm("确认删除该课程吗？")) {
                         var course_id = $(this).data("up_id");
@@ -277,7 +280,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         })
                         var course = divide_single_datas.course;
                         var found = _.find(course, function(x) {
-                                return x._id == String(course_id);
+                                return x.course == String(course_id);
                             })
                             //删除grid fs的数据
                         course.splice(course.indexOf(found), 1); //删除
@@ -663,6 +666,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         },
                         error: function(model, xhr, options) {}
                     });
+                }).on('click', ".target_url", function(event) {
+                    event.preventDefault();
+                    var href = $(this).data("href");
+                    // window.location.href = href;
+                    window.open(href)
                 })
 
             }

@@ -101,20 +101,29 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.DevelopePlanListView.pre_render();
                 var people = $("#login_people").val();
                 self.DevelopePlanListView.people = people;
-                async.parallel({
-                    dd:function(cb){
-                        // self.ddCollection.fetch().do
-                    }
-                })
-                self.ddCollection.fetch();
-                self.dtCollection.fetch();
-                // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
-                self.c_people.fetch();
-                self.DevelopePlanListView.c_people = self.c_people; //人员数据
-                self.DevelopePlanListView.direct = self.ddCollection.models;
-                self.DevelopePlanListView.type = self.dtCollection.models;
+
+                // self.dtCollection.fetch();
+                // // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
+                // self.c_people.fetch();
+
 
                 async.parallel({
+                    dd: function(cb) {
+                        self.ddCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+
+                    },
+                    dt: function(cb) {
+                        self.dtCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                    c_people: function(cb) {
+                        self.c_people.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
                     status: function(cb) {
                         $.get('/admin/pm/talent_develope/people', function(data) {
                             if (data) {
@@ -126,6 +135,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     },
 
                 }, function(err, result) {
+                    self.DevelopePlanListView.c_people = self.c_people; //人员数据
+                    self.DevelopePlanListView.direct = self.ddCollection.models;
+                    self.DevelopePlanListView.type = self.dtCollection.models;
                     self.DevelopePlanListView.collection.url = '/admin/pm/talent_develope/plan?people_id=' + people;
                     self.DevelopePlanListView.collection.fetch().done(function() {
                         self.DevelopePlanListView.render();
@@ -271,19 +283,41 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.DevelopePlanDetailListView.pre_render();
                 var people = $("#login_people").val();
                 self.DevelopePlanDetailListView.people = people;
-                self.ddCollection.fetch();
-                self.dtCollection.fetch();
-                self.dcCollection.fetch();
-                self.dlCollection.fetch();
-                // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
-                self.c_people.fetch();
-                self.DevelopePlanDetailListView.c_people = self.c_people; //人员数据
-                self.DevelopePlanDetailListView.direct = self.ddCollection.models;
-                self.DevelopePlanDetailListView.type = self.dtCollection.models;
-                self.DevelopePlanDetailListView.check = self.dcCollection.models;
-                self.DevelopePlanDetailListView.learn = self.dlCollection.models;
+                // self.ddCollection.fetch();
+                // self.dtCollection.fetch();
+                // self.dcCollection.fetch();
+                // self.dlCollection.fetch();
+                // // self.c_people.url = '/admin/masterdata/people/people_list4m?people_id=' + people;
+                // self.c_people.fetch();
+
 
                 async.parallel({
+                    dd: function(cb) {
+                        self.ddCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+
+                    },
+                    dt: function(cb) {
+                        self.dtCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                    dc: function(cb) {
+                        self.dcCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                    dl: function(cb) {
+                        self.dlCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                    c_people: function(cb) {
+                        self.c_people.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
                     status: function(cb) {
                         $.get('/admin/pm/talent_develope/people', function(data) {
                             if (data) {
@@ -295,6 +329,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     },
 
                 }, function(err, result) {
+                    self.DevelopePlanDetailListView.c_people = self.c_people; //人员数据
+                    self.DevelopePlanDetailListView.direct = self.ddCollection.models;
+                    self.DevelopePlanDetailListView.type = self.dtCollection.models;
+                    self.DevelopePlanDetailListView.check = self.dcCollection.models;
+                    self.DevelopePlanDetailListView.learn = self.dlCollection.models;
                     self.DevelopePlanDetailListView.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                     self.DevelopePlanDetailListView.collection.fetch().done(function() {
                         self.DevelopePlanDetailListView.render();
@@ -393,14 +432,19 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         });
                     },
                     competency: function(cb) {
-                        self.c_competency.fetch().done(function() {
-                            cb(null, self)
-                        });
+                        $.get('/admin/pm/questionnair_template/querstionnar_template_for_talent_lambda', function(data) {
+                            if (data.code == 'OK') {
+                                self.LambdaListView.c_competency = data.data;
+                                cb(null, self);
+                            } else {
+                                cb(null, null);
+                            }
+                        })
                     }
                 }, function(err, data) {
                     self.LambdaListView.people = people;
                     self.LambdaListView.c_talent = self.c_talent;
-                    self.LambdaListView.c_competency = self.c_competency;
+                    // self.LambdaListView.c_competency = self.c_competency;
                     self.LambdaListView.c_assessment = self.c_assessment;
                     self.LambdaListView.render();
                     $.mobile.loading("hide");

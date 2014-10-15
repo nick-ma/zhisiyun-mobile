@@ -63,8 +63,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             return temp.course == String(x_data._id)
                         })
                         if (!is_exist) {
-                            if(!sph.model){
-                                sph.model =[];
+                            if (!sph.model) {
+                                sph.model = [];
                             }
                             sph.model.push({
                                 course: x_data._id,
@@ -72,7 +72,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 c_lecturer: x_data.c_lecturer,
                                 target_url: x_data.target_url,
                                 duration: x_data.duration,
-                                integral: x_data.integral
+                                integral: x_data.integral,
+                                creator: $("#login_people").val()
+
                             })
                         }
                     })
