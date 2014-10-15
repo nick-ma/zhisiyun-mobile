@@ -52,7 +52,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var dm2 = _.filter(tmp, function(x) {
                     return !!_.find(x.tasks, function(y) {
                         return y.people._id == login_people;
-                    }) && x.current_handler._id != login_people
+                    }) && (!x.current_handler || x.current_handler._id != login_people)
                 })
                 var dm3 = _.filter(tmp, function(x) {
                     return x.creator._id == login_people;

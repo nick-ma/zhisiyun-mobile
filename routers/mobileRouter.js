@@ -1278,9 +1278,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
       });
       Handlebars.registerHelper('getFileExtName', function(filename) {
-        var fn_parts = filename.split('.');
-        if (fn_parts.length > 1) {
-          return fn_parts[fn_parts.length - 1];
+        if (filename) {
+          var fn_parts = filename.split('.');
+          if (fn_parts.length > 1) {
+            return fn_parts[fn_parts.length - 1];
+          } else {
+            return '';
+          };
         } else {
           return '';
         };
@@ -2116,6 +2120,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return '';
         };
 
+      });
+      Handlebars.registerHelper('getFACurrentTaskComment', function(tasks, current_task_no) {
+        var task = _.find(tasks, function(x) {
+          return x.task_no == current_task_no
+        })
+        if (task) {
+          return task.comment;
+        } else {
+          return '';
+        };
       });
     })();
 

@@ -29,7 +29,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 "wf_approve_detail/:fa_id": "wf_approve_detail",
                 // "wf_approve_edit/:fa_id": "wf_approve_edit",
                 "wf_approve_edit/:fa_id": "wf_approve_edit",
-                
+
             },
 
             //--------报批事项--------//
@@ -47,7 +47,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     $.mobile.loading("hide");
                 })
             },
-            
+
             wf_approve_detail: function(fa_id) {
                 var self = this;
                 $("body").pagecontainer("change", "#wf_approve_detail", {
@@ -81,7 +81,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 };
             },
             wf_approve_edit: function(fa_id) {
-                console.log(fa_id);
+                $("body").pagecontainer("change", "#wf_approve_edit", {
+                    reverse: false,
+                    changeHash: false,
+                });
                 var fa;
                 var self = this;
                 if (fa_id == 'add') { //新建一个流程
@@ -94,7 +97,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                         comments: [],
 
                     });
-                    
+
                     ct.save().done(function() {
                         ct.fetch().done(function() {
                             self.wfapproveEditView.model = ct;
@@ -120,12 +123,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     };
                 };
                 // console.log(fa_id, p_task, ct);
-                $("body").pagecontainer("change", "#wf_approve_edit", {
-                    reverse: false,
-                    changeHash: false,
-                });
+
             },
-            
+
             init_views: function() {
                 var self = this;
                 self.wfapproveListView = new WFApproveListView({
@@ -138,7 +138,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 self.wfapproveDetailView = new WFApproveDetailView({
                     el: "#wf_approve_detail-content",
                 })
-                
+
             },
             init_models: function() {
 
