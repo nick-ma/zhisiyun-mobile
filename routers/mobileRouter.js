@@ -1815,31 +1815,34 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return filter_position.position_name
       });
       //人才培养计划明细
-      Handlebars.registerHelper('opt_type_ret', function(develope_type, type_data, pri_state) {
+      Handlebars.registerHelper('opt_type_ret', function(develope_type, type_data, pri_state, is_creator) {
         var item = [];
         if (develope_type) {
           var type_temp = _.find(type_data, function(temp) {
               return temp._id == String(develope_type)
             })
             //过滤没有操作培养手段权限的培养方式
-          var r_data = _.filter(type_data, function(r) {
-            if (r.develope_style) {
-              var f_data = _.filter(r.develope_style, function(d) {
-                var data = [];
-                if (d.priviledge) {
-                  _.each(d.priviledge, function(temp) {
-                    data.push(String(temp.pri));
-                  })
-                }
-                return !!~data.indexOf(String(pri_state));
+          if (is_creator) {
+            type_data = _.filter(type_data, function(r) {
+              if (r.develope_style) {
+                var f_data = _.filter(r.develope_style, function(d) {
+                  var data = [];
+                  if (d.priviledge) {
+                    _.each(d.priviledge, function(temp) {
+                      data.push(String(temp.pri));
+                    })
+                  }
+                  return !!~data.indexOf(String(pri_state));
 
 
-              })
-              return f_data.length > 0
-            }
+                })
+                return f_data.length > 0
+              }
 
-          })
-          _.each(r_data, function(temp) {
+            })
+          }
+
+          _.each(type_data, function(temp) {
             var temp_arr = [];
             temp_arr.push(temp._id);
             temp_arr.push(temp.type_name)
@@ -1899,21 +1902,21 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             item.push('<option>请选择培养手段</option>')
 
             _.each(type_temp.develope_style, function(temp) {
-              var priviledge = _.map(temp.priviledge, function(p) {
-                return String(p.pri)
-              })
-              if (!!~priviledge.indexOf(String(pri_state))) {
-                var temp_arr = [];
-                temp_arr.push(temp._id);
-                temp_arr.push(temp.style_name);
-                if (temp._id == String(style_id)) {
-                  item.push('<option value="' + temp_arr + '" selected>' + style_temp.style_name + '</option>')
+              // var priviledge = _.map(temp.priviledge, function(p) {
+              //   return String(p.pri)
+              // })
+              // if (!!~priviledge.indexOf(String(pri_state))) {
+              var temp_arr = [];
+              temp_arr.push(temp._id);
+              temp_arr.push(temp.style_name);
+              if (temp._id == String(style_id)) {
+                item.push('<option value="' + temp_arr + '" selected>' + style_temp.style_name + '</option>')
 
-                } else {
-                  item.push('<option value="' + temp_arr + '" >' + temp.style_name + '</option>')
+              } else {
+                item.push('<option value="' + temp_arr + '" >' + temp.style_name + '</option>')
 
-                }
               }
+              // }
             })
 
           } else {

@@ -4,6 +4,8 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars"],
     function($, _, Backbone, Handlebars) {
+        var temp_plan_detail_id = null;
+
         function format(date) {
             return moment(date).format("YYYYMMDD");
         }
@@ -32,6 +34,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 obj.course = name;
             } else if (tag == 'add_comment') {
                 obj.comment = name;
+            } else if (tag == 'detail_pass') {
+                obj.integral = name;
+            } else if (tag == 'course_pass') {
+                obj.found = name;
             }
             require_data.push(obj);
             var post_data = 'require_data=' + JSON.stringify(require_data);
@@ -120,6 +126,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 }
 
                 self.filter_people = filter_people;
+                temp_plan_detail_id = talent_data[0]._id;
                 var obj = {
                     talent_data: talent_data[0],
                     divide_id: self.divide_id,
@@ -191,16 +198,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             obj.divide_data.mentor.push({
                                 people: temp._id,
                                 people_name: temp.people_name,
-                                position_name: temp.position_name
+                                position_name: temp.position_name,
+                                creator: $("#login_people").val()
                             })
                         })
+                        localStorage.removeItem("sp_helper_back");
                     }
                     if (sphb_course) {
                         obj.divide_data.course = sphb_course.model;
+                        localStorage.removeItem("course_helper_back");
+
                     }
 
                     $("#talent_develope_detail_operation_title").html("导师与课程")
-
                     $("#talent_develope_detail_operation-content").html(self.template_mentor(obj));
 
                 }
@@ -230,7 +240,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                     })
 
-                }).on('taphold', '.mentor', function(event) { //删除导师
+                }).on('click', '.mentor', function(event) { //删除导师
                     event.preventDefault();
                     if (confirm("确认删除该导师吗？")) {
                         var mentor_id = $(this).data("up_id");
@@ -259,7 +269,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             error: function(model, xhr, options) {}
                         });
                     }
-                }).on('taphold', '.course', function(event) { //删除课程
+                }).on('click', '.course', function(event) { //删除课程
                     event.preventDefault();
                     if (confirm("确认删除该课程吗？")) {
                         var course_id = $(this).data("up_id");
@@ -270,7 +280,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         })
                         var course = divide_single_datas.course;
                         var found = _.find(course, function(x) {
-                                return x._id == String(course_id);
+                                return x.course == String(course_id);
                             })
                             //删除grid fs的数据
                         course.splice(course.indexOf(found), 1); //删除
@@ -434,7 +444,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
                 }).on('click', '#btn_upload_attachment', function(event) { //添加附件
                     event.preventDefault();
-                    var plan_id = $(this).data("plan_id")|| self.collection.models[0].attributes._id;
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                     var divide_id = $(this).data("divide_id");
                     var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                             return x._id == String(divide_id)
@@ -483,7 +493,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }
                 }).on('click', "#go_back", function(event) {
                     event.preventDefault();
-                    window.location.href = '#plan_list_detail/' + self.collection.models[0].attributes._id;
+                    window.location.href = '#plan_list_detail/' + temp_plan_detail_id;
+                    // window.history.go(-1);
                 }).on('change', "#pass", function(event) {
                     event.preventDefault();
                     var pass = $(this).val();
@@ -492,12 +503,26 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                         return x._id == String(divide_id)
                     })
+
                     divide_single_datas.pass = !divide_single_datas.pass;
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
                             self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                            self.collection.fetch();
-                            self.render();
+                            self.collection.fetch().done(function() {
+                                //明细计划通过
+                                if (pass == "true") {
+                                    var temp_data = self.collection.models[0].attributes;
+
+                                    im_send(temp_data, divide_id, 'detail_pass', null, function(data) {
+                                        self.render();
+                                    })
+                                } else {
+                                    self.render();
+                                }
+
+
+                            });
+                            // self.render();
                             //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                             $(".ui-flipswitch a").each(function() {
                                 $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
@@ -520,16 +545,132 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             return x._id == String(divide_id)
                         })
                         divide_single_datas.integral = $(this).val();
+                        //已通过课程积分总和
+                        //
+                        var course_pass = _.filter(divide_single_datas.course, function(c) {
+                            return !!c.is_pass
+                        })
+                        var integral_pass = _.map(course_pass, function(c) {
+                                return c.integral
+                            })
+                            //总和
+                        var integral_count = parseInt(_.reduce(integral_pass, function(mem, num) {
+                            return mem + num
+                        }, 0))
+                        integral_count += parseInt(divide_single_datas.integral);
+
+                        if (parseInt(integral_count) > parseInt(integral_down)) {
+                            divide_single_datas.integral_total = parseInt(integral_down)
+
+                        } else {
+                            divide_single_datas.integral_total = parseInt(integral_count)
+
+                        }
+                        var integral_map = _.map(self.collection.models[0].attributes.plan_divide, function(temp) {
+                            return temp.integral_total
+                        })
+
+                        var total_integral = _.reduce(integral_map, function(mem, num) {
+                            return mem + num
+                        }, 0)
+                        self.collection.models[0].attributes.integral = total_integral;
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                self.render();
+                                self.collection.fetch().done(function() {
+                                    //明细计划通过
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'detail_pass', divide_single_datas.integral, function(data) {
+                                        self.render();
+                                    })
+
+                                });
                             },
                             error: function(model, xhr, options) {}
                         });
                     }
 
+                }).on('change', ".course_pass", function(event) {
+                    event.preventDefault();
+                    var pass = $(this).val();
+                    var plan_id = $(this).data("plan_id");
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id");
+                    //积分上下限;
+                    var integral_up = $(this).data("integral_up");
+                    var integral_down = $(this).data("integral_down");
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    })
+                    var course = divide_single_datas.course;
+                    var found = _.find(course, function(x) {
+                        return x._id == String(course_id);
+                    })
+                    if (pass == "true") {
+                        found.is_pass = true;
+                        found.integral = $(this).data("integral")
+                    } else {
+
+                        found.is_pass = false;
+                        found.integral = 0;
+                    }
+                    //已通过课程积分总和
+                    //
+                    var course_pass = _.filter(divide_single_datas.course, function(c) {
+                        return !!c.is_pass
+                    })
+                    var integral_pass = _.map(course_pass, function(c) {
+                            return c.integral
+                        })
+                        //总和
+                    var integral_count = parseInt(_.reduce(integral_pass, function(mem, num) {
+                        return mem + num
+                    }, 0))
+                    integral_count += parseInt(divide_single_datas.integral);
+
+                    if (parseInt(integral_count) > parseInt(integral_down)) {
+                        divide_single_datas.integral_total = parseInt(integral_down)
+
+                    } else {
+                        divide_single_datas.integral_total = parseInt(integral_count)
+
+                    }
+                    var integral_map = _.map(self.collection.models[0].attributes.plan_divide, function(temp) {
+                        return temp.integral_total
+                    })
+
+                    var total_integral = _.reduce(integral_map, function(mem, num) {
+                        return mem + num
+                    }, 0)
+                    self.collection.models[0].attributes.integral = total_integral;
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                            self.collection.fetch().done(function() {
+                                //明细计划通过
+                                if (pass == "true") {
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'course_pass', found, function(data) {
+                                        self.render();
+                                    })
+                                } else {
+                                    self.render();
+                                }
+
+
+                            });
+                            //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                            $(".ui-flipswitch a").each(function() {
+                                $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                            })
+                        },
+                        error: function(model, xhr, options) {}
+                    });
+                }).on('click', ".target_url", function(event) {
+                    event.preventDefault();
+                    var href = $(this).data("href");
+                    // window.location.href = href;
+                    window.open(href)
                 })
 
             }

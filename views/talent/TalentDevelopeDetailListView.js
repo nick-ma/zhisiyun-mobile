@@ -88,6 +88,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             temp.all_state = '3';
 
                         }
+                        if (temp.creator == String($("#login_people").val())) {
+                            temp.is_creator = true;
+                        } else {
+                            temp.is_creator = false;
+                            temp.is_disabled = true;
+                        }
                     })
                     if (find_people) {
                         x.attributes.people_data = find_people.attributes;
@@ -314,7 +320,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                         } else if (!moment().isAfter(moment(periodTo)) && moment(new Date()).add('d', 15).isAfter(moment(periodTo))) {
                             var obj = {
                                 'plan_s': moment(),
-                                'plan_e': moment(periodTo).subtract('d', 1)
+                                'plan_e': moment(periodTo).subtract('d', 1),
+                                'creator': $("#login_people").val()
                             }
                             self.collection.models[0].attributes.plan_divide.push(obj);
                             self.collection.models[0].save(self.collection.models[0].attributes, {
@@ -335,7 +342,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                         } else {
                             var obj = {
                                 'plan_s': moment(),
-                                'plan_e': moment(new Date()).add('d', 15)
+                                'plan_e': moment(new Date()).add('d', 15),
+                                'creator': $("#login_people").val()
+
                             }
                             self.collection.models[0].attributes.plan_divide.push(obj);
                             self.collection.models[0].save(self.collection.models[0].attributes, {
@@ -358,7 +367,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
 
                 }).on('click', '#btn_save', function(event) { //删除明细计划
                     event.preventDefault();
-                    var plan_id = $(this).data("plan_id");
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                     var divide_id = $(this).data("divide_id");
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
@@ -371,9 +380,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             alert("内部服务器错误,请联系系统管理员!")
                         }
                     });
-                }).on('change', '#plan_s', '#plan_e', function(event) {
+                }).on('change', '#plan_s,#plan_e', function(event) {
                     event.preventDefault();
-                    var plan_id = $(this).data("plan_id");
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                     var divide_id = $(this).data("divide_id");
                     var field = $(this).data("field");
                     var period_start = moment(self.collection.models[0].attributes.period_start);
@@ -382,6 +391,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     var filter_plan_data = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                         return x._id == String(divide_id)
                     })
+
                     if (field == "plan_s") {
                         if (moment(date).isBefore(period_start)) {
                             alert('计划分解开始时间需大于计划开始时间')
