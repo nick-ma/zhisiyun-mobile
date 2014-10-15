@@ -192,15 +192,20 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     // 课程选择
                     var sphb_course = JSON.parse(localStorage.getItem('course_helper_back') || null);
                     if (sphb) {
-
-                        obj.divide_data.mentor = [];
+                        var exist_people = _.map(obj.divide_data.mentor, function(x) {
+                            return x.people
+                        })
+                        // obj.divide_data.mentor = [];
                         _.each(sphb.model, function(temp) {
-                            obj.divide_data.mentor.push({
-                                people: temp._id,
-                                people_name: temp.people_name,
-                                position_name: temp.position_name,
-                                creator: $("#login_people").val()
-                            })
+                            if (!~exist_people.indexOf(String(temp._id))) {
+                                obj.divide_data.mentor.push({
+                                    people: temp._id,
+                                    people_name: temp.people_name,
+                                    position_name: temp.position_name,
+                                    creator: $("#login_people").val()
+                                })
+                            }
+
                         })
                         localStorage.removeItem("sp_helper_back");
                     }
