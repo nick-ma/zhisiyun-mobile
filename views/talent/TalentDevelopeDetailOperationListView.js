@@ -27,9 +27,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 'des_career_name': temp_data.des_career_name,
                 'des_position': temp_data.des_position,
                 'des_position_name': temp_data.des_position_name,
+                'login_people_name':$("#login_people_name").val()
             }
             if (tag == 'delete_mentor') {
                 obj.mentor = name;
+                obj.mentor_id = name.people;
             } else if (tag == 'delete_course') {
                 obj.course = name;
             } else if (tag == 'add_comment') {
@@ -38,6 +40,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 obj.integral = name;
             } else if (tag == 'course_pass') {
                 obj.found = name;
+            } else if (tag == 'add_mentor' && name) {
+                obj.mentor_id = _.keys(name);
+                obj.mentor = _.values(name)
             }
             require_data.push(obj);
             var post_data = 'require_data=' + JSON.stringify(require_data);
@@ -153,7 +158,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
                         var item = JSON.parse(localStorage.getItem('upload_model_back')).model;
                         var attachments = item.attachments;
-                        localStorage.removeItem('upload_model_back'); //用完删掉
+                        // localStorage.removeItem('upload_model_back'); //用完删掉
                         var plan_id = item.plan_id;
                         _.each(attachments, function(temp) {
                             var find_attachment = _.find(obj.divide_data.attachments, function(x) {
@@ -187,22 +192,36 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
 
                 } else {
+                    $("#talent_develope_detail_operation_title").html("导师与课程")
+
                     // 人员选择
                     var sphb = JSON.parse(localStorage.getItem('sp_helper_back') || null);
                     // 课程选择
                     var sphb_course = JSON.parse(localStorage.getItem('course_helper_back') || null);
                     if (sphb) {
-
-                        obj.divide_data.mentor = [];
-                        _.each(sphb.model, function(temp) {
-                            obj.divide_data.mentor.push({
-                                people: temp._id,
-                                people_name: temp.people_name,
-                                position_name: temp.position_name,
-                                creator: $("#login_people").val()
+                        var exist_people = _.map(obj.divide_data.mentor, function(x) {
+                                return x.people
                             })
+                            // obj.divide_data.mentor = [];
+                        var temp_mentor = {};
+                        _.each(sphb.model, function(temp) {
+                            if (!~exist_people.indexOf(String(temp._id))) {
+                                temp_mentor[temp._id] = temp.people_name;
+                                obj.divide_data.mentor.push({
+                                    people: temp._id,
+                                    people_name: temp.people_name,
+                                    position_name: temp.position_name,
+                                    creator: $("#login_people").val()
+                                })
+                            }
+
                         })
                         localStorage.removeItem("sp_helper_back");
+                        var temp_data = self.collection.models[0].attributes;
+                        im_send(temp_data, obj.divide_id, 'add_mentor', temp_mentor, function(data) {
+                            console.log(data);
+                        })
+
                     }
                     if (sphb_course) {
                         obj.divide_data.course = sphb_course.model;
@@ -210,7 +229,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                     }
 
-                    $("#talent_develope_detail_operation_title").html("导师与课程")
                     $("#talent_develope_detail_operation-content").html(self.template_mentor(obj));
 
                 }
@@ -261,7 +279,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                                 self.collection.fetch().done(function() {
                                     var temp_data = self.collection.models[0].attributes;
-                                    im_send(temp_data, divide_id, 'delete_mentor', found.people_name, function(data) {
+                                    im_send(temp_data, divide_id, 'delete_mentor', found, function(data) {
                                         self.render();
                                     })
                                 });
@@ -314,10 +332,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         paln_id: plan_id,
                         back_url: window.location.hash,
                     })); //放到local storage里面，便于后面选择屏幕进行操作
-                    var temp_data = self.collection.models[0].attributes;
-                    im_send(temp_data, divide_id, 'add_mentor', null, function(data) {
-                        window.location.href = url;
-                    })
+                    // var temp_data = self.collection.models[0].attributes;
+                    // im_send(temp_data, divide_id, 'add_mentor', null, function(data) {
+                    window.location.href = url;
+                    // })
 
                 }).on('click', '#btn-talent-refresh', function(event) {
                     event.preventDefault();
@@ -327,10 +345,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     localStorage.setItem('sp_helper', null);
                     localStorage.setItem('course_helper', null);
                     $("#talent_develope_detail_operation-basic-left-panel").panel("close");
-                    self.render();
+                    // self.render();
                     $.mobile.loading("hide");
                 }).on('click', '#btn_save', function(event) {
-                    var plan_id = $(this).data("plan_id");
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                     var divide_id = $(this).data("divide_id");
                     var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                         return x._id == String(divide_id)
@@ -338,13 +356,15 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
                             self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                            self.collection.fetch();
-                            localStorage.setItem('sp_helper_back', null);
-                            localStorage.setItem('course_helper_back', null);
-                            localStorage.setItem('sp_helper', null);
-                            localStorage.setItem('course_helper', null);
-                            self.render();
-                            alert("数据保存成功!")
+                            self.collection.fetch().done(function() {
+                                localStorage.setItem('sp_helper_back', null);
+                                localStorage.setItem('course_helper_back', null);
+                                localStorage.setItem('sp_helper', null);
+                                localStorage.setItem('course_helper', null);
+                                self.render();
+                                alert("数据保存成功!")
+                            });
+
                         },
                         error: function(model, xhr, options) {}
                     });
