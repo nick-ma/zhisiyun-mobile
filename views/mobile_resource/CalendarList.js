@@ -1,7 +1,7 @@
 // Task View
 // =============
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "jqmcal", "formatdate"], function($, _, Backbone, Handlebars, TaskModel) {
+define(["jquery", "underscore", "backbone", "handlebars", "jqmcal", "formatdate"], function($, _, Backbone, Handlebars) {
 
 
     // var Handlebars = HB.
@@ -9,7 +9,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
 
     // console.log(jqmcal);
     // Extends Backbone.View
-    var TaskView = Backbone.View.extend({
+    var CalendarView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
             // this.template = Handlebars.compile($("script#taskItems").html());
@@ -19,8 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
             //     this.collection.fetch();
             // });
             // this.collection.on("sync", this.render, this);
-
-            $("#jqm_cal").jqmCalendar({
+            $("#mobile_resource_cal").jqmCalendar({
                 events: [],
                 months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
                 days: ["日", "一", "二", "三", "四", "五", "六"],
@@ -31,16 +30,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
                 dividerTheme: 'a',
                 dateFormatTitle: "yyyy-MM-dd",
                 dateFormat: "yyyy-MM-dd HH:mm",
-                route: '#task' //pass current page route to widget, to avoid page change when click date.
+                route: '#mobile_resource' //pass current page route to widget, to avoid page change when click date.
             });
         },
 
         // Renders all of the Task models on the UI
         render: function() {
-
             var self = this;
             //jqmCalendar test
-            var $cal = $("#jqm_cal");
+            var $cal = $("#mobile_resource_cal");
+            console.log(self)
             var cal_events = $cal.data('jqmCalendar').settings.events;
             cal_events.length = 0;
             _.each(this.collection.models, function(x) {
@@ -51,7 +50,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
                 cal_events.push(tmp);
 
             });
-            $cal.trigger('refresh');
+            // $cal.trigger('refresh');
             // console.log(cal_events);
 
             // Maintains chainability
@@ -62,6 +61,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
     });
 
     // Returns the View class
-    return TaskView;
+    return CalendarView;
 
 });

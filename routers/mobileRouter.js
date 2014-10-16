@@ -44,6 +44,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./absence",
     "./talentRouter",
     "./imRouter",
+    "./mobileresourceRouter",
     "./wfapproveRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
@@ -77,6 +78,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     Absence,
     TalentRouter,
     ImRouter,
+    mobileresourceRouter,
     WFApproveRouter,
     async, moment
 
@@ -111,6 +113,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new Absence();
         new TalentRouter();
         new ImRouter();
+        new mobileresourceRouter();
         new WFApproveRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
@@ -715,8 +718,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
       },
       init_views: function(self) {
-
-
         this.taskView = new TaskView({
           el: "#task",
           collection: self.c_task
