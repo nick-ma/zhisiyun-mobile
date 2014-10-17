@@ -89,6 +89,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             })
 
                         };
+                    }).on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#show_im-left-panel").panel("open");
+                    }).on('swiperight', function(event) { //向右滑动，打开左边的面板
+                        event.preventDefault();
+                        $("#show_im-left-panel").panel("open");
+                    }).on('click', '#btn-im_showh-change_view', function(event) {
+                        event.preventDefault();
+                        window.location.href = '#im_list'
+                        $("#show_im-left-panel").panel("close");
+                    }).on('click', '#btn-moblie_resource-change_view', function(event) {
+                        event.preventDefault();
+                        window.location.href = '#mobile_resource'
+                        $("#show_im-left-panel").panel("close");
                     })
             }
         });
