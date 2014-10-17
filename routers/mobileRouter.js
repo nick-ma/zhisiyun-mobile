@@ -1337,6 +1337,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return options.inverse(this);
         };
       });
+
+      Handlebars.registerHelper('have_pis', function(data1,data2, options) {
+        if (data1 == 0 && data2 == 0) {
+          return options.inverse(this);
+        } else {
+          return options.fn(this);
+        };
+      });
       //和登录人比较
       Handlebars.registerHelper('is_self', function(data, options) {
         if (data == $('#login_people').val()) {
