@@ -19,6 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "jqmcal", "formatdate"
             //     this.collection.fetch();
             // });
             // this.collection.on("sync", this.render, this);
+            this.bind_event();
             $("#mobile_resource_cal").jqmCalendar({
                 events: [],
                 months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
@@ -56,6 +57,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "jqmcal", "formatdate"
             // Maintains chainability
             return this;
 
+        },
+        bind_event: function() {
+            var self = this;
+            $("#mobile_resource_list")
+                .on('click', '.open-left-panel', function(event) {
+                    event.preventDefault();
+                    $("#show_mobile-left-panel").panel("open");
+                }).on('swiperight', function(event) { //向右滑动，打开左边的面板
+                    event.preventDefault();
+                    $("#show_mobile-left-panel").panel("open");
+                }).on('click', '#btn-im_showh-change_view', function(event) {
+                    event.preventDefault();
+                    window.location.href = '#im_list'
+                    $("#show_mobile-left-panel").panel("close");
+                }).on('click', '#btn-moblie_resource-change_view', function(event) {
+                    event.preventDefault();
+                    window.location.href = '#mobile_resource'
+                    $("#show_mobile-left-panel").panel("close");
+                })
         }
 
     });
