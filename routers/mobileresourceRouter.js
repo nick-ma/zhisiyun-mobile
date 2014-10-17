@@ -157,7 +157,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             })
 
             $.get('/admin/im/get_peoples/' + $("#login_people").val(), function(peoples) {
-                console.log(peoples)
                 self.peoples = peoples
             })
             // self.load_data(self.c_objectives, 'objectives');
