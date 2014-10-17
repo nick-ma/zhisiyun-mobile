@@ -32,6 +32,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var next_people = sphb.model.next_people
                     if (next_people && confirm('确认要将流程提交到“' + next_people.people_name + '”吗？')) {
                         self.do_approve(next_people);
+                    }else{
+                        self.model.set(sphb.model);
                     };
                 };
                 //上传界面
@@ -80,6 +82,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             back_url: '#wf_approve_edit/' + self.model.get('_id')
                         }))
                         window.location.href = next_url;
+                    })
+                    .on('click', '#btn-fa-select-cc_people', function(event) {
+                        event.preventDefault();
+                        var url = '#people_select/m/cc_people';
+                        localStorage.setItem('sp_helper', JSON.stringify({
+                            model: self.model.toJSON(),
+                            back_url: '#wf_approve_edit/' + self.model.get('_id'),
+                        })); //放到local storage里面，便于后面选择屏幕进行操作
+                        window.location.href = url;
                     })
                     .on('click', '#btn-fa-save', function(event) {
                         var vld = self.valid();

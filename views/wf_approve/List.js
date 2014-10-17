@@ -57,10 +57,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 var dm3 = _.filter(tmp, function(x) {
                     return x.creator._id == login_people;
                 })
+                var dm4 = _.filter(tmp, function(x) {
+                    return x.state == 'END' && x.op == '通过' && !!_.find(x.cc_people, function(y) {
+                        return y == login_people;
+                    })
+                })
                 var ts_count = {
                     '1': dm1.length,
                     '2': dm2.length,
-                    '3': dm3.length
+                    '3': dm3.length,
+                    '4': dm4.length,
                 };
                 // 整理前端需要渲染的数据
                 if (self.mode == '1') { //待办任务
@@ -72,6 +78,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 } else if (self.mode == '3') { //我发起的流程
                     render_mode = 'mywf';
                     models4render = dm3
+                }else if (self.mode == '4') { //我发起的流程
+                    render_mode = 'ccwf';
+                    models4render = dm4
                 }
 
                 render_data = {

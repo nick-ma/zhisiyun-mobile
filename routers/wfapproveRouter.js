@@ -56,29 +56,29 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 });
                 $.mobile.loading("show");
                 self.wfapproveDetailView.pre_render();
-                if (self.c_wf_approve.get(fa_id)) {
-                    self.wfapproveDetailView.model = self.c_wf_approve.get(fa_id);
-                    self.wfapproveDetailView.model.fetch().done(function() {
-                        self.wfapproveDetailView.render();
-                        $.mobile.loading("hide");
-                    })
-                } else {
-                    var tmp = new WFApproveModel({
-                        _id: fa_id
-                    });
-                    tmp.fetch().done(function() {
-                        console.log('message done');
-                        self.c_wf_approve.set(tmp); //放到collection里面
-                        self.wfapproveDetailView.model = tmp;
-                        self.wfapproveDetailView.render();
-                        $.mobile.loading("hide");
-                    }).fail(function() { //针对手机app版
-                        console.log('message fail');
-                        $.mobile.loading("hide");
-                        alert('流程不存在')
-                        window.location.href = "#"
-                    })
-                };
+                // if (self.c_wf_approve.get(fa_id)) {
+                //     self.wfapproveDetailView.model = self.c_wf_approve.get(fa_id);
+                //     self.wfapproveDetailView.model.fetch().done(function() {
+                //         self.wfapproveDetailView.render();
+                //         $.mobile.loading("hide");
+                //     })
+                // } else {
+                var tmp = new WFApproveModel({
+                    _id: fa_id
+                });
+                tmp.fetch().done(function() {
+                    // console.log('message done');
+                    self.c_wf_approve.set(tmp); //放到collection里面
+                    self.wfapproveDetailView.model = tmp;
+                    self.wfapproveDetailView.render();
+                    $.mobile.loading("hide");
+                }).fail(function() { //针对手机app版
+                    console.log('message fail');
+                    $.mobile.loading("hide");
+                    alert('流程不存在')
+                    window.location.href = "#"
+                })
+                // };
             },
             wf_approve_edit: function(fa_id) {
                 $("body").pagecontainer("change", "#wf_approve_edit", {
@@ -87,41 +87,23 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 });
                 var fa;
                 var self = this;
-                if (fa_id == 'add') { //新建一个流程
-                    ct = self.c_wf_approve.add({
-                        task_name: '新建任务',
-                        start: new Date(),
-                        end: moment().add(3, 'day').toDate(),
-                        allday: true,
-                        p_task: p_task || null,
-                        comments: [],
 
-                    });
+                // fa = self.c_wf_approve.get(fa_id);
+                // if (fa) {
+                //     self.wfapproveEditView.model = fa;
+                //     self.wfapproveEditView.render();
 
-                    ct.save().done(function() {
-                        ct.fetch().done(function() {
-                            self.wfapproveEditView.model = ct;
-                            self.wfapproveEditView.render();
-                        })
-                    })
+                // } else {
+                fa = new WFApproveModel({
+                    _id: fa_id
+                });
+                fa.fetch().done(function() {
+                    self.c_wf_approve.push(fa); //放到collection里面
+                    self.wfapproveEditView.model = fa;
+                    self.wfapproveEditView.render();
+                })
+                // };
 
-                } else {
-                    fa = self.c_wf_approve.get(fa_id);
-                    if (fa) {
-                        self.wfapproveEditView.model = fa;
-                        self.wfapproveEditView.render();
-
-                    } else {
-                        fa = new WFApproveModel({
-                            _id: fa_id
-                        });
-                        fa.fetch().done(function() {
-                            self.c_wf_approve.push(fa); //放到collection里面
-                            self.wfapproveEditView.model = fa;
-                            self.wfapproveEditView.render();
-                        })
-                    };
-                };
                 // console.log(fa_id, p_task, ct);
 
             },
