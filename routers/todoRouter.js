@@ -2,25 +2,38 @@
 // ====================
 
 define(["jquery", "backbone", "handlebars", "lzstring", "async",
-        "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View", "../views/AIWF03View", "../views/TransConfirmView",
+        "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View", "../views/AIWF03View", "../views/TransConfirmView", "../views/AIPrevView",
         "../views/tm_attendance/AttendanceResultChangeView",
         "../views/tm_attendance/TMAbsenceOfThreeView",
+        // 指标选择界面
+        "../views/AIPISelectView",
+        "../views/PIView",
+
         "../collections/ToDoListCollection",
         "../collections/TmAttendanceCollection",
+        "../collections/PICollection",
+        "../collections/MYPICollection",
 
-        "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel",
+        "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel", "../models/AIPrevModel", "../models/AISuperModel", "../models/PIModel",
         "../models/TmAttendanceModel",
-        "../models/TMAbsenceOfThreeModel"
+        "../models/TMAbsenceOfThreeModel",
+        "../models/PIDatasModel",
 
     ],
     function($, Backbone, Handlebars, LZString, async,
-        ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView,
+        ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView, AIPrevView,
         AttendanceResultChangeView,
         TMAbsenceOfThreeView,
+        AIPISelectView,
+        PIView,
+
         ToDoListCollection,
         TmAttendanceCollection,
-        WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel,
-        TmAttendanceModel, TMAbsenceOfThreeModel
+        PICollection,
+        MYPICollection,
+
+        WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel, AIPrevModel, AISuperModel, PIModel,
+        TmAttendanceModel, TMAbsenceOfThreeModel,PIDatasModel
     ) {
 
         var ToDoRouter = Backbone.Router.extend({
@@ -43,6 +56,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo4/:op_id/:type": "go_do4",
                 "godo8/:op_id/:type": "go_do8",
                 "godo9/:op_id/:type": "go_do9",
+                "prev_ai/:period/:people/:position": "prev_ai",
+                "super_ai/:period/:position": "super_ai",
+                "pis_select": "pis_select",
+                "create_pi": "create_pi",
             },
             todo_list: function() { //我的待办
                 var self = this;
@@ -160,6 +177,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 });
             },
             go_do3: function(op_id, type) {
+                localStorage.setItem('ai_add_pi_back_url', window.location.href);
                 var self = this;
                 self.view_mode_state = localStorage.getItem('view_mode_state') || null;
                 localStorage.removeItem('view_mode_state'); //用完删掉 
@@ -366,42 +384,149 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var pd_code = op_id.split("-")[2];
                 window.location.href = '/m#back_leave_form_t/' + ti_id + '/T';
             },
+            prev_ai: function(period, people, position) {
+                var self = this;
+                self.ai_prev.period = period;
+                self.ai_prev.people = people;
+                self.ai_prev.position = position;
+
+                $("body").pagecontainer("change", "#ai_add_pi", {
+                    reverse: false,
+                    changeHash: false,
+                });
+
+                $("#ai_add_pi_title").html('从上期复制');
+
+                $.mobile.loading("show");
+                self.aiPrevView.pre_render();
+
+                self.ai_prev.fetch().done(function() {
+                    self.piCollection.fetch().done(function() {
+                        self.aiPrevView.ai_data = self.ai;
+                        self.aiPrevView.pis = self.piCollection;
+                        self.aiPrevView.model = self.ai_prev;
+                        self.aiPrevView.render();
+                        $.mobile.loading("hide");
+                    })
+                })
+            },
+            super_ai: function(period, position) {
+                var self = this;
+                self.ai_super.period = period;
+                self.ai_super.position = position;
+
+                $("body").pagecontainer("change", "#ai_add_pi", {
+                    reverse: false,
+                    changeHash: false,
+                });
+
+                $("#ai_add_pi_title").html('从上级复制');
+
+                $.mobile.loading("show");
+                self.aiPrevView.pre_render();
+
+                self.ai_super.fetch().done(function() {
+                    self.piCollection.fetch().done(function() {
+                        self.aiPrevView.ai_data = self.ai;
+                        self.aiPrevView.pis = self.piCollection;
+                        self.aiPrevView.model = self.ai_super;
+                        self.aiPrevView.render();
+                        $.mobile.loading("hide");
+                    })
+                })
+            },
+            //----------指标选择----------//
+            pis_select: function() {
+                var self = this;
+
+                self.piCollection.fetch().done(function() {
+                    self.myPICollection.fetch().done(function() {
+                        self.piSelectView.ai_data = self.ai;
+                        self.piSelectView.my_pis = self.myPICollection;
+                        self.piSelectView.render();
+                    })
+                })
+
+                $("body").pagecontainer("change", "#pis_select", {
+                    reverse: false,
+                    changeHash: false,
+                });
+            },
+            //新建指标
+            create_pi: function() {
+                var self = this;
 
 
+                $("body").pagecontainer("change", "#ai_add_pi", {
+                    reverse: false,
+                    changeHash: false,
+                });
+
+                $("#ai_add_pi_title").html('新建指标');
+
+                $.mobile.loading("show");
+                self.piView.pre_render();
+
+                self.pi.attributes.pi_name = '我新建的指标';
+                self.pi.save().done(function() {
+                    self.pi_datas.url = '/admin/pm/pi_library/get_pi_datas_4m';
+                    self.pi_datas.fetch().done(function() {
+                        self.piView.model = self.pi;
+                        self.piView.ai_data = self.ai;
+                        self.piView.pi_datas = self.pi_datas;
+                        self.piView.render();
+                        $.mobile.loading("hide");
+                    });
+                })
+            },
 
             init_views: function() {
                 var self = this;
-                this.todoListView = new ToDoListView({
+
+                self.todoListView = new ToDoListView({
                     el: "#todo_list",
                     collection: self.todoList
                 })
 
-                this.wf01View = new AIWF01View({
+                self.wf01View = new AIWF01View({
                     el: "#ai_wf",
                 })
 
-                this.wf02View = new AIWF02View({
+                self.wf02View = new AIWF02View({
                     el: "#dc_wf",
                 })
 
-                this.wf03View = new AIWF03View({
+                self.wf03View = new AIWF03View({
                     el: "#ai_wf1",
                 })
 
-                this.transConfirmView = new TransConfirmView({
+                self.transConfirmView = new TransConfirmView({
                     el: "#trans_confirm",
                 })
-                this.singleAttendanceResultChangeView = new AttendanceResultChangeView({
+                self.singleAttendanceResultChangeView = new AttendanceResultChangeView({
                     el: "#personal_wf_attend-content",
                 });
+
+                self.aiPrevView = new AIPrevView();
+
+                self.piSelectView = new AIPISelectView({
+                    el: "#pis_select-content",
+                    collection: self.piCollection,
+                });
+
+                self.piView = new PIView();
 
             },
             init_models: function() {
                 var self = this;
                 self.wf_data = new WFDataModel();
                 self.ai = new AIModel();
+                self.ai_prev = new AIPrevModel();
+                self.ai_super = new AISuperModel();
+                self.pi = new PIModel();
                 self.team_data = new TeamModel();
                 self.ai_datas = new AIDatasModel();
+                self.pi_datas = new PIDatasModel();
                 self.dc = new DataCollectionModel();
                 this.tmattendance = new TmAttendanceModel();
 
@@ -409,8 +534,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             init_collections: function() {
                 var self = this;
                 self.todoList = new ToDoListCollection();
-                this.tmattendances = new TmAttendanceCollection(); //所有人
-
+                self.tmattendances = new TmAttendanceCollection(); //所有人
+                self.piCollection = new PICollection();
+                self.myPICollection = new MYPICollection();
             },
             init_data: function() {
                 // var self = this;

@@ -11,6 +11,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         };
     });
 
+    Handlebars.registerHelper('index_eq', function(data, data2, options) {
+        var f_d = _.find(data2, function(dt) {
+            return dt.result == data
+        })
+        if (f_d) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        };
+    });
+
     Handlebars.registerHelper('is_radio', function(data, options) {
         if (data == '1') {
             return options.fn(this);
@@ -84,6 +95,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 });
             } else if (self.model.attributes.qtc.questionnair_category == '2') {
                 $("#common_name").html('选项统计问卷')
+                console.log(self.model.attributes)
                 rendered_data = self.quesetionnaire_option_common_template(self.model.attributes);
             } else {
                 $("#common_name").html('测验问卷')
@@ -100,27 +112,35 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         bind_event: function() {
             var self = this
             var bool = true;
-            // $("#btn-quesetionnaire_list-back").on('click', function(event) {
-            //     event.preventDefault();
-            //     if (self.model_view == '0') {
-            //         window.location = '#todo'
-            //     } else {
-            //         self.model_view = '0';
-            //         self.render();
-            //     }
-
-            // })
             $("#quesetionnaire_common_list-content").on('change', 'input', function(event) {
                 var $changed = $(event.currentTarget);
                 if (self.model.attributes.qtc.questionnair_category == '2') {
                     event.preventDefault();
                     // var $changed = $(event.currentTarget);
                     var qti_id = $changed.attr('id');
+                    var mark = $changed.attr('mark');
+                    var bool = $changed[0].checked;
                     var category_num = $changed.data('category_num');
                     var qi = _.find(self.model.attributes.option_items, function(x) {
                         return x._id == String(qti_id.split('-')[0]);
                     });
-                    qi.result = parseInt(qti_id.split('-')[1])
+                    var num = parseInt(qti_id.split('-')[1])
+                    if (mark == '1') {
+                        qi.results = [{
+                            result: num
+                        }]
+                    } else {
+                        console.log(bool)
+                        if (bool) {
+                            qi.results.push({
+                                result: num
+                            })
+                        } else {
+                            qi.results = _.filter(qi.results, function(qt) {
+                                return qt.result != num
+                            })
+                        }
+                    }
                     self.model.trigger('change');
                 } else if (self.model.attributes.qtc.questionnair_category == '3') {
                     // var is_answer = !!$changed.attr("checked") ? true : false;
@@ -204,11 +224,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '#btn-submit_option_common-save', function(event) {
                 event.preventDefault();
                 var option_num = self.model.attributes.option_items.length;
-                var num = 0;
-                $("#quesetionnaire_common_list-content input[type='radio']:checked").each(function() {
-                    num++
+                var bool = true;
+                _.each(self.model.attributes.option_items, function(it) {
+                    if (it.results.length == 0) {
+                        bool = false
+                    };
                 })
-                if (option_num == num) {
+                if (bool) {
                     if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
                         self.model.attributes.status = '1';
                         self.model.save(self.model.attributes, {
