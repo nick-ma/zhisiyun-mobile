@@ -60,6 +60,15 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var sph = JSON.parse(localStorage.getItem('sp_helper'));
                     if (sph.model) {
                         var $container = $("#people_select-content");
+                        //----默认选中上级－－－//
+                        var map_mentors = _.map(sph.model, function(x) {
+                            return String(x.people)
+                        })
+                        if (!~map_mentors.indexOf(String(sph.superior))) {
+                            $container.find("#cb-" + sph.superior).attr('checked', true);
+
+                        }
+                        ///------///////
                         _.each(sph.model, function(x) {
                             $container.find("#cb-" + x.people).attr('checked', true);
                         })

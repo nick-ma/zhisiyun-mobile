@@ -65,6 +65,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                 var self = this;
                 var state = self.state || 3;
                 var pass = (self.pass == "true") ? "true" : String($("#talent_develope_detail-basic-left-panel #talent_result").val());
+                var talent_mentor = localStorage.getItem("TalentMentor");
                 var talent_data = _.map(self.collection.models, function(x) {
                     var find_people = _.find(self.c_people.models, function(temp) {
                         return temp.attributes._id == String(x.attributes.people)
@@ -72,8 +73,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     var find_direct = _.find(self.direct, function(temp) {
                             return temp.attributes._id == String(x.attributes.develope_direct)
                         })
-                        //     //是否已到期
-                    _.each(x.attributes.plan_divide, function(temp) {
+                        //过滤与我相关中不是导师的明细计划；
+                    var filter_plan_divide = x.attributes.plan_divide;
+                    if (talent_mentor == 'True') {
+                        filter_plan_divide = _.filter(x.attributes.plan_divide, function(temp) {
+                            var mentor = _.map(temp.mentor, function(y) {
+                                return String(y.people)
+                            })
+                            return !!~mentor.indexOf(String($("#login_people").val()));
+
+                        })
+                    }
+                    //     //是否已到期
+                    _.each(filter_plan_divide, function(temp) {
                         temp.is_disabled = false;
                         if (format(temp.plan_e) < format(moment(new Date()))) {
                             temp.is_disabled = true;
@@ -102,6 +114,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                         x.attributes.direct = find_direct.attributes;
 
                     }
+                    x.attributes.plan_divide = filter_plan_divide
                     return x.toJSON();
                 })
                 var direct = _.map(self.direct, function(temp) {

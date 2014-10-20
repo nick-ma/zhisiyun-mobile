@@ -6,6 +6,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
     function($, _, Backbone, Handlebars) {
         var temp_plan_detail_id = null;
 
+        function find_mentor_arr(plan_divide, divide_id) {
+            var divide_data = _.find(plan_divide, function(x) {
+                return x._id == String(divide_id)
+            })
+            var mentor_arr = [];
+            if (divide_data) {
+                mentor_arr = _.compact(_.map(divide_data.mentor, function(x) {
+                    return x.people
+                }))
+            }
+            return mentor_arr
+        }
+
         function format(date) {
             return moment(date).format("YYYYMMDD");
         }
@@ -27,10 +40,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 'des_career_name': temp_data.des_career_name,
                 'des_position': temp_data.des_position,
                 'des_position_name': temp_data.des_position_name,
-                'login_people_name':$("#login_people_name").val()
+                'login_people_name': $("#login_people_name").val()
             }
             if (tag == 'delete_mentor') {
-                obj.mentor = name;
+                obj.mentor = name.people_name;
                 obj.mentor_id = name.people;
             } else if (tag == 'delete_course') {
                 obj.course = name;
@@ -43,12 +56,29 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             } else if (tag == 'add_mentor' && name) {
                 obj.mentor_id = _.keys(name);
                 obj.mentor = _.values(name)
+            } else if (tag == 'add_course_message') { //培养明细计划课程中的数据 im发送
+                obj.people_id = name[0];
+                obj.message = name[1];
+                obj.people_n = name[2];
+                obj.c_name = name[3];
+                obj.mentor_arr = name[4];
+            } else if (tag == 'add_mentor_message') {
+                obj.people_id = name[0];
+                obj.message = name[1];
+                obj.people_n = name[2];
+                obj.c_name = name[3];
+                obj.mentor_arr = name[4];
+            } else if (tag == 'course_is_pass') {
+                obj.people_id = name[0];
+                obj.message = name[1];
+                obj.people_n = name[2];
+                obj.c_name = name[3];
+                obj.mentor_arr = name[4];
             }
             require_data.push(obj);
             var post_data = 'require_data=' + JSON.stringify(require_data);
             post_data += '&tag=' + tag;
             $.post('/admin/pm/talent_develope/im_send_detail', post_data, function(data) {
-                console.log(data)
                 if (data.code == 'OK') {
                     cb(data.data)
                 } else {
@@ -71,6 +101,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 this.template_attachment = Handlebars.compile($("#hbtmp_talent_develope_detail_list_operation_attachment_view").html());
                 // The render method is called when People Models are added to the Collection
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
+                //课程操作
+                this.template_course = Handlebars.compile($("#course_operation_view").html());
 
                 // this.collection.on("sync", this.render, this);
                 this.bind_event();
@@ -94,16 +126,51 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         x.attributes.people_data = find_people.attributes;
 
                     }
+                    var is_self = ($("#login_people").val() == String(x.attributes.people));
+
                     //     //是否已到期
                     _.each(x.attributes.plan_divide, function(temp) {
                         temp.is_disabled = false;
                         if (format(temp.plan_e) < format(moment(new Date()))) {
-                            temp.is_disabled = true;
+                            var bool1 = true;
                         } else if (format(temp.plan_s) > format(moment(new Date()))) {
-                            temp.is_disabled = false;
+                            var bool1 = false;
                         } else {
-                            temp.is_disabled = false;
+                            var bool1 = false;
                         }
+                        var is_creator = (temp.creator == String($("#login_people").val()));
+
+                        var bool2 = is_self && !is_creator;
+                        //添加导师是否可编辑
+                        temp.is_disabled = bool1 || bool2;
+                        //添加课程是否可编辑
+                        temp.is_add_class_disabled = bool1;
+                        //导师是否可编辑
+                        var exist_mentor = [];
+                        _.each(temp.mentor, function(x) {
+                            exist_mentor.push(String(x.people));
+                            var is_mentor = (x.people == String($("#login_people").val()));
+                            var is_creator = (x.creator == String($("#login_people").val()));
+
+                            x.is_edit = !(bool1 || (!is_self && !is_mentor) || (is_self && !is_creator))
+
+                        })
+                        var is_mentor = !!~exist_mentor.indexOf(String($("#login_people").val()));
+                        //课程是否可编辑
+                        _.each(temp.course, function(x) {
+                            var is_creator = (x.creator == String($("#login_people").val()));
+                            x.is_edit = !((!is_creator && !is_mentor) || bool1);
+                            x.is_delete = !(is_mentor && !is_creator);
+                            var bool2 = is_self && !is_creator;
+                            x.is_disabled = bool1 || bool2;
+                            if (is_self) {
+                                x.priviledge = 'p';
+                            } else if (is_mentor) {
+                                x.priviledge = 'h';
+
+                            }
+
+                        })
                     })
 
                     return x.toJSON();
@@ -191,6 +258,50 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     };
 
 
+                } else if (self.view_mode == 'course') {
+                    $("#talent_develope_detail_operation_title").html("课程操作");
+                    var single_course = _.find(obj.divide_data.course, function(x) {
+                        return x.course == String(self.course_id)
+                    });
+                    obj.single_course = single_course;
+                    obj.course_id = self.course_id;
+                    //附件数据
+                    if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
+                        var item = JSON.parse(localStorage.getItem('upload_model_back')).model;
+                        var attachments = item.attachments;
+                        // localStorage.removeItem('upload_model_back'); //用完删掉
+                        var plan_id = item.plan_id;
+                        _.each(attachments, function(temp) {
+                            var find_attachment = _.find(obj.single_course.course_data.attachments, function(x) {
+                                return x.file == String(temp)
+                            })
+                            if (!find_attachment) {
+                                obj.single_course.course_data.attachments.push({
+                                    file: temp,
+                                    people: self.people
+                                })
+                            }
+                        })
+                        single_course.course_data.attachments = obj.single_course.course_data.attachments;
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                $.get('/admin/pm/talent_develope/file', function(data) {
+                                    if (data) {
+                                        obj.file_data = data.data;
+                                        $("#talent_develope_detail_operation-content").html(self.template_course(obj));
+                                        $("#talent_develope_detail_operation-content").trigger('create');
+
+                                    }
+                                })
+                            }
+                        });
+
+                    } else {
+                        $("#talent_develope_detail_operation-content").html(self.template_course(obj));
+
+                    };
+
+
                 } else {
                     $("#talent_develope_detail_operation_title").html("导师与课程")
 
@@ -219,9 +330,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         localStorage.removeItem("sp_helper_back");
                         var temp_data = self.collection.models[0].attributes;
                         im_send(temp_data, obj.divide_id, 'add_mentor', temp_mentor, function(data) {
-                            console.log(data);
                         })
-
                     }
                     if (sphb_course) {
                         obj.divide_data.course = sphb_course.model;
@@ -233,6 +342,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 }
                 $("#talent_develope_detail_operation-content").trigger('create');
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                })
 
                 return this;
 
@@ -320,17 +432,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     event.preventDefault();
                     var plan_id = $(this).data("plan_id");
                     var divide_id = $(this).data("divide_id");
+                    //上级
+                    var superior = self.collection.models[0].attributes.people_data.superiors || null;
                     var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                         return x._id == String(divide_id)
                     })
                     var mentor = divide_single_datas.mentor;
-
                     var url = '#people_select/t/mentor';
                     localStorage.setItem('sp_helper', JSON.stringify({
                         model: mentor,
                         divide_id: divide_id,
                         paln_id: plan_id,
                         back_url: window.location.hash,
+                        superior: superior
                     })); //放到local storage里面，便于后面选择屏幕进行操作
                     // var temp_data = self.collection.models[0].attributes;
                     // im_send(temp_data, divide_id, 'add_mentor', null, function(data) {
@@ -513,7 +627,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }
                 }).on('click', "#go_back", function(event) {
                     event.preventDefault();
-                    window.location.href = '#plan_list_detail/' + temp_plan_detail_id;
+                    if (self.view_mode == "course") {
+                        self.view_mode = "mentor";
+                        self.render();
+                    } else {
+                        window.location.href = '#plan_list_detail/' + temp_plan_detail_id;
+
+                    }
                     // window.history.go(-1);
                 }).on('change', "#pass", function(event) {
                     event.preventDefault();
@@ -691,6 +811,246 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var href = $(this).data("href");
                     // window.location.href = href;
                     window.open(href)
+                }).on('click', ".course_operation", function(event) { //课程操作
+                    event.preventDefault();
+                    self.view_mode = "course";
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id");
+                    self.course_id = course_id;
+                    self.render();
+                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                    $(".ui-flipswitch a").each(function() {
+                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                    })
+
+                }).on('change', '#course_abstract', function(event) { //课程－自评
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id") || self.course_id;
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    });
+                    var single_course = _.find(divide_single_datas.course, function(x) {
+                        return x.course == String(course_id)
+                    });
+                    var course_abstract = $("#talent_develope_detail_operation_list #course_abstract").val();
+                    if (course_abstract) {
+
+                        single_course.course_data.course_abstract = course_abstract;
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                self.collection.fetch();
+                                self.render();
+                            },
+                            error: function(model, xhr, options) {}
+                        });
+                    } else {
+                        alert('请输入自评!')
+                    }
+                }).on('click', '#btn-add_course_comment', function(event) { //课程－课程交流
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id") || self.course_id;
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    });
+                    var single_course = _.find(divide_single_datas.course, function(x) {
+                        return x.course == String(course_id)
+                    });
+                    var mentor_arr = find_mentor_arr(self.collection.models[0].attributes.plan_divide, divide_id);
+
+                    var course_comments = $("#talent_develope_detail_operation_list #course_comments").val();
+                    // var message = $("#talent_develope_detail_operation_list #message").val();
+                    if (course_comments) {
+                        var obj = {
+                            people: self.people,
+                            message: course_comments,
+                            post_time: new Date(),
+                            avatar: self.filter_people.avatar,
+                            people_name: self.filter_people.people_name
+                        }
+                        single_course.course_data.comments.push(obj);
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                self.collection.fetch().done(function() {
+                                    var course_message = [];
+                                    var message = $("#talent_develope_detail_operation_list #course_comments").val();
+                                    course_message.push($("#login_people").val());
+                                    course_message.push(message);
+                                    course_message.push(self.filter_people.people_name || $("#people_name").val());
+                                    course_message.push(single_course.c_name);
+                                    course_message.push(mentor_arr) //发送给导师
+
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'add_course_message', course_message, function(data) {
+                                        self.render();
+                                    })
+                                    // self.render();
+                                });
+                            },
+                            error: function(model, xhr, options) {}
+                        });
+                    } else {
+                        alert('请输入交流数据!')
+                    }
+                }).on('change', '#course_score', function(event) { //课程－得分
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id") || self.course_id;
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    });
+                    var single_course = _.find(divide_single_datas.course, function(x) {
+                        return x.course == String(course_id)
+                    });
+                    var course_score = $("#talent_develope_detail_operation_list #course_score").val();
+                    // var message = $("#talent_develope_detail_operation_list #message").val();
+                    if (course_score) {
+
+                        single_course.course_data.course_score = course_score;
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                self.collection.fetch().done(function() {
+                                    var temp_data = self.collection.models[0].attributes;
+                                    // im_send(temp_data, divide_id, 'add_message', message, function(data) {
+                                    //     self.render();
+                                    // })
+                                    self.render();
+                                });
+                            },
+                            error: function(model, xhr, options) {}
+                        });
+                    } else {
+                        alert('请输入课程得分!')
+                    }
+                }).on('click', '#btn-add_mentor_comment', function(event) { //课程－导师评估
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id") || self.course_id;
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    });
+                    var single_course = _.find(divide_single_datas.course, function(x) {
+                        return x.course == String(course_id)
+                    });
+                    var mentor_arr = find_mentor_arr(self.collection.models[0].attributes.plan_divide, divide_id);
+
+                    var mentor_comment = $("#talent_develope_detail_operation_list #mentor_comment").val();
+                    // var message = $("#talent_develope_detail_operation_list #message").val();
+                    if (mentor_comment) {
+                        var obj = {
+                            people: self.people,
+                            message: mentor_comment,
+                            post_time: new Date(),
+                            avatar: self.filter_people.avatar,
+                            people_name: self.filter_people.people_name
+                        }
+                        single_course.course_data.mentor_comment.push(obj);
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                self.collection.fetch().done(function() {
+                                    var temp_data = self.collection.models[0].attributes;
+                                    var mentor_message = [];
+                                    var message = $("#talent_develope_detail_operation_list #mentor_comment").val();
+                                    mentor_message.push($("#login_people").val());
+                                    mentor_message.push(message);
+                                    mentor_message.push(self.filter_people.people_name || $("#people_name").val());
+                                    mentor_message.push(single_course.c_name);
+                                    mentor_message.push(mentor_arr) //发送给导师
+
+                                    var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'add_mentor_message', mentor_message, function(data) {
+                                        self.render();
+                                    })
+                                    // self.render();
+                                });
+                            },
+                            error: function(model, xhr, options) {}
+                        });
+                    } else {
+                        alert('请输入导师评估!')
+                    }
+                }).on('click', '#btn-course_upload_attachment', function(event) { //添加附件
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id");
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    })
+                    var single_course = _.find(divide_single_datas.course, function(x) {
+                        return x.course == String(course_id)
+                    });
+
+                    //转到上传图片的页面
+                    localStorage.removeItem('upload_model_back'); //先清掉
+                    var next_url = '#upload_pic';
+                    localStorage.setItem('upload_model', JSON.stringify({
+                        model: {
+                            attachments: [],
+                            divide_single_datas: divide_single_datas,
+                            plan_id: plan_id,
+                            divide_id: divide_id
+                        },
+                        field: 'attachments',
+                        back_url: window.location.hash
+                    }))
+                    var temp_data = self.collection.models[0].attributes;
+                    window.location.href = next_url;
+
+                    // im_send(temp_data, divide_id, 'add_attachment', null, function(data) {
+                    //     window.location.href = next_url;
+                    // })
+                }).on('change', '#is_pass', function(event) { //课程－导师评估
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id") || self.course_id;
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    });
+                    var single_course = _.find(divide_single_datas.course, function(x) {
+                        return x.course == String(course_id)
+                    });
+                    var mentor_arr = find_mentor_arr(self.collection.models[0].attributes.plan_divide, divide_id);
+
+                    var is_pass = $("#talent_develope_detail_operation_list #is_pass").val();
+
+                    single_course.is_pass = is_pass;
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                            self.collection.fetch().done(function() {
+                                var temp_data = self.collection.models[0].attributes;
+                                var course_pass = [];
+                                course_pass.push($("#login_people").val());
+                                if (single_course.is_pass) {
+                                    course_pass.push("已通过"); //是否通过
+                                } else {
+                                    course_pass.push("未通过"); //是否通过
+                                }
+                                course_pass.push(self.filter_people.people_name || $("#people_name").val());
+                                course_pass.push(single_course.c_name);
+                                course_pass.push(mentor_arr) //发送给导师
+
+                                // var temp_data = self.collection.models[0].attributes;
+                                im_send(temp_data, divide_id, 'course_is_pass', course_pass, function(data) {
+                                    self.render();
+                                })
+                            });
+                        },
+                        error: function(model, xhr, options) {}
+                    });
+
                 })
 
             }
