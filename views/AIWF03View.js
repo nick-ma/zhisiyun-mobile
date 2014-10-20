@@ -195,6 +195,39 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
             self.$el.on('click', '.do_trans', function(event) {
                 var weight1 = self.ai.attributes.quantitative_pis.weight;
                 var weight2 = self.ai.attributes.qualitative_pis.weight;
+                var weight1_t = self.ai.attributes.quantitative_pis.weight_t;
+                var weight2_t = self.ai.attributes.qualitative_pis.weight_t;
+                var greater_or_less1 = self.ai.attributes.quantitative_pis.greater_or_less;
+                var greater_or_less2 = self.ai.attributes.qualitative_pis.greater_or_less;
+
+                if(greater_or_less1 == 'G'){
+                    if(parseFloat(weight1) < parseFloat(weight1_t)){
+                        alert('定量指标必须>='+weight1_t+'%');
+                        return;
+                    }  
+                }else{
+                    if(parseFloat(weight1) > parseFloat(weight1_t)){
+                        alert('定量指标必须<='+weight1_t+'%');
+                        return;
+                    }  
+                }
+
+                if(greater_or_less2 == 'G'){
+                    if(parseFloat(weight2) < parseFloat(weight2_t)){
+                        alert('定性指标必须>='+weight2_t+'%');
+                        return;
+                    }  
+                }else{
+                    if(parseFloat(weight2) > parseFloat(weight2_t)){
+                        alert('定性指标必须<='+weight2_t+'%');
+                        return;
+                    }  
+                }
+
+                if (parseFloat(weight1) + parseFloat(weight2) != 100) {
+                    alert('定量指标和定性指标权重之后必须为100%');
+                    return;
+                }
                 if (parseFloat(weight1) + parseFloat(weight2) != 100) {
                     alert('定量指标和定性指标权重之后必须为100%');
                     return;
@@ -434,6 +467,17 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
             $("#ai_wf1-content").on('click', '#btn_ai_dl_pi_save,#btn_ai_dx_pi_save', function(event) {
                 event.preventDefault();
+
+                if(self.item.target_value == '' || self.item.target_value == null){
+                    alert('请输入目标值!');
+                    return;
+                }
+
+                if(!self.item.weight){
+                    alert('请输入权重!');
+                    return;
+                }
+
                 //计算权重
                 self.ai.attributes.quantitative_pis.weight = 0;
                 self.ai.attributes.qualitative_pis.weight = 0;
@@ -598,6 +642,16 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     $("#ai_wf1-content").trigger('create');
                 }
             } else {
+                //计算权重
+                obj.ai.quantitative_pis.weight = 0;
+                obj.ai.qualitative_pis.weight = 0;
+                _.each(obj.ai.quantitative_pis.items, function(x) {
+                    obj.ai.quantitative_pis.weight += parseFloat(x.weight);
+                });
+                _.each(obj.ai.qualitative_pis.items, function(x) {
+                    obj.ai.qualitative_pis.weight += parseFloat(x.weight);
+                });
+
                 this.template = Handlebars.compile($("#wf03_view").html());
                 $("#ai_wf1-content").html(self.template(obj));
                 $("#ai_wf1-content").trigger('create');
