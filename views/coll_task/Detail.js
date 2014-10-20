@@ -373,7 +373,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                                     creator: login_people,
                                     people: login_people,
                                     title: self.model.get('task_name'),
-                                    allDay: true,
+                                    allDay: self.model.get('allday'),
                                     start: moment(self.model.get('start')).format('YYYY-MM-DD'),
                                     end: moment(self.model.get('end')).format('YYYY-MM-DD'),
                                     tags: '协作任务',
@@ -385,6 +385,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                                     durationEditable: false,
                                     origin: '1',
                                     is_complete: self.model.get('isfinished'),
+                                };
+                                if (!new_event.allDay) {
+                                    new_event.start = moment(self.model.get('start')).format('YYYY-MM-DD HH:mm');
+                                    new_event.end = moment(self.model.get('end')).format('YYYY-MM-DD HH:mm');
                                 };
                                 new_event.description = self.model.get('task_descrpt');
                                 new TaskModel(new_event).save().done(function() {
