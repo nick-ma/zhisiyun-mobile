@@ -40,12 +40,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "jqmcal", "formatdate"
         render: function() {
             var self = this;
             //jqmCalendar test
-            console.log(self)
             var $cal = $("#mobile_resource_cal");
             var cal_events = $cal.data('jqmCalendar').settings.events;
             cal_events.length = 0;
             var items = []
-            console.log('' == self.mr_id)
             items.push('<option value="" ' + (('' == self.mr_id) ? 'selected' : '') + '>全部</option>')
             _.each(self.mrs, function(mr) {
 
@@ -94,7 +92,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "jqmcal", "formatdate"
                     $("#show_mobile-left-panel").panel("close");
                 }).on('change', "#moblie_resource_set", function(event) {
                     event.preventDefault();
-                    console.log($(this).val())
                     self.mr_id = $(this).val()
                     self.render()
                     $("#show_mobile-left-panel").panel("close");
