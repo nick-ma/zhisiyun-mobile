@@ -5,7 +5,13 @@
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
     function($, _, Backbone, Handlebars, moment) {
 
-
+        Handlebars.registerHelper('im_rp', function(data) {
+            var str = data
+            if (data == 'root' || !data) {
+                str = '系统通知';
+            }
+            return str
+        });
 
         Handlebars.registerHelper('is_msg_type', function(type, options) {
             if (type == 'plain') {

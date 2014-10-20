@@ -54,6 +54,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 self.mobileResources.fetch().done(function() {
                     var login_people = $("#login_people").val();
                     localStorage.setItem('mobileResources', LZString.compressToUTF16(JSON.stringify(self.mobileResources)))
+                    self.calendarView.mrs = self.mrs;
                     self.calendarView.render();
                     $.mobile.loading("hide");
                 })
