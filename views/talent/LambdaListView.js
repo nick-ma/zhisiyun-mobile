@@ -28,9 +28,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
       render: function() {
         var self = this;
         // console.log(self)
-        var competency = _.map(self.c_competency.models, function(x) {
-          return x.toJSON();
-        })
+        var competency = self.c_competency;
         var talent = _.map(self.c_talent.models, function(x) {
           return x.toJSON();
         })
@@ -54,22 +52,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
           self.twitter_people = tmp
         }
         _.each(tmp, function(x) {
-          var single_competency = _.find(competency, function(temp) {
+          var single_competency = _.filter(competency, function(temp) {
             return x._id == String(temp.people_id)
           })
-          var temp_competency = single_competency ? single_competency.competencies : '';
-          if (temp_competency) {
+          // console.log(single_competency)
+          // x.competency = single_competency;
+          if (single_competency) {
             var scores = [],
               repeat_id = [];
-            _.each(temp_competency, function(L1) {
-              _.each(L1.scores, function(L2) {
-                if (!!~repeat_id.indexOf(String(L2.qi_id))) {
-                  scores.push(L2)
+            _.each(single_competency, function(L1) {
+              if (!~repeat_id.indexOf(String(L1.qi_id))) {
+                scores.push(L1)
+              }
+              repeat_id.push(String(L1.qi_id))
 
-                }
-                repeat_id.push(String(L2.qi_id))
-
-              })
             })
             x.competency = scores;
           }
@@ -121,27 +117,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             $("#lambda_data_a" + people).hide();
             $("#lambda_data_b" + people).hide();
           }
-        }).on('taphold', '.people_name', function(event) {
-          event.preventDefault();
-          var people = $(this).data("people");
-          var people_arr = JSON.parse(localStorage.getItem("lambda_helper")) || null;
-          if (people_arr) {
-            people_arr = _.filter(people_arr, function(x) {
-              return x != String(people)
-            })
-            localStorage.setItem("lambda_helper", JSON.stringify(people_arr));
-            self.collection.models = _.filter(self.collection.models, function(temp) {
-              return !!~people_arr.indexOf(String(temp.attributes._id));
-            })
-            self.render();
-          } else {
-            self.collection.models = _.filter(self.collection.models, function(temp) {
-              return String(people) != temp.attributes._id;
-            })
-            self.render();
-
-          }
-          // alert(people)
         }).on('click', '#btn-people_select-ok', function(event) {
           event.preventDefault();
 
@@ -183,6 +158,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
           var img_view = '<img src="' + this.src + '">';
           // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
           $("#fullscreen-overlay").html(img_view).fadeIn('fast');
+        }).on('click', '#btn_delete', function(event) {
+          event.preventDefault();
+          var people = $(this).data("people");
+          var people_arr = JSON.parse(localStorage.getItem("lambda_helper")) || null;
+          if (people_arr) {
+            people_arr = _.filter(people_arr, function(x) {
+              return x != String(people)
+            })
+            localStorage.setItem("lambda_helper", JSON.stringify(people_arr));
+            self.collection.models = _.filter(self.collection.models, function(temp) {
+              return !!~people_arr.indexOf(String(temp.attributes._id));
+            })
+            self.render();
+          } else {
+            self.collection.models = _.filter(self.collection.models, function(temp) {
+              return String(people) != temp.attributes._id;
+            })
+            self.render();
+
+          }
+          // alert(people)
         })
       }
 

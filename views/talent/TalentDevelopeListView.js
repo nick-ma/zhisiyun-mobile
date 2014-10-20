@@ -94,6 +94,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var direct = _.map(self.direct, function(temp) {
                         return temp.attributes
                     })
+                    localStorage.setItem("TalentMentor", "False");
+
                     if (team_obj[select] == 'self') {
                         self.collection.url = '/admin/pm/talent_develope/plan?people_id=' + self.people;
                         self.collection.fetch().done(function() {
@@ -170,6 +172,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                     return !!~mentor.indexOf(String(self.people))
                                 })
                                 self.filter_data = filter_collection;
+                                localStorage.setItem("TalentMentor", "True");//过滤与我相关的明细计划。
                             }
                             self.filter = true;
                             self.render();
@@ -181,10 +184,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     event.preventDefault();
                     var img_view = '<img src="' + this.src + '">';
                     $("#fullscreen-overlay").html(img_view).fadeIn('fast');
-                }).on('click', '#btn_show_myteam_view', function(event) {//人才对比
+                }).on('click', '#btn_show_myteam_view', function(event) { //人才对比
                     event.preventDefault();
                     window.location.href = "#talent_twitter_people/c";
-                }).on('click', '#btn_show_talent_twitter_select_view', function(event) {//人才提名
+                }).on('click', '#btn_show_talent_twitter_select_view', function(event) { //人才提名
                     event.preventDefault();
                     window.location.href = "#talent_twitter_people/t";
                 })

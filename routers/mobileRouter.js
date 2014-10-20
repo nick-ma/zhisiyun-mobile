@@ -44,6 +44,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./absence",
     "./talentRouter",
     "./imRouter",
+    "./mobileresourceRouter",
+    "./wfapproveRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
 
@@ -76,6 +78,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     Absence,
     TalentRouter,
     ImRouter,
+    mobileresourceRouter,
+    WFApproveRouter,
     async, moment
 
 
@@ -108,7 +112,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new TmAttendanceRouter();
         new Absence();
         new TalentRouter();
-        new ImRouter()
+        new ImRouter();
+        new mobileresourceRouter();
+        new WFApproveRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -712,8 +718,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
       },
       init_views: function(self) {
-
-
         this.taskView = new TaskView({
           el: "#task",
           collection: self.c_task
@@ -1000,6 +1004,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return options.inverse(this);
         };
       });
+      Handlebars.registerHelper('gt', function(data1, data2, options) {
+        if (data1 > data2) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('gte', function(data1, data2, options) {
+        if (data1 >= data2) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
       Handlebars.registerHelper('segname', function(data) {
         return (data == '-') ? '' : '[' + data + ']';
       });
@@ -1261,9 +1279,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
       });
       Handlebars.registerHelper('getFileExtName', function(filename) {
-        var fn_parts = filename.split('.');
-        if (fn_parts.length > 1) {
-          return fn_parts[fn_parts.length - 1];
+        if (filename) {
+          var fn_parts = filename.split('.');
+          if (fn_parts.length > 1) {
+            return fn_parts[fn_parts.length - 1];
+          } else {
+            return '';
+          };
         } else {
           return '';
         };
@@ -1806,31 +1828,34 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return filter_position.position_name
       });
       //人才培养计划明细
-      Handlebars.registerHelper('opt_type_ret', function(develope_type, type_data, pri_state) {
+      Handlebars.registerHelper('opt_type_ret', function(develope_type, type_data, pri_state, is_creator) {
         var item = [];
         if (develope_type) {
           var type_temp = _.find(type_data, function(temp) {
               return temp._id == String(develope_type)
             })
             //过滤没有操作培养手段权限的培养方式
-          var r_data = _.filter(type_data, function(r) {
-            if (r.develope_style) {
-              var f_data = _.filter(r.develope_style, function(d) {
-                var data = [];
-                if (d.priviledge) {
-                  _.each(d.priviledge, function(temp) {
-                    data.push(String(temp.pri));
-                  })
-                }
-                return !!~data.indexOf(String(pri_state));
+          if (is_creator) {
+            type_data = _.filter(type_data, function(r) {
+              if (r.develope_style) {
+                var f_data = _.filter(r.develope_style, function(d) {
+                  var data = [];
+                  if (d.priviledge) {
+                    _.each(d.priviledge, function(temp) {
+                      data.push(String(temp.pri));
+                    })
+                  }
+                  return !!~data.indexOf(String(pri_state));
 
 
-              })
-              return f_data.length > 0
-            }
+                })
+                return f_data.length > 0
+              }
 
-          })
-          _.each(r_data, function(temp) {
+            })
+          }
+
+          _.each(type_data, function(temp) {
             var temp_arr = [];
             temp_arr.push(temp._id);
             temp_arr.push(temp.type_name)
@@ -1890,21 +1915,21 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             item.push('<option>请选择培养手段</option>')
 
             _.each(type_temp.develope_style, function(temp) {
-              var priviledge = _.map(temp.priviledge, function(p) {
-                return String(p.pri)
-              })
-              if (!!~priviledge.indexOf(String(pri_state))) {
-                var temp_arr = [];
-                temp_arr.push(temp._id);
-                temp_arr.push(temp.style_name);
-                if (temp._id == String(style_id)) {
-                  item.push('<option value="' + temp_arr + '" selected>' + style_temp.style_name + '</option>')
+              // var priviledge = _.map(temp.priviledge, function(p) {
+              //   return String(p.pri)
+              // })
+              // if (!!~priviledge.indexOf(String(pri_state))) {
+              var temp_arr = [];
+              temp_arr.push(temp._id);
+              temp_arr.push(temp.style_name);
+              if (temp._id == String(style_id)) {
+                item.push('<option value="' + temp_arr + '" selected>' + style_temp.style_name + '</option>')
 
-                } else {
-                  item.push('<option value="' + temp_arr + '" >' + temp.style_name + '</option>')
+              } else {
+                item.push('<option value="' + temp_arr + '" >' + temp.style_name + '</option>')
 
-                }
               }
+              // }
             })
 
           } else {
@@ -2068,7 +2093,53 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           var prop_h = '半';
         }
         return prop_f ? '<span class="label label-info" style="border-radius:10px">' + prop_f + '</span>' : '<span class="label label-warning" style="border-radius:10px">' + prop_h + '</span>';
-      })
+      });
+      Handlebars.registerHelper('showFAState', function(state) {
+        if (state == 'START') {
+          return '<span class="label label-info" >办理中</span>'
+        } else if (state == 'END') {
+          return '<span class="label label-success" >已办结</span>'
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('showFAOP', function(op) {
+        if (op == '通过') {
+          return '<span class="text-success" style="border: solid 1px; padding: 1px 1px;">通过</span>'
+        } else if (op == '拒绝') {
+          return '<span class="text-danger" style="border: solid 1px; padding: 1px 1px;">拒绝</span>'
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('showFATaskOP', function(op) {
+        if (op) {
+          if (op == '起草') {
+            return '<span class="label label-default">' + op + '</span>';
+          } else if (op == '提交') {
+            return '<span class="label label-success">' + op + '</span>';
+          } else if (op == '驳回') {
+            return '<span class="label label-danger">' + op + '</span>';
+          } else if (op == '完成') {
+            return '<span class="label label-info">' + op + '</span>';
+          } else {
+            return '<span class="label label-default">' + op + '</span>';
+          };
+        } else {
+          return '';
+        };
+
+      });
+      Handlebars.registerHelper('getFACurrentTaskComment', function(tasks, current_task_no) {
+        var task = _.find(tasks, function(x) {
+          return x.task_no == current_task_no
+        })
+        if (task) {
+          return task.comment;
+        } else {
+          return '';
+        };
+      });
     })();
 
     (function() {

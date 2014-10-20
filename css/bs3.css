@@ -50,6 +50,14 @@ grab from bootstrap 3
 .text-danger {
     color:#d9534f;
 }
+.label-default {
+    color:#ffffff !important;
+    background-color:#aaaaaa;
+    border-radius: 3px;
+    font-size: 12px !important;
+    padding: 3px;
+    text-shadow:none;
+}
 .label-info {
     color:#ffffff !important;
     background-color:#5bc0de;

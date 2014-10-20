@@ -63,8 +63,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
             render: function() {
 
                 var self = this;
-                var state = self.state || 2;
+                var state = self.state || 3;
                 var pass = (self.pass == "true") ? "true" : String($("#talent_develope_detail-basic-left-panel #talent_result").val());
+                var talent_mentor = localStorage.getItem("TalentMentor");
                 var talent_data = _.map(self.collection.models, function(x) {
                     var find_people = _.find(self.c_people.models, function(temp) {
                         return temp.attributes._id == String(x.attributes.people)
@@ -72,18 +73,38 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     var find_direct = _.find(self.direct, function(temp) {
                             return temp.attributes._id == String(x.attributes.develope_direct)
                         })
-                        //     //是否已到期
-                    _.each(x.attributes.plan_divide, function(temp) {
+                        //过滤与我相关中不是导师的明细计划；
+                    var filter_plan_divide = x.attributes.plan_divide;
+                    if (talent_mentor == 'True') {
+                        filter_plan_divide = _.filter(x.attributes.plan_divide, function(temp) {
+                            var mentor = _.map(temp.mentor, function(y) {
+                                return String(y.people)
+                            })
+                            return !!~mentor.indexOf(String($("#login_people").val()));
+
+                        })
+                    }
+                    //     //是否已到期
+                    _.each(filter_plan_divide, function(temp) {
                         temp.is_disabled = false;
                         if (format(temp.plan_e) < format(moment(new Date()))) {
                             temp.is_disabled = true;
-                            temp.state = '2'
+                            temp.state = '2';
+                            temp.all_state = '3';
                         } else if (format(temp.plan_s) > format(moment(new Date()))) {
                             temp.state = '0'
+                            temp.all_state = '3';
 
                         } else {
                             temp.state = '1';
+                            temp.all_state = '3';
 
+                        }
+                        if (temp.creator == String($("#login_people").val())) {
+                            temp.is_creator = true;
+                        } else {
+                            temp.is_creator = false;
+                            temp.is_disabled = true;
                         }
                     })
                     if (find_people) {
@@ -93,6 +114,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                         x.attributes.direct = find_direct.attributes;
 
                     }
+                    x.attributes.plan_divide = filter_plan_divide
                     return x.toJSON();
                 })
                 var direct = _.map(self.direct, function(temp) {
@@ -137,9 +159,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                 var ts_count = _.countBy(talent_data[0].plan_divide, function(x) {
                     return x.state;
                 });
+                var ts_count_all = _.countBy(talent_data[0].plan_divide, function(x) {
+                    return x.all_state;
+                });
                 _.each($("#talent_develope_detail-basic-left-panel label"), function(x) {
                     // console.log(x);
-                    $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    if ($(x).data('state') == '3') {
+                        $(x).find('span').html(ts_count_all[$(x).data('state')] || 0);
+
+                    } else {
+                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+
+                    }
+
                 })
                 obj.talent_data.plan_divide = _.filter(obj.talent_data.plan_divide, function(temp) {
                     if (pass == "false") {
@@ -147,7 +179,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     } else {
                         var bool = temp.pass == true;
                     }
-                    return temp.state == state && bool
+                    if (state == '3') {
+                        var bool2 = true;
+                        return bool2
+                    } else {
+                        return temp.state == state && bool
+                    }
                 })
                 $("#talent_develope_detail-content").html(self.template(obj));
                 $("#talent_develope_detail-content").trigger('create');
@@ -296,7 +333,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                         } else if (!moment().isAfter(moment(periodTo)) && moment(new Date()).add('d', 15).isAfter(moment(periodTo))) {
                             var obj = {
                                 'plan_s': moment(),
-                                'plan_e': moment(periodTo).subtract('d', 1)
+                                'plan_e': moment(periodTo).subtract('d', 1),
+                                'creator': $("#login_people").val()
                             }
                             self.collection.models[0].attributes.plan_divide.push(obj);
                             self.collection.models[0].save(self.collection.models[0].attributes, {
@@ -317,7 +355,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                         } else {
                             var obj = {
                                 'plan_s': moment(),
-                                'plan_e': moment(new Date()).add('d', 15)
+                                'plan_e': moment(new Date()).add('d', 15),
+                                'creator': $("#login_people").val()
+
                             }
                             self.collection.models[0].attributes.plan_divide.push(obj);
                             self.collection.models[0].save(self.collection.models[0].attributes, {
@@ -340,7 +380,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
 
                 }).on('click', '#btn_save', function(event) { //删除明细计划
                     event.preventDefault();
-                    var plan_id = $(this).data("plan_id");
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                     var divide_id = $(this).data("divide_id");
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
@@ -353,9 +393,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             alert("内部服务器错误,请联系系统管理员!")
                         }
                     });
-                }).on('change', '#plan_s', '#plan_e', function(event) {
+                }).on('change', '#plan_s,#plan_e', function(event) {
                     event.preventDefault();
-                    var plan_id = $(this).data("plan_id");
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
                     var divide_id = $(this).data("divide_id");
                     var field = $(this).data("field");
                     var period_start = moment(self.collection.models[0].attributes.period_start);
@@ -364,6 +404,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     var filter_plan_data = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
                         return x._id == String(divide_id)
                     })
+
                     if (field == "plan_s") {
                         if (moment(date).isBefore(period_start)) {
                             alert('计划分解开始时间需大于计划开始时间')

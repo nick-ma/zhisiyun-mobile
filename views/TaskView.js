@@ -19,6 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
             //     this.collection.fetch();
             // });
             // this.collection.on("sync", this.render, this);
+
             $("#jqm_cal").jqmCalendar({
                 events: [],
                 months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
@@ -36,6 +37,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
 
         // Renders all of the Task models on the UI
         render: function() {
+
             var self = this;
             //jqmCalendar test
             var $cal = $("#jqm_cal");
