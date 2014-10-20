@@ -4,6 +4,8 @@ define(["jquery", "backbone", "../models/MobileResourceModel"], function($, Back
 	// The Model constructor
 	var Collection = Backbone.Collection.extend({
 		url: function() {
+			// mr_id
+			console.log(this)
 			return '/admin/pm/mobile_resource_calendar/bb';
 		},
 		model: MobileResourceModel,
