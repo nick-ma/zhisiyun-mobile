@@ -1146,7 +1146,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 }).on('click', ".ios_href", function(event) {
                     var href = $(this).data("href");
-                    if ($("#req_ua").val() == "ios") {
+                    if ($("#req_ua").val() == "app_ios") {
                         var temp_href = "cmd://app/go/" + href;
                         console.log(temp_href)
                         window.location.href = temp_href;
