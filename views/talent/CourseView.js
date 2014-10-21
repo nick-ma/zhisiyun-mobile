@@ -73,7 +73,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 target_url: x_data.target_url,
                                 duration: x_data.duration,
                                 integral: x_data.integral,
-                                creator: $("#login_people").val()
+                                creator: $("#login_people").val(),
+                                c_start: sph.c_start,
+                                c_end: sph.c_end,
+                                is_delete: true,
+                                is_edit: true
 
                             })
                         }

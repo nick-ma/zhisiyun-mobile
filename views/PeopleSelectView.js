@@ -55,24 +55,37 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         first_el = '#rd-' + sph.model[self.target_field]['_id'];
                     }
                 } else if (self.select_mode == 't') { //人才管理调用界面
-                    $("#people_select-content").html(self.template_m(render_data));
-                    //当前应该选中的变成选中
-                    var sph = JSON.parse(localStorage.getItem('sp_helper'));
-                    if (sph.model) {
-                        var $container = $("#people_select-content");
-                        //----默认选中上级－－－//
-                        var map_mentors = _.map(sph.model, function(x) {
-                            return String(x.people)
-                        })
-                        if (!~map_mentors.indexOf(String(sph.superior))) {
-                            $container.find("#cb-" + sph.superior).attr('checked', true);
+                    if (self.target_field == 'mentor') {
+                        $("#people_select-content").html(self.template_m(render_data));
+                        //当前应该选中的变成选中
+                        var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                        if (sph.model) {
+                            var $container = $("#people_select-content");
+                            //----默认选中上级－－－//
+                            var map_mentors = _.map(sph.model, function(x) {
+                                return String(x.people)
+                            })
+                            if (!~map_mentors.indexOf(String(sph.superior))) {
+                                $container.find("#cb-" + sph.superior).attr('checked', true);
 
-                        }
-                        ///------///////
-                        _.each(sph.model, function(x) {
-                            $container.find("#cb-" + x.people).attr('checked', true);
-                        })
-                    };
+                            }
+                            ///------///////
+                            _.each(sph.model, function(x) {
+                                $container.find("#cb-" + x.people).attr('checked', true);
+                            })
+                        };
+                    } else if (self.target_field == 'check_people') {
+                        $("#people_select-content").html(self.template_s(render_data));
+                        //当前应该选中的变成选中
+                        var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                        if (sph.check_people) {
+                            var $container = $("#people_select-content");
+                            //----默认选中上级－－－//
+                            $("#people_select-content").find('#rd-' + sph.check_people).attr('checked', true);
+
+                        };
+                    }
+
                 };
                 $("#people_select-content").trigger('create');
                 // 设定顶部过滤按钮的样式
@@ -118,15 +131,27 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             localStorage.setItem('sp_helper_back', JSON.stringify(sph));
                             window.location.href = sph.back_url; //返回调用界面
                         } else if (self.select_mode == 't') { //人才管理调用
-                            var people_selected = _.map($("#people_select-content input[type=checkbox]:checked"), function(x) {
-                                return self.collection.get(x.value);
-                            }); //获取相关的helper数据
-                            var sph = JSON.parse(localStorage.getItem('sp_helper'));
-                            sph.model = _.map(people_selected, function(x) {
-                                return _.pick(x.toJSON(), ['_id', 'people_name', 'position_name']);
-                            }) //写回去
-                            localStorage.setItem('sp_helper_back', JSON.stringify(sph));
-                            window.location.href = sph.back_url; //返回调用界面
+                            if (self.target_field == 'mentor') {
+                                var people_selected = _.map($("#people_select-content input[type=checkbox]:checked"), function(x) {
+                                    return self.collection.get(x.value);
+                                }); //获取相关的helper数据
+                                var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                                sph.model = _.map(people_selected, function(x) {
+                                    return _.pick(x.toJSON(), ['_id', 'people_name', 'position_name']);
+                                }) //写回去
+                                localStorage.setItem('sp_helper_back', JSON.stringify(sph));
+                                window.location.href = sph.back_url; //返回调用界面
+                            } else if (self.target_field == 'check_people') {
+                                var people_selected = self.collection.get($("#people_select-content input[type=radio]:checked").val());
+                                //获取相关的helper数据
+                                var sph = JSON.parse(localStorage.getItem('sp_helper'));
+                                sph.model[self.target_field] = _.pick(people_selected.toJSON(), ['_id', 'people_name', 'position_name', 'ou_name', 'company_name']);
+                                //写回去
+                                localStorage.setItem('sp_helper_back', JSON.stringify(sph));
+                                window.location.href = sph.back_url; //返回调用界面
+
+                            }
+
 
                         };
 
