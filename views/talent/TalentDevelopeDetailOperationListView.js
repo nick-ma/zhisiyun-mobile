@@ -1145,11 +1145,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     // })
 
                 }).on('click', ".ios_href", function(event) {
+                    var href = $(this).data("href");
                     if ($("#req_ua").val() == "ios") {
-                        var href = "cmd://app/go/" + $(this).data("href");
-                        window.location.href = href;
+                        var temp_href = "cmd://app/go/" + href;
+                        console.log(temp_href)
+                        window.location.href = temp_href;
                     } else {
-                        window.location.href = $(this).data("href");
+                        window.location.href = href;
 
                     }
                 })
