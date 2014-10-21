@@ -1144,6 +1144,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     window.location.href = url;
                     // })
 
+                }).on('click', ".ios_href", function(event) {
+                    if ($("#req_ua").val() == "ios") {
+                        var href = "cmd://app/go/" + $(this).data("href");
+                        window.location.href = href;
+                    } else {
+                        window.location.href = $(this).data("href");
+
+                    }
                 })
 
             }
