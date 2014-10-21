@@ -21,10 +21,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         },
         pre_render: function() {
             var self = this;
-            $("#quesetionnaire_eg_list-content").html(self.loading_template({
+            $("#quesetionnaire_template_edit_list-content").html(self.loading_template({
                 info_msg: '数据加载中...请稍候'
             }));
-            $("#quesetionnaire_eg_list-content").trigger('create');
+            $("#quesetionnaire_template_edit_list-content").trigger('create');
             return this;
         },
         // Renders all of the Task models on the UI
@@ -222,6 +222,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 // var img_view = '<img src="' + this.src + '">';
                 // // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
                 // $("#fullscreen-overlay").html(img_view).fadeIn('fast');
+            }).on('click', '#btn-save_goto', function(event) {
+                var $this = $(this);
+                $.mobile.loading("show");
+                $this.attr('disabled', true);
+                self.model.save(self.model.attributes, {
+                    success: function(model, response, options) {
+                        alert('问卷制作保存成功!')
+                        $.mobile.loading("hide");
+                        var url = "#quesetionnair_template_issue/" + model.get("_id");
+                        window.location.href = url;
+
+                    },
+                    error: function(model, xhr, options) {
+                        $.mobile.loading("hide");
+                        alert('问卷制作保存失败!')
+                        self.render();
+                        $this.removeaAttr('disabled')
+                    }
+                })
             })
 
 

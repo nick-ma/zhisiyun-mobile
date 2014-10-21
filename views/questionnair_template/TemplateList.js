@@ -32,10 +32,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         },
         pre_render: function() {
             var self = this;
-            $("#quesetionnaire_list-content").html(self.loading_template({
+            $("#quesetionnaire_template_list-content").html(self.loading_template({
                 info_msg: '数据加载中...请稍候'
             }));
-            $("#quesetionnaire_list-content").trigger('create');
+            $("#quesetionnaire_template_list-content").trigger('create');
             return this;
         },
         // Renders all of the Task models on the UI
