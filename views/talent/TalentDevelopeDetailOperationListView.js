@@ -74,6 +74,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 obj.people_n = name[2];
                 obj.c_name = name[3];
                 obj.mentor_arr = name[4];
+            } else if (tag == 'add_check_people') {
+                obj.people_id = name.people_id;
+                obj.people_n = name.people;
             }
             require_data.push(obj);
             var post_data = 'require_data=' + JSON.stringify(require_data);
@@ -171,6 +174,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             }
 
                         })
+                        //如果check_people 为null，则默认为创建者。
+                        if (!temp.check_people) {
+                            temp.check_people = temp.creator;
+                        }
+                        //已通过课程所得积分
+                        var course_integral = _.reduce(_.map(_.filter(temp.course, function(c) {
+                            return c.is_pass
+                        }), function(m) {
+                            return m.integral
+                        }), function(m, n) {
+                            return m + n
+                        }, 0)
+                        temp.course_integral = course_integral
                     })
 
                     return x.toJSON();
@@ -216,7 +232,20 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 } else if (self.view_mode == 'check') {
                     $("#talent_develope_detail_operation_title").html("考核评估")
+                    // 人员选择
+                    var sphb = JSON.parse(localStorage.getItem('sp_helper_back') || null);
+                    if (sphb) {
 
+                        obj.divide_data.check_people = sphb.model.check_people._id;
+                        // var temp_data = self.collection.models[0].attributes;
+                        var people_obj = {};
+                        people_obj.people_id = sphb.model.check_people._id;
+                        people_obj.people = sphb.model.check_people.people_name;
+                        localStorage.removeItem("sp_helper_back");
+                        var temp_data = self.collection.models[0].attributes;
+
+                        im_send(temp_data, obj.divide_id, 'add_check_people', people_obj, function(data) {})
+                    }
                     $("#talent_develope_detail_operation-content").html(self.template_check(obj));
 
                 } else if (self.view_mode == 'attachment') {
@@ -329,8 +358,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         })
                         localStorage.removeItem("sp_helper_back");
                         var temp_data = self.collection.models[0].attributes;
-                        im_send(temp_data, obj.divide_id, 'add_mentor', temp_mentor, function(data) {
-                        })
+                        im_send(temp_data, obj.divide_id, 'add_mentor', temp_mentor, function(data) {})
                     }
                     if (sphb_course) {
                         obj.divide_data.course = sphb_course.model;
@@ -494,6 +522,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     localStorage.setItem('course_helper', JSON.stringify({
                         model: course,
                         divide_id: divide_id,
+                        c_start: divide_single_datas.plan_s,
+                        c_end: divide_single_datas.plan_e,
                         paln_id: plan_id,
                         back_url: window.location.hash,
                     })); //放到local storage里面，便于后面选择屏幕进行操作
@@ -685,18 +715,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             return x._id == String(divide_id)
                         })
                         divide_single_datas.integral = $(this).val();
-                        //已通过课程积分总和
-                        //
-                        var course_pass = _.filter(divide_single_datas.course, function(c) {
-                            return !!c.is_pass
-                        })
-                        var integral_pass = _.map(course_pass, function(c) {
-                                return c.integral
-                            })
-                            //总和
-                        var integral_count = parseInt(_.reduce(integral_pass, function(mem, num) {
-                            return mem + num
-                        }, 0))
+                        // //已通过课程积分总和
+                        // //
+                        // var course_pass = _.filter(divide_single_datas.course, function(c) {
+                        //     return !!c.is_pass
+                        // })
+                        // var integral_pass = _.map(course_pass, function(c) {
+                        //         return c.integral
+                        //     })
+                        //     //总和
+                        // var integral_count = parseInt(_.reduce(integral_pass, function(mem, num) {
+                        //     return mem + num
+                        // }, 0))
+                        var integral_count = 0;
                         integral_count += parseInt(divide_single_datas.integral);
 
                         if (parseInt(integral_count) > parseInt(integral_down)) {
@@ -754,35 +785,35 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         found.is_pass = false;
                         found.integral = 0;
                     }
-                    //已通过课程积分总和
-                    //
-                    var course_pass = _.filter(divide_single_datas.course, function(c) {
-                        return !!c.is_pass
-                    })
-                    var integral_pass = _.map(course_pass, function(c) {
-                            return c.integral
-                        })
-                        //总和
-                    var integral_count = parseInt(_.reduce(integral_pass, function(mem, num) {
-                        return mem + num
-                    }, 0))
-                    integral_count += parseInt(divide_single_datas.integral);
+                    // //已通过课程积分总和
+                    // //
+                    // var course_pass = _.filter(divide_single_datas.course, function(c) {
+                    //     return !!c.is_pass
+                    // })
+                    // var integral_pass = _.map(course_pass, function(c) {
+                    //         return c.integral
+                    //     })
+                    //     //总和
+                    // var integral_count = parseInt(_.reduce(integral_pass, function(mem, num) {
+                    //     return mem + num
+                    // }, 0))
+                    // integral_count += parseInt(divide_single_datas.integral);
 
-                    if (parseInt(integral_count) > parseInt(integral_down)) {
-                        divide_single_datas.integral_total = parseInt(integral_down)
+                    // if (parseInt(integral_count) > parseInt(integral_down)) {
+                    //     divide_single_datas.integral_total = parseInt(integral_down)
 
-                    } else {
-                        divide_single_datas.integral_total = parseInt(integral_count)
+                    // } else {
+                    //     divide_single_datas.integral_total = parseInt(integral_count)
 
-                    }
-                    var integral_map = _.map(self.collection.models[0].attributes.plan_divide, function(temp) {
-                        return temp.integral_total
-                    })
+                    // }
+                    // var integral_map = _.map(self.collection.models[0].attributes.plan_divide, function(temp) {
+                    //     return temp.integral_total
+                    // })
 
-                    var total_integral = _.reduce(integral_map, function(mem, num) {
-                        return mem + num
-                    }, 0)
-                    self.collection.models[0].attributes.integral = total_integral;
+                    // var total_integral = _.reduce(integral_map, function(mem, num) {
+                    //     return mem + num
+                    // }, 0)
+                    // self.collection.models[0].attributes.integral = total_integral;
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
                             self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
@@ -1051,6 +1082,78 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         error: function(model, xhr, options) {}
                     });
 
+                }).on('change', '.course_date', function(event) { //课程－导师评估
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+                    var course_id = $(this).data("up_id") || self.course_id;
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    });
+                    var single_course = _.find(divide_single_datas.course, function(x) {
+                        return x.course == String(course_id)
+                    });
+                    var field = $(this).data("field");
+                    var date_val = $(this).val();
+                    if (field == "c_start") {
+                        if (format(divide_single_datas.plan_s) > format(date_val)) {
+                            alert("课程开始时间需大于明细计划开始时间!!!")
+                        } else {
+                            single_course[field] = date_val;
+                        }
+                    } else if (field == 'c_end') {
+                        if (format(divide_single_datas.plan_e) < format(date_val)) {
+                            alert("课程结束时间需小于明细计划结束时间!!!")
+                        } else {
+                            single_course[field] = date_val;
+                        }
+                    }
+
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                            self.collection.fetch().done(function() {
+                                self.render();
+                            });
+                        },
+                        error: function(model, xhr, options) {}
+                    });
+
+                }).on('click', '#btn-talent-add_check_people', function(event) { //添加最终评分人
+                    event.preventDefault();
+                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                    var divide_id = $(this).data("divide_id");
+
+                    //创建人
+
+                    var divide_single_datas = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                        return x._id == String(divide_id)
+                    })
+                    var check_people = divide_single_datas.check_people || divide_single_datas.creator;
+
+                    var url = '#people_select/t/check_people';
+                    localStorage.setItem('sp_helper', JSON.stringify({
+                        model: divide_single_datas,
+                        divide_id: divide_id,
+                        paln_id: plan_id,
+                        back_url: window.location.hash,
+                        check_people: check_people
+                    })); //放到local storage里面，便于后面选择屏幕进行操作
+                    // var temp_data = self.collection.models[0].attributes;
+                    // im_send(temp_data, divide_id, 'add_mentor', null, function(data) {
+                    window.location.href = url;
+                    // })
+
+                }).on('click', ".ios_href", function(event) {
+                    var href = $(this).data("href");
+                    if ($("#req_ua").val() == "app_ios") {
+                        var temp_href = "cmd://app/go/" + href;
+                        console.log(temp_href)
+                        window.location.href = temp_href;
+                    } else {
+                        window.location.href = href;
+
+                    }
                 })
 
             }

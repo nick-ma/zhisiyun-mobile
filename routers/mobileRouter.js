@@ -46,6 +46,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./imRouter",
     "./mobileresourceRouter",
     "./wfapproveRouter",
+    "./quesetionnairetemplateRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
 
@@ -80,6 +81,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     ImRouter,
     mobileresourceRouter,
     WFApproveRouter,
+    quesetionnairetemplateRouter,
     async, moment
 
 
@@ -115,6 +117,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new ImRouter();
         new mobileresourceRouter();
         new WFApproveRouter();
+        new quesetionnairetemplateRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },

@@ -97,7 +97,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     $.mobile.loading("hide");
                 })
             } else {
-                var tmp = new TaskModel({
+
+                var tmp = new mobileResource({
                     _id: mr_id
                 });
                 tmp.fetch().done(function() {

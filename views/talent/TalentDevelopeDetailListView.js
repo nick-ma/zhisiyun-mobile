@@ -334,7 +334,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             var obj = {
                                 'plan_s': moment(),
                                 'plan_e': moment(periodTo).subtract('d', 1),
-                                'creator': $("#login_people").val()
+                                'creator': $("#login_people").val(),
+                                'check_people': $("#login_people").val()
                             }
                             self.collection.models[0].attributes.plan_divide.push(obj);
                             self.collection.models[0].save(self.collection.models[0].attributes, {
@@ -356,7 +357,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             var obj = {
                                 'plan_s': moment(),
                                 'plan_e': moment(new Date()).add('d', 15),
-                                'creator': $("#login_people").val()
+                                'creator': $("#login_people").val(),
+                                'check_people': $("#login_people").val()
+
 
                             }
                             self.collection.models[0].attributes.plan_divide.push(obj);
