@@ -58,7 +58,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             $("#quesetionnaire_template_edit_list").on('click', '.add_qti', function(event) {
                 event.preventDefault();
                 var item = {};
-                item.qti_name = '新建题目';
+                var num = parseInt(self.model.attributes.option_items.length) + 1
+                item.qti_name = '新建题目' + num;
                 self.model.attributes.option_items.push(item);
                 save_data(self)
             }).on('click', "#btn_save", function(event) {
@@ -92,7 +93,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     return op._id == qti_id
                 })
                 var option = {};
-                option.option = '选项A';
+                var num = parseInt(f_qti.qti_options.length) + 1
+                option.option = '选项' + num;
                 option.option_description = '';
                 f_qti.qti_options.push(option);
                 save_data(self);
