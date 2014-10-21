@@ -74,6 +74,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 obj.people_n = name[2];
                 obj.c_name = name[3];
                 obj.mentor_arr = name[4];
+            } else if (tag == 'add_check_people') {
+                obj.people_id = name.people_id;
+                obj.people_n = name.people;
             }
             require_data.push(obj);
             var post_data = 'require_data=' + JSON.stringify(require_data);
@@ -234,9 +237,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     if (sphb) {
 
                         obj.divide_data.check_people = sphb.model.check_people._id;
-                        localStorage.removeItem("sp_helper_back");
                         // var temp_data = self.collection.models[0].attributes;
-                        // im_send(temp_data, obj.divide_id, 'add_mentor', temp_mentor, function(data) {})
+                        var people_obj = {};
+                        people_obj.people_id = sphb.model.check_people._id;
+                        people_obj.people = sphb.model.check_people.people_name;
+                        localStorage.removeItem("sp_helper_back");
+                        var temp_data = self.collection.models[0].attributes;
+
+                        im_send(temp_data, obj.divide_id, 'add_check_people', people_obj, function(data) {})
                     }
                     $("#talent_develope_detail_operation-content").html(self.template_check(obj));
 
