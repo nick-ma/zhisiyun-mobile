@@ -12,50 +12,36 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         })
     }
 
-    var Quesetionnaire_Template_EditView = Backbone.View.extend({
+    var Quesetionnaire_Template_IssueView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
-            this.quesetionnaire_template_edit = Handlebars.compile($("#quesetionnaire_template_edit_view").html());
+            this.quesetionnaire_template_issue = Handlebars.compile($("#quesetionnaire_template_issue_view").html());
             this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.bind_event();
         },
         pre_render: function() {
             var self = this;
-            $("#quesetionnaire_template_edit_list-content").html(self.loading_template({
+            $("#quesetionnaire_template_issue_list-content").html(self.loading_template({
                 info_msg: '数据加载中...请稍候'
             }));
-            $("#quesetionnaire_template_edit_list-content").trigger('create');
+            $("#quesetionnaire_template_issue_list-content").trigger('create');
             return this;
         },
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
 
-            //附件数据
-            if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
-                var back_obj = JSON.parse(localStorage.getItem('upload_model_back')).model;
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
-                    return op._id == back_obj.qti_id
-                })
-                var f_d = _.find(f_qti.qti_options, function(qt) {
-                    return qt._id == back_obj._id
-                })
-                f_d.attachment = back_obj.attachments
-                localStorage.removeItem('upload_model_back'); //用完删掉
-            };
 
+            rendered_data = self.quesetionnaire_template_issue(self.model.attributes);
 
-
-            rendered_data = self.quesetionnaire_template_edit(self.model.attributes);
-
-            $("#quesetionnaire_template_edit_list-content").html(rendered_data);
-            $("#quesetionnaire_template_edit_list-content").trigger('create');
+            $("#quesetionnaire_template_issue_list-content").html(rendered_data);
+            $("#quesetionnaire_template_issue_list-content").trigger('create');
             return self;
         },
         bind_event: function() {
             var self = this
             var bool = true;
-            $("#quesetionnaire_template_edit_list").on('click', '.add_qti', function(event) {
+            $("#quesetionnaire_template_issue_list").on('click', '.add_qti', function(event) {
                 event.preventDefault();
                 var item = {};
                 var num = parseInt(self.model.attributes.option_items.length) + 1
@@ -185,62 +171,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                 });
 
-            }).on('click', '#btn_upload_attachment', function(event) {
-                //转到上传图片的页面
-                var leave = self.model.get('leave');
-                localStorage.removeItem('upload_model_back'); //先清掉
-                var next_url = '#upload_pic';
-                localStorage.setItem('upload_model', JSON.stringify({
-                    model: leave,
-                    field: 'attachments',
-                    back_url: window.location.hash
-                }))
-                window.location.href = next_url;
-
-            }).on('click', 'img', function(event) {
-                event.preventDefault();
-                save_data(self)
-                var qti_id = $(this).data('qti_id');
-                var option_id = $(this).data('option_id');
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
-                    return op._id == qti_id
-                })
-                var f_d = _.find(f_qti.qti_options, function(qt) {
-                    return qt._id == option_id
-                })
-                f_d.qti_id = qti_id;
-                localStorage.removeItem('upload_model_back'); //先清掉
-                var next_url = '#upload_pic';
-                localStorage.setItem('upload_model', JSON.stringify({
-                    model: f_d,
-                    field: 'attachments',
-                    back_url: window.location.hash
-                }))
-                window.location.href = next_url;
-
-                // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
-                // var img_view = '<img src="' + this.src + '">';
-                // // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
-                // $("#fullscreen-overlay").html(img_view).fadeIn('fast');
-            }).on('click', '#btn-save_goto', function(event) {
-                var $this = $(this);
-                $.mobile.loading("show");
-                $this.attr('disabled', true);
-                self.model.save(self.model.attributes, {
-                    success: function(model, response, options) {
-                        alert('问卷制作保存成功!')
-                        $.mobile.loading("hide");
-                        var url = "#quesetionnair_template_issue/" + model.get("_id");
-                        window.location.href = url;
-
-                    },
-                    error: function(model, xhr, options) {
-                        $.mobile.loading("hide");
-                        alert('问卷制作保存失败!')
-                        self.render();
-                        $this.removeaAttr('disabled')
-                    }
-                })
             })
 
 
@@ -250,6 +180,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
     });
 
     // Returns the View class
-    return Quesetionnaire_Template_EditView;
+    return Quesetionnaire_Template_IssueView;
 
 });
