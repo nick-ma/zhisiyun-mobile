@@ -4,7 +4,7 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "async"],
     function($, _, Backbone, Handlebars, async) {
-        var pri_state = null;
+        var pri_state = 's';
 
         function get_data(id, talent) {
             var found = _.find(talent, function(temp) {
@@ -106,6 +106,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             temp.is_creator = false;
                             temp.is_disabled = true;
                         }
+                        temp.create_name = temp.creator ? self.people_id_name[String(temp.creator)] : "";
                     })
                     if (find_people) {
                         x.attributes.people_data = find_people.attributes;
@@ -335,6 +336,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                                 'plan_s': moment(),
                                 'plan_e': moment(periodTo).subtract('d', 1),
                                 'creator': $("#login_people").val(),
+                                'create_time': new Date(),
                                 'check_people': $("#login_people").val()
                             }
                             self.collection.models[0].attributes.plan_divide.push(obj);
@@ -358,6 +360,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                                 'plan_s': moment(),
                                 'plan_e': moment(new Date()).add('d', 15),
                                 'creator': $("#login_people").val(),
+                                'create_time': new Date(),
                                 'check_people': $("#login_people").val()
 
 

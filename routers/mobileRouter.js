@@ -1024,6 +1024,31 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('plus1', function(data) {
         return parseInt(data) + 1;
       });
+      Handlebars.registerHelper('plus1_talent', function(data) { //人才管理序号加一
+        var plus1 = parseInt(data) + 1;
+        var num_obj = {
+          '1': "一",
+          '2': "二",
+          '3': "三",
+          '4': "四",
+          '5': "五",
+          '6': "六",
+          '7': "七",
+          '8': "八",
+          '9': "九",
+          '10': "十",
+        }
+        if (plus1 < 100 && (plus1 / 10) > 1) {
+          var split_num = String(plus1).split('');
+          return num_obj[split_num[0]] + '十' + num_obj[split_num[1]];
+        } else if (plus1 > 100) {
+          var split_num = String(plus1).split('');
+          return num_obj[split_num[0]] + '百' + num_obj[split_num[1]] + '十' + num_obj[split_num[2]];
+        } else {
+          return num_obj[plus1]
+        }
+
+      });
       Handlebars.registerHelper('cr2br', function(data) {
         return (data) ? data.replace(/\n/g, '<br>') : '';
       });
@@ -1360,7 +1385,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
       });
 
-      Handlebars.registerHelper('have_pis', function(data1,data2, options) {
+      Handlebars.registerHelper('have_pis', function(data1, data2, options) {
         if (data1 == 0 && data2 == 0) {
           return options.inverse(this);
         } else {
