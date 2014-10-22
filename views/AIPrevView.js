@@ -171,6 +171,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             } else {
                                 item.scoringformula = sitem.scoringformula ? sitem.scoringformula : null;
                             }
+                            //数据提供人
+                            item.dp_people = sitem.dp_people ? sitem.dp_people : null;
 
                             item.unit = sitem.unit ? sitem.unit : '';
                             //加载的时候，取自己的配置
@@ -215,6 +217,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             item.unit = sitem.unit ? sitem.unit : '';
 
                             //自己是否有配置评分标准
+
                             var pi_f = _.find(self.pis.models, function(x) {
                                 return x.attributes._id == pi_ids2[j];
                             });
@@ -283,6 +286,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         });
 
                         self.ai_data.save().done(function() {
+                            $('#btn_add_pi_prev').attr('disabled', false);
                             window.location.href = self.ai_add_pi_back_url;
                         })
                     }
