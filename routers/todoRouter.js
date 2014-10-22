@@ -420,6 +420,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     changeHash: false,
                 });
 
+                $("#btn_add_pi_prev").show();
+                $("#btn_add_my_pi").hide();
                 $("#ai_add_pi_title").html('从上期复制');
 
                 $.mobile.loading("show");
@@ -430,6 +432,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     self.aiPrevView.ai_data = self.ai;
                     self.aiPrevView.pis = self.piCollection;
                     self.aiPrevView.model = self.ai_prev;
+                    self.aiPrevView.peoples_data = self.ai_datas.attributes.peoples;
                     self.aiPrevView.render();
                     $.mobile.loading("hide");
                 })
@@ -445,7 +448,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
-
+                $("#btn_add_pi_prev").show();
+                $("#btn_add_my_pi").hide();
                 $("#ai_add_pi_title").html('从上级复制');
 
                 $.mobile.loading("show");
@@ -456,6 +460,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     self.aiPrevView.ai_data = self.ai;
                     self.aiPrevView.pis = self.piCollection;
                     self.aiPrevView.model = self.ai_super;
+                    self.aiPrevView.peoples_data = self.ai_datas.attributes.peoples;
                     self.aiPrevView.render();
                     $.mobile.loading("hide");
                 })
@@ -469,6 +474,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     self.myPICollection.fetch().done(function() {
                         self.piSelectView.ai_data = self.ai;
                         self.piSelectView.my_pis = self.myPICollection;
+                        self.piSelectView.peoples_data = self.ai_datas.attributes.peoples;
                         self.piSelectView.render();
                     })
                 })
@@ -487,7 +493,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
-
+                $("#btn_add_pi_prev").hide();
+                $("#btn_add_my_pi").show();
                 $("#ai_add_pi_title").html('新建指标');
 
                 $.mobile.loading("show");

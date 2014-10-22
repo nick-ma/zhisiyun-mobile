@@ -229,10 +229,27 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     alert('定量指标和定性指标权重之后必须为100%');
                     return;
                 }
-                if (parseFloat(weight1) + parseFloat(weight2) != 100) {
-                    alert('定量指标和定性指标权重之后必须为100%');
+
+                var bool = false;
+                _.each(self.ai.attributes.quantitative_pis.items,function(x){
+                    if(!x.weight){
+                        bool = true;
+                    }
+                })
+                if(bool){
+                    alert('定量指标项中权重不能为0,请编辑或者删除后重试!');
                     return;
                 }
+                _.each(self.ai.attributes.qualitative_pis.items,function(x){
+                    if(!x.weight){
+                        bool = true;
+                    }
+                })
+                if(bool){
+                    alert('定性指标项中权重不能为0,请编辑或者删除后重试!');
+                    return;
+                }
+
                 if ($("#ti_comment").val() == '') {
                     alert('请填写审批意见！');
                     return;
@@ -434,7 +451,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     })
                 }
 
-                pi[$this.data('target')] = $this.val();
+                pi[$this.data('target')] = parseFloat($this.val());
             })
 
             $("#ai_wf1-content").on('change', '#unit_dl,#unit_dx,#dp_people_dl,#sf_dl', function(event) {
