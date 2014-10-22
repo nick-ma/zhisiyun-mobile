@@ -321,6 +321,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     status: function(cb) {
                         $.get('/admin/pm/talent_develope/people', function(data) {
                             if (data) {
+                                self.DevelopePlanDetailListView.people_id_name = data.people_data;
                                 self.DevelopePlanDetailListView.people_data = data.data;
                                 self.DevelopePlanDetailListView.status_data = data.status;
                             }
