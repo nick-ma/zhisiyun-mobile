@@ -46,6 +46,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./imRouter",
     "./mobileresourceRouter",
     "./wfapproveRouter",
+    "./quesetionnairetemplateRouter",
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
 
@@ -80,6 +81,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     ImRouter,
     mobileresourceRouter,
     WFApproveRouter,
+    quesetionnairetemplateRouter,
     async, moment
 
 
@@ -115,6 +117,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new ImRouter();
         new mobileresourceRouter();
         new WFApproveRouter();
+        new quesetionnairetemplateRouter();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -1409,13 +1412,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return data[0].people_name;
       });
       //绩效流程相关=====================》
-      Handlebars.registerHelper('ai_is_edit', function(data, options) {
-        if (data == '2') {
-          return options.fn(this);
-        } else {
-          return options.inverse(this);
-        };
-      });
       Handlebars.registerHelper('genAlarmSetMsg', function(offset) {
         var prefix = '',
           msg = '';

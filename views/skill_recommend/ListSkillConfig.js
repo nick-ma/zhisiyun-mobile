@@ -59,8 +59,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var skill = $(this).val();
                     if (skill) {
                         var filters = _.filter(self.collection, function(filter) {
-
-                            return filter.skill_name.indexOf(skill) == 0 ? true : false
+                            return (filter.skill_name).toUpperCase().indexOf(skill.toUpperCase()) >= 0;
                         })
                     } else {
                         var filters = self.collection;
