@@ -23,11 +23,53 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
     Handlebars.registerHelper('Category', function(category) {
         return category_enum[category];
     });
+
+
+    //1:人员 频次 look type
+    Handlebars.registerHelper('eq_people', function(data, data1, data2, data3, options) {
+        var login_people = $('#login_people').val();
+
+        if (data3 == 'J') {
+
+            if (data == login_people && data1 > 0 && data2) {
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
+        } else if (data3 == 'F') {
+            if (data == login_people) {
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
+
+
+        } else if (data3 == 'S') {
+            if (data == login_people && data1 == 0) {
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
+
+
+        };
+    });
+
+    function sort_items(items) {
+        var sorts = _.sortBy(items, function(qt) {
+            return qt.createDate
+        })
+        return sorts.reverse();
+    }
+
+
     var Quesetionnaire_TemplateView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
             this.quesetionnaire_template = Handlebars.compile($("#quesetionnaire_template_list_view").html());
             this.loading_template = Handlebars.compile($("#loading_template_view").html());
+            this.model_view = '0';
+            this.qtis = [];
             this.bind_event();
         },
         pre_render: function() {
@@ -42,15 +84,39 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         render: function() {
             var self = this;
             var rendered_data = '';
-            var sorts = _.sortBy(self.collection.toJSON(), function(qt) {
-                return qt.createDate
-            })
-            var filters = _.filter(sorts, function(st) {
-                return st.questionnair_category == '2'
-            })
-            rendered_data = self.quesetionnaire_template({
-                qts: filters.reverse()
-            });
+            if (self.model_view == '0') {
+                console.log(self)
+                var filters = _.filter(self.collection.toJSON(), function(qt) {
+                    return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == '2'
+                })
+                rendered_data = self.quesetionnaire_template({
+                    qts: sort_items(filters)
+                });
+
+            } else if (self.model_view == '1') {
+
+
+
+                var filters = _.filter(self.collection.toJSON(), function(qt) {
+                    var f_d = _.find(self.qtis, function(q) {
+                        return q.qtc == qt._id
+                    })
+                    return f_d && qt.questionnair_category == '2'
+                })
+                rendered_data = self.quesetionnaire_template({
+                    qts: sort_items(filters)
+                });
+
+            } else if (self.model_view == '2') {
+
+                var filters = _.filter(self.collection.toJSON(), function(st) {
+                    return st.questionnair_category == '2' && st.frequency_of_usage == 0
+                })
+                rendered_data = self.quesetionnaire_template({
+                    qts: sort_items(filters)
+                });
+            }
+
             $("#quesetionnaire_template_list-content").html(rendered_data);
             $("#quesetionnaire_template_list-content").trigger('create');
             return self;
@@ -71,6 +137,87 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         window.location.href = url;
                     }
                 })
+            }).on('click', '.open-left-panel', function(event) {
+                event.preventDefault();
+                $("#quesetionnaire_template-left-panel").panel("open");
+            }).on('swiperight', function(event) { //向右滑动，打开左边的面板
+                event.preventDefault();
+                $("#quesetionnaire_template-left-panel").panel("open");
+            }).on('click', '#btn-im_showh-change_view', function(event) {
+                event.preventDefault();
+                window.location.href = '#im_list'
+                $("#quesetionnaire_template-left-panel").panel("close");
+            }).on('click', '#btn-moblie_resource-change_view', function(event) {
+                event.preventDefault();
+                window.location.href = '#mobile_resource'
+                $("#quesetionnaire_template-left-panel").panel("close");
+            }).on('click', '#btn-quesetionnair_template-change_view', function(event) {
+                event.preventDefault();
+                window.location.href = '#quesetionnair_template'
+                $("#quesetionnaire_template-left-panel").panel("close");
+            }).on('click', '#my_issued', function(event) { //我发起的
+                event.preventDefault();
+                self.model_view = '0';
+                self.render();
+
+            }).on('click', '#my_part', function(event) { //我参与的
+                event.preventDefault();
+                $.get('/admin/pm/questionnair_template/querstionnar_instance_by_people', function(data) {
+                    console.log(data)
+                    self.qtis = data
+                    self.model_view = '1';
+                    self.render();
+                })
+
+
+
+            }).on('click', '#on_issued', function(event) { //未发布的
+                event.preventDefault();
+                self.model_view = '2';
+                self.render();
+            }).on('click', '.btn_edit,.btn_issue', function(event) {
+                event.preventDefault();
+                window.location.href = $(this).attr('href');
+
+            }).on('click', '.btn_delete', function(event) {
+                event.preventDefault();
+                var qt_id = $(this).data('qt_id');
+                var qti = self.collection.get(qt_id);
+                if (confirm('确定删除吗 ？')) {
+                    qti.destroy({
+                        success: function() {
+                            alert('删除成功!')
+                            self.collection.fetch().done(function() {
+                                self.render();
+                            })
+
+                        }
+                    });
+                }
+            }).on('click', '.btn_clone', function(event) {
+                event.preventDefault();
+                var qt_id = $(this).data('qt_id');
+                var qti = self.collection.get(qt_id).clone();
+                qti.set('qt_name', qti.get('qt_name') + '-克隆的副本');
+                qti.set('createDate', moment());
+                qti.set('frequency_of_usage', 0);
+                delete qti.id;
+                delete qti.attributes._id;
+                if (confirm('确定克隆吗 ？')) {
+                    qti.save(qti.attributes, {
+                        success: function(model, response, options) {
+                            alert('克隆成功!');
+                            self.collection.fetch().done(function() {
+                                self.render();
+                            })
+                        }
+                    })
+
+                }
+            }).on('click', '.btn_result', function(event) {
+                event.preventDefault();
+                var qt_id = $(this).data('qt_id');
+                window.location.href = '#quesetionnair_template_result/' + qt_id
             })
         },
 

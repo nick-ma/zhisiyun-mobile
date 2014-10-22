@@ -138,12 +138,111 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     self.DevelopePlanListView.c_people = self.c_people; //人员数据
                     self.DevelopePlanListView.direct = self.ddCollection.models;
                     self.DevelopePlanListView.type = self.dtCollection.models;
-                    self.DevelopePlanListView.collection.url = '/admin/pm/talent_develope/plan?people_id=' + people;
-                    self.DevelopePlanListView.collection.fetch().done(function() {
-                        self.DevelopePlanListView.render();
-                        $.mobile.loading("hide");
 
-                    })
+                    //第一个分支解决回退回来数据不能显示的问题
+                    var plan_list_mode = localStorage.getItem("plan_detail_list_mode");
+                    // localStorage.removeItem("plan_detail_list_mode");
+                    if (plan_list_mode) {
+                        var people_data = _.map(self.DevelopePlanListView.c_people.models, function(x) {
+                            return x.toJSON()
+                        })
+                        var direct = _.map(self.DevelopePlanListView.direct, function(temp) {
+                            return temp.attributes
+                        })
+                        localStorage.setItem("TalentMentor", "False");
+                        if (plan_list_mode == "self") {
+                            self.DevelopePlanListView.collection.url = '/admin/pm/talent_develope/plan?people_id=' + people;
+                            self.DevelopePlanListView.collection.fetch().done(function() {
+                                var filter_data = _.map(self.DevelopePlanListView.collection.models, function(x) {
+                                    var find_people = _.find(people_data, function(temp) {
+                                        return temp._id == String(x.attributes.people)
+                                    })
+                                    var find_direct = _.find(direct, function(temp) {
+                                        return temp._id == String(x.attributes.develope_direct)
+                                    })
+                                    x.attributes.direct = find_direct;
+                                    x.attributes.integral = _.reduce(_.map(x.attributes.plan_divide, function(temp) {
+                                        return temp.pass ? temp.integral : 0
+                                    }), function(mem, num) {
+                                        return mem + num
+                                    }, 0)
+                                    x.attributes.people_data = find_people;
+                                    return x.toJSON()
+                                });
+                                self.DevelopePlanListView.filter_data = filter_data;
+                                self.DevelopePlanListView.render();
+                                $.mobile.loading("hide");
+                            });
+                        } else {
+                            self.DevelopePlanListView.collection.url = '/admin/pm/talent_develope/plan';
+                            self.DevelopePlanListView.collection.fetch().done(function() {
+                                var filter_data = _.map(self.DevelopePlanListView.collection.models, function(x) {
+                                    var find_people = _.find(people_data, function(temp) {
+                                        return temp._id == String(x.attributes.people)
+                                    })
+                                    var find_direct = _.find(direct, function(temp) {
+                                        return temp._id == String(x.attributes.develope_direct)
+                                    })
+                                    x.attributes.direct = find_direct;
+                                    x.attributes.integral = _.reduce(_.map(x.attributes.plan_divide, function(temp) {
+                                        return temp.pass ? temp.integral : 0
+                                    }), function(mem, num) {
+                                        return mem + num
+                                    }, 0)
+                                    x.attributes.people_data = find_people;
+                                    return x.toJSON()
+                                })
+                                if (plan_list_mode == 'myteam') {
+                                    var myteam = _.map(_.filter(people_data, function(temp) {
+                                        return temp.myteam
+                                    }), function(p) {
+                                        return String(p._id)
+                                    })
+                                    var filter_collection = _.filter(filter_data, function(x) {
+                                        return !!~myteam.indexOf(String(x.people))
+                                    })
+                                    self.DevelopePlanListView.filter_data = filter_collection;
+                                } else if (plan_list_mode == 'myteam2') {
+                                    var myteam2 = _.map(_.filter(people_data, function(temp) {
+                                        return temp.myteam2
+                                    }), function(p) {
+                                        return String(p._id)
+                                    })
+                                    var filter_collection = _.filter(filter_data, function(x) {
+                                        return !!~myteam2.indexOf(String(x.people))
+                                    })
+                                    self.DevelopePlanListView.filter_data = filter_collection
+
+                                } else {
+
+                                    var filter_collection = _.filter(filter_data, function(x) {
+                                        var mentor = [];
+                                        _.each(x.plan_divide, function(p) {
+                                            _.each(p.mentor, function(m) {
+                                                mentor.push(String(m.people))
+                                            })
+                                        })
+                                        return !!~mentor.indexOf(String(people))
+                                    })
+                                    self.DevelopePlanListView.filter_data = filter_collection;
+                                    localStorage.setItem("TalentMentor", "True"); //过滤与我相关的明细计划。
+                                }
+                                self.DevelopePlanListView.render();
+                                $.mobile.loading("hide");
+
+                            });
+                        }
+
+
+
+                    } else {
+                        self.DevelopePlanListView.collection.url = '/admin/pm/talent_develope/plan?people_id=' + people;
+                        self.DevelopePlanListView.collection.fetch().done(function() {
+                            self.DevelopePlanListView.render();
+                            $.mobile.loading("hide");
+
+                        })
+                    }
                 })
 
             },
