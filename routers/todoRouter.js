@@ -185,6 +185,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
 
+                $.mobile.loading("show");
+                self.wf03View.pre_render();
+
                 async.parallel({
                     data1: function(cb) {
                         async.waterfall([
@@ -222,6 +225,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             self.wf03View.view_mode = '';
                         }
                         self.wf03View.render();
+                        $.mobile.loading("hide");
 
                         $("body").pagecontainer("change", "#ai_wf1", {
                             reverse: false,

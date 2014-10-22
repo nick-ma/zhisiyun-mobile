@@ -1387,13 +1387,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return data[0].people_name;
       });
       //绩效流程相关=====================》
-      Handlebars.registerHelper('ai_is_edit', function(data, options) {
-        if (data == '2') {
-          return options.fn(this);
-        } else {
-          return options.inverse(this);
-        };
-      });
       Handlebars.registerHelper('genAlarmSetMsg', function(offset) {
         var prefix = '',
           msg = '';

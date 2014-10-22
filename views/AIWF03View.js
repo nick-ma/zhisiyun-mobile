@@ -85,6 +85,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
     var AIWF03View = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
+            this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.bind_events();
         },
         bind_events: function() {
@@ -200,28 +201,28 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 var greater_or_less1 = self.ai.attributes.quantitative_pis.greater_or_less;
                 var greater_or_less2 = self.ai.attributes.qualitative_pis.greater_or_less;
 
-                if(greater_or_less1 == 'G'){
-                    if(parseFloat(weight1) < parseFloat(weight1_t)){
-                        alert('定量指标必须>='+weight1_t+'%');
+                if (greater_or_less1 == 'G') {
+                    if (parseFloat(weight1) < parseFloat(weight1_t)) {
+                        alert('定量指标必须>=' + weight1_t + '%');
                         return;
-                    }  
-                }else{
-                    if(parseFloat(weight1) > parseFloat(weight1_t)){
-                        alert('定量指标必须<='+weight1_t+'%');
+                    }
+                } else {
+                    if (parseFloat(weight1) > parseFloat(weight1_t)) {
+                        alert('定量指标必须<=' + weight1_t + '%');
                         return;
-                    }  
+                    }
                 }
 
-                if(greater_or_less2 == 'G'){
-                    if(parseFloat(weight2) < parseFloat(weight2_t)){
-                        alert('定性指标必须>='+weight2_t+'%');
+                if (greater_or_less2 == 'G') {
+                    if (parseFloat(weight2) < parseFloat(weight2_t)) {
+                        alert('定性指标必须>=' + weight2_t + '%');
                         return;
-                    }  
-                }else{
-                    if(parseFloat(weight2) > parseFloat(weight2_t)){
-                        alert('定性指标必须<='+weight2_t+'%');
+                    }
+                } else {
+                    if (parseFloat(weight2) > parseFloat(weight2_t)) {
+                        alert('定性指标必须<=' + weight2_t + '%');
                         return;
-                    }  
+                    }
                 }
 
                 if (parseFloat(weight1) + parseFloat(weight2) != 100) {
@@ -329,7 +330,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
                 self.item = item;
                 self.item_obj = {};
-                self.item_obj.ai_status = self.ai.attributes.ai_status;
+                self.item_obj.people = self.ai.attributes.people;
                 self.item_obj.pi = item;
                 self.item_obj.pls = pls;
                 self.item_obj.unit_data = unit_data;
@@ -355,7 +356,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
                 self.item = item2;
                 self.item_obj = {};
-                self.item_obj.ai_status = self.ai.attributes.ai_status;
+                self.item_obj.people = self.ai.attributes.people;
                 self.item_obj.pi = item2;
                 self.item_obj.unit_data = unit_data;
                 self.item_obj.sccs_data = sccs_data;
@@ -468,12 +469,12 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
             $("#ai_wf1-content").on('click', '#btn_ai_dl_pi_save,#btn_ai_dx_pi_save', function(event) {
                 event.preventDefault();
 
-                if(self.item.target_value == '' || self.item.target_value == null){
+                if (self.item.target_value == '' || self.item.target_value == null) {
                     alert('请输入目标值!');
                     return;
                 }
 
-                if(!self.item.weight){
+                if (!self.item.weight) {
                     alert('请输入权重!');
                     return;
                 }
@@ -490,8 +491,13 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
                 self.ai.save().done(function() {
                     alert('保存成功!');
+                    $.mobile.loading("show");
+                    self.pre_render();
+
                     self.view_mode = '';
                     self.render();
+
+                    $.mobile.loading("hide");
                 })
             })
 
@@ -529,6 +535,15 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     })
                 }
             })
+        },
+        pre_render: function() {
+            var self = this;
+
+            $("#ai_wf1-content").html(self.loading_template({
+                info_msg: '数据加载中...请稍候'
+            }));
+            $("#ai_wf1-content").trigger('create');
+            return self;
         },
         // Renders all of the Task models on the UI
         render: function() {
