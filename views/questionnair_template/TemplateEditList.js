@@ -228,8 +228,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $this.attr('disabled', true);
                 self.model.save(self.model.attributes, {
                     success: function(model, response, options) {
-                        alert('问卷制作保存成功!')
                         $.mobile.loading("hide");
+                        alert('问卷制作保存成功!')
                         var url = "#quesetionnair_template_issue/" + model.get("_id");
                         window.location.href = url;
 

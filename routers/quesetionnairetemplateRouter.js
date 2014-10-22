@@ -19,6 +19,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         var QuesetionnaireTemplateRouter = Backbone.Router.extend({
             initialize: function() {
                 var self = this;
+                self.init_data();
                 self.init_models();
                 self.init_collections();
                 self.init_views();
@@ -73,11 +74,24 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 $.mobile.loading("show");
                 self.issueList.pre_render();
-                self.questionnairTemplateClient.id = qt_id
-                self.questionnairTemplateClient.fetch().done(function() {
-                    self.issueList.render();
-                    $.mobile.loading("hide");
+
+                // $.get('/admin/pm/questionnair_template/qi_bb/' + qt_id, function(data) {
+                    self.questionnairTemplateClient.id = qt_id
+                    // self.questionnairTemplateClient.issued_pps = data;
+                    self.questionnairTemplateClient.peoples = self.peoples;
+                    self.questionnairTemplateClient.fetch().done(function() {
+                        self.issueList.render();
+                        $.mobile.loading("hide");
+                    })
+                // })
+            },
+            init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
+                var self = this;
+
+                $.get('/admin/im/get_peoples/' + $("#login_people").val(), function(peoples) {
+                    self.peoples = peoples
                 })
+                // self.load_data(self.c_objectives, 'objectives');
             },
             init_views: function() {
                 var self = this;
@@ -95,6 +109,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 })
 
             },
+
             init_models: function() {
                 var self = this;
                 self.questionnairTemplateClient = new QuestionnairTemplateClientModel();
