@@ -369,7 +369,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                 if (!self.view_mode) {
                     window.location.href = '#todo';
-                } else if (self.view_mode == 'ai_pi_comment') {
+                } else if (self.view_mode == 'ai_pi_comment' || self.view_mode == 'ai_pi_sub') {
                     var dl_item = _.find(ai_data.quantitative_pis.items, function(x) {
                         return x.pi == self.item.pi;
                     })
@@ -408,6 +408,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                 var pls = find_dp_peoples(item, pi_f);
 
+                var sfcs = [];
+                var sfs = find_sf(pi_f);
+                var sf_ids = [];
+                _.each(sfs,function(x){
+                    sf_ids.push(x.sf);
+                })
+                _.each(sfcs_data,function(x){
+                    if(x._id.indexOf(sf_ids) != -1){
+                        sfcs.push(x);
+                    }
+                })
+
                 self.item = item;
                 self.item_obj = {};
                 self.item_obj.people = self.ai.attributes.people;
@@ -416,7 +428,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 self.item_obj.pls = pls ? pls : [];
                 self.item_obj.unit_data = unit_data;
                 self.item_obj.unit_groups = unit_groups;
-                self.item_obj.sfcs_data = sfcs_data;
+                // self.item_obj.sfcs_data = sfcs_data;//全部
+                self.item_obj.sfcs_data = sfcs;//个人适用
                 self.item_obj.pi_f = pi_f;
                 self.item_obj.aiSubCollection = self.aiSubCollection.models;
                 self.view_mode = 'pi_detail';
@@ -437,13 +450,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     return x._id == item2.pi;
                 })
 
+                var sccs = find_sc(pi_f);
+
                 self.item = item2;
                 self.item_obj = {};
                 self.item_obj.people = self.ai.attributes.people;
                 self.item_obj.ai_status = self.ai.attributes.ai_status;
                 self.item_obj.pi = item2;
                 self.item_obj.unit_data = unit_data;
-                self.item_obj.sccs_data = sccs_data;
+                // self.item_obj.sccs_data = sccs_data;
+                self.item_obj.sccs_data = sccs;
                 self.item_obj.pi_f = pi_f;
                 self.item_obj.aiSubCollection = self.aiSubCollection.models;
                 self.view_mode = 'pi_detail2';
@@ -570,7 +586,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                 bd_item.grade_way = ai_sub.attributes.qualitative_pis.grade_way ? ai_sub.attributes.qualitative_pis.grade_way : '';
 
                                 //自己是否配置了等级组
-                                if (ai_sub.attributes.qualitative_pis.grade_group) {
+                                if (ai_sub.attributes.qualitative_pis.grade_way == 'G') {
                                     var pgs = find_pg(pi_f);
                                     //如果指标上配置了，指标优先
                                     if (pgs.length == 1) {
@@ -590,7 +606,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             }
                         } else {
                             if (confirm(ai_sub.attributes.people_name + '已经存在分解项，是否强行覆盖？')) {
-                                if (pi_type == '1') { //定量
+                                if (self.pi_type == '1') { //定量
                                     if (found1.pi_source == '3' || found1.pi_source == '4') {
                                         alert("指标来源为【公司】,不能覆盖!");
                                     } else {
@@ -636,7 +652,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                             found2.pi_sc_description = item.pi_sc_description ? item.pi_sc_description : '';
                                         }
 
-                                        if (item.grade_way == 'G') {
+                                        if (ai_sub.attributes.qualitative_pis.grade_way == 'G') {
                                             //下级是否配置了等级组
                                             var pgs = find_pg(pi_f);
                                             //如果指标上配置了，指标优先
@@ -653,7 +669,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
                         ai_sub.save().done(next);
                     }, function(err, ret) {
-                        alert('保存成功!');
+                        // alert('保存成功!');
+                        $('#btn_ai_wf1_cancel').trigger('click');
                     })
                 } else {
                     alert('请选择要分解的下级数据!');

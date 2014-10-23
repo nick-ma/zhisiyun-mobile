@@ -234,7 +234,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 return sa.pi == pi_ids1[i];
                             });
                             var item = {};
-                            item.pi_source = '1';
+                            item.pi_source = self.pi_source;
                             item.pi = pi_ids1[i];
                             item.pi_name = sitem.pi_name ? sitem.pi_name : '';
                             item.target_value = sitem.target_value ? sitem.target_value : '';
@@ -293,7 +293,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 return sa.pi == pi_ids2[j];
                             });
                             var item = {};
-                            item.pi_source = '1';
+                            item.pi_source = self.pi_source;
                             item.pi = pi_ids2[j];
                             item.pi_name = sitem.pi_name ? sitem.pi_name : '';
                             item.target_value = sitem.target_value ? sitem.target_value : '';

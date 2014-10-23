@@ -456,6 +456,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 // self.ai_prev.fetch().done(function() {
                 self.piCollection.fetch().done(function() {
+                    self.aiPrevView.pi_source = '1';
                     self.aiPrevView.ai_data = self.ai;
                     self.aiPrevView.pis = self.piCollection;
                     self.aiPrevView.model = self.ai_prev;
@@ -484,6 +485,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 // self.ai_super.fetch().done(function() {
                 self.piCollection.fetch().done(function() {
+                    self.aiPrevView.pi_source = '5';
                     self.aiPrevView.ai_data = self.ai;
                     self.aiPrevView.pis = self.piCollection;
                     self.aiPrevView.model = self.ai_super;
