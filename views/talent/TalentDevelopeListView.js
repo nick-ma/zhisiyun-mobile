@@ -30,7 +30,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 var self = this;
                 if (self.filter) {
-                    var talent_data = self.filter_data;
+                    var talent_data = self.filter_data
                 } else {
                     var talent_data = _.map(self.collection.models, function(x) {
                         var find_people = _.find(self.c_people.models, function(temp) {
@@ -39,8 +39,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         var find_direct = _.find(self.direct, function(temp) {
                             return temp.attributes._id == String(x.attributes.develope_direct)
                         })
-                        x.attributes.people_data = find_people.attributes;
-                        x.attributes.direct = find_direct.attributes;
+                        if (find_people) {
+                            x.attributes.people_data = find_people.attributes;
+                        }
+                        if (find_direct) {
+                            x.attributes.direct = find_direct.attributes;
+                        }
                         x.attributes.integral = _.reduce(_.map(x.attributes.plan_divide, function(temp) {
                             return temp.pass ? temp.integral : 0
                         }), function(mem, num) {
@@ -61,6 +65,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     direct: direct,
                     type: type
                 }
+
                 $("#talent_develope_list-content").html(self.template(obj));
                 $("#talent_develope_list-content").trigger('create');
 
@@ -119,6 +124,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             self.filter = true;
                             self.render();
                         });
+                        localStorage.setItem("plan_list_mode", "self");
 
                     } else {
                         self.collection.url = '/admin/pm/talent_develope/plan';
@@ -148,7 +154,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 var filter_collection = _.filter(filter_data, function(x) {
                                     return !!~myteam.indexOf(String(x.people))
                                 })
-                                self.filter_data = filter_collection
+                                self.filter_data = filter_collection;
+                                localStorage.setItem("plan_list_mode", "myteam");
+
                             } else if (team_obj[select] == 'myteam2') {
                                 var myteam2 = _.map(_.filter(people_data, function(temp) {
                                     return temp.myteam2
@@ -159,6 +167,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                     return !!~myteam2.indexOf(String(x.people))
                                 })
                                 self.filter_data = filter_collection
+                                localStorage.setItem("plan_list_mode", "myteam2");
 
                             } else {
 
@@ -172,7 +181,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                     return !!~mentor.indexOf(String(self.people))
                                 })
                                 self.filter_data = filter_collection;
-                                localStorage.setItem("TalentMentor", "True");//过滤与我相关的明细计划。
+                                localStorage.setItem("plan_list_mode", "mentor");
+                                localStorage.setItem("TalentMentor", "True"); //过滤与我相关的明细计划。
                             }
                             self.filter = true;
                             self.render();

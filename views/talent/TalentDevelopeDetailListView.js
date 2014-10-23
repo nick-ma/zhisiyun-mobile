@@ -200,6 +200,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
 
                 $("#talent_develope_detail_list").on('click', "#btn_go_back", function(event) {
                     event.preventDefault();
+                    var plan_list_mode = localStorage.getItem("plan_list_mode");
+                    // localStorage.removeItem("plan_list_mode");
+                    localStorage.setItem("plan_detail_list_mode", plan_list_mode);
                     window.location.href = "#plan_list";
                 }).on('click', '.open-left-panel', function(event) {
                     event.preventDefault();

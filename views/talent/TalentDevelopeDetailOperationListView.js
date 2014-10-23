@@ -165,8 +165,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             exist_mentor.push(String(x.people));
                             var is_mentor = (x.people == String($("#login_people").val()));
                             var is_creator = (x.creator == String($("#login_people").val()));
-
-                            x.is_edit = !(bool1 || (!is_self && !is_mentor) || (is_self && !is_creator))
+                            x.is_edit = !(bool1 || !is_creator)
+                            // x.is_edit = !(bool1 || (!is_self && !is_mentor) || (is_self && !is_creator))
 
                         })
                         var is_mentor = !!~exist_mentor.indexOf(String($("#login_people").val()));
@@ -362,7 +362,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                     people: temp._id,
                                     people_name: temp.people_name,
                                     position_name: temp.position_name,
-                                    creator: $("#login_people").val()
+                                    creator: $("#login_people").val(),
+                                    is_delete: true,
+                                    is_edit: true
+
                                 })
                             }
 
