@@ -100,10 +100,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     return pi_id == x.pi;
                 });
 
+                var pi_f = _.find(self.ai_datas.attributes.pis, function(x) {
+                    return x._id == item.pi;
+                })
+
                 self.item = item;
                 self.item_obj = {};
                 self.item_obj.ai_status = self.ai.attributes.ai_status;
                 self.item_obj.pi = item;
+                self.item_obj.pi_f = pi_f;
                 self.view_mode = 'pi_detail';
                 self.render();
             });
@@ -118,10 +123,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     return pi_id == x.pi;
                 });
 
+                var pi_f = _.find(self.ai_datas.attributes.pis, function(x) {
+                    return x._id == item2.pi;
+                })
+
                 self.item = item2;
                 self.item_obj = {};
                 self.item_obj.ai_status = self.ai.attributes.ai_status;
                 self.item_obj.pi = item2;
+                self.item_obj.pi_f = pi_f;
                 self.view_mode = 'pi_detail2';
                 self.render();
             });
