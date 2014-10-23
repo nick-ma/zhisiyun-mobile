@@ -1332,6 +1332,44 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         };
       });
 
+      Handlebars.registerHelper('ai_pi_source', function(source) {
+        var obj = {
+          '1': '自己',
+          '2': '上级分解',
+          '3': '公司',
+          '4': '目标计划',
+          '5': '向上获取',
+          '6': '上级公司',
+          '7': '预算'
+        }
+        return '<span class="label label-info">' + obj[String(source)] + '</span>'
+
+      });
+      
+      Handlebars.registerHelper('ai_edit_target_value', function(data, options) {
+        if (data != '3' && data != '6' && data != '7') {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('ai_edit_other', function(data, options) {
+        if (data != '3' && data != '6') {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
+      Handlebars.registerHelper('ai_can_remove', function(data, options) {
+        if (data == '1' || data == '5') {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+
       Handlebars.registerHelper('task', function(data, options) {
         if (data == 'TASK') {
           return options.fn(this);

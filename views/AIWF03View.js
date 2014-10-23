@@ -2,7 +2,7 @@
 // =============
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbone, Handlebars) {
+define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, _, Backbone, Handlebars, async) {
     var ai;
     var ai_data;
     var peoples_data;
@@ -193,6 +193,70 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 return [];
             }
 
+            function find_sc(pi) {
+                var position_id = self.ai.attributes.position;
+                var ou_id = self.ai.attributes.ou;
+                var company_id = self.ai.attributes.company;
+
+                var item_p = _.find(pi.sc_position_items, function(x) {
+                    return x.position == position_id;
+                })
+
+                if (item_p) {
+                    return item_p.scs;
+                }
+
+                var item_o = _.find(pi.sc_ou_items, function(x) {
+                    return x.ou == ou_id;
+                })
+
+                if (item_o) {
+                    return item_o.scs;
+                }
+
+                var item_c = _.find(pi.sc_company_items, function(x) {
+                    return x.company == company_id;
+                })
+
+                if (item_c) {
+                    return item_c.scs;
+                }
+
+                return [];
+            }
+
+            function find_pg(pi) {
+                var position_id = self.ai.attributes.position;
+                var ou_id = self.ai.attributes.ou;
+                var company_id = self.ai.attributes.company;
+
+                var item_p = _.find(pi.pg_position_items, function(x) {
+                    return x.position == position_id;
+                })
+
+                if (item_p) {
+                    return item_p.pgs;
+                }
+
+                var item_o = _.find(pi.pg_ou_items, function(x) {
+                    return x.ou == ou_id;
+                })
+
+                if (item_o) {
+                    return item_o.pgs;
+                }
+
+                var item_c = _.find(pi.pg_company_items, function(x) {
+                    return x.company == company_id;
+                })
+
+                if (item_c) {
+                    return item_c.pgs;
+                }
+
+                return [];
+            }
+
             self.$el.on('click', '.do_trans', function(event) {
                 var weight1 = self.ai.attributes.quantitative_pis.weight;
                 var weight2 = self.ai.attributes.qualitative_pis.weight;
@@ -231,21 +295,21 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 }
 
                 var bool = false;
-                _.each(self.ai.attributes.quantitative_pis.items,function(x){
-                    if(!x.weight){
+                _.each(self.ai.attributes.quantitative_pis.items, function(x) {
+                    if (!x.weight) {
                         bool = true;
                     }
                 })
-                if(bool){
+                if (bool) {
                     alert('定量指标项中权重不能为0,请编辑或者删除后重试!');
                     return;
                 }
-                _.each(self.ai.attributes.qualitative_pis.items,function(x){
-                    if(!x.weight){
+                _.each(self.ai.attributes.qualitative_pis.items, function(x) {
+                    if (!x.weight) {
                         bool = true;
                     }
                 })
-                if(bool){
+                if (bool) {
                     alert('定性指标项中权重不能为0,请编辑或者删除后重试!');
                     return;
                 }
@@ -354,7 +418,9 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 self.item_obj.unit_groups = unit_groups;
                 self.item_obj.sfcs_data = sfcs_data;
                 self.item_obj.pi_f = pi_f;
+                self.item_obj.aiSubCollection = self.aiSubCollection.models;
                 self.view_mode = 'pi_detail';
+                self.pi_type = '1';
                 self.render();
             });
 
@@ -379,14 +445,219 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 self.item_obj.unit_data = unit_data;
                 self.item_obj.sccs_data = sccs_data;
                 self.item_obj.pi_f = pi_f;
+                self.item_obj.aiSubCollection = self.aiSubCollection.models;
                 self.view_mode = 'pi_detail2';
+                self.pi_type = '2';
                 self.render();
+            });
+            //向下分解
+            $("#ai_wf1-content").on('click', '.add_pi2sub', function() {
+                var $this = $(this);
+
+                self.view_mode = 'ai_pi_sub';
+                self.render();
+            });
+            $("#ai_wf1-content").on('change', '.ai_sub', function() {
+                var $this = $(this);
+                var up_id = $this.data('up_id');
+                if ($("#" + up_id).attr("data-cacheval") == "true") {
+                    $("#div_" + up_id).attr('style', 'display:none');
+                } else {
+                    $("#div_" + up_id).attr('style', 'display:block');
+                }
             });
 
             $("#ai_wf1-content").on('click', '.ai_pi_comment', function() {
                 var $this = $(this);
                 self.view_mode = 'ai_pi_comment';
+
+
                 self.render();
+            });
+
+            // $("#ai_wf1-content").on('change', '.super_target_value,.super_unit,.super_weight', function() {
+            //     var $this = $(this);
+            //     var up_id = $this.data('up_id');
+            //     var target = $this.data('target');
+            //     var val = $this.val();
+
+            //     var ai_sub = _.find(self.aiSubCollection.models, function(x) {
+            //         return x.attributes._id == up_id;
+            //     })
+
+            //     var bd_item = {};
+            //     bd_item[target] = val;
+            //     bd_item[target] = val;
+            //     bd_item[target] = val;
+
+            //     if (self.pi_type == '1') { //定量
+
+            //     } else { //定性
+
+            //     }
+            // });
+
+            $("#ai_wf1-content").on('click', '#btn_add_my_pi2sub', function() {
+                var ids = [];
+                _.each($('.sub_chk:checked'), function(x) {
+                    ids.push($(x).data('up_id'));
+                })
+                if (ids.length) {
+                    async.times(ids.length, function(n, next) {
+                        var ai_id = ids[n];
+                        var ai_sub = _.find(self.aiSubCollection.models, function(x) {
+                            return x.attributes._id == ai_id;
+                        })
+
+                        var item = self.item;
+
+                        //检查被分解的对象是否已经有了这个条目
+                        var found1 = _.find(ai_sub.attributes.quantitative_pis.items, function(x) {
+                            return x.pi == item.pi;
+                        });
+                        var found2 = _.find(ai_sub.attributes.qualitative_pis.items, function(x) {
+                            return x.pi == item.pi;
+                        });
+
+                        var pi_f = _.find(pis_data, function(x) {
+                            return x._id == item.pi;
+                        });
+
+                        if (!found1 && !found2) { //不存在，就添加这个条目
+                            var bd_item = {
+                                pi: item.pi,
+                                pi_source: '2',
+                                target_value: $('#target_value_' + ai_id).val(),
+                                weight: $('#weight_' + ai_id).val(),
+                                unit: $('#unit_' + ai_id).val(),
+                                pi_name: item.pi_name ? item.pi_name : '',
+                            };
+
+                            if (!!item.ol) {
+                                bd_item.ol = item.ol;
+                                bd_item.ol_name = item.ol_name;
+                            }
+
+                            if (self.pi_type == '1') { //定量
+                                //自己是否有配置计分公式
+                                var sfs = find_sf(pi_f);
+                                if (sfs.length == 1) {
+                                    bd_item.scoringformula = sfs[0].sf;
+                                } else {
+                                    bd_item.scoringformula = item.scoringformula ? item.scoringformula : null;
+                                }
+
+                                //自己是否配有数据提供人
+                                var pls = find_dp_peoples(item, pi_f);
+                                if (pls.length == 1) {
+                                    bd_item.dp_people = pls[0]._id;
+                                } else {
+                                    bd_item.dp_people = item.dp_people ? item.dp_people : null;
+                                }
+
+                                ai_sub.attributes.quantitative_pis.items.push(bd_item);
+                            } else {
+                                //自己是否有配置评分标准
+                                var scs = find_sc(pi_f);
+                                if (scs.length == 1) {
+                                    bd_item.pi_sc_name = scs[0].sc_name;
+                                    bd_item.pi_sc_description = scs[0].sc_description;
+                                } else {
+                                    bd_item.pi_sc_name = item.pi_sc_name ? item.pi_sc_name : '';
+                                    bd_item.pi_sc_description = item.pi_sc_description ? item.pi_sc_description : '';
+                                }
+
+                                bd_item.grade_way = ai_sub.attributes.qualitative_pis.grade_way ? ai_sub.attributes.qualitative_pis.grade_way : '';
+
+                                //自己是否配置了等级组
+                                if (ai_sub.attributes.qualitative_pis.grade_group) {
+                                    var pgs = find_pg(pi_f);
+                                    //如果指标上配置了，指标优先
+                                    if (pgs.length == 1) {
+                                        bd_item.grade_group = pgs[0].grade_group;
+                                    } else {
+                                        bd_item.grade_group = self.ai.attributes.qualitative_pis.grade_group ? self.ai.attributes.qualitative_pis.grade_group : null;
+                                    }
+                                }
+
+                                bd_item.self_weight = ai_sub.attributes.qualitative_pis.self_weight;
+                                bd_item.indirect_weight = ai_sub.attributes.qualitative_pis.indirect_weight;
+                                bd_item.superior_weight = ai_sub.attributes.qualitative_pis.superior_weight;
+                                bd_item.superior_superior_weight = ai_sub.attributes.qualitative_pis.superior_superior_weight;
+                                bd_item.other_weight = ai_sub.attributes.qualitative_pis.other_weight;
+
+                                ai_sub.attributes.qualitative_pis.items.push(bd_item);
+                            }
+                        } else {
+                            if (confirm(ai_sub.attributes.people_name + '已经存在分解项，是否强行覆盖？')) {
+                                if (pi_type == '1') { //定量
+                                    if (found1.pi_source == '3' || found1.pi_source == '4') {
+                                        alert("指标来源为【公司】,不能覆盖!");
+                                    } else {
+                                        found1.pi_source = '2';
+
+                                        //下级是否有配置计分公式
+                                        var sfs = find_sf(pi_f);
+                                        if (sfs.length == 1) {
+                                            found1.scoringformula = sfs[0].sf;
+                                        } else {
+                                            found1.scoringformula = item.scoringformula ? item.scoringformula : null;
+                                        }
+
+                                        //自己是否配有数据提供人
+                                        var pls = find_dp_peoples(item, pi_f);
+                                        if (pls.length == 1) {
+                                            found1.dp_people = pls[0]._id;
+                                        } else {
+                                            found1.dp_people = item.dp_people ? item.dp_people : null;
+                                        }
+
+                                        found1.target_value = $('#target_value_' + ai_id).val();
+                                        found1.weight = $('#weight_' + ai_id).val();
+                                        found1.unit = $('#unit_' + ai_id).val();
+                                    }
+                                } else {
+                                    if (found2.pi_source == '3' || found2.pi_source == '4') {
+                                        alert("指标来源为【公司】,不能覆盖!");
+                                    } else {
+                                        found2.pi_source = '2';
+                                        found2.target_value = $('#target_value_' + ai_id).val();
+                                        found2.weight = $('#weight_' + ai_id).val();
+                                        found2.unit = $('#unit_' + ai_id).val();
+
+                                        found2.grade_way = item.grade_way;
+
+                                        var scs = find_sc(pi_f);
+                                        if (scs.length == 1) {
+                                            found2.pi_sc_name = scs[0].sc_name;
+                                            found2.pi_sc_description = scs[0].sc_description;
+                                        } else {
+                                            found2.pi_sc_name = item.pi_sc_name ? item.pi_sc_name : '';
+                                            found2.pi_sc_description = item.pi_sc_description ? item.pi_sc_description : '';
+                                        }
+
+                                        if (item.grade_way == 'G') {
+                                            //下级是否配置了等级组
+                                            var pgs = find_pg(pi_f);
+                                            //如果指标上配置了，指标优先
+                                            if (pgs.length == 1) {
+                                                found2.grade_group = pgs[0].grade_group;
+                                            } else {
+                                                found2.grade_group = self.ai.attributes.qualitative_pis.grade_group ? self.ai.attributes.qualitative_pis.grade_group : null;
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                        ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
+                        ai_sub.save().done(next);
+                    }, function(err, ret) {
+                        alert('保存成功!');
+                    })
+                } else {
+                    alert('请选择要分解的下级数据!');
+                }
             });
 
             $("#ai_wf1-content").on('change', '#ai_pi_new_comment', function() {
@@ -433,6 +704,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
             $("#ai_wf1-content").on('change', '#target_value_dl,#weigth_dl,#target_value_dx,#weigth_dx', function(event) {
                 event.preventDefault();
                 var $this = $(this);
+                var target = $this.data('target');
 
                 if (isNaN($this.val())) {
                     alert('请输入合法的数字!');
@@ -451,7 +723,26 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     })
                 }
 
-                pi[$this.data('target')] = parseFloat($this.val());
+                var target_change = false;
+                //如果是修改上级分解过来的目标值，则记录到沟通里
+                if (pi.pi_source == '2' && target == 'target_value') {
+                    //值改变了才发
+                    if (pi[target] && (pi[target].toString() != $this.val())) {
+                        var comment = {};
+                        comment.comment = '我把目标值由【' + pi[target] + '】改为了【' + $this.val() + '】';
+                        comment.creator = ai_data.people;
+                        comment.createDate = moment();
+                        pi.comments.push(comment);
+
+                        target_change = true;
+                    }
+                }
+
+                pi[target] = parseFloat($this.val());
+
+                if (target_change) {
+                    self.render();
+                }
             })
 
             $("#ai_wf1-content").on('change', '#unit_dl,#unit_dx,#dp_people_dl,#sf_dl', function(event) {
@@ -615,6 +906,26 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     })
                 }
             })
+
+            $("#ai_wf1-footer").on('click', '#btn-ai_wf1-prev', function(event) {
+                event.preventDefault();
+                window.location.href = '#prev_ai';
+            })
+
+            $("#ai_wf1-footer").on('click', '#btn-ai_wf1-super', function(event) {
+                event.preventDefault();
+                window.location.href = '#super_ai';
+            })
+
+            $("#ai_wf1-footer").on('click', '#btn-ai_wf1-pis_select', function(event) {
+                event.preventDefault();
+                window.location.href = '#pis_select';
+            })
+
+            $("#ai_wf1-footer").on('click', '#btn-ai_wf1-create_pi', function(event) {
+                event.preventDefault();
+                window.location.href = '#create_pi';
+            })
         },
         pre_render: function() {
             var self = this;
@@ -741,7 +1052,24 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                     this.template = Handlebars.compile($("#pi_comment_view").html());
                     $("#ai_wf1-content").html(self.template(self.item));
                     $("#ai_wf1-content").trigger('create');
+                } else if (self.view_mode == 'ai_pi_sub') {
+                    $("#ai_wf_title").html('向下级分解');
+                    this.template = Handlebars.compile($("#ai_sub_view").html());
+                    var rendered_data = {
+                        sub_ais: []
+                    };
+                    _.each(self.aiSubCollection.models, function(x) {
+                        rendered_data.sub_ais.push(x.attributes);
+                    })
+
+                    rendered_data.pi = self.item;
+                    rendered_data.unit_data = self.ai_datas.attributes.unit_data;
+
+                    $("#ai_wf1-content").html(self.template(rendered_data));
+                    $("#ai_wf1-content").trigger('create');
                 }
+
+                $("#ai_wf1-footer").hide();
             } else {
                 //计算权重
                 obj.ai.quantitative_pis.weight = 0;
@@ -756,6 +1084,12 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 this.template = Handlebars.compile($("#wf03_view").html());
                 $("#ai_wf1-content").html(self.template(obj));
                 $("#ai_wf1-content").trigger('create');
+
+                if ($("#login_people").val() == self.ai.attributes.people.toString()) {
+                    $("#ai_wf1-footer").show();
+                } else {
+                    $("#ai_wf1-footer").hide();
+                }
             }
 
             //对自己不显示发起聊天的按钮
