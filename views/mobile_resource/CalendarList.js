@@ -95,7 +95,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "jqmcal", "formatdate"
                     self.mr_id = $(this).val()
                     self.render()
                     $("#show_mobile-left-panel").panel("close");
-
+                }).on('click', '#btn-quesetionnair_template-change_view', function(event) {
+                    window.location.href = '#quesetionnair_template'
+                    $("#show_mobile-left-panel").panel("close");
                 })
         }
 

@@ -6,14 +6,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../models/QuestionnairTemplateClientModel",
         "../views/questionnair_template/TemplateList",
         "../views/questionnair_template/TemplateEditList",
-        "../views/questionnair_template/IssueList"
+        "../views/questionnair_template/IssueList",
+        "../views/questionnair_template/ResultList"
     ],
     function($, Backbone, Handlebars, LZString, async,
         QuestionnairTemplateClientCollection,
         QuestionnairTemplateClientModel,
         TemplateList,
         TemplateEditList,
-        IssueList
+        IssueList,
+        ResultList
     ) {
 
         var QuesetionnaireTemplateRouter = Backbone.Router.extend({
@@ -31,6 +33,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "quesetionnair_template": "quesetionnair_template",
                 "quesetionnair_template/:qt_id": "quesetionnair_template_edit",
                 "quesetionnair_template_issue/:qt_id": "quesetionnair_template_issue",
+                "quesetionnair_template_result/:qt_id": "quesetionnair_template_result",
             },
             quesetionnair_template: function() { //我的待办
                 var self = this;
@@ -41,7 +44,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 $.mobile.loading("show");
                 self.templateList.pre_render();
-
+                self.questionnairTemplateClients.people = $('#login_people').val();
                 self.questionnairTemplateClients.fetch().done(function() {
                     self.templateList.render();
                     $.mobile.loading("hide");
@@ -71,27 +74,42 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
-
                 $.mobile.loading("show");
                 self.issueList.pre_render();
 
-                // $.get('/admin/pm/questionnair_template/qi_bb/' + qt_id, function(data) {
-                    self.questionnairTemplateClient.id = qt_id
-                    // self.questionnairTemplateClient.issued_pps = data;
-                    self.questionnairTemplateClient.peoples = self.peoples;
-                    self.questionnairTemplateClient.fetch().done(function() {
-                        self.issueList.render();
-                        $.mobile.loading("hide");
-                    })
-                // })
+                self.questionnairTemplateClient.id = qt_id
+                self.questionnairTemplateClient.peoples = self.peoples;
+                self.questionnairTemplateClient.fetch().done(function() {
+                    self.issueList.render();
+                    $.mobile.loading("hide");
+                })
+            },
+            quesetionnair_template_result: function(qt_id) {
+                var self = this;
+                $("body").pagecontainer("change", "#quesetionnaire_template_result_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                // self.resultList.pre_render();
+                var find_data = {
+                    q_category: '2',
+                    qtc: qt_id
+                }
+                $.post('/admin/pm/questionnair_template/get_qt_instances', find_data, function(data) {
+                    self.resultList.qtis = data.result
+                    self.resultList.render();
+                    $.mobile.loading("hide");
+                })
+
+
+
             },
             init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
                 var self = this;
-
                 $.get('/admin/im/get_peoples/' + $("#login_people").val(), function(peoples) {
                     self.peoples = peoples
                 })
-                // self.load_data(self.c_objectives, 'objectives');
             },
             init_views: function() {
                 var self = this;
@@ -107,7 +125,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#quesetionnaire_template_issue_list",
                     model: self.questionnairTemplateClient,
                 })
-
+                this.resultList = new ResultList({
+                    el: "#quesetionnaire_template_result_list",
+                    // model: self.questionnairTemplateClient,
+                })
             },
 
             init_models: function() {
