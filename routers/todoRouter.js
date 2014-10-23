@@ -33,7 +33,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         MYPICollection,
 
         WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel, AIPrevModel, AISuperModel, PIModel,
-        TmAttendanceModel, TMAbsenceOfThreeModel,PIDatasModel
+        TmAttendanceModel, TMAbsenceOfThreeModel, PIDatasModel
     ) {
 
         var ToDoRouter = Backbone.Router.extend({
@@ -56,8 +56,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo4/:op_id/:type": "go_do4",
                 "godo8/:op_id/:type": "go_do8",
                 "godo9/:op_id/:type": "go_do9",
-                "prev_ai/:period/:people/:position": "prev_ai",
-                "super_ai/:period/:position": "super_ai",
+                // "prev_ai/:period/:people/:position": "prev_ai",
+                // "super_ai/:period/:position": "super_ai",
+                "prev_ai": "prev_ai",
+                "super_ai": "super_ai",
                 "pis_select": "pis_select",
                 "create_pi": "create_pi",
             },
@@ -208,6 +210,22 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                     cb(null, null);
                                 }
                             },
+                            function(ai, cb) {
+                                if (ai) {
+                                    self.ai_prev.period = ai.attributes.period;
+                                    self.ai_prev.people = ai.attributes.people;
+                                    self.ai_prev.position = ai.attributes.position;
+
+                                    self.ai_super.period = ai.attributes.period;
+                                    self.ai_super.position = ai.attributes.position;
+
+                                    self.ai_prev.fetch().done(function() {
+                                        self.ai_super.fetch().done(function() {
+                                            cb(null, null);
+                                        });
+                                    });
+                                }
+                            },
                         ], cb);
                     },
                     data2: function(cb) {
@@ -220,6 +238,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     if (self.wf_data.attributes.ti) {
                         self.wf03View.wf_data = self.wf_data;
                         self.wf03View.ai = self.ai;
+                        self.wf03View.ai_prev = self.ai_prev;
+                        self.wf03View.ai_super = self.ai_super;
                         self.wf03View.ai_datas = self.ai_datas;
                         if (self.view_mode_state) {
                             self.wf03View.view_mode = '';
@@ -388,11 +408,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var pd_code = op_id.split("-")[2];
                 window.location.href = '/m#back_leave_form_t/' + ti_id + '/T';
             },
-            prev_ai: function(period, people, position) {
+            // prev_ai: function(period, people, position) {
+            prev_ai: function() {
                 var self = this;
-                self.ai_prev.period = period;
-                self.ai_prev.people = people;
-                self.ai_prev.position = position;
+                // self.ai_prev.period = period;
+                // self.ai_prev.people = people;
+                // self.ai_prev.position = position;
 
                 $("body").pagecontainer("change", "#ai_add_pi", {
                     reverse: false,
@@ -404,20 +425,21 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $.mobile.loading("show");
                 self.aiPrevView.pre_render();
 
-                self.ai_prev.fetch().done(function() {
-                    self.piCollection.fetch().done(function() {
-                        self.aiPrevView.ai_data = self.ai;
-                        self.aiPrevView.pis = self.piCollection;
-                        self.aiPrevView.model = self.ai_prev;
-                        self.aiPrevView.render();
-                        $.mobile.loading("hide");
-                    })
+                // self.ai_prev.fetch().done(function() {
+                self.piCollection.fetch().done(function() {
+                    self.aiPrevView.ai_data = self.ai;
+                    self.aiPrevView.pis = self.piCollection;
+                    self.aiPrevView.model = self.ai_prev;
+                    self.aiPrevView.render();
+                    $.mobile.loading("hide");
                 })
+                // })
             },
-            super_ai: function(period, position) {
+            // super_ai: function(period, position) {
+            super_ai: function() {
                 var self = this;
-                self.ai_super.period = period;
-                self.ai_super.position = position;
+                // self.ai_super.period = period;
+                // self.ai_super.position = position;
 
                 $("body").pagecontainer("change", "#ai_add_pi", {
                     reverse: false,
@@ -429,15 +451,15 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $.mobile.loading("show");
                 self.aiPrevView.pre_render();
 
-                self.ai_super.fetch().done(function() {
-                    self.piCollection.fetch().done(function() {
-                        self.aiPrevView.ai_data = self.ai;
-                        self.aiPrevView.pis = self.piCollection;
-                        self.aiPrevView.model = self.ai_super;
-                        self.aiPrevView.render();
-                        $.mobile.loading("hide");
-                    })
+                // self.ai_super.fetch().done(function() {
+                self.piCollection.fetch().done(function() {
+                    self.aiPrevView.ai_data = self.ai;
+                    self.aiPrevView.pis = self.piCollection;
+                    self.aiPrevView.model = self.ai_super;
+                    self.aiPrevView.render();
+                    $.mobile.loading("hide");
                 })
+                // })
             },
             //----------指标选择----------//
             pis_select: function() {

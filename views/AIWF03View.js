@@ -638,6 +638,12 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
             var obj = {};
             obj.ai = ai_data;
+            if (self.ai_prev.attributes.quantitative_pis || self.ai_prev.attributes.qualitative_pis) {
+                obj.ai_prev = self.ai_prev.attributes;
+            }
+            if (self.ai_super.attributes.quantitative_pis || self.ai_super.attributes.qualitative_pis) {
+                obj.ai_super = self.ai_super.attributes;
+            }
             obj.other1 = other1;
             obj.other2 = other2;
             obj.other3 = other3;
