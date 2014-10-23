@@ -34,7 +34,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             //附件数据
             if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
                 var back_obj = JSON.parse(localStorage.getItem('upload_model_back')).model;
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
+                var f_qti = _.find(self.model.get('vote_items'), function(op) {
                     return op._id == back_obj.qti_id
                 })
                 var f_d = _.find(f_qti.qti_options, function(qt) {
@@ -44,11 +44,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 localStorage.removeItem('upload_model_back'); //用完删掉
             };
 
-
-
-            rendered_data = self.quesetionnaire_template_edit(self.model.attributes);
-
-            $("#quesetionnaire_template_edit_list-content").html(rendered_data);
+            $("#quesetionnaire_template_edit_list-content").html(self.quesetionnaire_template_edit(self.model.attributes));
             $("#quesetionnaire_template_edit_list-content").trigger('create');
             return self;
         },
@@ -82,14 +78,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $this = $(this);
                 event.preventDefault();
                 var qti_id = $this.data('qti_id')
-                self.model.attributes.option_items = _.filter(self.model.get('option_items'), function(op) {
+                self.model.attributes.vote_items = _.filter(self.model.get('vote_items'), function(op) {
                     return op._id != qti_id
                 })
                 save_data(self)
             }).on('click', '.btn_add_option', function(event) {
                 event.preventDefault();
                 var qti_id = $(this).data('qti_id')
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
+                var f_qti = _.find(self.model.get('vote_items'), function(op) {
                     return op._id == qti_id
                 })
                 var option = {};
@@ -102,7 +98,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 event.preventDefault();
                 var qti_id = $(this).data('qti_id');
                 var option_id = $(this).data('option_id');
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
+                var f_qti = _.find(self.model.get('vote_items'), function(op) {
                     return op._id == qti_id
                 })
                 f_qti.qti_options = _.filter(f_qti.qti_options, function(qt) {
@@ -116,7 +112,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var qti_id = $(this).data('qti_id');
                 var option_id = $(this).data('option_id');
                 if (!_.isUndefined(option_id)) {
-                    var f_qti = _.find(self.model.get('option_items'), function(op) {
+                    var f_qti = _.find(self.model.get('vote_items'), function(op) {
                         return op._id == qti_id
                     })
                     f_op = _.find(f_qti.qti_options, function(qt) {
@@ -126,7 +122,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 } else if (!_.isUndefined(qt_id)) {
                     self.model.set('qt_name', $(this).val())
                 } else {
-                    var f_qti = _.find(self.model.get('option_items'), function(op) {
+                    var f_qti = _.find(self.model.get('vote_items'), function(op) {
                         return op._id == qti_id
                     })
                     f_qti.qti_name = $(this).val()
@@ -174,7 +170,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var qti_id = $(this).data('qti_id');
                 var field = $(this).data('field');
                 if (!_.isUndefined(qti_id)) {
-                    var f_qti = _.find(self.model.get('option_items'), function(op) {
+                    var f_qti = _.find(self.model.get('vote_items'), function(op) {
                         return op._id == qti_id
                     })
                     f_qti.qti_type = ($(this).val() == 'false' ? '1' : '2')
@@ -202,7 +198,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 save_data(self)
                 var qti_id = $(this).data('qti_id');
                 var option_id = $(this).data('option_id');
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
+                var f_qti = _.find(self.model.get('vote_items'), function(op) {
                     return op._id == qti_id
                 })
                 var f_d = _.find(f_qti.qti_options, function(qt) {

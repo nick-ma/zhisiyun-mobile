@@ -60,6 +60,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 $.mobile.loading("show");
                 self.templateEditList.pre_render();
+                
                 self.questionnairTemplateClient.id = qt_id
                 self.questionnairTemplateClient.fetch().done(function() {
                     self.templateEditList.render();
@@ -100,6 +101,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 }
                 $.post('/admin/pm/questionnair_template/get_qt_instances', find_data, function(data) {
                     self.resultList.qtis = data.result
+                    self.resultList.people = $('#login_people').val();
                     self.resultList.render();
                     $.mobile.loading("hide");
                 })

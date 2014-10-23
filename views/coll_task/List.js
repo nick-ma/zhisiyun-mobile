@@ -184,9 +184,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             return y.p_task == x._id
                         }).length;
                     });
-                    _.each($("#colltask-left-panel label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // _.each($("#colltask-left-panel label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
+                    _.each($("#colltask .btn-colltask-change_state"), function(x) {
+                        $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
                     })
                     // _.each(render_data.cts_finished, function(x) {
                     //     x.sub_task_num = _.filter(tmp, function(y) {
@@ -222,9 +225,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var ts_count = _.countBy(project_tasks, function(x) {
                         return x.state;
                     });
-                    _.each($("#colltask-left-panel label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // _.each($("#colltask-left-panel label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
+                    _.each($("#colltask .btn-colltask-change_state"), function(x) {
+                        $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
                     })
                     // console.log(render_data.projects);
                 } else if (render_mode == 'pi') {
@@ -254,9 +260,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var ts_count = _.countBy(pi_tasks, function(x) {
                         return x.state;
                     });
-                    _.each($("#colltask-left-panel label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // _.each($("#colltask-left-panel label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
+                    _.each($("#colltask .btn-colltask-change_state"), function(x) {
+                        $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
                     })
                     // console.log(render_data.pis);
                 } else if (render_mode == 'skills') {
@@ -298,9 +307,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var ts_count = _.countBy(skill_tasks, function(x) {
                         return x.state;
                     });
-                    _.each($("#colltask-left-panel label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    _.each($("#colltask .btn-colltask-change_state"), function(x) {
+                        $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
                     })
                 };
 
@@ -335,41 +343,45 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             $("#colltask-left-panel").panel("close");
                         });
                     })
-                    .on('change', '#colltask-left-panel input[name=colltask_state]', function(event) {
-                        event.preventDefault();
-                        var $this = $(this);
-                        self.state = $this.val();
-                        self.render();
-                        $("#colltask-left-panel").panel("close");
-                        // console.log($this.val());
-                    })
-                    .on('change', '#colltask-left-panel select', function(event) {
-                        event.preventDefault();
-                        var $this = $(this);
-                        var field = $this.data("field");
-                        var value = $this.val();
-                        self[field] = value;
-                        if (field == 'date_offset') { //需要重新获取数据
-                            $.mobile.loading("show");
-                            self.collection.date_offset = value;
-                            self.collection.fetch().done(function() {
-                                $.mobile.loading("hide");
-                                self.render();
-                            })
-                        } else {
+                // .on('change', '#colltask-left-panel input[name=colltask_state]', function(event) {
+                //     event.preventDefault();
+                //     var $this = $(this);
+                //     self.state = $this.val();
+                //     self.render();
+                //     $("#colltask-left-panel").panel("close");
+                //     // console.log($this.val());
+                // })
+                .on('change', '#colltask-left-panel select', function(event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    var field = $this.data("field");
+                    var value = $this.val();
+                    self[field] = value;
+                    if (field == 'date_offset') { //需要重新获取数据
+                        $.mobile.loading("show");
+                        self.collection.date_offset = value;
+                        self.collection.fetch().done(function() {
+                            $.mobile.loading("hide");
                             self.render();
-                        };
-                        // $("#colltask-left-panel").panel("close");
-                        // console.log($this.val());
-                    })
+                        })
+                    } else {
+                        self.render();
+                    };
+                    // $("#colltask-left-panel").panel("close");
+                    // console.log($this.val());
+                })
                     .on('change', '#cf_task_name', function(event) {
                         event.preventDefault();
                         var $this = $(this);
                         self.search_term = $this.val();
                         self.render();
                     })
-                    .on('click', '._ezswipe_container', function(event) {
-                        console.log('message ininin');
+                    .on('click', '.btn-colltask-change_state', function(event) {
+                        var $this = $(this);
+                        self.state = $this.data('state');
+                        self.render();
+                        $('.btn-colltask-change_state').removeClass('ui-btn-active');
+                        $this.addClass('ui-btn-active');
                     });
             }
 

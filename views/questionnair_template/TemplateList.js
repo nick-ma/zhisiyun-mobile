@@ -19,24 +19,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         //返回+1之后的结果
         return this._index;
     });
-    var category_enum = ['', '满意度调查问卷', '选项统计问卷', '测验问卷', '满意度调查问卷(外部用户)', '选项统计问卷(外部用户)'];
+    var category_enum = ['', '满意度调查问卷', '选项统计问卷', '测验问卷', '满意度调查问卷(外部用户)', '选项统计问卷(外部用户)', '投票问卷'];
     Handlebars.registerHelper('Category', function(category) {
         return category_enum[category];
     });
 
 
     //1:人员 频次 look type
-    Handlebars.registerHelper('eq_people', function(data, data1, data2, data3, options) {
+    Handlebars.registerHelper('eq_people', function(data, data1, options) {
         var login_people = $('#login_people').val();
 
-        if (data3 == 'J') {
+        if (data1 == 'J') {
 
-            if (data == login_people && data1 > 0 && data2) {
+            if (data == login_people) {
                 return options.fn(this);
             } else {
                 return options.inverse(this);
             }
-        } else if (data3 == 'F') {
+        } else if (data1 == 'F') {
             if (data == login_people) {
                 return options.fn(this);
             } else {
@@ -44,7 +44,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }
 
 
-        } else if (data3 == 'S') {
+        } else if (data1 == 'S') {
             if (data == login_people && data1 == 0) {
                 return options.fn(this);
             } else {
@@ -67,7 +67,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // The View Constructor
         initialize: function() {
             this.quesetionnaire_template = Handlebars.compile($("#quesetionnaire_template_list_view").html());
+            this.quesetionnaire_template_join = Handlebars.compile($("#quesetionnaire_template_list_join_view").html());
+            this.quesetionnaire_template_on = Handlebars.compile($("#quesetionnaire_template_list_on_view").html());
+
             this.loading_template = Handlebars.compile($("#loading_template_view").html());
+            this.collection.on("sync", this.render, this);
             this.model_view = '0';
             this.qtis = [];
             this.bind_event();
@@ -85,34 +89,30 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var self = this;
             var rendered_data = '';
             if (self.model_view == '0') {
-                console.log(self)
                 var filters = _.filter(self.collection.toJSON(), function(qt) {
-                    return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == '2'
+                    return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == '6'
                 })
                 rendered_data = self.quesetionnaire_template({
                     qts: sort_items(filters)
                 });
 
             } else if (self.model_view == '1') {
-
-
-
                 var filters = _.filter(self.collection.toJSON(), function(qt) {
                     var f_d = _.find(self.qtis, function(q) {
                         return q.qtc == qt._id
                     })
-                    return f_d && qt.questionnair_category == '2'
+                    return f_d && qt.questionnair_category == '6'
                 })
-                rendered_data = self.quesetionnaire_template({
+                rendered_data = self.quesetionnaire_template_join({
                     qts: sort_items(filters)
                 });
 
             } else if (self.model_view == '2') {
 
                 var filters = _.filter(self.collection.toJSON(), function(st) {
-                    return st.questionnair_category == '2' && st.frequency_of_usage == 0
+                    return self.collection.people == st.creator && st.questionnair_category == '6' && st.frequency_of_usage == 0
                 })
-                rendered_data = self.quesetionnaire_template({
+                rendered_data = self.quesetionnaire_template_on({
                     qts: sort_items(filters)
                 });
             }
@@ -126,15 +126,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             $("#quesetionnaire_template_list").on('click', '#btn-quesetionnaire_template_create', function(event) {
                 event.preventDefault();
                 var new_qt = {
-                    qt_name: '新建的选项统计问卷' + (self.collection.length + 1),
-                    questionnair_category: '2',
+                    qt_name: '新建的投票问卷' + (self.collection.length + 1),
+                    questionnair_category: '6',
+                    vote_items: [{
+                        qti_name: '新建题目',
+                        qti_options: [],
+                    }],
                 };
+                $.mobile.loading("show");
                 var qt = self.collection.add(new_qt);
                 qt.url = '/admin/pm/questionnair_template/common_bb/' + null
                 qt.save(qt.attributes, {
                     success: function(model, response, options) {
                         var url = "#quesetionnair_template/" + model.get("_id");
+                        $.mobile.loading("hide");
                         window.location.href = url;
+
                     }
                 })
             }).on('click', '.open-left-panel', function(event) {
@@ -163,7 +170,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '#my_part', function(event) { //我参与的
                 event.preventDefault();
                 $.get('/admin/pm/questionnair_template/querstionnar_instance_by_people', function(data) {
-                    console.log(data)
                     self.qtis = data
                     self.model_view = '1';
                     self.render();
@@ -184,8 +190,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var qt_id = $(this).data('qt_id');
                 var qti = self.collection.get(qt_id);
                 if (confirm('确定删除吗 ？')) {
+                    $.mobile.loading("show");
+                    qti.url = "/admin/pm/questionnair_template/common_bb/" + qt_id
                     qti.destroy({
                         success: function() {
+                            $.mobile.loading("hide");
                             alert('删除成功!')
                             self.collection.fetch().done(function() {
                                 self.render();
@@ -204,8 +213,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 delete qti.id;
                 delete qti.attributes._id;
                 if (confirm('确定克隆吗 ？')) {
+                    $.mobile.loading("show");
                     qti.save(qti.attributes, {
                         success: function(model, response, options) {
+                            $.mobile.loading("hide");
                             alert('克隆成功!');
                             self.collection.fetch().done(function() {
                                 self.render();

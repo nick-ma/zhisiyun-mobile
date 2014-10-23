@@ -59,6 +59,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         render: function() {
             var self = this;
             var rendered_data = '';
+
+
             var group = _.groupBy(self.qtis, function(qt) {
                 return moment(qt.lastDate).format('YYYY-MM-DD')
             })
@@ -70,9 +72,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             };
 
             var results = _.filter(group[self.current_time], function(ft) {
-                console.log(ft)
                 return ft.status == '1';
             });
+
+            var f_pp = _.find(results, function(rt) {
+                return rt.people._id == self.people
+            })
+
+            var my_result = [];
+            if (f_pp) {
+                _.each(_.first(f_pp.vote_items).results, function(rt) {
+                    my_result.push(_.first(f_pp.vote_items).qti_options[rt.result].option)
+                })
+            };
+
             var num_sum = results.length + '/' + group[self.current_time].length;
 
 
@@ -88,12 +101,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             $("#quesetionnaire_template_result_select").html(items.join(''))
 
-
+            $("#quesetionnaire_template_result_select").prev().html(self.current_time)
 
             var tts = [];
             if (results.length) {
                 //列表
-                var qtis = results[0].option_items
+                var qtis = results[0].vote_items
                 var items = []
 
                 for (var i = 0; i < qtis.length; i++) {
@@ -104,7 +117,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         results: []
                     }
                     for (var j = 0; j < results.length; j++) {
-                        _.each(results[j].option_items[i].results, function(rt) {
+                        _.each(results[j].vote_items[i].results, function(rt) {
                             obj.results.push(rt.result)
                         })
                     };
@@ -137,14 +150,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             rendered_data = self.quesetionnaire_template_rssult({
                 qt_name: self.qtis[0].qt_name,
                 num_sum: num_sum,
-                tts: tts
+                tts: tts,
+                my_result: my_result
             });
 
 
             $("#quesetionnaire_template_result_list-content").html(rendered_data);
             $("#quesetionnaire_template_result_list-content").trigger('create');
-
-
             for (var i = 0; i < tts.length; i++) {
                 var tis = tts[i].tis
                 var obj = {
@@ -169,7 +181,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         text: tts[i].qt
                     },
                     tooltip: {
-                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        pointFormat: '<b>{point.percentage:.1f}%</b>'
                     },
                     exporting: {
                         enabled: false
@@ -190,11 +202,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
-                                color: '#000000',
-                                connectorColor: '#000000',
-                                format: '<b>{point.name}</b>: {point.percentage:.1f} %'
-                            }
+                                enabled: false
+                            },
+                            showInLegend: true
                         }
                     },
                     series: [obj]
@@ -207,6 +217,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
         },
         bind_event: function() {
+
             var self = this
             var bool = true;
             $("#quesetionnaire_template_result_list").on('change', '#quesetionnaire_template_result_select', function(event) {

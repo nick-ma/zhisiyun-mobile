@@ -84,9 +84,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 }).on('click', '#btn_show_talent_twitter_view', function(event) {
                     event.preventDefault();
                     window.location.href = "#twitter_list";
-                }).on('change', '#talent_develope_view_mode', function(event) {
+                }).on('click', '.talent_develope_view_mode', function(event) {
                     event.preventDefault();
-                    var select = $(this).val();
+                    var select = $(this).data("select");
                     var team_obj = {
                         'A': 'self',
                         'B': 'myteam',

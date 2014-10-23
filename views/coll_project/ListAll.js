@@ -149,9 +149,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         return x.state;
                     });
                     ts_count['0'] = models4render.length;
-                    _.each($("#collproject-left-panel label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // _.each($("#collproject-left-panel label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
+                    _.each($("#collproject .btn-collproject-change_state"), function(x) {
+                        $(x).find('.collproject_state_num').html(ts_count[$(x).data('state')] || 0);
                     })
 
                 } else if (render_mode == 'pis') {
@@ -312,6 +315,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var $this = $(this);
                         self.search_term = $this.val();
                         self.render();
+                    })
+                    .on('click', '.btn-collproject-change_state', function(event) {
+                        var $this = $(this);
+                        self.state = $this.data('state');
+                        self.render();
+                        $('.btn-collproject-change_state').removeClass('ui-btn-active');
+                        $this.addClass('ui-btn-active');
                     });
 
             },

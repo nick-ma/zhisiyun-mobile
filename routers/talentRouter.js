@@ -290,10 +290,18 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $.mobile.loading("show");
                 self.SuperiorTwitterFormView.pre_render();
                 var people = $("#login_people").val();
-                self.ddCollection.fetch();
-                self.SuperiorTwitterFormView.direct = self.ddCollection.models;
-                self.SuperiorTwitterFormView.model = self.stModel;
                 async.parallel({
+                    direct: function(cb) {
+                        self.ddCollection.fetch().done(function() {
+                            self.SuperiorTwitterFormView.direct = self.ddCollection.models;
+                            cb(null, self)
+                        });
+
+                    },
+                    stModel: function(cb) {
+                        self.SuperiorTwitterFormView.model = self.stModel;
+                        cb(null, self)
+                    },
                     data1: function(cb) {
                         $.get('/admin/pm/talent_wf/edit_m/' + ti_id, function(data) {
                             if (data) {
@@ -427,6 +435,17 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             cb(null, 'OK')
                         })
                     },
+                    people_mentor: function(cb) { //默认上级是导师
+                        var obj = {
+                            plan_id: plan_id
+                        };
+                        $.post('/admin/pm/talent_develope/get_plan_people_superior', obj, function(data) {
+                            if (data.code == 'OK') {
+                                self.DevelopePlanDetailListView.mentor_data = data.msg;
+                            }
+                            cb(null, 'OK')
+                        })
+                    }
 
                 }, function(err, result) {
                     self.DevelopePlanDetailListView.c_people = self.c_people; //人员数据

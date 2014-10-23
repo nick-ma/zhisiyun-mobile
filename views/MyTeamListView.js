@@ -54,8 +54,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         return !x.myteam && !x.myteam2 && x._id != $("#login_people").val();
                     })
                 };
-                _.each($("#myteam_list-left-panel label"), function(x) {
-                    $(x).find('span').html(count[$(x).data('filter')])
+                // _.each($("#myteam_list-left-panel label"), function(x) {
+                //     $(x).find('span').html(count[$(x).data('filter')])
+                // })
+
+                _.each($("#myteam_list .btn-myteam-change_state"), function(x) {
+                    $(x).find('.myteam_state_num').html(count[$(x).data('view_filter')] || 0);
                 })
 
                 $("#myteam_list-content").html(self.template({
@@ -68,14 +72,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             bind_event: function() {
                 var self = this;
                 $("#myteam_list")
-                    .on('click', '.open-left-panel', function(event) {
-                        event.preventDefault();
-                        $("#myteam_list-left-panel").panel('open');
-                    })
-                    .on('swiperight', function(event) { //向右滑动，打开左边的面板
-                        event.preventDefault();
-                        $("#myteam_list-left-panel").panel("open");
-                    })
+                    // .on('click', '.open-left-panel', function(event) {
+                    //     event.preventDefault();
+                    //     $("#myteam_list-left-panel").panel('open');
+                    // })
+                    // .on('swiperight', function(event) { //向右滑动，打开左边的面板
+                    //     event.preventDefault();
+                    //     $("#myteam_list-left-panel").panel("open");
+                    // })
                     .on('change', '#myteam_list-left-panel input[name=myteam_filter]', function(event) {
                         event.preventDefault();
                         var $this = $(this);
@@ -92,6 +96,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             self.render();
                             localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.collection)));
                         })
+                    })
+                    .on('click', '.btn-myteam-change_state', function(event) {
+                        var $this = $(this);
+                        self.view_filter = $this.data('view_filter');
+                        self.render();
+                        $('.btn-myteam-change_state').removeClass('ui-btn-active');
+                        $this.addClass('ui-btn-active');
                     });
             }
 

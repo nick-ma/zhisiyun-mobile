@@ -59,6 +59,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.quesetionnaire_grade_common_template = Handlebars.compile($("#quesetionnaire_grade_common_list_view").html());
             this.quesetionnaire_option_common_template = Handlebars.compile($("#quesetionnaire_option_common_list_view").html());
             this.quesetionnaire_test_common_template = Handlebars.compile($("#quesetionnaire_test_common_list_view").html());
+            this.quesetionnaire_vote_common_template = Handlebars.compile($("#quesetionnaire_vote_common_list_view").html());
+
+
             this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.model.on("sync", this.render, this);
             this.bind_event();
@@ -95,11 +98,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 });
             } else if (self.model.attributes.qtc.questionnair_category == '2') {
                 $("#common_name").html('选项统计问卷')
-                console.log(self.model.attributes)
                 rendered_data = self.quesetionnaire_option_common_template(self.model.attributes);
-            } else {
+            } else if (self.model.attributes.qtc.questionnair_category == '3') {
                 $("#common_name").html('测验问卷')
                 rendered_data = self.quesetionnaire_test_common_template(self.model.attributes);
+            } else if (self.model.attributes.qtc.questionnair_category == '6') {
+                $("#common_name").html('投票问卷')
+                rendered_data = self.quesetionnaire_vote_common_template(self.model.attributes);
             }
 
             $("#quesetionnaire_common_list-content").html(rendered_data);
@@ -114,14 +119,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var bool = true;
             $("#quesetionnaire_common_list-content").on('change', 'input', function(event) {
                 var $changed = $(event.currentTarget);
-                if (self.model.attributes.qtc.questionnair_category == '2') {
+                var questionnair_category = self.model.attributes.qtc.questionnair_category;
+                if (questionnair_category == '2' || questionnair_category == '6') {
                     event.preventDefault();
                     // var $changed = $(event.currentTarget);
                     var qti_id = $changed.attr('id');
                     var mark = $changed.attr('mark');
                     var bool = $changed[0].checked;
                     var category_num = $changed.data('category_num');
-                    var qi = _.find(self.model.attributes.option_items, function(x) {
+
+
+                    if (questionnair_category == '2') {
+                        var option_items = self.model.attributes.option_items;
+                    } else {
+                        var option_items = self.model.attributes.vote_items;
+                    }
+
+                    var qi = _.find(option_items, function(x) {
                         return x._id == String(qti_id.split('-')[0]);
                     });
                     var num = parseInt(qti_id.split('-')[1])
@@ -130,7 +144,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             result: num
                         }]
                     } else {
-                        console.log(bool)
                         if (bool) {
                             qi.results.push({
                                 result: num
@@ -142,7 +155,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         }
                     }
                     self.model.trigger('change');
-                } else if (self.model.attributes.qtc.questionnair_category == '3') {
+                } else if (questionnair_category == '3') {
                     // var is_answer = !!$changed.attr("checked") ? true : false;
                     var is_answer = $changed[0].checked;
                     var category_id = $changed.data('category_id');
@@ -236,6 +249,30 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         self.model.save(self.model.attributes, {
                             success: function(model, response, options) {
                                 window.location = '#qt_manage';
+                            }
+                        })
+                    }
+                } else {
+                    alert("所有题目必须全部填写!");
+                    return false;
+                }
+
+
+            }).on('click', '#btn-submit_option_common_goto-save', function(event) {
+                event.preventDefault();
+                var option_num = self.model.attributes.option_items.length;
+                var bool = true;
+                _.each(self.model.attributes.option_items, function(it) {
+                    if (it.results.length == 0) {
+                        bool = false
+                    };
+                })
+                if (bool) {
+                    if (confirm('确认提交吗?')) {
+                        self.model.attributes.status = '1';
+                        self.model.save(self.model.attributes, {
+                            success: function(model, response, options) {
+                                window.location = '#quesetionnair_template';
                             }
                         })
                     }
