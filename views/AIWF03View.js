@@ -320,7 +320,6 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 var item = _.find(self.ai.attributes.quantitative_pis.items, function(x) {
                     return pi_id == x.pi;
                 });
-
                 //查找数据提供人
                 var pi_f = _.find(pis_data, function(x) {
                     return x._id == item.pi;
@@ -331,8 +330,9 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 self.item = item;
                 self.item_obj = {};
                 self.item_obj.people = self.ai.attributes.people;
+                self.item_obj.ai_status = self.ai.attributes.ai_status;
                 self.item_obj.pi = item;
-                self.item_obj.pls = pls;
+                self.item_obj.pls = pls ? pls : [];
                 self.item_obj.unit_data = unit_data;
                 self.item_obj.unit_groups = unit_groups;
                 self.item_obj.sfcs_data = sfcs_data;
@@ -357,6 +357,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 self.item = item2;
                 self.item_obj = {};
                 self.item_obj.people = self.ai.attributes.people;
+                self.item_obj.ai_status = self.ai.attributes.ai_status;
                 self.item_obj.pi = item2;
                 self.item_obj.unit_data = unit_data;
                 self.item_obj.sccs_data = sccs_data;
@@ -466,7 +467,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 pi.pi_sc_name = $(this[this.options.selectedIndex]).text();
             })
 
-            $("#ai_wf1-content").on('click', '#btn_ai_dl_pi_save,#btn_ai_dx_pi_save', function(event) {
+            $("#ai_wf1-content").on('click', '#btn_ai_dl_pi_save', function(event) {
                 event.preventDefault();
 
                 if (self.item.target_value == '' || self.item.target_value == null) {
@@ -477,6 +478,68 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 if (!self.item.weight) {
                     alert('请输入权重!');
                     return;
+                }
+
+                if ($('#unit_dl').val() == '') {
+                    alert('请选择单位!');
+                    return;
+                }
+
+                if ($('#sf_dl').val() == '') {
+                    alert('请选择计分公式!');
+                    return;
+                }
+
+                if ($('#dp_people_dl').val() == '') {
+                    alert('请选择数据提供人!');
+                    return;
+                }
+
+                //计算权重
+                self.ai.attributes.quantitative_pis.weight = 0;
+                self.ai.attributes.qualitative_pis.weight = 0;
+                _.each(self.ai.attributes.quantitative_pis.items, function(x) {
+                    self.ai.attributes.quantitative_pis.weight += parseFloat(x.weight);
+                });
+                _.each(self.ai.attributes.qualitative_pis.items, function(x) {
+                    self.ai.attributes.qualitative_pis.weight += parseFloat(x.weight);
+                });
+
+                self.ai.save().done(function() {
+                    alert('保存成功!');
+                    $.mobile.loading("show");
+                    self.pre_render();
+
+                    self.view_mode = '';
+                    self.render();
+
+                    $.mobile.loading("hide");
+                })
+            })
+
+            $("#ai_wf1-content").on('click', '#btn_ai_dx_pi_save', function(event) {
+                event.preventDefault();
+
+                if (self.item.target_value == '' || self.item.target_value == null) {
+                    alert('请输入目标值!');
+                    return;
+                }
+
+                if (!self.item.weight) {
+                    alert('请输入权重!');
+                    return;
+                }
+
+                if ($('#unit_dx').val() == '') {
+                    alert('请选择单位!');
+                    return;
+                }
+
+                if (self.item.grade_way == 'P') {
+                    if ($('#sc_dx').val() == '') {
+                        alert('请选择评分标准!');
+                        return;
+                    }
                 }
 
                 //计算权重
@@ -575,6 +638,12 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
 
             var obj = {};
             obj.ai = ai_data;
+            if (self.ai_prev.attributes.quantitative_pis || self.ai_prev.attributes.qualitative_pis) {
+                obj.ai_prev = self.ai_prev.attributes;
+            }
+            if (self.ai_super.attributes.quantitative_pis || self.ai_super.attributes.qualitative_pis) {
+                obj.ai_super = self.ai_super.attributes;
+            }
             obj.other1 = other1;
             obj.other2 = other2;
             obj.other3 = other3;

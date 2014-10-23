@@ -16,6 +16,7 @@ require.config({
     "async": "./bower_components/async/lib/async",
     "lzstring": "./bower_components/lz-string/libs/lz-string-1.3.3",
     "highcharts": "./bower_components/highcharts/highcharts-all",
+    "grouped_categories": "./libs/grouped-categories",
     "formatdate": "./libs/formatdate",
     "sparkline": "./libs/jquery.sparkline",
     "exif": "./libs/jquery.exif",
@@ -43,6 +44,7 @@ require.config({
       "deps": ["jquery"],
       "exports": 'Highcharts'
     },
+    'grouped_categories': ["highcharts"],
     "sprintf": ["jquery"],
     "sparkline": ["jquery"],
     "formatdate": ["jquery"],

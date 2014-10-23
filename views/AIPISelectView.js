@@ -261,7 +261,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             // });
 
                             self.ai_data.save().done(function() {
-                                window.location.href = self.ai_add_pi_back_url;
+                                // if(pi_ids.length == 1){
+                                //     alert();
+                                // }else{
+                                    window.location.href = self.ai_add_pi_back_url;
+                                // }
                             })
                         }
                     })
