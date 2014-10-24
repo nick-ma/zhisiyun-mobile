@@ -96,9 +96,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 				$.post(post_url, post_data, function(data) {
 					if (data.code == 'OK') {
-						window.location = '#todo';
+						window.location = '#attendance';
 					} else {
-						window.location = '#todo';
+						window.location = '#attendance';
 
 					};
 				})

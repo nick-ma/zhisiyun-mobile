@@ -2,14 +2,16 @@
 // ====================
 
 define(["jquery", "backbone", "handlebars", "lzstring", "async",
-        "../views/WorkReportListView","../views/WorkReportDetailView",
+        "../views/WorkReportListView", "../views/WorkReportDetailView",
         "../collections/WorkReportCollection",
-        "../models/WorkReportModel"
+        "../models/WorkReportModel",
+        "../collections/PeopleCollection"
     ],
     function($, Backbone, Handlebars, LZString, async,
-        WorkReportListView,WorkReportDetailView,
+        WorkReportListView, WorkReportDetailView,
         WorkReportCollection,
-        WorkReportModel
+        WorkReportModel,
+        PeopleCollection
     ) {
 
         var WorkReportRouter = Backbone.Router.extend({
@@ -34,12 +36,18 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.wrListView.pre_render();
 
                 var p_id = people_id ? people_id : $('#login_people').val();
+                self.wrListView.people_id = $('#login_people').val();
                 self.wrListView.collection.url = '/admin/pm/work_report/bb?people_id=' + p_id;
                 self.wrListView.collection.fetch().done(function() {
+                    $.mobile.loading("hide");
                     self.wrListView.render();
+
                 })
+
             },
             wrdetail: function(wr_id) {
                 var self = this;
@@ -48,10 +56,19 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     changeHash: false,
                 });
 
-                self.wrDetailView.model.id = wr_id;
-                self.wrDetailView.model.fetch().done(function(){
-                    self.wrDetailView.render();
+
+                $.mobile.loading("show");
+                self.wrDetailView.pre_render();
+                self.c_people.fetch().done(function() {
+                    self.wrDetailView.model.id = wr_id;
+                    self.wrDetailView.peoples = self.c_people.toJSON();
+                    self.wrDetailView.model.fetch().done(function() {
+                        $.mobile.loading("hide");
+                        self.wrDetailView.render();
+
+                    })
                 })
+
             },
             init_views: function() {
                 var self = this;
@@ -59,6 +76,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#wr_list-content",
                     collection: self.wrList
                 });
+
 
                 self.wrDetailView = new WorkReportDetailView({
                     el: "#wr_detail-content",
@@ -72,6 +90,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             init_collections: function() {
                 var self = this;
                 self.wrList = new WorkReportCollection();
+                self.c_people = new PeopleCollection(); //人员
             },
         });
 

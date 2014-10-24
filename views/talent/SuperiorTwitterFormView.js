@@ -174,9 +174,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 post_url = post_url.replace('<TASK_ID>', $("#superior_twitter_form-content #task_instance_id").val());
                 $.post(post_url, post_data, function(data) {
                     if (data.code == 'OK') {
-                        window.location = '#todo';
+                        window.location = '#twitter_list';
                     } else {
-                        window.location = '#todo';
+                        window.location = '#twitter_list';
 
                     }
                 })
