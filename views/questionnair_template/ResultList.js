@@ -70,7 +70,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             };
 
             var results = _.filter(group[self.current_time], function(ft) {
-                console.log(ft)
                 return ft.status == '1';
             });
             var num_sum = results.length + '/' + group[self.current_time].length;
@@ -88,7 +87,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             $("#quesetionnaire_template_result_select").html(items.join(''))
 
-
+            $("#quesetionnaire_template_result_select").prev().html(self.current_time)
 
             var tts = [];
             if (results.length) {
@@ -143,8 +142,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             $("#quesetionnaire_template_result_list-content").html(rendered_data);
             $("#quesetionnaire_template_result_list-content").trigger('create');
-
-
             for (var i = 0; i < tts.length; i++) {
                 var tis = tts[i].tis
                 var obj = {
@@ -207,6 +204,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
         },
         bind_event: function() {
+
             var self = this
             var bool = true;
             $("#quesetionnaire_template_result_list").on('change', '#quesetionnaire_template_result_select', function(event) {

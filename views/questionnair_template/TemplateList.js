@@ -85,7 +85,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var self = this;
             var rendered_data = '';
             if (self.model_view == '0') {
-                console.log(self)
                 var filters = _.filter(self.collection.toJSON(), function(qt) {
                     return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == '2'
                 })
@@ -163,7 +162,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '#my_part', function(event) { //我参与的
                 event.preventDefault();
                 $.get('/admin/pm/questionnair_template/querstionnar_instance_by_people', function(data) {
-                    console.log(data)
                     self.qtis = data
                     self.model_view = '1';
                     self.render();

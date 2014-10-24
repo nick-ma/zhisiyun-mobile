@@ -46,11 +46,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "jqmcal", "formatdate"
             var items = []
             items.push('<option value="" ' + (('' == self.mr_id) ? 'selected' : '') + '>全部</option>')
             _.each(self.mrs, function(mr) {
-
                 items.push('<option value="' + mr._id + '"  ' + ((mr._id == self.mr_id) ? 'selected' : '') + ' >' + mr.mr_name + '</option>')
             })
 
             $("#moblie_resource_set").html(items.join(''))
+            if ($("#moblie_resource_set").prev().html() == '&nbsp;') {
+                $("#moblie_resource_set").prev().html('全部')
+            };
+
+
 
             _.each(this.collection.models, function(x) {
                 var tmp = x.toJSON();
@@ -67,8 +71,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "jqmcal", "formatdate"
 
             });
             $cal.trigger('refresh');
-            // console.log(cal_events);
-
             // Maintains chainability
             return this;
 
