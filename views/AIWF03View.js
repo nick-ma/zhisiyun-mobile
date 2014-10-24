@@ -380,6 +380,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     }
 
                     self.render();
+                } else if (self.view_mode == 'sub_pi_detail') {
+                    self.view_mode = 'ai_pi_sub';
+                    self.render();
                 } else {
                     self.view_mode = '';
                     self.render();
@@ -473,7 +476,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 self.view_mode = 'ai_pi_sub';
                 self.render();
             });
-            $("#ai_wf1-content").on('change', '.ai_sub', function() {
+            $("#ai_wf1-content").on('change', '.ai_sub', function(e) {
                 var $this = $(this);
                 var up_id = $this.data('up_id');
                 if ($("#" + up_id).attr("data-cacheval") == "true") {
@@ -484,34 +487,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             });
 
             $("#ai_wf1-content").on('click', '.ai_pi_comment', function() {
-                var $this = $(this);
                 self.view_mode = 'ai_pi_comment';
-
 
                 self.render();
             });
 
-            // $("#ai_wf1-content").on('change', '.super_target_value,.super_unit,.super_weight', function() {
-            //     var $this = $(this);
-            //     var up_id = $this.data('up_id');
-            //     var target = $this.data('target');
-            //     var val = $this.val();
+            $("#ai_wf1-content").on('click', '.sub_pi_detail', function() {
+                var $this = $(this);
+                var up_id = $this.data('up_id');
 
-            //     var ai_sub = _.find(self.aiSubCollection.models, function(x) {
-            //         return x.attributes._id == up_id;
-            //     })
+                self.ai_sub = _.find(self.aiSubCollection.models,function(x){
+                    return x.attributes._id == up_id;
+                })
 
-            //     var bd_item = {};
-            //     bd_item[target] = val;
-            //     bd_item[target] = val;
-            //     bd_item[target] = val;
-
-            //     if (self.pi_type == '1') { //定量
-
-            //     } else { //定性
-
-            //     }
-            // });
+                self.view_mode = 'sub_pi_detail';
+                self.render();
+            });
 
             $("#ai_wf1-content").on('click', '#btn_add_my_pi2sub', function() {
                 var ids = [];
@@ -1083,6 +1074,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     rendered_data.unit_data = self.ai_datas.attributes.unit_data;
 
                     $("#ai_wf1-content").html(self.template(rendered_data));
+                    $("#ai_wf1-content").trigger('create');
+                } else if (self.view_mode == 'sub_pi_detail') {
+                    
+                    this.template = Handlebars.compile($("#sub_pi_detail_view").html());
+
+                    $("#ai_wf1-content").html(self.template(self.ai_sub.attributes));
                     $("#ai_wf1-content").trigger('create');
                 }
 

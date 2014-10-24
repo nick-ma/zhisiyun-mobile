@@ -5,7 +5,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 计分公式和等级组
         "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
         "../collections/AssessmentCollection", "../collections/AssessmentVCollection",
+        "../collections/PeopleCollection",
         "../models/AssessmentModel",
+        "../collections/AssessmentSubCollection",
         // views
         "../views/assessment/Home", "../views/assessment/HomeHistory",
         "../views/assessment/HomePIList",
@@ -20,7 +22,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     function($, Backbone, Handlebars, LZString,
         ScoringFormulaCollection, GradeGroupCollection,
         AssessmentCollection, AssessmentVCollection,
+        PeopleCollection,
         AssessmentModel,
+        AssessmentSubCollection,
         //views
         HomeAssessmentView, HomeAssessmentHistoryView,
         HomeAssessmentPIListView,
@@ -68,9 +72,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
                 $.mobile.loading('show');
                 self.c_assessment.fetch().done(function() {
-                    self.homeAssessmentView.render();
-                    self.homeAssessmentHistoryView.render();
-                    $.mobile.loading('hide');
+                    self.c_people.fetch().done(function() {
+                        self.homeAssessmentView.c_people = self.c_people;
+                        self.homeAssessmentView.c_assessment_sub = self.c_assessment_sub;
+                        self.homeAssessmentView.homeAssessmentHistoryView = self.homeAssessmentHistoryView;
+                        
+                        self.homeAssessmentView.render();
+                        self.homeAssessmentHistoryView.render();
+                        $.mobile.loading('hide');
+                    })
                 })
 
             },
@@ -271,6 +281,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 this.c_assessment_v = new AssessmentVCollection(); //考核计划-版本
                 this.c_scoringformula = new ScoringFormulaCollection(); //计分公式
                 this.c_gradegroup = new GradeGroupCollection(); //等级组
+                this.c_people = new PeopleCollection();
+                this.c_assessment_sub = new AssessmentSubCollection(); //考核计划-下属
             },
             bind_events: function() {
                 var self = this;
