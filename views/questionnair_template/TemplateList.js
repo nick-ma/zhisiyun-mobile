@@ -128,11 +128,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     qt_name: '新建的选项统计问卷' + (self.collection.length + 1),
                     questionnair_category: '2',
                 };
+                $.mobile.loading("show");
                 var qt = self.collection.add(new_qt);
                 qt.url = '/admin/pm/questionnair_template/common_bb/' + null
                 qt.save(qt.attributes, {
                     success: function(model, response, options) {
                         var url = "#quesetionnair_template/" + model.get("_id");
+                        $.mobile.loading("hide");
                         window.location.href = url;
                     }
                 })
@@ -182,8 +184,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var qt_id = $(this).data('qt_id');
                 var qti = self.collection.get(qt_id);
                 if (confirm('确定删除吗 ？')) {
+                    $.mobile.loading("show");
                     qti.destroy({
                         success: function() {
+                            $.mobile.loading("hide");
                             alert('删除成功!')
                             self.collection.fetch().done(function() {
                                 self.render();
@@ -202,8 +206,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 delete qti.id;
                 delete qti.attributes._id;
                 if (confirm('确定克隆吗 ？')) {
+                    $.mobile.loading("show");
                     qti.save(qti.attributes, {
                         success: function(model, response, options) {
+                            $.mobile.loading("hide");
                             alert('克隆成功!');
                             self.collection.fetch().done(function() {
                                 self.render();
