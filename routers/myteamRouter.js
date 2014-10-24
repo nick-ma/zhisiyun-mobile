@@ -87,8 +87,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     self.myTeamDetailLeftView.people_id = people_id;
                     self.myTeamDetailLeftView.render();
                 };
+
                 if (tab == 'basic') {
-                    //工作报告返回
+                    //返回路径
                     localStorage.setItem('wr_list_back_url', window.location.href);
                     $("body").pagecontainer("change", "#myteam_detail-basic", {
                         reverse: false,
@@ -186,6 +187,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         changeHash: false,
                     });
 
+                    $("#myteam_detail-task-back-url").attr('href', '#myteam_detail/'+people_id+'/basic');
                 } else if (tab == 'assessment') { //下属的绩效
                     $("body").pagecontainer("change", "#myteam_detail-assessment", {
                         reverse: false,
