@@ -26,17 +26,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
 
     //1:人员 频次 look type
-    Handlebars.registerHelper('eq_people', function(data, data1, data2, data3, options) {
+    Handlebars.registerHelper('eq_people', function(data, data1, options) {
         var login_people = $('#login_people').val();
 
-        if (data3 == 'J') {
+        if (data1 == 'J') {
 
-            if (data == login_people && data1 > 0 && data2) {
+            if (data == login_people) {
                 return options.fn(this);
             } else {
                 return options.inverse(this);
             }
-        } else if (data3 == 'F') {
+        } else if (data1 == 'F') {
             if (data == login_people) {
                 return options.fn(this);
             } else {
@@ -44,7 +44,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }
 
 
-        } else if (data3 == 'S') {
+        } else if (data1 == 'S') {
             if (data == login_people && data1 == 0) {
                 return options.fn(this);
             } else {
@@ -67,6 +67,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // The View Constructor
         initialize: function() {
             this.quesetionnaire_template = Handlebars.compile($("#quesetionnaire_template_list_view").html());
+            this.quesetionnaire_template_join = Handlebars.compile($("#quesetionnaire_template_list_join_view").html());
+            this.quesetionnaire_template_on = Handlebars.compile($("#quesetionnaire_template_list_on_view").html());
+
             this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.model_view = '0';
             this.qtis = [];
@@ -93,16 +96,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 });
 
             } else if (self.model_view == '1') {
-
-
-
                 var filters = _.filter(self.collection.toJSON(), function(qt) {
                     var f_d = _.find(self.qtis, function(q) {
                         return q.qtc == qt._id
                     })
                     return f_d && qt.questionnair_category == '2'
                 })
-                rendered_data = self.quesetionnaire_template({
+                rendered_data = self.quesetionnaire_template_join({
                     qts: sort_items(filters)
                 });
 
@@ -111,7 +111,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var filters = _.filter(self.collection.toJSON(), function(st) {
                     return st.questionnair_category == '2' && st.frequency_of_usage == 0
                 })
-                rendered_data = self.quesetionnaire_template({
+                rendered_data = self.quesetionnaire_template_on({
                     qts: sort_items(filters)
                 });
             }
