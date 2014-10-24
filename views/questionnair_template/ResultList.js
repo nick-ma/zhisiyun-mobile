@@ -58,6 +58,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
+            var rendered_data = '';
             var group = _.groupBy(self.qtis, function(qt) {
                 return moment(qt.lastDate).format('YYYY-MM-DD')
             })
@@ -68,7 +69,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 self.current_time = _.last(sorts);
             };
 
-            var results = group[self.current_time];
+            var results = _.filter(group[self.current_time], function(ft) {
+                console.log(ft)
+                return ft.status == '1';
+            });
+            var num_sum = results.length + '/' + group[self.current_time].length;
+
+
             var items = []
             _.each(sorts.reverse(), function(k) {
                 if (self.current_time == k) {
@@ -81,9 +88,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             $("#quesetionnaire_template_result_select").html(items.join(''))
 
+
+
+            var tts = [];
             if (results.length) {
-
-
                 //列表
                 var qtis = results[0].option_items
                 var items = []
@@ -103,7 +111,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     items.push(obj)
                 };
 
-                var tts = [];
+
                 for (var i = 0; i < items.length; i++) {
                     var options = items[i].option;
                     var results = items[i].results;
@@ -125,43 +133,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                     tts.push(o);
                 };
-
-                console.log(tts)
-
-
-
-                // if (tts.length > 0) {
-                //     var trs = []
-                //     _.each(tts, function(tt) {
-                //         trs.push('<li class="ui-field-contain">');
-                //         trs.push('<span class="label-info">题目</span><span  class="m-ud-0p2em">' + tt.qt + '</span>')
-                //         _.each(tt.tis, function(t) {
-                //             trs.push('<div class="ui-grid-b">');
-                //             trs.push('<div class="ui-block-a" style="width:5%;vertical-align:middle;text-align:right"></div>');
-                //             trs.push('<div class="ui-block-b" style="width:90%;vertical-align:middle;">');
-                //             trs.push('<p style="font-size: 15px;">  <span class="label-success"> 选 项</span><span  class="m-ud-0p2em">' + t.op + '<span></p></div>')
-                //             trs.push('</div>');
-
-                //             trs.push('<div class="ui-grid-a">');
-                //             trs.push('<div class="ui-block-a" style="width:40%;vertical-align:middle;text-align:right">数 量: ' + t.num + '</div>');
-                //             trs.push('<div class="ui-block-b" style="width:50%;vertical-align:middle;text-align:right">占 比: ' + forcechangeTwoDecimal(t.num / tt.sum * 100) + '%</div>');
-                //             trs.push('</div>');
-                //         })
-
-                //         trs.push('</li>')
-
-                //     })
-                // }
-
-                // $("#quesetionnaire_template_result_num_list").html(trs.join(''));
-
             }
             rendered_data = self.quesetionnaire_template_rssult({
+                qt_name: self.qtis[0].qt_name,
+                num_sum: num_sum,
                 tts: tts
             });
+
+
             $("#quesetionnaire_template_result_list-content").html(rendered_data);
             $("#quesetionnaire_template_result_list-content").trigger('create');
-
 
 
             for (var i = 0; i < tts.length; i++) {
@@ -203,7 +184,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         href: '',
                         text: 'www.zhisiyun.com'
                     },
-                      
+
                     plotOptions: {
                         pie: {
                             allowPointSelect: true,
@@ -218,8 +199,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     },
                     series: [obj]
                 });
-
-
             };
 
 
@@ -230,12 +209,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         bind_event: function() {
             var self = this
             var bool = true;
-            $("#quesetionnaire_template_result_list").on('click', '#show_peoples', function(event) {
-                // $.mobile.loading("show");
-                // self.model_view = '1';
-                // self.render();
-                // $.mobile.loading("hide");
-            }).on('change', '#quesetionnaire_template_result_select', function(event) {
+            $("#quesetionnaire_template_result_list").on('change', '#quesetionnaire_template_result_select', function(event) {
                 $("#quesetionnaire_template_result_num_list").html('');
                 $("#quesetionnaire_template_result_container").html("");
                 self.current_time = $(this).val();

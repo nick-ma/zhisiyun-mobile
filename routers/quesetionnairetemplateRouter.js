@@ -94,7 +94,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 // self.resultList.pre_render();
                 var find_data = {
                     q_category: '2',
-                    qtc: qt_id
+                    qtc: qt_id,
+                    type: 'N'
+
                 }
                 $.post('/admin/pm/questionnair_template/get_qt_instances', find_data, function(data) {
                     self.resultList.qtis = data.result
