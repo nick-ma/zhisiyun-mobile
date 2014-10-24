@@ -170,6 +170,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         if (data.code == 'OK') {
                             $.mobile.loading("hide");
                             alert('问卷发布成功！')
+                            window.location.href = '#quesetionnair_template'
+
                         };
                     }).fail(function() {
                         $.mobile.loading("hide");
