@@ -39,7 +39,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         return parseFloat(data).toFixed(2);
     });
     Handlebars.registerHelper("my_result", function(result, options) {
-        return options[result].option;
+        var msps = _.map(result, function(rt) {
+            return options[rt.result].option;
+        })
+        return msps;
     });
 
 
@@ -354,6 +357,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             qt.pc = f_d.pc
                         })
                     })
+                    console.log(q_insatnce)
                     $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_survey_template(q_insatnce));
                     $("#quesetionnaire_manage_list-content").trigger('create');
                 })
