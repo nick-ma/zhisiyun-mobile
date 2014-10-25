@@ -89,7 +89,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '.btn_add_option', function(event) {
                 event.preventDefault();
                 var qti_id = $(this).data('qti_id')
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
+                var f_qti = _.find(self.model.get('vote_items'), function(op) {
                     return op._id == qti_id
                 })
                 var option = {};
@@ -102,7 +102,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 event.preventDefault();
                 var qti_id = $(this).data('qti_id');
                 var option_id = $(this).data('option_id');
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
+                var f_qti = _.find(self.model.get('vote_items'), function(op) {
                     return op._id == qti_id
                 })
                 f_qti.qti_options = _.filter(f_qti.qti_options, function(qt) {
@@ -116,7 +116,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var qti_id = $(this).data('qti_id');
                 var option_id = $(this).data('option_id');
                 if (!_.isUndefined(option_id)) {
-                    var f_qti = _.find(self.model.get('option_items'), function(op) {
+                    var f_qti = _.find(self.model.get('vote_items'), function(op) {
                         return op._id == qti_id
                     })
                     f_op = _.find(f_qti.qti_options, function(qt) {
@@ -126,7 +126,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 } else if (!_.isUndefined(qt_id)) {
                     self.model.set('qt_name', $(this).val())
                 } else {
-                    var f_qti = _.find(self.model.get('option_items'), function(op) {
+                    var f_qti = _.find(self.model.get('vote_items'), function(op) {
                         return op._id == qti_id
                     })
                     f_qti.qti_name = $(this).val()
@@ -174,7 +174,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var qti_id = $(this).data('qti_id');
                 var field = $(this).data('field');
                 if (!_.isUndefined(qti_id)) {
-                    var f_qti = _.find(self.model.get('option_items'), function(op) {
+                    var f_qti = _.find(self.model.get('vote_items'), function(op) {
                         return op._id == qti_id
                     })
                     f_qti.qti_type = ($(this).val() == 'false' ? '1' : '2')

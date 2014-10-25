@@ -133,7 +133,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             return s.status == state;
                         });
                     } else {
-                        var nums = ['3', '4', '5', '6']
+                        var nums = ['3', '4', '5', '6', '7']
                         var mbtis = _.filter(self.collection.toJSON(), function(x) {
                             return !!~nums.indexOf(x.mark);
                         });
@@ -162,7 +162,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $("#quesetionnaire_manage_list-content").trigger('create');
                 $("#show_tip").html('没有已提交问卷！')
             } else if (self.view_mode == '3') {
-                var nums = ['3', '4', '5', '6']
+                var nums = ['3', '4', '5', '6', '7']
                 var mbtis = _.filter(data_items, function(x) {
                     return !!~nums.indexOf(x.mark);
                 });
@@ -213,8 +213,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     })
                 };
 
+
+
                 obj.datas = _.flatten([q_items, mbtis], true);
 
+
+                console.log(mbtis)
                 $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_my_manage_template(obj));
                 $("#quesetionnaire_manage_list-content").trigger('create');
             } else if (self.view_mode == '4') {
@@ -407,8 +411,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     var operation_id = $(this).data('operation_id');
                     self.operation_id = operation_id;
                     if (mark == '3') {
+
                         self.view_mode = '5';
                         self.render();
+                    } else if (mark == '7') {
+                        window.location.href = '#godo/' + $(this).data('operation_id') + '/' + type
                     } else {
                         self.view_mode = '6';
                         self.render();
