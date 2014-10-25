@@ -12,6 +12,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         })
     }
 
+    Handlebars.registerHelper('percent_num', function(data, data2) {
+
+
+        return forcechangeTwoDecimal(data / data2 * 100)
+    });
+
     function forcechangeTwoDecimal(x) {
         var f_x = parseFloat(x);
         if (isNaN(f_x)) {
@@ -52,6 +58,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
+            var rendered_data = '';
             var group = _.groupBy(self.qtis, function(qt) {
                 return moment(qt.lastDate).format('YYYY-MM-DD')
             })
@@ -62,7 +69,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 self.current_time = _.last(sorts);
             };
 
-            var results = group[self.current_time];
+            var results = _.filter(group[self.current_time], function(ft) {
+                return ft.status == '1';
+            });
+            var num_sum = results.length + '/' + group[self.current_time].length;
+
+
             var items = []
             _.each(sorts.reverse(), function(k) {
                 if (self.current_time == k) {
@@ -75,9 +87,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             $("#quesetionnaire_template_result_select").html(items.join(''))
 
+            $("#quesetionnaire_template_result_select").prev().html(self.current_time)
+
+            var tts = [];
             if (results.length) {
-
-
                 //列表
                 var qtis = results[0].option_items
                 var items = []
@@ -97,9 +110,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     items.push(obj)
                 };
 
-                var tts = [];
-                var categories = [];
-                var data = [];
+
                 for (var i = 0; i < items.length; i++) {
                     var options = items[i].option;
                     var results = items[i].results;
@@ -108,45 +119,58 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         tis: [],
                         sum: 0,
                     }
-                    var c_obj = {
-                        name: items[i].qt,
-                        categories: [],
-                    }
                     for (var j = 0; j < options.length; j++) {
                         var filtes = _.filter(results, function(op) {
                             return op == j
                         })
                         o.sum += filtes.length;
-                        c_obj.categories.push(options[j].option);
-                        data.push(filtes.length)
                         o.tis.push({
                             op: options[j].option,
-                            num: filtes.length
+                            op_num: filtes.length
                         })
                     };
 
                     tts.push(o);
-                    categories.push(c_obj)
                 };
+            }
+            rendered_data = self.quesetionnaire_template_rssult({
+                qt_name: self.qtis[0].qt_name,
+                num_sum: num_sum,
+                tts: tts
+            });
 
-                console.log(categories)
-                console.log(data)
+
+            $("#quesetionnaire_template_result_list-content").html(rendered_data);
+            $("#quesetionnaire_template_result_list-content").trigger('create');
+            for (var i = 0; i < tts.length; i++) {
+                var tis = tts[i].tis
+                var obj = {
+                    type: 'pie',
+                    name: tts[i].qt,
+                    data: []
+                }
+
+                for (var j = 0; j < tis.length; j++) {
+
+                    obj.data.push([tis[j].op, tis[j].op_num])
+                };
 
                 var chart = new Highcharts.Chart({
                     chart: {
-                        renderTo: "quesetionnaire_template_result_container",
-                        type: "column"
+                        renderTo: "chart_" + i,
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false
                     },
-
                     title: {
-                        text: results[0].qt_name,
+                        text: tts[i].qt
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
                     },
                     exporting: {
                         enabled: false
                     },
-                    series: [{
-                        data: data
-                    }],
                     credits: {
                         enabled: true,
                         style: {
@@ -157,62 +181,33 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         href: '',
                         text: 'www.zhisiyun.com'
                     },
-                    yAxis: {
-                        title: {
-                            enabled: false
+
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                color: '#000000',
+                                connectorColor: '#000000',
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                            }
                         }
                     },
-                    legend: {
-                        enabled: false
-                    },
-                    xAxis: {
-                        categories: categories
-                    }
+                    series: [obj]
                 });
-                // var chart = new Highcharts.Chart(sc_option);
+            };
 
 
 
-                if (tts.length > 0) {
-                    var trs = []
-                    _.each(tts, function(tt) {
-                        trs.push('<li class="ui-field-contain">');
-                        trs.push('<span class="label-info">题目</span><span  class="m-ud-0p2em">' + tt.qt + '</span>')
-                        _.each(tt.tis, function(t) {
-                            trs.push('<div class="ui-grid-b">');
-                            trs.push('<div class="ui-block-a" style="width:5%;vertical-align:middle;text-align:right"></div>');
-                            trs.push('<div class="ui-block-b" style="width:90%;vertical-align:middle;">');
-                            trs.push('<p style="font-size: 15px;">  <span class="label-success"> 选 项</span><span  class="m-ud-0p2em">' + t.op + '<span></p></div>')
-                            trs.push('</div>');
-
-                            trs.push('<div class="ui-grid-a">');
-                            trs.push('<div class="ui-block-a" style="width:40%;vertical-align:middle;text-align:right">个数: ' + t.num + '</div>');
-                            trs.push('<div class="ui-block-b" style="width:50%;vertical-align:middle;text-align:right">占比: ' + forcechangeTwoDecimal(t.num / tt.sum * 100) + '%</div>');
-                            trs.push('</div>');
-                        })
-
-                        trs.push('</li>')
-
-                    })
-                }
-
-                $("#quesetionnaire_template_result_num_list").html(trs.join(''));
-
-            } else {
-                $("#quesetionnaire_template_result_container").html("<h2>没有找到问卷数据</h2>");
-            }
             return self;
 
         },
         bind_event: function() {
+
             var self = this
             var bool = true;
-            $("#quesetionnaire_template_result_list").on('click', '#show_peoples', function(event) {
-                // $.mobile.loading("show");
-                // self.model_view = '1';
-                // self.render();
-                // $.mobile.loading("hide");
-            }).on('change', '#quesetionnaire_template_result_select', function(event) {
+            $("#quesetionnaire_template_result_list").on('change', '#quesetionnaire_template_result_select', function(event) {
                 $("#quesetionnaire_template_result_num_list").html('');
                 $("#quesetionnaire_template_result_container").html("");
                 self.current_time = $(this).val();
