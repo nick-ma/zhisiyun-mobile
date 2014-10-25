@@ -181,7 +181,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         text: tts[i].qt
                     },
                     tooltip: {
-                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        pointFormat: '<b>{point.percentage:.1f}%</b>'
                     },
                     exporting: {
                         enabled: false
@@ -202,11 +202,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
-                                color: '#000000',
-                                connectorColor: '#000000',
-                                format: '<b>{point.name}</b>: {point.percentage:.1f} %'
-                            }
+                                enabled: false
+                            },
+                            showInLegend: true
                         }
                     },
                     series: [obj]

@@ -60,6 +60,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 $.mobile.loading("show");
                 self.templateEditList.pre_render();
+                
                 self.questionnairTemplateClient.id = qt_id
                 self.questionnairTemplateClient.fetch().done(function() {
                     self.templateEditList.render();
