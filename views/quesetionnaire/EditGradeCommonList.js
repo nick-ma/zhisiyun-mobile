@@ -258,6 +258,30 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 }
 
 
+            }).on('click', '#btn-submit_option_common_goto-save', function(event) {
+                event.preventDefault();
+                var option_num = self.model.attributes.option_items.length;
+                var bool = true;
+                _.each(self.model.attributes.option_items, function(it) {
+                    if (it.results.length == 0) {
+                        bool = false
+                    };
+                })
+                if (bool) {
+                    if (confirm('确认提交吗?')) {
+                        self.model.attributes.status = '1';
+                        self.model.save(self.model.attributes, {
+                            success: function(model, response, options) {
+                                window.location = '#quesetionnair_template';
+                            }
+                        })
+                    }
+                } else {
+                    alert("所有题目必须全部填写!");
+                    return false;
+                }
+
+
             }).on('click', '#btn-submit_test_common-save', function(event) {
                 event.preventDefault();
                 var valid = true;
