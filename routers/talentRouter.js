@@ -427,6 +427,17 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             cb(null, 'OK')
                         })
                     },
+                    people_mentor: function(cb) { //默认上级是导师
+                        var obj = {
+                            plan_id: plan_id
+                        };
+                        $.post('/admin/pm/talent_develope/get_plan_people_superior', obj, function(data) {
+                            if (data.code == 'OK') {
+                                self.DevelopePlanDetailListView.mentor_data = data.msg;
+                            }
+                            cb(null, 'OK')
+                        })
+                    }
 
                 }, function(err, result) {
                     self.DevelopePlanDetailListView.c_people = self.c_people; //人员数据

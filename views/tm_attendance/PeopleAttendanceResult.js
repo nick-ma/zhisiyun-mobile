@@ -25,7 +25,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var filter_data = _.sortBy(_.filter(data, function(temp) {
 					temp.format_time = moment(temp.job_date).format("YYYYMMDD");
 					var is_normal = !!~temp.work_result.indexOf("CC") && !!~temp.work_result.indexOf("CL");
-					if ((!!~temp.work_result.indexOf("NCM") || !!~temp.work_result.indexOf("NCA")) && !is_normal) {
+					if ((!!~temp.work_result.indexOf("NCM") || !!~temp.work_result.indexOf("NCA")) && !is_normal && moment(temp.job_date).isBefore(new Date())) {
 						temp.attendance_diff = true;
 					} else {
 						temp.attendance_diff = false;

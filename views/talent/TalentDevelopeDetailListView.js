@@ -4,7 +4,8 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "async"],
     function($, _, Backbone, Handlebars, async) {
-        var pri_state = 's';
+        var pri_state = 's',
+            select_state = 3;
 
         function get_data(id, talent) {
             var found = _.find(talent, function(temp) {
@@ -63,7 +64,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
             render: function() {
 
                 var self = this;
-                var state = self.state || 3;
+                var state = self.state || select_state;
                 var pass = (self.pass == "true") ? "true" : String($("#talent_develope_detail-basic-left-panel #talent_result").val());
                 var talent_mentor = localStorage.getItem("TalentMentor");
                 var talent_data = _.map(self.collection.models, function(x) {
@@ -163,13 +164,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                 var ts_count_all = _.countBy(talent_data[0].plan_divide, function(x) {
                     return x.all_state;
                 });
-                _.each($("#talent_develope_detail-basic-left-panel label"), function(x) {
+                _.each($("#talent_develope_detail_list button.plan_state"), function(x) {
                     // console.log(x);
                     if ($(x).data('state') == '3') {
-                        $(x).find('span').html(ts_count_all[$(x).data('state')] || 0);
+                        $(x).find('i').html(ts_count_all[$(x).data('state')] || 0);
 
                     } else {
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                        $(x).find('i').html(ts_count[$(x).data('state')] || 0);
 
                     }
 
@@ -177,8 +178,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                 obj.talent_data.plan_divide = _.filter(obj.talent_data.plan_divide, function(temp) {
                     if (pass == "false") {
                         var bool = temp.pass == null || temp.pass == false
-                    } else {
+                    } else if (pass == 'true') {
                         var bool = temp.pass == true;
+                    } else {
+                        var bool = true;
                     }
                     if (state == '3') {
                         var bool2 = true;
@@ -340,7 +343,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                                 'plan_e': moment(periodTo).subtract('d', 1),
                                 'creator': $("#login_people").val(),
                                 'create_time': new Date(),
-                                'check_people': $("#login_people").val()
+                                'check_people': $("#login_people").val(),
+                                'mentor': self.mentor_data
                             }
                             self.collection.models[0].attributes.plan_divide.push(obj);
                             self.collection.models[0].save(self.collection.models[0].attributes, {
@@ -364,7 +368,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                                 'plan_e': moment(new Date()).add('d', 15),
                                 'creator': $("#login_people").val(),
                                 'create_time': new Date(),
-                                'check_people': $("#login_people").val()
+                                'check_people': $("#login_people").val(),
+                                'mentor': self.mentor_data
+
 
 
                             }
@@ -471,17 +477,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             alert("内部服务器错误,请联系系统管理员!")
                         }
                     })
-                }).on('change', '#talent_develope_detail-basic-left-panel input[name=state]', function(event) {
-                    event.preventDefault();
-                    var $this = $(this);
-                    self.state = $this.val();
-                    self.pass = $("#talent_develope_detail-basic-left-panel #talent_result").val();
-                    var plan_id = self.collection.models[0].attributes._id;
-                    self.collection.fetch();
-                    self.render();
-                    $("#talent_develope_detail-basic-left-panel").panel("close");
-                    $.mobile.loading("hide");
-                }).on('change', '#talent_develope_detail-basic-left-panel select', function(event) {
+                })
+                // .on('change', '#talent_develope_detail-basic-left-panel input[name=state]', function(event) {
+                //     event.preventDefault();
+                //     var $this = $(this);
+                //     self.state = $this.val();
+                //     self.pass = $("#talent_develope_detail-basic-left-panel #talent_result").val();
+                //     var plan_id = self.collection.models[0].attributes._id;
+                //     self.collection.fetch();
+                //     self.render();
+                //     $("#talent_develope_detail-basic-left-panel").panel("close");
+                //     $.mobile.loading("hide");
+                // })
+                .on('change', '#talent_develope_detail-basic-left-panel select', function(event) {
                     event.preventDefault();
                     var $this = $(this);
                     var is_pass = $this.val();
@@ -494,6 +502,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     $("#talent_develope_detail-basic-left-panel").panel("close");
                     $.mobile.loading("hide");
                 })
+                    .on('click', '.plan_state', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        select_state = $this.data("state")
+                        self.state = $this.data("state");
+                        self.pass = $("#talent_develope_detail-basic-left-panel #talent_result").val();
+                        var plan_id = self.collection.models[0].attributes._id;
+                        self.collection.fetch();
+                        self.render();
+                        // $("#talent_develope_detail-basic-left-panel").panel("close");
+                        $.mobile.loading("hide");
+                    })
 
             }
 
