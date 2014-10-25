@@ -262,10 +262,19 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 } else if (self.view_mode == 'attachment') {
                     $("#talent_develope_detail_operation_title").html("相关附件")
                     //附件数据
-                    if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
-                        var item = JSON.parse(localStorage.getItem('upload_model_back')).model;
+                    if (localStorage.getItem('upload_model_back') || localStorage.getItem('detail_upload_model_back')) { //有从上传页面发回来的数据
+                        if (localStorage.getItem('upload_model_back')) {
+                            var item = JSON.parse(localStorage.getItem('upload_model_back')).model
+                        } else {
+                            var item = JSON.parse(localStorage.getItem('detail_upload_model_back')).model;
+
+                        }
                         var attachments = item.attachments;
-                        // localStorage.removeItem('upload_model_back'); //用完删掉
+                        if (localStorage.getItem('upload_model_back') && localStorage.getItem('upload_model_back') != "null") {
+                            localStorage.setItem("detail_upload_model_back", localStorage.getItem('upload_model_back'))
+
+                        }
+                        localStorage.removeItem('upload_model_back'); //用完删掉
                         var plan_id = item.plan_id;
                         _.each(attachments, function(temp) {
                             var find_attachment = _.find(obj.divide_data.attachments, function(x) {
@@ -306,10 +315,20 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     obj.single_course = single_course;
                     obj.course_id = self.course_id;
                     //附件数据
-                    if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
-                        var item = JSON.parse(localStorage.getItem('upload_model_back')).model;
+                    if (localStorage.getItem('upload_model_back') || localStorage.getItem('course_upload_model_back')) { //有从上传页面发回来的数据
+                        if (localStorage.getItem('upload_model_back')) {
+                            var item = JSON.parse(localStorage.getItem('upload_model_back')).model
+                        } else {
+                            var item = JSON.parse(localStorage.getItem('course_upload_model_back')).model;
+
+                        }
+                        if (localStorage.getItem('upload_model_back') && localStorage.getItem('upload_model_back') != "null") {
+                            localStorage.setItem("course_upload_model_back", localStorage.getItem('upload_model_back'))
+
+                        }
+                        localStorage.removeItem('upload_model_back'); //用完删掉
+
                         var attachments = item.attachments;
-                        // localStorage.removeItem('upload_model_back'); //用完删掉
                         var plan_id = item.plan_id;
                         _.each(attachments, function(temp) {
                             var find_attachment = _.find(obj.single_course.course_data.attachments, function(x) {
@@ -322,6 +341,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 })
                             }
                         })
+
                         single_course.course_data.attachments = obj.single_course.course_data.attachments;
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
@@ -400,12 +420,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 }).on('swiperight', function(event) { //向右滑动，打开左边的面板
                     event.preventDefault();
                     $("#talent_develope_detail_operation-basic-left-panel").panel("open");
-                }).on('click', '.ui-btn-icon-left', function(event) {
+                }).on('click', '.change_view', function(event) {
                     event.preventDefault();
                     var view_mode = $(this).data("view_mode");
                     self.view_mode = view_mode;
                     self.render();
-                    $("#talent_develope_detail_operation-basic-left-panel").panel("close");
+                    // $("#talent_develope_detail_operation-basic-left-panel").panel("close");
 
                     //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                     $(".ui-flipswitch a").each(function() {
@@ -500,8 +520,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     localStorage.setItem('course_helper_back', null);
                     localStorage.setItem('sp_helper', null);
                     localStorage.setItem('course_helper', null);
+                    localStorage.removeItem('upload_model_back');
                     $("#talent_develope_detail_operation-basic-left-panel").panel("close");
-                    // self.render();
+                    self.render();
                     $.mobile.loading("hide");
                 }).on('click', '#btn_save', function(event) {
                     var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;

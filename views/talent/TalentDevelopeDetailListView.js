@@ -5,7 +5,9 @@
 define(["jquery", "underscore", "backbone", "handlebars", "async"],
     function($, _, Backbone, Handlebars, async) {
         var pri_state = 's',
-            select_state = 3;
+            select_state = 3,
+            plan_s_change = false,
+            plan_e_change = false;
 
         function get_data(id, talent) {
             var found = _.find(talent, function(temp) {
@@ -33,6 +35,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                 'des_career_name': temp_data.des_career_name,
                 'des_position': temp_data.des_position,
                 'des_position_name': temp_data.des_position_name,
+                'plan_s': $("#talent_develope_detail_list #plan_s").val(),
+                'plan_e': $("#talent_develope_detail_list #plan_e").val()
             });
             var post_data = 'require_data=' + JSON.stringify(require_data);
             post_data += '&tag=' + tag;
@@ -185,7 +189,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     }
                     if (state == '3') {
                         var bool2 = true;
-                        return bool2
+                        return bool2 && bool
                     } else {
                         return temp.state == state && bool
                     }
@@ -400,9 +404,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
                             self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                            self.collection.fetch();
-                            alert("数据保存成功!")
-                            self.render();
+                            self.collection.fetch().done(function() {
+                                alert("数据保存成功!")
+                                self.render();
+                                var temp_data = self.collection.models[0].attributes;
+                                if (plan_s_change) {
+                                    im_send(temp_data, 'plan_s_change', divide_id);
+
+                                } else if (plan_e_change) {
+                                    im_send(temp_data, 'plan_e_change', divide_id);
+
+                                }
+
+                            });
+
                         },
                         error: function(model, xhr, options) {
                             alert("内部服务器错误,请联系系统管理员!")
@@ -427,14 +442,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             alert('计划分解开始时间需小于于计划束时间')
 
                         } else {
+                            if (format(filter_plan_data.plan_s) != String(format(date))) {
+                                plan_s_change = true;
+                            } else {
+                                plan_s_change = false;
+                            }
                             filter_plan_data[field] = date;
 
                         }
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                self.render();
+                                self.collection.fetch().done(function() {
+                                    self.render();
+                                });
+
+
                             },
                             error: function(model, xhr, options) {
                                 alert("内部服务器错误,请联系系统管理员!")
@@ -447,14 +470,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                             alert('计划分解结束时间需大于计划开始时间')
 
                         } else {
+                            if (format(filter_plan_data.plan_s) != String(format(date))) {
+                                plan_e_change = true;
+                            } else {
+                                plan_e_change = false;
+                            }
+
                             filter_plan_data[field] = date;
 
                         }
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch();
-                                self.render();
+                                self.collection.fetch().done(function() {
+                                    self.render();
+
+                                });
                             },
                             error: function(model, xhr, options) {
                                 alert("内部服务器错误,请联系系统管理员!")
@@ -505,6 +536,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                     .on('click', '.plan_state', function(event) {
                         event.preventDefault();
                         var $this = $(this);
+                        _.each($("#talent_develope_detail_list button.plan_state"), function(x) {
+                            $(x).removeClass('ui-btn-active');
+                        })
+                        $(this).addClass('ui-btn-active');
                         select_state = $this.data("state")
                         self.state = $this.data("state");
                         self.pass = $("#talent_develope_detail-basic-left-panel #talent_result").val();
