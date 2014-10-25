@@ -34,7 +34,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             //附件数据
             if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
                 var back_obj = JSON.parse(localStorage.getItem('upload_model_back')).model;
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
+                var f_qti = _.find(self.model.get('vote_items'), function(op) {
                     return op._id == back_obj.qti_id
                 })
                 var f_d = _.find(f_qti.qti_options, function(qt) {
@@ -82,7 +82,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $this = $(this);
                 event.preventDefault();
                 var qti_id = $this.data('qti_id')
-                self.model.attributes.option_items = _.filter(self.model.get('option_items'), function(op) {
+                self.model.attributes.vote_items = _.filter(self.model.get('vote_items'), function(op) {
                     return op._id != qti_id
                 })
                 save_data(self)
@@ -202,7 +202,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 save_data(self)
                 var qti_id = $(this).data('qti_id');
                 var option_id = $(this).data('option_id');
-                var f_qti = _.find(self.model.get('option_items'), function(op) {
+                var f_qti = _.find(self.model.get('vote_items'), function(op) {
                     return op._id == qti_id
                 })
                 var f_d = _.find(f_qti.qti_options, function(qt) {
