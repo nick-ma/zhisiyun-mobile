@@ -71,6 +71,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.quesetionnaire_template_on = Handlebars.compile($("#quesetionnaire_template_list_on_view").html());
 
             this.loading_template = Handlebars.compile($("#loading_template_view").html());
+            this.collection.on("sync", this.render, this);
             this.model_view = '0';
             this.qtis = [];
             this.bind_event();
@@ -140,6 +141,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         var url = "#quesetionnair_template/" + model.get("_id");
                         $.mobile.loading("hide");
                         window.location.href = url;
+
                     }
                 })
             }).on('click', '.open-left-panel', function(event) {
@@ -189,6 +191,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var qti = self.collection.get(qt_id);
                 if (confirm('确定删除吗 ？')) {
                     $.mobile.loading("show");
+                    qti.url = "/admin/pm/questionnair_template/common_bb/" + qt_id
                     qti.destroy({
                         success: function() {
                             $.mobile.loading("hide");
