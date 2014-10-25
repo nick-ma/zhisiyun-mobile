@@ -100,6 +100,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 }
                 $.post('/admin/pm/questionnair_template/get_qt_instances', find_data, function(data) {
                     self.resultList.qtis = data.result
+                    self.resultList.people = $('#login_people').val();
                     self.resultList.render();
                     $.mobile.loading("hide");
                 })

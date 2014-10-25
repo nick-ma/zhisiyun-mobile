@@ -59,6 +59,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         render: function() {
             var self = this;
             var rendered_data = '';
+
+
             var group = _.groupBy(self.qtis, function(qt) {
                 return moment(qt.lastDate).format('YYYY-MM-DD')
             })
@@ -72,6 +74,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var results = _.filter(group[self.current_time], function(ft) {
                 return ft.status == '1';
             });
+
+            var f_pp = _.find(results, function(rt) {
+                return rt.people._id == self.people
+            })
+
+            var my_result = [];
+            if (f_pp) {
+                _.each(_.first(f_pp.vote_items).results, function(rt) {
+                    my_result.push(_.first(f_pp.vote_items).qti_options[rt.result].option)
+                })
+            };
+
             var num_sum = results.length + '/' + group[self.current_time].length;
 
 
@@ -92,7 +106,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var tts = [];
             if (results.length) {
                 //列表
-                var qtis = results[0].option_items
+                var qtis = results[0].vote_items
                 var items = []
 
                 for (var i = 0; i < qtis.length; i++) {
@@ -103,7 +117,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         results: []
                     }
                     for (var j = 0; j < results.length; j++) {
-                        _.each(results[j].option_items[i].results, function(rt) {
+                        _.each(results[j].vote_items[i].results, function(rt) {
                             obj.results.push(rt.result)
                         })
                     };
@@ -136,7 +150,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             rendered_data = self.quesetionnaire_template_rssult({
                 qt_name: self.qtis[0].qt_name,
                 num_sum: num_sum,
-                tts: tts
+                tts: tts,
+                my_result: my_result
             });
 
 

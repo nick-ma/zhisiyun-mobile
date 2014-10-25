@@ -152,7 +152,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     alert('请选择发布对象！')
                     return false;
                 };
-                if (confirm('确认发布吗？')) {
+                if (confirm('确认发布吗？\n发布成功将转到投票管理！')) {
                     var url = '/admin/pm/questionnair_template/common_release';
 
                     var pps = _.map(self.model.get('select_pps'), function(pp) {

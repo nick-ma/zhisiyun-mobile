@@ -19,7 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         //返回+1之后的结果
         return this._index;
     });
-    var category_enum = ['', '满意度调查问卷', '选项统计问卷', '测验问卷', '满意度调查问卷(外部用户)', '选项统计问卷(外部用户)'];
+    var category_enum = ['', '满意度调查问卷', '选项统计问卷', '测验问卷', '满意度调查问卷(外部用户)', '选项统计问卷(外部用户)', '投票问卷'];
     Handlebars.registerHelper('Category', function(category) {
         return category_enum[category];
     });
@@ -89,7 +89,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var rendered_data = '';
             if (self.model_view == '0') {
                 var filters = _.filter(self.collection.toJSON(), function(qt) {
-                    return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == '2'
+                    return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == '6'
                 })
                 rendered_data = self.quesetionnaire_template({
                     qts: sort_items(filters)
@@ -100,7 +100,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     var f_d = _.find(self.qtis, function(q) {
                         return q.qtc == qt._id
                     })
-                    return f_d && qt.questionnair_category == '2'
+                    return f_d && qt.questionnair_category == '6'
                 })
                 rendered_data = self.quesetionnaire_template_join({
                     qts: sort_items(filters)
@@ -109,7 +109,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             } else if (self.model_view == '2') {
 
                 var filters = _.filter(self.collection.toJSON(), function(st) {
-                    return st.questionnair_category == '2' && st.frequency_of_usage == 0
+                    return st.questionnair_category == '6' && st.frequency_of_usage == 0
                 })
                 rendered_data = self.quesetionnaire_template_on({
                     qts: sort_items(filters)
@@ -125,8 +125,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             $("#quesetionnaire_template_list").on('click', '#btn-quesetionnaire_template_create', function(event) {
                 event.preventDefault();
                 var new_qt = {
-                    qt_name: '新建的选项统计问卷' + (self.collection.length + 1),
-                    questionnair_category: '2',
+                    qt_name: '新建的投票问卷' + (self.collection.length + 1),
+                    questionnair_category: '6',
+                    vote_items: [{
+                        qti_name: '新建题目',
+                        qti_options: [],
+                    }],
                 };
                 $.mobile.loading("show");
                 var qt = self.collection.add(new_qt);
