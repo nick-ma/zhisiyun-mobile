@@ -46,9 +46,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
 
 
-            rendered_data = self.quesetionnaire_template_edit(self.model.attributes);
-
-            $("#quesetionnaire_template_edit_list-content").html(rendered_data);
+            $("#quesetionnaire_template_edit_list-content").html(self.quesetionnaire_template_edit(self.model.attributes));
             $("#quesetionnaire_template_edit_list-content").trigger('create');
             return self;
         },
