@@ -221,7 +221,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 obj.datas = _.flatten([q_items, mbtis], true);
 
 
-                console.log(mbtis)
                 $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_my_manage_template(obj));
                 $("#quesetionnaire_manage_list-content").trigger('create');
             } else if (self.view_mode == '4') {
