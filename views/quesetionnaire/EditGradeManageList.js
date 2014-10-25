@@ -357,7 +357,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             qt.pc = f_d.pc
                         })
                     })
-                    console.log(q_insatnce)
                     $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_survey_template(q_insatnce));
                     $("#quesetionnaire_manage_list-content").trigger('create');
                 })
