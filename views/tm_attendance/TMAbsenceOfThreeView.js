@@ -64,14 +64,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			bind_event: function() {
 				var self = this;
 
-				$("#wf_three").on('change', '#wf_three_view_mode', function(event) {
+				$("#wf_three").on('click', '.wf_three_view_mode', function(event) {
 					event.preventDefault();
-					absence_type = $(this).val();
+					absence_type = $(this).data("select");
 					self.render();
 				})
 					.on('click', '#btn_wf_add', function(event) {
 						event.preventDefault();
-						var type = $("#wf_three_view_mode").val();
+						var type = absence_type;
 						var obj = {
 							type: type
 						}
