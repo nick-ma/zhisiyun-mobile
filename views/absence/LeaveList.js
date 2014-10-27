@@ -256,11 +256,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             }).on('click', '#crate_leave', function(event) {
                 if (confirm('确定启动请假流程 ？')) {
                     $.mobile.loading("show");
-                    // self.leaveOfAbsence.model.id = null;
-                    // self.leaveOfAbsence.save().done(function(data) {
-                    //     $.mobile.loading("hide");
-                    //     window.location.href = "#leave_form_t/" + data.ti._id + '/T';
-                    // })
                     $.post('/admin/tm/wf_leave_of_absence/bb/' + null, {
 
                     }, function(data) {
@@ -317,6 +312,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     window.location.href = '#back_leave_form_p/' + process_define + '/L'
                 }
 
+            }).on('click', '.btn-leave-change_state', function(event) {
+                var $this = $(this);
+                self.mode_view = $this.data('state');
+                self.render();
+                $('.btn-leave-change_state').removeClass('ui-btn-active');
+                $this.addClass('ui-btn-active');
             })
         },
 
