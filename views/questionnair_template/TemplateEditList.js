@@ -44,8 +44,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 localStorage.removeItem('upload_model_back'); //用完删掉
             };
 
-
-
             $("#quesetionnaire_template_edit_list-content").html(self.quesetionnaire_template_edit(self.model.attributes));
             $("#quesetionnaire_template_edit_list-content").trigger('create');
             return self;
