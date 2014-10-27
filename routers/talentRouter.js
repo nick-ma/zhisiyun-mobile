@@ -290,10 +290,18 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $.mobile.loading("show");
                 self.SuperiorTwitterFormView.pre_render();
                 var people = $("#login_people").val();
-                self.ddCollection.fetch();
-                self.SuperiorTwitterFormView.direct = self.ddCollection.models;
-                self.SuperiorTwitterFormView.model = self.stModel;
                 async.parallel({
+                    direct: function(cb) {
+                        self.ddCollection.fetch().done(function() {
+                            self.SuperiorTwitterFormView.direct = self.ddCollection.models;
+                            cb(null, self)
+                        });
+
+                    },
+                    stModel: function(cb) {
+                        self.SuperiorTwitterFormView.model = self.stModel;
+                        cb(null, self)
+                    },
                     data1: function(cb) {
                         $.get('/admin/pm/talent_wf/edit_m/' + ti_id, function(data) {
                             if (data) {

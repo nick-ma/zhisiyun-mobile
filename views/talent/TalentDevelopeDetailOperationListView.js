@@ -4,7 +4,9 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars"],
     function($, _, Backbone, Handlebars) {
-        var temp_plan_detail_id = null;
+        var temp_plan_detail_id = null,
+            plan_s_change = false,
+            plan_e_change = false;
 
         function find_mentor_arr(plan_divide, divide_id) {
             var divide_data = _.find(plan_divide, function(x) {
@@ -75,6 +77,18 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 obj.c_name = name[3];
                 obj.mentor_arr = name[4];
             } else if (tag == 'course_is_pass') {
+                obj.people_id = name[0];
+                obj.message = name[1];
+                obj.people_n = name[2];
+                obj.c_name = name[3];
+                obj.mentor_arr = name[4];
+            } else if (tag == 'plan_s_change') {
+                obj.people_id = name[0];
+                obj.message = name[1];
+                obj.people_n = name[2];
+                obj.c_name = name[3];
+                obj.mentor_arr = name[4];
+            } else if (tag == 'plan_e_change') {
                 obj.people_id = name[0];
                 obj.message = name[1];
                 obj.people_n = name[2];
@@ -1222,16 +1236,32 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     });
                     var field = $(this).data("field");
                     var date_val = $(this).val();
+                    var mentor_arr = find_mentor_arr(self.collection.models[0].attributes.plan_divide, divide_id);
+
                     if (field == "c_start") {
                         if (format(divide_single_datas.plan_s) > format(date_val)) {
-                            alert("课程开始时间需大于明细计划开始时间!!!")
+                            alert("课程开始时间需大于明细计划开始时间!!!");
+                            plan_s_change = false;
+
                         } else {
+                            if (format(single_course.c_start) != String(format(date_val))) {
+                                plan_s_change = true;
+                            } else {
+                                plan_s_change = false;
+                            }
                             single_course[field] = date_val;
                         }
                     } else if (field == 'c_end') {
                         if (format(divide_single_datas.plan_e) < format(date_val)) {
-                            alert("课程结束时间需小于明细计划结束时间!!!")
+                            alert("课程结束时间需小于明细计划结束时间!!!");
+                            plan_e_change = false;
+
                         } else {
+                            if (format(single_course.c_end) != String(format(date_val))) {
+                                plan_e_change = true;
+                            } else {
+                                plan_e_change = false;
+                            }
                             single_course[field] = date_val;
                         }
                     }
@@ -1240,7 +1270,27 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         success: function(model, response, options) {
                             self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                             self.collection.fetch().done(function() {
-                                self.render();
+                                var temp_data = self.collection.models[0].attributes;
+                                var course_pass = [];
+                                course_pass.push($("#login_people").val());
+                                course_pass.push(date_val); //是否通过
+                                course_pass.push(self.filter_people.people_name || $("#people_name").val());
+                                course_pass.push(single_course.c_name);
+                                course_pass.push(mentor_arr) //发送给导师
+                                if (plan_s_change) {
+                                    // var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'plan_s_change', course_pass, function(data) {
+                                        self.render();
+                                    })
+                                } else if (plan_e_change) {
+                                    // var temp_data = self.collection.models[0].attributes;
+                                    im_send(temp_data, divide_id, 'plan_e_change', course_pass, function(data) {})
+                                } else {
+                                    self.render();
+                                }
+
+
+
                             });
                         },
                         error: function(model, xhr, options) {}
