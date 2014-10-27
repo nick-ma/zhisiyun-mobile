@@ -110,7 +110,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             } else if (self.model_view == '2') {
 
                 var filters = _.filter(self.collection.toJSON(), function(st) {
-                    return st.questionnair_category == '6' && st.frequency_of_usage == 0
+                    return self.collection.people == st.creator && st.questionnair_category == '6' && st.frequency_of_usage == 0
                 })
                 rendered_data = self.quesetionnaire_template_on({
                     qts: sort_items(filters)
