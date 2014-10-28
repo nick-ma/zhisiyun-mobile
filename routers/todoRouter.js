@@ -13,6 +13,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/TmAttendanceCollection",
         "../collections/PICollection",
         "../collections/MYPICollection",
+        "../collections/AISubCollection",
 
         "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel", "../models/AIPrevModel", "../models/AISuperModel", "../models/PIModel",
         "../models/TmAttendanceModel",
@@ -31,6 +32,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         TmAttendanceCollection,
         PICollection,
         MYPICollection,
+        AISubCollection,
 
         WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel, AIPrevModel, AISuperModel, PIModel,
         TmAttendanceModel, TMAbsenceOfThreeModel, PIDatasModel
@@ -219,11 +221,18 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                     self.ai_super.period = ai.attributes.period;
                                     self.ai_super.position = ai.attributes.position;
 
+                                    self.aiSubCollection.period = ai.attributes.period;
+                                    self.aiSubCollection.position = ai.attributes.position;
+
                                     self.ai_prev.fetch().done(function() {
                                         self.ai_super.fetch().done(function() {
-                                            cb(null, null);
+                                            self.aiSubCollection.fetch().done(function(){
+                                                cb(null, null);
+                                            })
                                         });
                                     });
+                                }else{
+                                    cb(null, null);
                                 }
                             },
                         ], cb);
@@ -240,12 +249,30 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         self.wf03View.ai = self.ai;
                         self.wf03View.ai_prev = self.ai_prev;
                         self.wf03View.ai_super = self.ai_super;
+                        self.wf03View.aiSubCollection = self.aiSubCollection;
                         self.wf03View.ai_datas = self.ai_datas;
                         if (self.view_mode_state) {
                             self.wf03View.view_mode = '';
                         }
                         self.wf03View.render();
                         $.mobile.loading("hide");
+
+                        // if($("#login_people").val() == self.ai.attributes.people.toString()){
+                        //     $("#ai_wf1-footer").show();
+                            if (self.ai_prev.attributes.quantitative_pis || self.ai_prev.attributes.qualitative_pis) {
+                                $("#btn-ai_wf1-prev").attr("disabled",false);
+                            }else{
+                                $("#btn-ai_wf1-prev").attr("disabled",true);
+                            }
+
+                            if (self.ai_super.attributes.quantitative_pis || self.ai_super.attributes.qualitative_pis) {
+                                $("#btn-ai_wf1-super").attr("disabled",false);
+                            }else{
+                                $("#btn-ai_wf1-super").attr("disabled",true);
+                            }
+                        // }else{
+                        //     $("#ai_wf1-footer").hide();
+                        // }
 
                         $("body").pagecontainer("change", "#ai_wf1", {
                             reverse: false,
@@ -420,6 +447,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     changeHash: false,
                 });
 
+                $("#btn_add_pi_prev").show();
+                $("#btn_add_my_pi").hide();
                 $("#ai_add_pi_title").html('从上期复制');
 
                 $.mobile.loading("show");
@@ -427,9 +456,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 // self.ai_prev.fetch().done(function() {
                 self.piCollection.fetch().done(function() {
+                    self.aiPrevView.pi_source = '1';
                     self.aiPrevView.ai_data = self.ai;
                     self.aiPrevView.pis = self.piCollection;
                     self.aiPrevView.model = self.ai_prev;
+                    self.aiPrevView.peoples_data = self.ai_datas.attributes.peoples;
                     self.aiPrevView.render();
                     $.mobile.loading("hide");
                 })
@@ -445,7 +476,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
-
+                $("#btn_add_pi_prev").show();
+                $("#btn_add_my_pi").hide();
                 $("#ai_add_pi_title").html('从上级复制');
 
                 $.mobile.loading("show");
@@ -453,9 +485,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 // self.ai_super.fetch().done(function() {
                 self.piCollection.fetch().done(function() {
+                    self.aiPrevView.pi_source = '5';
                     self.aiPrevView.ai_data = self.ai;
                     self.aiPrevView.pis = self.piCollection;
                     self.aiPrevView.model = self.ai_super;
+                    self.aiPrevView.peoples_data = self.ai_datas.attributes.peoples;
                     self.aiPrevView.render();
                     $.mobile.loading("hide");
                 })
@@ -469,6 +503,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     self.myPICollection.fetch().done(function() {
                         self.piSelectView.ai_data = self.ai;
                         self.piSelectView.my_pis = self.myPICollection;
+                        self.piSelectView.peoples_data = self.ai_datas.attributes.peoples;
                         self.piSelectView.render();
                     })
                 })
@@ -487,7 +522,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
-
+                $("#btn_add_pi_prev").hide();
+                $("#btn_add_my_pi").show();
                 $("#ai_add_pi_title").html('新建指标');
 
                 $.mobile.loading("show");
@@ -563,6 +599,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.tmattendances = new TmAttendanceCollection(); //所有人
                 self.piCollection = new PICollection();
                 self.myPICollection = new MYPICollection();
+                self.aiSubCollection = new AISubCollection();
             },
             init_data: function() {
                 // var self = this;
