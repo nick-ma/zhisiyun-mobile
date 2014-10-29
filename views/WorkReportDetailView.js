@@ -35,13 +35,21 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 this.template_select_people = Handlebars.compile($("#hbtmp_people_select_single_view").html());
 
-
+                this.loading_template = Handlebars.compile($("#loading_template_view").html());
                 self.model_view = '0';
                 self.task_items = [];
                 self.project_items = [];
                 self.back_url = '';
                 self.select_pp = null;
                 self.bind_events();
+            },
+            pre_render: function() {
+                var self = this;
+                $("#wr_detail-content").html(self.loading_template({
+                    info_msg: '数据加载中...请稍候'
+                }));
+                $("#wr_detail-content").trigger('create');
+                return this;
             },
             // Renders all of the People models on the UI
             render: function() {

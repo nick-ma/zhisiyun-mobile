@@ -36,12 +36,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.wrListView.pre_render();
 
                 var p_id = people_id ? people_id : $('#login_people').val();
                 self.wrListView.people_id = $('#login_people').val();
                 self.wrListView.collection.url = '/admin/pm/work_report/bb?people_id=' + p_id;
                 self.wrListView.collection.fetch().done(function() {
+                    $.mobile.loading("hide");
                     self.wrListView.render();
+
                 })
 
             },
@@ -53,11 +57,15 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 });
 
 
+                $.mobile.loading("show");
+                self.wrDetailView.pre_render();
                 self.c_people.fetch().done(function() {
                     self.wrDetailView.model.id = wr_id;
                     self.wrDetailView.peoples = self.c_people.toJSON();
                     self.wrDetailView.model.fetch().done(function() {
+                        $.mobile.loading("hide");
                         self.wrDetailView.render();
+
                     })
                 })
 
