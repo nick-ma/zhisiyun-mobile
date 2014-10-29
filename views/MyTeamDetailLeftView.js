@@ -11,6 +11,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
             // The View Constructor
             initialize: function() {
                 this.template = Handlebars.compile($("#myteam_detail_left_panel_view").html());
+                this.template2 = Handlebars.compile($("#myteam_detail_footer_view").html());
                 this.view_modes = [
                     'basic',
                     'task',
@@ -27,15 +28,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/PeopleModel"],
                 render_data.people_id = self.people_id;
                 _.each(self.view_modes, function(x) {
                     var $target = $("#myteam_detail-" + x + "-left-panel-content");
+                    var $target2 = $("#myteam_detail-" + x + "-footer-content");
                     // $target.empty();
                     $target.html(self.template(render_data));
+                    $target2.html(self.template2(render_data));
                     //设置active
                     _.each($target.find('a'), function(y) {
                         if ($(y).data('view_mode') == x) {
                             $(y).addClass('ui-btn-active');
                         }
                     })
+                    // //设置active
+                    // _.each($target2.find('a'), function(y) {
+                    //     if ($(y).data('view_mode') == x) {
+                    //         $(y).addClass('ui-btn-active');
+                    //     }
+                    // })
                     $target.trigger('create');
+                    $target2.trigger('create');
                 })
 
                 return this;

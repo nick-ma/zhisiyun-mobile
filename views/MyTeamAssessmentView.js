@@ -19,6 +19,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             // Renders all of the People models on the UI
             render: function(people_id, people_name) {
                 var self = this;
+
                 var render_data = {};
                 render_data.people_id = people_id;
                 render_data.people_name = people_name;
@@ -34,6 +35,13 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 })
                 $("#myteam_detail-assessment-content").html(self.template(render_data));
                 $("#myteam_detail-assessment-content").trigger('create');
+
+                self.wr_list_back_url = localStorage.getItem('wr_list_back_url') || null;
+                localStorage.removeItem('wr_list_back_url'); //用完删掉 
+                if (self.wr_list_back_url) { //有才设，没有则保持不变
+                    $("#myteam_detail-assessment-back-url").attr('href', self.wr_list_back_url);
+                }
+                
                 return this;
             },
             bind_event: function() {
