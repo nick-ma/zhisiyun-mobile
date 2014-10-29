@@ -72,6 +72,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     });
                 } else if (self.model_view == '2') {
                     $('#wr_name').html('项目列表')
+
                     render_data = self.template_project({
                         cps: self.project_items,
                         render_mode: 'project'
@@ -90,6 +91,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         return pp
                     }
                 }))
+                pp_items = _.sortBy(pp_items, function(pt) {
+                    return pt.people_no
+                })
                 $('#panel-wr_detail-people').html(self.template_select_people({
                     people: pp_items
                 }))
