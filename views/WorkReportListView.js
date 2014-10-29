@@ -13,13 +13,21 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             initialize: function() {
                 this.template = Handlebars.compile($("#tmp_wr_list_view").html());
                 this.template_sub = Handlebars.compile($("#tmp_wr_sub_list_view").html());
+                this.loading_template = Handlebars.compile($("#loading_template_view").html());
                 this.filter_mode = '0';
                 this.sub_items = [];
                 this.current_time_no = '';
                 this.current_time_yes = '';
                 this.bind_event();
             },
-
+            pre_render: function() {
+                var self = this;
+                $("#wr_list-content").html(self.loading_template({
+                    info_msg: '数据加载中...请稍候'
+                }));
+                $("#wr_list-content").trigger('create');
+                return this;
+            },
             // Renders all of the Contact models on the UI
             render: function() {
                 var self = this;
