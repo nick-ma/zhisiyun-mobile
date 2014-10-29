@@ -68,6 +68,84 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             bind_event: function() {
                 var self = this;
 
+                function find_dp_peoples(sii, pi) {
+                    var position_id = self.ai_data.attributes.position;
+                    var ou_id = self.ai_data.attributes.ou;
+                    var company_id = self.ai_data.attributes.company;
+
+                    var item_p = _.find(pi.dp_position_items, function(x) {
+                        return x.position == position_id;
+                    })
+
+                    if (item_p) {
+                        return get_select_peoples_data(sii, item_p);
+                    }
+
+                    var item_o = _.find(pi.dp_ou_items, function(x) {
+                        return x.ou == ou_id;
+                    })
+
+                    if (item_o) {
+                        return get_select_peoples_data(sii, item_o);
+                    }
+
+                    var item_c = _.find(pi.dp_company_items, function(x) {
+                        return x.company == company_id;
+                    })
+
+                    if (item_c) {
+                        return get_select_peoples_data(sii, item_c);
+                    }
+                }
+
+                function get_select_peoples_data(sii, item) {
+                    var pls = [];
+
+                    //遍历数据提供人
+                    _.each(item.dp_peoples, function(p) {
+                        var obj = {};
+                        obj._id = p._id;
+                        obj.people_name = p.people_name;
+                        pls.push(obj);
+                    });
+
+                    if (pls.length) {
+                        return pls;
+                    }
+
+                    //遍历数据提供职位
+                    _.each(item.dp_positions, function(x) {
+                        var peoples = _.filter(self.peoples_data, function(p) {
+                            return (p.position._id == x.position);
+                        });
+                        _.each(peoples, function(p) {
+                            var obj = {};
+                            obj._id = p._id;
+                            obj.people_name = p.people_name;
+                            pls.push(obj);
+                        })
+                    });
+
+                    if (pls.length) {
+                        return pls;
+                    }
+
+                    //遍历数据提供部门，找出部门的负责人
+                    _.each(item.dp_ous, function(ou) {
+                        var p = _.find(self.peoples_data, function(p) {
+                            return (p.ou == ou.ou && p.position.position_manager);
+                        });
+                        if (p) {
+                            var obj = {};
+                            obj._id = p._id;
+                            obj.people_name = p.people_name;
+                            pls.push(obj);
+                        }
+                    });
+
+                    return pls;
+                }
+
                 function find_sf(pi) {
                     var position_id = self.ai_data.attributes.position;
                     var ou_id = self.ai_data.attributes.ou;
@@ -204,6 +282,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                         item.scoringformula = sfs[0].sf;
                                     }
 
+                                    //自己是否配有数据提供人
+                                    var pls = find_dp_peoples(item, pi);
+                                    if (pls.length == 1) {
+                                        item.dp_people = pls[0]._id;
+                                    }
+
                                     var oItem = _.find(self.ai_data.attributes.quantitative_pis.items, function(op) {
                                         return op.pi == pi._id;
                                     });
@@ -250,22 +334,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 }
                             }
 
-                            //计算权重
-                            // self.ai_data.attributes.quantitative_pis.weight = 0;
-                            // self.ai_data.attributes.qualitative_pis.weight = 0;
-                            // _.each(self.ai_data.attributes.quantitative_pis.items, function(x) {
-                            //     self.ai_data.attributes.quantitative_pis.weight += parseFloat(x.weight);
-                            // });
-                            // _.each(self.ai_data.attributes.qualitative_pis.items, function(x) {
-                            //     self.ai_data.attributes.qualitative_pis.weight += parseFloat(x.weight);
-                            // });
-
                             self.ai_data.save().done(function() {
-                                // if(pi_ids.length == 1){
-                                //     alert();
-                                // }else{
-                                    window.location.href = self.ai_add_pi_back_url;
-                                // }
+                                window.location.href = self.ai_add_pi_back_url;
                             })
                         }
                     })

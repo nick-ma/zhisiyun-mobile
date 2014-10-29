@@ -37,6 +37,84 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             bind_event: function() {
                 var self = this;
 
+                function find_dp_peoples(sii, pi) {
+                    var position_id = self.ai_data.attributes.position;
+                    var ou_id = self.ai_data.attributes.ou;
+                    var company_id = self.ai_data.attributes.company;
+
+                    var item_p = _.find(pi.dp_position_items, function(x) {
+                        return x.position == position_id;
+                    })
+
+                    if (item_p) {
+                        return get_select_peoples_data(sii, item_p);
+                    }
+
+                    var item_o = _.find(pi.dp_ou_items, function(x) {
+                        return x.ou == ou_id;
+                    })
+
+                    if (item_o) {
+                        return get_select_peoples_data(sii, item_o);
+                    }
+
+                    var item_c = _.find(pi.dp_company_items, function(x) {
+                        return x.company == company_id;
+                    })
+
+                    if (item_c) {
+                        return get_select_peoples_data(sii, item_c);
+                    }
+                }
+
+                function get_select_peoples_data(sii, item) {
+                    var pls = [];
+
+                    //遍历数据提供人
+                    _.each(item.dp_peoples, function(p) {
+                        var obj = {};
+                        obj._id = p._id;
+                        obj.people_name = p.people_name;
+                        pls.push(obj);
+                    });
+
+                    if(pls.length){
+                        return pls;
+                    }
+
+                    //遍历数据提供职位
+                    _.each(item.dp_positions, function(x) {
+                        var peoples = _.filter(self.peoples_data, function(p) {
+                            return (p.position._id == x.position);
+                        });
+                        _.each(peoples, function(p) {
+                            var obj = {};
+                            obj._id = p._id;
+                            obj.people_name = p.people_name;
+                            pls.push(obj);
+                        })
+                    });
+
+                    if(pls.length){
+                        return pls;
+                    }
+
+                    //遍历数据提供部门，找出部门的负责人
+                    _.each(item.dp_ous, function(ou) {
+                        var p = _.find(self.peoples_data, function(p) {
+                            return (p.ou == ou.ou && p.position.position_manager);
+                        });
+                        if (p) {
+                            var obj = {};
+                            obj._id = p._id;
+                            obj.people_name = p.people_name;
+                            pls.push(obj);
+                        }
+                    });
+
+                    return pls;
+                }
+
                 function find_sf(pi) {
                     var position_id = self.ai_data.attributes.position;
                     var ou_id = self.ai_data.attributes.ou;
@@ -156,7 +234,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 return sa.pi == pi_ids1[i];
                             });
                             var item = {};
-                            item.pi_source = '1';
+                            item.pi_source = self.pi_source;
                             item.pi = pi_ids1[i];
                             item.pi_name = sitem.pi_name ? sitem.pi_name : '';
                             item.target_value = sitem.target_value ? sitem.target_value : '';
@@ -171,8 +249,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             } else {
                                 item.scoringformula = sitem.scoringformula ? sitem.scoringformula : null;
                             }
-                            //数据提供人
-                            item.dp_people = sitem.dp_people ? sitem.dp_people : null;
+
+                            //自己是否配有数据提供人
+                            var pls = find_dp_peoples(item, pi_f.attributes);
+                            if (pls.length == 1) {
+                                item.dp_people = pls[0]._id;
+                            } else {
+                                item.dp_people = sitem.dp_people ? sitem.dp_people : null;
+                            }
 
                             item.unit = sitem.unit ? sitem.unit : '';
                             //加载的时候，取自己的配置
@@ -209,7 +293,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 return sa.pi == pi_ids2[j];
                             });
                             var item = {};
-                            item.pi_source = '1';
+                            item.pi_source = self.pi_source;
                             item.pi = pi_ids2[j];
                             item.pi_name = sitem.pi_name ? sitem.pi_name : '';
                             item.target_value = sitem.target_value ? sitem.target_value : '';

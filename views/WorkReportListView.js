@@ -1,19 +1,33 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars"],
     function($, _, Backbone, Handlebars) {
-
+        function sort_02(items) {
+            var sorts = _.sortBy(items, function(ls) {
+                return ls.show_time
+            })
+            return sorts
+        }
         // Extends Backbone.View
         var WorkReportListView = Backbone.View.extend({
 
             initialize: function() {
                 this.template = Handlebars.compile($("#tmp_wr_list_view").html());
                 this.template_sub = Handlebars.compile($("#tmp_wr_sub_list_view").html());
+                this.loading_template = Handlebars.compile($("#loading_template_view").html());
                 this.filter_mode = '0';
                 this.sub_items = [];
-                this.current_time = '';
+                this.current_time_no = '';
+                this.current_time_yes = '';
                 this.bind_event();
             },
-
+            pre_render: function() {
+                var self = this;
+                $("#wr_list-content").html(self.loading_template({
+                    info_msg: '数据加载中...请稍候'
+                }));
+                $("#wr_list-content").trigger('create');
+                return this;
+            },
             // Renders all of the Contact models on the UI
             render: function() {
                 var self = this;
@@ -25,54 +39,103 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 var render_data = {
                     wrs: [],
                 }
-
+                var group = {};
                 if (self.filter_mode == '1') { //已提交
                     _.each(self.collection.models, function(x) {
                         if (x.attributes.is_submit && moment(x.attributes.show_time) > moment().subtract(1, 'years')) {
                             render_data.wrs.push(x.attributes)
                         }
                     })
+                    render_data.wrs = sort_02(render_data.wrs).reverse();
                     $("#wr_list-content").html(self.template(render_data));
+
                 } else if (self.filter_mode == '0') { //未提交
                     _.each(self.collection.models, function(x) {
                         if (!x.attributes.is_submit && moment(x.attributes.show_time) < moment().add(1, 'months')) {
                             render_data.wrs.push(x.attributes)
                         }
                     })
+                    render_data.wrs = sort_02(render_data.wrs);
                     $("#wr_list-content").html(self.template(render_data));
-                } else {
-                    var group = _.groupBy(self.sub_items, function(qt) {
+                } else if (self.filter_mode == '2') {
+                    var maps = _.compact(_.map(self.sub_items, function(wr) {
+                        var f_d = _.find(wr.comments, function(ct) {
+                            return ct.people == self.people_id && !ct.is_submit
+                        })
+                        if (f_d) {
+                            return wr
+                        } else {
+                            return null
+                        }
+                    }))
+                    group = _.groupBy(maps, function(qt) {
                         return moment(qt.show_time).format('YYYY-MM-DD')
                     })
                     var sorts = _.sortBy(_.keys(group), function(gp) {
                         return gp
                     })
-                    if (!self.current_time) {
-                        self.current_time = _.last(sorts);
+                    if (!self.current_time_yes) {
+                        self.current_time_yes = _.last(sorts);
                     };
-                    render_data.wrs = group[self.current_time];
+
+                    render_data.wrs = group[self.current_time_yes];
+
+                    $("#wr_list-content").html(self.template_sub(render_data));
+                } else if (self.filter_mode == '3') {
+                    var maps = _.compact(_.map(self.sub_items, function(wr) {
+                        var f_d = _.find(wr.comments, function(ct) {
+                            return ct.people == self.people_id && ct.is_submit
+                        })
+                        if (f_d) {
+                            return wr
+                        } else {
+                            return null
+                        }
+                    }))
+                    group = _.groupBy(maps, function(qt) {
+                        return moment(qt.show_time).format('YYYY-MM-DD')
+                    })
+                    var sorts = _.sortBy(_.keys(group), function(gp) {
+                        return gp
+                    })
+                    if (!self.current_time_no) {
+                        self.current_time_no = _.last(sorts);
+                    };
+
+                    render_data.wrs = group[self.current_time_no];
 
                     $("#wr_list-content").html(self.template_sub(render_data));
                 }
 
                 $("#wr_list-content").trigger('create');
-
-
-                if (group[self.current_time].length) {
-                    $('#sub_show_work').show()
-                }
-
-
                 var items = []
                 _.each(group, function(ys, k) {
-                    if (self.current_time == k) {
+                    if (self.current_time_yes == k && self.filter_mode == '2') {
+                        items.push('<option value=' + k + ' selected>' + k + '</option>')
+                    } else if (self.current_time_no == k && self.filter_mode == '3') {
                         items.push('<option value=' + k + ' selected>' + k + '</option>')
                     } else {
                         items.push('<option value=' + k + ' >' + k + '</option>')
                     }
                 })
                 $("#sub_work_times").html(items.join(''))
-                $("#sub_work_times").prev().html(self.current_time)
+                if (self.filter_mode == '2') {
+                    if (group[self.current_time_yes]) {
+                        if (!_.isUndefined(group) && !_.isEmpty(group) && group[self.current_time_yes].length) {
+                            $('#sub_show_work').show()
+                        }
+
+                        $("#sub_work_times").prev().html(self.current_time_yes)
+                    };
+                } else {
+                    if (group[self.current_time_no]) {
+                        if (!_.isUndefined(group) && !_.isEmpty(group) && group[self.current_time_no].length) {
+                            $('#sub_show_work').show()
+                        }
+                        $("#sub_work_times").prev().html(self.current_time_no)
+                    }
+                }
+
 
                 return this;
 
@@ -100,7 +163,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     }
                 }).on('change', '#sub_work_times', function(event) {
                     event.preventDefault();
-                    self.current_time = $(this).val();
+                    if (self.filter_mode == '2') {
+                        self.current_time_yes = $(this).val();
+                    } else {
+                        self.current_time_no = $(this).val();
+                    }
                     self.render();
 
                 })

@@ -147,7 +147,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         })
 
                     })
-                }
+                } else if (type == '6') { //工作报告
+                    localStorage.setItem('wr_detail_back_url', '#todo');
+                    window.location.href = '#wrdetail/' + qi_id
+                };
 
             },
             qt_manage: function() {
