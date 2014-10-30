@@ -199,10 +199,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     $.mobile.loading("show");
                     self.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id + '&ct=' + (new Date()).getTime();
                     self.c_assessment_myteam.fetch().done(function() {
-                        self.c_people.fetch().done(function() {
-                            self.myTeamAssessmentView.c_people = self.c_people;
+                        self.c_people2.people = people_id;
+                        self.c_people2.fetch().done(function() {
+                            self.myTeamAssessmentView.c_people = self.c_people2;
                             self.myTeamAssessmentView.c_assessment_sub = self.c_assessment_sub;
-                            self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
+                            self.myTeamAssessmentView.render(people_id, self.c_people2.get(people_id).get('people_name'));
                             $.mobile.loading("hide");
                         })
                     })
@@ -550,6 +551,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 this.c_assessment_v_myteam = new AssessmentVCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。 －版本
                 this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
                 this.c_people = new PeopleCollection();
+                this.c_people2 = new PeopleCollection();
                 this.c_talent = new TalentCollection(); //人才
                 this.c_payroll_myteam = new PayrollCollection(); //团队成员的工资－获取的时候需要修改url，把下属的people id拼进去再fetch。
                 this.c_competency = new CompetencyCollection(); //能力素质
