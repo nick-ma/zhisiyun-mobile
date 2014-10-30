@@ -312,12 +312,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts","moment",
                                 return x.attributes[self.view_filter];
                             })
 
-                            if (self.view_filter == 'myteam') {
-                                $('#sub_name').html('一级下属');
-                            } else {
-                                $('#sub_name').html('二级下属');
-                            }
-
                             var rendered = {
                                 people: [],
                             };

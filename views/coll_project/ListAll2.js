@@ -149,9 +149,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         return x.state;
                     });
                     ts_count['0'] = models4render.length;
-                    _.each($("#collproject-left-panel2 label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // _.each($("#collproject-left-panel2 label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
+
+                    _.each($("#collproject2 .btn-collproject-change_state2"), function(x) {
+                        $(x).find('.collproject_state_num2').html(ts_count[$(x).data('state')] || 0);
                     })
 
                 } else if (render_mode == 'pis') {
@@ -310,6 +314,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         // console.log('message: fired 1');
                         // $("#colltask-left-panel").panel("close");
                         // console.log($this.val());
+                    })
+                    .on('click', '.btn-collproject-change_state2', function(event) {
+                        var $this = $(this);
+                        self.state = $this.data('state');
+                        self.render();
+                        $('.btn-collproject-change_state2').removeClass('ui-btn-active');
+                        $this.addClass('ui-btn-active');
                     })
                     .on('change', '#cf_project_name2', function(event) {
                         event.preventDefault();
