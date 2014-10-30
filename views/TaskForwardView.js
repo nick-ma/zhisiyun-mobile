@@ -102,7 +102,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     return x.value;
                 })
                 $("#people-for-forward").val(selected_people.join(','));
-                // console.log(selected_people);
                 var ret = _.map(selected_people, function(x) {
                     var people = self.c_people.get(x);
                     return '<p>' + people.get('people_name') + '／' + people.get('position_name') + '／' + people.get('ou_name') + '</p>'

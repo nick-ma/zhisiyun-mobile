@@ -35,6 +35,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
+            console.log(self)
+
+            // self.qt_issue_back_url = localStorage.getItem('qt_issue_back_url') || null;
+
+            console.log(localStorage.getItem('qt_issue_back_url'))
+            // self.model.set('back_url', self.qt_issue_back_url);
+            // if (self.qt_issue_back_url) { //有才设，没有则保持不变
+            $("#btn-quesetionnaire_template_issue_list-back").attr('href', localStorage.getItem('qt_issue_back_url'));
+            // }
             $("#quesetionnaire_template_issue_list #btn-quesetionnaire_template_issue_left-back").removeClass('ui-icon-back ui-icon-check').addClass('ui-icon-home')
             if (self.model_view == '0') {
                 $("#quesetionnaire_template_issue_list #btn-quesetionnaire_template_issue_list-back").addClass('ui-icon-back btn_back_home').removeClass('ui-icon-check ui-icon-delete')
@@ -68,6 +77,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $.mobile.loading("show");
                 $.get('/admin/pm/questionnair_template/qi_bb/' + self.model.get('_id'), function(data) {
                     self.pps = data
+                    console.log(data)
                     self.model_view = '2';
                     self.render();
                     $.mobile.loading("hide");
@@ -152,7 +162,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     alert('请选择发布对象！')
                     return false;
                 };
-                if (confirm('确认发布吗？\n发布成功将转到投票管理！')) {
+                if (confirm('确认发布吗？\n发布成功将转到模版管理！')) {
                     var url = '/admin/pm/questionnair_template/common_release';
 
                     var pps = _.map(self.model.get('select_pps'), function(pp) {
@@ -170,8 +180,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         if (data.code == 'OK') {
                             $.mobile.loading("hide");
                             alert('问卷发布成功！')
-                            window.location.href = '#quesetionnair_template'
-
+                            window.location.href = localStorage.getItem('qt_issue_back_url')
                         };
                     }).fail(function() {
                         $.mobile.loading("hide");
@@ -182,14 +191,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
             }).on('click', '#btn-quesetionnaire_template_issue_left-back', function(event) {
                 if (self.model_view == '0') {
-                    window.location.href = '#home'
+                    window.location.href = '#'
                 } else {
                     self.model_view = '0';
                     self.render();
                 }
             }).on('click', '.btn_back_home', function(event) {
                 if (self.model_view == '0') {
-                    window.location.href = '#quesetionnair_template'
+                    window.location.href = localStorage.getItem('qt_issue_back_url')
                 } else {
                     self.model_view = '0';
                     self.render();

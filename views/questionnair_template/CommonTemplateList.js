@@ -23,7 +23,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
     Handlebars.registerHelper('Category', function(category) {
         return category_enum[category];
     });
+    //1:人员 频次 look type
+    Handlebars.registerHelper('eq_num', function(data, data1, options) {
+        var login_people = $('#login_people').val();
 
+        if (data == data1) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+
+    });
 
     //1:人员 频次 look type
     Handlebars.registerHelper('eq_people', function(data, data1, options) {
@@ -70,30 +80,37 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             this.quesetionnaire_template_join = Handlebars.compile($("#quesetionnaire_template_list_join_view").html());
             this.quesetionnaire_template_on = Handlebars.compile($("#quesetionnaire_template_list_on_view").html());
 
+            this.quesetionnaire_common_template_list = Handlebars.compile($("#quesetionnaire_common_template_list_view").html());
+
+
+
             this.loading_template = Handlebars.compile($("#loading_template_view").html());
             this.collection.on("sync", this.render, this);
             this.model_view = '0';
+            this.qt_type = '2';
             this.qtis = [];
             this.bind_event();
         },
         pre_render: function() {
             var self = this;
-            $("#quesetionnaire_template_list-content").html(self.loading_template({
+            $("#quesetionnaire_common_template_list-content").html(self.loading_template({
                 info_msg: '数据加载中...请稍候'
             }));
-            $("#quesetionnaire_template_list-content").trigger('create');
+            $("#quesetionnaire_common_template_list-content").trigger('create');
             return this;
         },
         // Renders all of the Task models on the UI
         render: function() {
             var self = this;
             var rendered_data = '';
+            console.log(self.collection.toJSON())
             if (self.model_view == '0') {
                 var filters = _.filter(self.collection.toJSON(), function(qt) {
-                    return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == '6'
+                    return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == self.qt_type
                 })
-                rendered_data = self.quesetionnaire_template({
-                    qts: sort_items(filters)
+                rendered_data = self.quesetionnaire_common_template_list({
+                    qts: sort_items(filters),
+                    model_view: self.model_view
                 });
 
             } else if (self.model_view == '1') {
@@ -101,56 +118,91 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     var f_d = _.find(self.qtis, function(q) {
                         return q.qtc == qt._id
                     })
-                    return f_d && qt.questionnair_category == '6'
+                    return f_d && qt.questionnair_category == self.qt_type
                 })
-                rendered_data = self.quesetionnaire_template_join({
-                    qts: sort_items(filters)
+                rendered_data = self.quesetionnaire_common_template_list({
+                    qts: sort_items(filters),
+                    model_view: self.model_view
                 });
 
             } else if (self.model_view == '2') {
 
                 var filters = _.filter(self.collection.toJSON(), function(st) {
-                    return self.collection.people == st.creator && st.questionnair_category == '6' && st.frequency_of_usage == 0
+                    return self.collection.people == st.creator && st.questionnair_category == self.qt_type && st.frequency_of_usage == 0
                 })
-                rendered_data = self.quesetionnaire_template_on({
-                    qts: sort_items(filters)
+                rendered_data = self.quesetionnaire_common_template_list({
+                    qts: sort_items(filters),
+                    model_view: self.model_view
                 });
             }
 
-            $("#quesetionnaire_template_list-content").html(rendered_data);
-            $("#quesetionnaire_template_list-content").trigger('create');
+            $("#quesetionnaire_common_template_list-content").html(rendered_data);
+            $("#quesetionnaire_common_template_list-content").trigger('create');
             return self;
         },
         bind_event: function() {
             var self = this
-            $("#quesetionnaire_template_list").on('click', '#btn-quesetionnaire_template_create', function(event) {
+            $("#quesetionnaire_common_template_list").on('click', '#btn-quesetionnaire_common_template_create', function(event) {
                 event.preventDefault();
-                var new_qt = {
-                    qt_name: '新建的投票问卷' + (self.collection.length + 1),
-                    qt_description: '',
-                    questionnair_category: '6',
-                    vote_items: [{
-                        qti_name: '新建题目',
-                        qti_options: [],
-                    }],
+
+                var filters = self.collection.toJSON()
+                if (self.qt_type == '1') {
+                    var new_qt = {
+                        qt_name: '新建的满意度调查问卷' + (filters.length + 1),
+                        qt_description: '',
+                        questionnair_category: '1',
+                        grade_way: 'G',
+                    };
+                } else if (self.qt_type == '2') {
+                    var new_qt = {
+                        qt_name: '新建的选项统计问卷' + (filters.length + 1),
+                        qt_description: '',
+                        questionnair_category: '2',
+                    };
+                } else if (self.qt_type == '3') {
+                    var new_qt = {
+                        qt_name: '新建的测验问卷' + (filters.length + 1),
+                        qt_description: '',
+                        questionnair_category: '3',
+                    };
+                } else if (self.qt_type == '4') {
+                    var new_qt = {
+                        qt_name: '新建的满意度调查问卷(外部用户)' + (filters.length + 1),
+                        qt_description: '',
+                        questionnair_category: '4',
+                        grade_way: 'G',
+                    };
+                } else if (self.qt_type == '5') {
+                    var new_qt = {
+                        qt_name: '新建的选项统计问卷(外部用户)' + (filters.length + 1),
+                        qt_description: '',
+                        questionnair_category: '5',
+                    };
+                } else if (self.qt_type == '6') {
+                    var new_qt = {
+                        qt_name: '新建的投票问卷' + (self.collection.length + 1),
+                        qt_description: '',
+                        questionnair_category: '6',
+                        vote_items: [{
+                            qti_name: '新建题目',
+                            qti_options: [],
+                        }],
+                    };
                 };
+
+                console.log(self.qt_type)
+
                 $.mobile.loading("show");
                 var qt = self.collection.add(new_qt);
                 qt.url = '/admin/pm/questionnair_template/common_bb/' + null
                 qt.save(qt.attributes, {
                     success: function(model, response, options) {
-                        var url = "#quesetionnair_template/" + model.get("_id");
+                        var url = "#quesetionnair_common_template/" + model.get("_id");
                         $.mobile.loading("hide");
                         window.location.href = url;
 
                     }
                 })
-            }).on('click', '.open-left-panel', function(event) {
-                event.preventDefault();
-                $("#quesetionnaire_template-left-panel").panel("open");
-            }).on('swiperight', function(event) { //向右滑动，打开左边的面板
-                event.preventDefault();
-                $("#quesetionnaire_template-left-panel").panel("open");
             }).on('click', '#btn-im_showh-change_view', function(event) {
                 event.preventDefault();
                 window.location.href = '#im_list'
@@ -175,6 +227,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     self.model_view = '1';
                     self.render();
                 })
+
+
 
             }).on('click', '#on_issued', function(event) { //未发布的
                 event.preventDefault();
@@ -227,7 +281,26 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '.btn_result', function(event) {
                 event.preventDefault();
                 var qt_id = $(this).data('qt_id');
-                window.location.href = '#quesetionnair_template_result/' + qt_id + '/Y'
+                window.location.href = '#quesetionnair_template_result/' + qt_id + '/X'
+            }).on('click', '.open-left-panel', function(event) {
+                event.preventDefault();
+                $("#quesetionnaire_common_template-left-panel").panel("open");
+            }).on('swiperight', function(event) { //向右滑动，打开左边的面板
+                event.preventDefault();
+                $("#quesetionnaire_common_template-left-panel").panel("open");
+            }).on('click', '#btn-quesetionnaire_grade_manage', function(event) {
+                event.preventDefault();
+                window.location.href = "#qt_manage";
+                $("#quesetionnaire_common_template-left-panel").panel("close");
+            }).on('click', '#btn-quesetionnaire_template_manage', function(event) {
+                event.preventDefault();
+                window.location.href = "#quesetionnair_common_template"
+                $("#quesetionnaire_common_template-left-panel").panel("close");
+
+            }).on('change', '#qt_mode', function(event) {
+                event.preventDefault();
+                self.qt_type = $(this).val()
+                self.render();
             })
         },
 
