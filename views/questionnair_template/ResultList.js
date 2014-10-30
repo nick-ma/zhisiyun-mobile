@@ -59,7 +59,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         render: function() {
             var self = this;
             var rendered_data = '';
-
+            self.qt_result_back_url = localStorage.getItem('qt_result_back_url') || null;
+            localStorage.removeItem('qt_result_back_url'); //用完删掉 
+            if (self.qt_result_back_url) { //有才设，没有则保持不变
+                $("#btn-quesetionnaire_template_result_list-back").attr('href', self.qt_result_back_url);
+            }
 
             var group = _.groupBy(self.qtis, function(qt) {
                 return moment(qt.lastDate).format('YYYY-MM-DD')
@@ -78,7 +82,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var f_pp = _.find(results, function(rt) {
                 return rt.people._id == self.people
             })
-
+            console.log(f_pp)
             var my_result = [];
             if (f_pp) {
                 _.each(_.first(f_pp.vote_items).results, function(rt) {
@@ -106,7 +110,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             var tts = [];
             if (results.length) {
                 //列表
-                var qtis = results[0].vote_items
+                var str = null;
+                if (results[0].vote_items.length) {
+                    str = "X";
+                    var qtis = results[0].vote_items
+                } else {
+                    str = "Y";
+                    var qtis = results[0].option_items
+                }
                 var items = []
 
                 for (var i = 0; i < qtis.length; i++) {
@@ -117,9 +128,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         results: []
                     }
                     for (var j = 0; j < results.length; j++) {
-                        _.each(results[j].vote_items[i].results, function(rt) {
-                            obj.results.push(rt.result)
-                        })
+                        if (str == 'X') {
+                            _.each(results[j].vote_items[i].results, function(rt) {
+                                obj.results.push(rt.result)
+                            })
+                        } else {
+                            _.each(results[j].option_items[i].results, function(rt) {
+                                obj.results.push(rt.result)
+                            })
+                        }
                     };
                     items.push(obj)
                 };
