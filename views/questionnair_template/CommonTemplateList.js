@@ -13,6 +13,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
     Handlebars.registerHelper('qtis_num', function(data) {
         return data.length
     });
+
+
+    Handlebars.registerHelper('qti_is_num', function(data, options) {
+        if (!!~['2', '6'].indexOf(data)) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+    });
     Handlebars.registerHelper("addOne", function(index) {
         //利用+1的时机，在父级循环对象中添加一个_index属性，用来保存父级每次循环的索引
         this._index = index;
@@ -103,18 +112,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         render: function() {
             var self = this;
             var rendered_data = '';
-            console.log(self.collection.toJSON())
+            var filters = [];
             if (self.model_view == '0') {
-                var filters = _.filter(self.collection.toJSON(), function(qt) {
-                    return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == self.qt_type
-                })
+                if (self.qt_type == '2' || self.qt_type == '6') {
+                    filters = _.filter(self.collection.toJSON(), function(qt) {
+                        return self.collection.people == qt.creator && qt.frequency_of_usage > 0 && qt.questionnair_category == self.qt_type
+                    })
+                }
                 rendered_data = self.quesetionnaire_common_template_list({
                     qts: sort_items(filters),
-                    model_view: self.model_view
+                    model_view: self.model_view,
+                    qt_type: self.qt_type
                 });
-
             } else if (self.model_view == '1') {
-                var filters = _.filter(self.collection.toJSON(), function(qt) {
+                filters = _.filter(self.collection.toJSON(), function(qt) {
                     var f_d = _.find(self.qtis, function(q) {
                         return q.qtc == qt._id
                     })
@@ -122,17 +133,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 })
                 rendered_data = self.quesetionnaire_common_template_list({
                     qts: sort_items(filters),
-                    model_view: self.model_view
+                    model_view: self.model_view,
+                    qt_type: self.qt_type
                 });
 
             } else if (self.model_view == '2') {
-
-                var filters = _.filter(self.collection.toJSON(), function(st) {
-                    return self.collection.people == st.creator && st.questionnair_category == self.qt_type && st.frequency_of_usage == 0
-                })
+                if (self.qt_type == '2' || self.qt_type == '6') {
+                    filters = _.filter(self.collection.toJSON(), function(qt) {
+                        return self.collection.people == qt.creator && qt.frequency_of_usage == 0 && qt.questionnair_category == self.qt_type
+                    })
+                }
                 rendered_data = self.quesetionnaire_common_template_list({
                     qts: sort_items(filters),
-                    model_view: self.model_view
+                    model_view: self.model_view,
+                    qt_type: self.qt_type
                 });
             }
 
@@ -190,8 +204,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     };
                 };
 
-                console.log(self.qt_type)
+                var nums = ['1', '3', '4', '5']
 
+                if (!!~nums.indexOf(self.qt_type)) {
+                    alert('不好意思，由于权限问题\n您只能创建选项统计问卷，投票问卷');
+                    return false;
+                };
                 $.mobile.loading("show");
                 var qt = self.collection.add(new_qt);
                 qt.url = '/admin/pm/questionnair_template/common_bb/' + null
@@ -281,7 +299,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '.btn_result', function(event) {
                 event.preventDefault();
                 var qt_id = $(this).data('qt_id');
-                window.location.href = '#quesetionnair_template_result/' + qt_id + '/X'
+                var qt_type = $(this).data('qt_type');
+                window.location.href = '#quesetionnair_template_result/' + qt_id + '/' + qt_type + '/Y'
             }).on('click', '.open-left-panel', function(event) {
                 event.preventDefault();
                 $("#quesetionnaire_common_template-left-panel").panel("open");
