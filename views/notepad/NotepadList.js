@@ -26,8 +26,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var rendered_data = {
                     nps: []
                 };
+                var nps_tmp = [];
                 _.each(self.collection.models, function(x) {
-                    rendered_data.nps.push(x.attributes);
+                    nps_tmp.push(x.attributes);
+                })
+
+                rendered_data.nps = _.sortBy(nps_tmp,function(x){
+                    return -moment(x.lastModified);
                 })
 
                 $("#np_list-content").html(self.template(rendered_data));

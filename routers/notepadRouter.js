@@ -41,6 +41,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.nps.fetch().done(function() {
                 self.npListView.people = $('#login_people').val();
                 self.npListView.people_name = $('#login_people_name').val();
+                self.npListView.collection = self.nps;
                 self.npListView.render();
                 $.mobile.loading("hide");
             })
@@ -59,7 +60,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.np.id = np_id;
             self.np.fetch().done(function() {
                 self.npEditView.nps = self.nps;
-                self.npEditView.peoples = self.peoples
+                self.npEditView.peoples = self.peoples;
+                self.npEditView.model = self.np;
                 self.npEditView.render();
 
                 $.mobile.loading("hide");
