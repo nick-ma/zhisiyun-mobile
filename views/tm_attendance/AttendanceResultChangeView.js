@@ -47,23 +47,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				arr2 = [];
 			arr1.push(change_date);
 			var time = is_work_on_off(change_date);
-			if (time.work_on_time) {
-				arr1.push(time.work_on_time);
-			} else {
-				arr2.push("09:00");
-			}
+			arr1.push($("#come_time").val());
 			if (time.is_cross_day) {
 				arr2.push(moment(change_date).add('days', 1).format("YYYY-MM-DD"));
 			} else {
 				arr2.push(change_date);
 
 			}
-			if (time.wokr_off_time) {
-				arr2.push(time.work_on_time);
-
-			} else {
-				arr2.push("18:00");
-			}
+			arr2.push($("#leave_time").val())
 			var come_time = moment(arr1.join(" "));
 			var leave_time = moment(arr2.join(" "));
 
@@ -137,6 +128,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var is_self = self.is_self;
 				var bool = false;
 				var arr_change = [];
+				var time = is_work_on_off(self.date);
+
 				if (self.view_mode) {
 					if (self.view_mode == 'trans') {
 						$("#wf_attendance_title").html('数据处理人');
@@ -191,6 +184,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						rendered_data.push(attendance);
 						var obj = {
 							attendance_data: rendered_data,
+							time: time,
+							attendance: attendance
 						}
 
 						$("#personal_wf_attend-content").html(self.template(obj));
@@ -276,6 +271,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					})
 					var obj = {
 						attendance_data: rendered_data,
+						time: time,
+						attendance: attendance
 					}
 					$("#personal_wf_attend-content").html(self.template(obj));
 					$("#personal_wf_attend-content").trigger('create');
