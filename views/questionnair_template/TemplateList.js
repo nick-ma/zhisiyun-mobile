@@ -227,7 +227,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '.btn_result', function(event) {
                 event.preventDefault();
                 var qt_id = $(this).data('qt_id');
-                window.location.href = '#quesetionnair_template_result/' + qt_id + '/Y'
+                var qt_type = $(this).data('qt_type');
+                window.location.href = '#quesetionnair_template_result/' + qt_id + '/' + qt_type + '/X'
             })
         },
 
