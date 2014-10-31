@@ -12,7 +12,11 @@ define(["jquery", "backbone", "models/PeopleModel"], function($, Backbone, Peopl
 
         },
         url: function() {
-            return '/admin/masterdata/people/people_list4m' + '?ct=' + (new Date()).getTime();
+            var url = '/admin/masterdata/people/people_list4m' + '?ct=' + (new Date()).getTime();
+            if (this.people) {
+                url += '&people=' + this.people;
+            };
+            return url;
         },
 
         // Sets the Collection model property to be a People Model
