@@ -116,7 +116,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             } else if (self.model_view == '1') {
                 var filters = _.filter(self.collection.toJSON(), function(qt) {
                     var f_d = _.find(self.qtis, function(q) {
-                        return q.qtc == qt._id
+                        return self.collection.people == qt.creator && q.qtc == qt._id
                     })
                     return f_d && qt.questionnair_category == self.qt_type
                 })
