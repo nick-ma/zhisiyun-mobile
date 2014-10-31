@@ -128,7 +128,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             };
             $.get('/admin/pm/questionnair_template/get_my_qis_report_json', function(data) {
                 self.qis = data.qis;
-                _.each($("#quesetionnaire_manage_list-left-panel label"), function(x) {
+                // _.each($("#quesetionnaire_manage_list-left-panel label"), function(x) {
+                //     var state = $(x).data('state');
+                //     var filters = []
+                //     if (state == '0' || state == '1') {
+                //         filters = _.filter(self.collection.toJSON(), function(s) {
+                //             return s.status == state;
+                //         });
+                //     } else {
+                //         var nums = ['3', '4', '5', '6', '7']
+                //         var mbtis = _.filter(self.collection.toJSON(), function(x) {
+                //             return !!~nums.indexOf(x.mark);
+                //         });
+                //         filters = _.flatten([self.qis, mbtis], true);
+                //     }
+                //     $(x).find('span').html(filters.length || 0);
+                // })
+                _.each($("#quesetionnaire_manage_change_list .quesetionnaire_manage_state_num"), function(x) {
                     var state = $(x).data('state');
                     var filters = []
                     if (state == '0' || state == '1') {
@@ -142,7 +158,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         });
                         filters = _.flatten([self.qis, mbtis], true);
                     }
-                    $(x).find('span').html(filters.length || 0);
+                    $(x).html(filters.length || 0);
+
                 })
 
             })
@@ -451,6 +468,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     $.mobile.loading("hide");
                     $("#quesetionnaire_manage_list-left-panel").panel("close");
                 })
+
+            }).on('click', '.btn-quesetionnaire_manage-change_state', function(event) {
+                var $this = $(this);
+                self.view_mode = $this.data('state');
+                self.render();
+                $('.btn-quesetionnaire_manage-change_state').removeClass('ui-btn-active');
+                $this.addClass('ui-btn-active');
+            }).on('click', '#btn-quesetionnaire_grade_manage', function(event) {
+                event.preventDefault();
+                window.location.href = "#qt_manage";
+                $("#quesetionnaire_manage_list-left-panel").panel("close");
+            }).on('click', '#btn-quesetionnaire_template_manage', function(event) {
+                event.preventDefault();
+                window.location.href = "#quesetionnair_common_template"
+                $("#quesetionnaire_manage_list-left-panel").panel("close");
 
             })
         },

@@ -179,9 +179,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             return y.p_task == x._id
                         }).length;
                     });
-                    _.each($("#colltask-left-panel2 label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // _.each($("#colltask-left-panel2 label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
+
+                    _.each($("#colltask2 .btn-colltask-change_state2"), function(x) {
+                        $(x).find('.colltask_state_num2').html(ts_count[$(x).data('state')] || 0);
                     })
                     // _.each(render_data.cts_finished, function(x) {
                     //     x.sub_task_num = _.filter(tmp, function(y) {
@@ -217,11 +221,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var ts_count = _.countBy(project_tasks, function(x) {
                         return x.state;
                     });
-                    _.each($("#colltask-left-panel2 label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
-                    })
+                    // _.each($("#colltask-left-panel2 label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
                     // console.log(render_data.projects);
+                    _.each($("#colltask2 .btn-colltask-change_state2"), function(x) {
+                        $(x).find('.colltask_state_num2').html(ts_count[$(x).data('state')] || 0);
+                    })
                 } else if (render_mode == 'pi') {
                     render_data = {
                         pis: [],
@@ -249,11 +256,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var ts_count = _.countBy(pi_tasks, function(x) {
                         return x.state;
                     });
-                    _.each($("#colltask-left-panel2 label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
-                    })
+                    // _.each($("#colltask-left-panel2 label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
                     // console.log(render_data.pis);
+                    _.each($("#colltask2 .btn-colltask-change_state2"), function(x) {
+                        $(x).find('.colltask_state_num2').html(ts_count[$(x).data('state')] || 0);
+                    })
                 } else if (render_mode == 'skills') {
                     render_data = {
                         skills: [],
@@ -293,9 +303,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var ts_count = _.countBy(skill_tasks, function(x) {
                         return x.state;
                     });
-                    _.each($("#colltask-left-panel2 label"), function(x) {
-                        // console.log(x);
-                        $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // _.each($("#colltask-left-panel2 label"), function(x) {
+                    //     // console.log(x);
+                    //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
+                    // })
+                    _.each($("#colltask2 .btn-colltask-change_state2"), function(x) {
+                        $(x).find('.colltask_state_num2').html(ts_count[$(x).data('state')] || 0);
                     })
                 };
 
@@ -366,6 +379,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var $this = $(this);
                         self.search_term = $this.val();
                         self.render();
+                    })
+                    .on('click', '.btn-colltask-change_state2', function(event) {
+                        var $this = $(this);
+                        self.state = $this.data('state');
+                        self.render();
+                        $('.btn-colltask-change_state2').removeClass('ui-btn-active');
+                        $this.addClass('ui-btn-active');
                     })
                     .on('click', '._ezswipe_container', function(event) {
                         console.log('message ininin');

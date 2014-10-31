@@ -6,6 +6,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/AssessmentCollection", "../collections/AssessmentVCollection",
         "../collections/TaskCollection", "../collections/PayrollCollection", "../collections/CompetencyCollection",
         "../collections/PeopleCollection", "../collections/TalentCollection",
+        "../collections/AssessmentSubCollection",
 
         "../models/AssessmentModel", "../models/CompetencyModel", "../models/TalentModel",
 
@@ -24,6 +25,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         AssessmentCollection, AssessmentVCollection,
         TaskCollection, PayrollCollection, CompetencyCollection,
         PeopleCollection, TalentCollection,
+        AssessmentSubCollection,
 
         AssessmentModel, CompetencyModel, TalentModel,
 
@@ -187,7 +189,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         changeHash: false,
                     });
 
-                    $("#myteam_detail-task-back-url").attr('href', '#myteam_detail/'+people_id+'/basic');
+                    $("#myteam_detail-task-back-url").attr('href', '#myteam_detail/' + people_id + '/basic');
                 } else if (tab == 'assessment') { //下属的绩效
                     $("body").pagecontainer("change", "#myteam_detail-assessment", {
                         reverse: false,
@@ -197,8 +199,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     $.mobile.loading("show");
                     self.c_assessment_myteam.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + people_id + '&ct=' + (new Date()).getTime();
                     self.c_assessment_myteam.fetch().done(function() {
-                        self.myTeamAssessmentView.render(people_id, self.c_people.get(people_id).get('people_name'));
-                        $.mobile.loading("hide");
+                        self.c_people2.people = people_id;
+                        self.c_people2.fetch().done(function() {
+                            self.myTeamAssessmentView.c_people = self.c_people2;
+                            self.myTeamAssessmentView.c_assessment_sub = self.c_assessment_sub;
+                            self.myTeamAssessmentView.render(people_id, self.c_people2.get(people_id).get('people_name'));
+                            $.mobile.loading("hide");
+                        })
                     })
 
                     // var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('assessment_' + people_id)) || null)
@@ -544,11 +551,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 this.c_assessment_v_myteam = new AssessmentVCollection(); //团队成员的考核计划－获取的时候需要修改url，把下属的people id拼进去再fetch。 －版本
                 this.c_task_myteam = new TaskCollection(); //团队成员的工作任务－获取的时候需要修改url，把下属的people id拼进去再fetch。
                 this.c_people = new PeopleCollection();
+                this.c_people2 = new PeopleCollection();
                 this.c_talent = new TalentCollection(); //人才
                 this.c_payroll_myteam = new PayrollCollection(); //团队成员的工资－获取的时候需要修改url，把下属的people id拼进去再fetch。
                 this.c_competency = new CompetencyCollection(); //能力素质
                 this.c_scoringformula = new ScoringFormulaCollection(); //能力素质
                 this.c_gradegroup = new GradeGroupCollection(); //能力素质
+                this.c_assessment_sub = new AssessmentSubCollection(); //考核计划-下属
 
             },
             bind_events: function() {
