@@ -37,7 +37,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "quesetionnair_template": "quesetionnair_template",
                 "quesetionnair_template/:qt_id": "quesetionnair_template_edit",
                 "quesetionnair_template_issue/:qt_id/:type": "quesetionnair_template_issue",
-                "quesetionnair_template_result/:qt_id/:type": "quesetionnair_template_result",
+                "quesetionnair_template_result/:qt_id/:qt_type/:mark": "quesetionnair_template_result",
                 //综合模版
                 "quesetionnair_common_template": "quesetionnair_common_template",
                 "quesetionnair_common_template/:qt_id": "quesetionnair_common_template_edit",
@@ -81,12 +81,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     localStorage.setItem('qt_issue_back_url', '#quesetionnair_common_template');
                     // self.questionnairTemplateClient.back_url = '#quesetionnair_common_template'
                 } else {
-                    console.log('=========')
                     localStorage.setItem('qt_issue_back_url', '#quesetionnair_template');
                     // self.questionnairTemplateClient.back_url = '#quesetionnair_template'
                 }
-
-
 
                 $("body").pagecontainer("change", "#quesetionnaire_template_issue_list", {
                     reverse: false,
@@ -103,30 +100,29 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     $.mobile.loading("hide");
                 })
             },
-            quesetionnair_template_result: function(qt_id, type) {
+            quesetionnair_template_result: function(qt_id, qt_type, mark) {
                 var self = this;
-                if (type == 'X') {
-                    localStorage.setItem('qt_result_back_url', '#quesetionnair_common_template');
-                    self.questionnairTemplateClient.back_url = '#quesetionnair_common_template'
-                } else {
-                    console.log('=========')
+                if (mark == 'X') {
                     localStorage.setItem('qt_result_back_url', '#quesetionnair_template');
-                    self.questionnairTemplateClient.back_url = '#quesetionnair_template'
+                } else {
+                    localStorage.setItem('qt_result_back_url', '#quesetionnair_common_template');
                 }
+
                 $("body").pagecontainer("change", "#quesetionnaire_template_result_list", {
                     reverse: false,
                     changeHash: false,
                 });
                 $.mobile.loading("show");
-                // self.resultList.pre_render();
+                self.resultList.pre_render();
                 var find_data = {
-                    q_category: '2',
+                    q_category: qt_type,
                     qtc: qt_id,
                     type: 'N'
 
                 }
                 $.post('/admin/pm/questionnair_template/get_qt_instances', find_data, function(data) {
-                    self.resultList.qtis = data.result
+                    self.resultList.qtis = data.result;
+                    self.resultList.qt_type = qt_type;
                     self.resultList.people = $('#login_people').val();
                     self.resultList.render();
                     $.mobile.loading("hide");
