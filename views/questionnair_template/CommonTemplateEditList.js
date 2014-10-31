@@ -40,10 +40,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var qt_category = self.model.attributes.questionnair_category;
 
                 if (qt_category == '2') {
+                    $('#qt_name').html('选项问卷制作')
                     var f_qti = _.find(self.model.get('option_items'), function(op) {
                         return op._id == back_obj.qti_id
                     })
                 } else if (qt_category == '6') {
+                    $('#qt_name').html('投票问卷制作')
                     var f_qti = _.find(self.model.get('vote_items'), function(op) {
                         return op._id == back_obj.qti_id
                     })
