@@ -1087,7 +1087,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('Avatar', function(data) {
         return (data) ? '/gridfs/get/' + data : '/img/no-avatar.jpg';
       });
-      Handlebars.registerHelper('TrainRecordAvatar', function(obj,avatar) {
+      Handlebars.registerHelper('TrainRecordAvatar', function(obj, avatar) {
         return (obj[avatar]) ? '/gridfs/get/' + obj[avatar] : '/img/no-avatar.jpg';
       });
       Handlebars.registerHelper('toISOMD', function(date) {
@@ -1917,6 +1917,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         } else {
           return c_lecturer
         }
+      });
+      Handlebars.registerHelper('getValue', function(obj, key) {
+        return obj[String(key)] ? obj[String(key)] : ''
       });
       Handlebars.registerHelper('FirstPosition', function(history) {
         var filter_position = _.first(_.sortBy(history, function(temp) {

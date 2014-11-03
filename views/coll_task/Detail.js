@@ -32,6 +32,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
             render: function() {
 
                 var self = this;
+                // 判断是否更换了任务
+                if (self.pre_model_id != self.model.get('_id')) {
+                    self.view_mode = 'basic';
+                    self.pre_model_id = self.model.get('_id');
+                };
+
                 self.colltask_detail_back_url = localStorage.getItem('colltask_detail_back_url') || null;
                 localStorage.removeItem('colltask_detail_back_url'); //用完删掉 
                 if (localStorage.getItem('comment_model_back')) {
@@ -275,6 +281,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         event.preventDefault();
                         var now = new Date();
                         var end = new Date(self.model.get('end'));
+                        if (self.model.get('allday')) { //如果是全天任务，则取结束日期的最后时刻。
+                            end = moment(end).endOf('day').toDate();
+                        }
                         if (self.model.get('isfinished')) {
                             alert('任务已完成，不能签到。');
                             return;

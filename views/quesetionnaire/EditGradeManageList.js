@@ -2,7 +2,7 @@
 // =============
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, _, Backbone, Handlebars, async) {
+define(["jquery", "underscore", "backbone", "handlebars", "async", "highcharts"], function($, _, Backbone, Handlebars, async, Highcharts) {
     Handlebars.registerHelper('is_null', function(data, options) {
         if (data) {
             return options.fn(this);
@@ -48,11 +48,88 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
     });
     Handlebars.registerHelper("my_result", function(result, options) {
         var msps = _.map(result, function(rt) {
-            return options[rt.result].option;
+            return options[rt.result].option + '</br>';
         })
         return msps;
     });
 
+    //投票,选项
+    var chart_column = function(content, categories_data, series_data) {
+
+        var chart = new Highcharts.Chart({
+            chart: {
+                type: 'column',
+                renderTo: content,
+            },
+            title: {
+                text: '',
+                floating: true
+            },
+            exporting: {
+                enabled: false
+            },
+            credits: {
+                enabled: true,
+                style: {
+                    cursor: 'default',
+                    color: '#909090',
+                    fontSize: '11px'
+                },
+                href: '',
+                text: 'www.zhisiyun.com'
+            },
+
+            xAxis: {
+                categories: categories_data,
+                labels: {
+                    rotation: -45,
+                    align: 'right',
+                    style: {
+                        fontSize: '12px',
+                        fontFamily: 'Verdana, sans-serif'
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    text: ''
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                column: {
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold'
+                        },
+                        formatter: function() {
+                            return this.y + '%';
+                        }
+                    }
+                }
+            },
+            tooltip: {
+                formatter: function() {
+                    var point = this.point,
+                        s = this.x + ':<b>' + this.y + '%</b><br/>';
+
+                    return s;
+                }
+            },
+            series: [{
+                name: '',
+                data: series_data,
+                color: 'white'
+            }],
+            exporting: {
+                enabled: false
+            }
+        });
+    }
 
     function forcechange(x) {
         var f_x = parseFloat(x);
@@ -367,6 +444,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 }
 
             } else if (self.view_mode == '5') {
+                var colors = Highcharts.getOptions().colors;
                 $("#quesetionnaire_manage_list #common_name").html('调研问卷')
                 var q_insatnce = _.find(self.collection.toJSON(), function(q) {
                     return q.operation_id == self.operation_id
@@ -378,6 +456,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 $.get('/admin/pm/questionnair_template/get_questionnair_survey_bblist/' + q_insatnce.qtc + '/' + q_insatnce.createDate, function(results) {
 
                     _.each(q_insatnce.datas, function(data) {
+
+                        data.myresults = _.map(data.results, function(rt) {
+                            return data.qti_options[rt.result].option;
+                        })
                         _.each(data.qti_options, function(qt) {
                             var f_d = _.find(results, function(rt) {
                                 return rt.qt_name == data.qti_name && rt.op == qt.option
@@ -387,16 +469,31 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     })
                     $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_survey_template(q_insatnce));
                     $("#quesetionnaire_manage_list-content").trigger('create');
+
+                    var categories_data = [];
+                    var series_data = [];
+                    var tts = q_insatnce.datas
+                    for (var i = 0; i < tts.length; i++) {
+                        var tis = tts[i].qti_options;
+                        var categories_data = [];
+                        var series_data = [];
+                        for (var j = 0; j < tis.length; j++) {
+                            categories_data.push(tis[j].option)
+                            series_data.push({
+                                y: forcechange(tis[j].pc),
+                                color: colors[j],
+                            })
+                        };
+                        chart_column("chart_" + i, categories_data, series_data);
+                    };
                 })
 
             } else if (self.view_mode == '6') {
 
                 $("#quesetionnaire_manage_list #common_name").html('测试问卷')
-                console.log(self.collection.toJSON())
                 var q_insatnce = _.find(self.collection.toJSON(), function(q) {
                     return q.operation_id == self.operation_id
                 })
-                console.log(q_insatnce)
                 $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_exam_template(q_insatnce));
                 $("#quesetionnaire_manage_list-content").trigger('create');
                 $('#quesetionnaire_manage_list-content .btn_dis').attr('disabled', true)

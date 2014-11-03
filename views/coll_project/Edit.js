@@ -116,6 +116,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         var $this = $(this);
                         var field = $this.data('field');
                         var value = $this.val();
+                        if (field === 'start' || field === 'end') {
+                            value = value.replace('T', ' '); //把T换掉，保存UCT的时间
+                        }
                         self.model.set(field, value);
                     })
                     .on('change', '#ct_project-lock_remove', function(event) {
