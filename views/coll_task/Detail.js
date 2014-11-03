@@ -76,7 +76,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
 
                 var rendered = '';
                 if (self.view_mode == 'basic') {
-                    rendered = self.template_basic(render_data)
+                    $.get('/admin/checkin/list/coll_task/' + self.model.get('_id'), function(data) {
+                        if (data.code == 'OK') {
+                            render_data.checkin_records = data.data;
+                            rendered = self.template_basic(render_data)
+                            $("#colltask_detail-content").html(rendered);
+                            $("#colltask_detail-content").trigger('create');
+                        };
+                    })
                 } else if (self.view_mode == 'comment') {
                     rendered = self.template_comment(render_data)
                 } else if (self.view_mode == 'revise') {

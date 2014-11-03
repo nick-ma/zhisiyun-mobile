@@ -76,10 +76,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 //设定返回按钮的地址
 
                 $("#btn-collproject_detail-back").attr('href', self.collproject_detail_back_url);
-
+                self.render_data = render_data;
                 var rendered = '';
                 if (self.view_mode == 'basic') {
-                    rendered = self.template_basic(render_data)
+                    // rendered = self.template_basic(render_data)
+                    self.reload_coll_tasks();
                 } else if (self.view_mode == 'extend') { //扩展信息
                     var cp_type = _.find(self.cp_types, function(x) {
                         return x._id == self.model.get('cp_type');
@@ -605,9 +606,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                     tmp = _.sortBy(tmp, function(x) {
                         return -new Date(x.createDate); //按创建时间倒序排
                     })
-                    rendered = self.template_colltask({
-                        coll_tasks: tmp
-                    })
+                    // rendered = self.template_colltask({
+                    //     coll_tasks: tmp
+                    // })
+
+                    self.render_data.coll_tasks = tmp;
+                    rendered = self.template_basic(self.render_data)
+
                     $("#collproject_detail-content").html(rendered);
                     $("#collproject_detail-content").trigger('create');
                 })
