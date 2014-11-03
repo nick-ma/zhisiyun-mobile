@@ -48,6 +48,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "models/TaskModel", "j
                 tmp.start = new Date(tmp.start);
                 tmp.end = new Date(tmp.end);
                 tmp.icon = "carat-r";
+                console.log(tmp)
                 cal_events.push(tmp);
 
             });
