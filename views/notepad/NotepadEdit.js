@@ -10,7 +10,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
 
                 self.template = Handlebars.compile($("#np_edit_view").html());
                 self.loading_template = Handlebars.compile($("#loading_template_view").html());
-                this.left_template = Handlebars.compile($("#np_edit_left_view").html());
+                self.left_template = Handlebars.compile($("#np_edit_left_view").html());
 
                 self.bind_event();
             },
@@ -41,10 +41,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                 $("#np_edit_list-content").html(self.template(self.model.attributes));
                 $("#np_edit_list-content").trigger('create');
 
-                setTimeout(function() {
-                    $("#np_content").attr('style','height:330px;');
-                }, 500);
-
                 return this;
             },
             bind_event: function() {
@@ -73,18 +69,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                         _.each($(".send_np"), function(x) {
                             if ($(x).attr('data-cacheval') == 'false') {
                                 var pl = {};
-                                pl._id = $(x).val();
+                                pl.people = $(x).val();
                                 pl.people_name = $(x).data('people_name');
                                 pls.push(pl);
                             }
                         })
 
                         if (pls.length) {
+                            $('#btn-send-ok').attr('disabled',true);
                             async.times(pls.length, function(n, next) {
                                 var p = pls[n];
 
                                 var new_np = {
-                                    people: p._id,
+                                    people: p.people,
                                     people_name: p.people_name,
                                     content: self.model.attributes.content,
                                     source_people: self.model.attributes.people,
@@ -99,7 +96,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                                     next(null, null);
                                 })
                             }, function(err, results) {
-                                alert('转发成功!');
+                                _.each(pls,function(x){
+                                    var rp = {};
+                                    rp.people = x.people;
+                                    rp.people_name = x.people_name;
+                                    self.model.attributes.r_peoples.push(rp);
+                                })
+                                self.model.save().done(function(){
+                                    alert('转发成功!');
+                                    $('#btn-send-ok').attr('disabled',false);
+                                })
                                 $("#np_edit-left-panel").panel("close");
                             })
                         } else {
