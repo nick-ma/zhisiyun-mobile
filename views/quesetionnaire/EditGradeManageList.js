@@ -18,6 +18,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
         };
     });
 
+    Handlebars.registerHelper('qt_type', function(data) {
+        if (data == '1') {
+            return '(单选)'
+        } else {
+            return '(多选)'
+        };
+    });
+
     Handlebars.registerHelper('rep_type', function(data) {
         if (data == '0') {
             return "<span class='label-info'>待提交</span>"
@@ -363,6 +371,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var q_insatnce = _.find(self.collection.toJSON(), function(q) {
                     return q.operation_id == self.operation_id
                 })
+
+                if (q_insatnce.mark == '7') {
+                    $("#quesetionnaire_manage_list #common_name").html('投票问卷')
+                };
                 $.get('/admin/pm/questionnair_template/get_questionnair_survey_bblist/' + q_insatnce.qtc + '/' + q_insatnce.createDate, function(results) {
 
                     _.each(q_insatnce.datas, function(data) {
@@ -380,9 +392,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             } else if (self.view_mode == '6') {
 
                 $("#quesetionnaire_manage_list #common_name").html('测试问卷')
+                console.log(self.collection.toJSON())
                 var q_insatnce = _.find(self.collection.toJSON(), function(q) {
                     return q.operation_id == self.operation_id
                 })
+                console.log(q_insatnce)
                 $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_exam_template(q_insatnce));
                 $("#quesetionnaire_manage_list-content").trigger('create');
                 $('#quesetionnaire_manage_list-content .btn_dis').attr('disabled', true)
@@ -429,12 +443,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 } else if (type && type == '3') {
                     var operation_id = $(this).data('operation_id');
                     self.operation_id = operation_id;
-                    if (mark == '3') {
+                    if (mark == '3' || mark == '7') {
 
                         self.view_mode = '5';
                         self.render();
-                    } else if (mark == '7') {
-                        window.location.href = '#godo/' + $(this).data('operation_id') + '/' + type
                     } else {
                         self.view_mode = '6';
                         self.render();
