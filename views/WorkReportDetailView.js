@@ -195,7 +195,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         self.model_view = '0'
                         self.render();
                     } else {
-                        window.location.href = localStorage.getItem('wr_detail_back_url')
+                        if (localStorage.getItem('wr_detail_back_url')) {
+                            window.location.href = localStorage.getItem('wr_detail_back_url')
+                        } else {
+                            window.location.href = '#wrlist'
+                        }
                     }
                 }).on('click', '#btn_wr_self_ok', function(event) {
                     event.preventDefault();
