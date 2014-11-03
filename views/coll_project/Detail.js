@@ -79,6 +79,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                 self.render_data = render_data;
                 var rendered = '';
                 if (self.view_mode == 'basic') {
+                    self.cp_ct_state = self.cp_ct_state || '0'; //全部的任务
                     // rendered = self.template_basic(render_data)
                     self.reload_coll_tasks();
                 } else if (self.view_mode == 'extend') { //扩展信息
