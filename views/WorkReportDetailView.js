@@ -62,7 +62,6 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 var render_data = '';
                 if (self.model_view == '0') {
                     $('#wr_name').html('工作报告')
-                    console.log(self.model.attributes)
                     render_data = self.template(self.model.attributes);
 
                 } else if (self.model_view == '1') {
