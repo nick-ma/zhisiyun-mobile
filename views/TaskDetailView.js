@@ -4,6 +4,21 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/TaskModel", "jqmcal", "formatdate"], function($, _, Backbone, Handlebars, moment, TaskModel) {
 
+
+    Handlebars.registerHelper('wp_stype', function(type, origin_oid) {
+
+        if (type == 'NOTICE') {
+            return '#im_view_R/' + origin_oid;
+        } else if (type == 'REPORT') {
+            return '#wrdetail/' + origin_oid;
+        } else {
+            return '#colltask_detail/' + origin_oid;
+        }
+
+    });
+
+
+
     // Extends Backbone.View
     var TaskDetailView = Backbone.View.extend({
         // The View Constructor
