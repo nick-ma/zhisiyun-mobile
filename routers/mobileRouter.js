@@ -1087,6 +1087,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('Avatar', function(data) {
         return (data) ? '/gridfs/get/' + data : '/img/no-avatar.jpg';
       });
+      Handlebars.registerHelper('TrainRecordAvatar', function(obj,avatar) {
+        return (obj[avatar]) ? '/gridfs/get/' + obj[avatar] : '/img/no-avatar.jpg';
+      });
       Handlebars.registerHelper('toISOMD', function(date) {
         return (date) ? moment(date).format('MM/DD') : '';
       });
@@ -1348,7 +1351,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return '<span class="label label-info">' + obj[String(source)] + '</span>'
 
       });
-      
+
       Handlebars.registerHelper('ai_edit_target_value', function(data, options) {
         if (data != '3' && data != '6' && data != '7') {
           return options.fn(this);
@@ -1882,6 +1885,38 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           status = '未通过'
         }
         return status;
+      });
+      //
+      ///**
+      ///我的培训记录
+      ///
+      Handlebars.registerHelper('ResultIsPass', function(pass) {
+        var status = '';
+        if (pass == true) {
+          status = '<p class="ui-li-aside" style="color:green">已通过</p>'
+        } else if (pass == false) {
+          status = '<p class="ui-li-aside" style="color:red">未通过</p>'
+        }
+        return status;
+      });
+      Handlebars.registerHelper('module', function(module) {
+        var obj = {
+          'T': "人才管理",
+          'I': "外部导入",
+          'N': '系统录入'
+        }
+        return obj[String(module)] ? obj[String(module)] : ""
+      });
+      Handlebars.registerHelper('train_lecturer', function(in_or_out, c_lecturer, in_lecturer) {
+        if (in_or_out) {
+          if (in_lecturer) {
+            return in_lecturer.people_name
+          } else {
+            return ""
+          }
+        } else {
+          return c_lecturer
+        }
       });
       Handlebars.registerHelper('FirstPosition', function(history) {
         var filter_position = _.first(_.sortBy(history, function(temp) {
