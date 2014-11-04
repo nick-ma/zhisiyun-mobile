@@ -48,7 +48,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "highcharts"]
     });
     Handlebars.registerHelper("my_result", function(result, options) {
         var msps = _.map(result, function(rt) {
-            return options[rt.result].option;
+            return options[rt.result].option + '</br>';
         })
         return msps;
     });
@@ -456,6 +456,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "highcharts"]
                 $.get('/admin/pm/questionnair_template/get_questionnair_survey_bblist/' + q_insatnce.qtc + '/' + q_insatnce.createDate, function(results) {
 
                     _.each(q_insatnce.datas, function(data) {
+
+                        data.myresults = _.map(data.results, function(rt) {
+                            return data.qti_options[rt.result].option;
+                        })
                         _.each(data.qti_options, function(qt) {
                             var f_d = _.find(results, function(rt) {
                                 return rt.qt_name == data.qti_name && rt.op == qt.option
@@ -463,7 +467,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "highcharts"]
                             qt.pc = f_d.pc
                         })
                     })
-
                     $("#quesetionnaire_manage_list-content").html(self.quesetionnaire_survey_template(q_insatnce));
                     $("#quesetionnaire_manage_list-content").trigger('create');
 
