@@ -50,6 +50,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
             render: function() {
 
                 var self = this;
+                // 判断是否更换了项目
+                if (self.pre_model_id != self.model.get('_id')) {
+                    self.view_mode = 'basic';
+                    self.pre_model_id = self.model.get('_id');
+                };
                 self.collproject_detail_back_url = localStorage.getItem('collproject_detail_back_url') || '#projectlist';
                 localStorage.removeItem('collproject_detail_back_url'); //用完删掉 
                 if (localStorage.getItem('comment_model_back')) {
