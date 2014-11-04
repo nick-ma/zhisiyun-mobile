@@ -12,6 +12,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/talent/CourseView", //课程选择
         "../views/talent/LambdaListView", //人才对比
         "../views/talent/TrainRecordListView", //我的培训记录
+        "../views/talent/TrainRecordCourseView", //我的培训记录课程
         "../collections/DevelopePlanCollection",
         "../collections/DevelopeDirectCollection",
         "../collections/DevelopeTypeCollection",
@@ -24,6 +25,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/CompetencyCollection", //能力素质
         "../collections/AssessmentCollection", //绩效得分
         "../collections/TrainRecordCollection", //我的培训记录
+        "../collections/TrainRecordCollection2", //我的培训记录课程
         "../models/DevelopePlanModel",
         "../models/DevelopeDirectModel",
         "../models/DevelopeTypeModel",
@@ -35,6 +37,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../models/CompetencyModel",
         "../models/TalentModel",
         "../models/TrainRecordModel", //我的培训记录
+        "../models/TrainRecordModel2", //我的培训记录课程
 
 
 
@@ -50,6 +53,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         CourseView,
         LambdaListView, //人才对比
         TrainRecordListView,
+        TrainRecordCourseView,
         DevelopePlanCollection,
         DevelopeDirectCollection,
         DevelopeTypeCollection,
@@ -62,6 +66,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         CompetencyCollection, //能力素质
         AssessmentCollection, //绩效得分
         TrainRecordCollection,
+        TrainRecordCollection2,
         DevelopePlanModel,
         DevelopeDirectModel,
         DevelopeTypeModel,
@@ -72,7 +77,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         AssessmentModel,
         CompetencyModel,
         TalentModel,
-        TrainRecordModel
+        TrainRecordModel,
+        TrainRecordModel2
     ) {
 
         var TalentRouter = Backbone.Router.extend({
@@ -96,7 +102,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "course": "course", //课程选择
                 "lambda_list": "lambda_list",
                   //人才对比列表
-                "train_record/:type": "train_record"  //我的培训记录列表
+                "train_record/:type": "train_record",
+                  //我的培训记录列表
+                "train_record/:type/:_id": "train_record_course"  //我的培训记录课程
 
             },
             plan_list: function() { //我的培养计划列表
@@ -580,7 +588,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 // self.courseSelectView.course = self.cCollection.models;
             },
-            train_record: function(type) { //我的人才提名历史数据
+            train_record: function(type) { //我的培训记录列表
                 var self = this;
                 $("body").pagecontainer("change", "#talent_train_record", {
                     reverse: false,
@@ -637,6 +645,52 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
 
             },
+            train_record_course: function(type, _id) { //我的培训记录课程
+                var self = this;
+                $("body").pagecontainer("change", "#talent_train_record_course", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.TrainRecordCourseView.pre_render();
+                var people = $("#login_people").val();
+                self.TrainRecordCourseView.people = people;
+                self.TrainRecordCourseView.login_avatar = $("#login_avatar").val();
+                self.TrainRecordCourseView.login_people_name = $("#login_people_name").val();
+                async.parallel({
+                    file: function(cb) {
+                        $.get('/admin/pm/talent_develope/file', function(data) {
+                            if (data) {
+                                self.TrainRecordCourseView.file = data.data;
+                            }
+                            cb(null, 'OK')
+                        })
+
+                    },
+                    form_data: function(cb) {
+                        $.get('/admin/course/train_record/trainging_record_bb_fetch_4m/'+_id, function(data) {
+                            if (data) {
+                                self.TrainRecordCourseView.data = data;
+                            }
+                            cb(null, 'OK')
+                        })
+                    }
+
+
+                }, function(err, result) {
+                    self.TrainRecordCourseView.type = type;
+                    self.TrainRecordCourseView.record_id = _id;
+                    self.TrainRecordCourseView.collection.url = '/admin/course/train_record/course/' + _id;
+                    self.TrainRecordCourseView.collection.fetch().done(function() {
+                        self.TrainRecordCourseView.render();
+                        $.mobile.loading("hide");
+                    })
+
+
+                })
+
+
+            },
             init_views: function() {
                 var self = this;
                 self.DevelopePlanListView = new DevelopePlanListView({
@@ -682,6 +736,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#talent_train_record-content",
                     collection: self.tr_collection
 
+                });
+                //我的培训记录课程
+                this.TrainRecordCourseView = new TrainRecordCourseView({
+                    el: "#talent_train_record_course-content",
+                    collection: self.tr_collection2
+
                 })
             },
             init_models: function() {
@@ -698,6 +758,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.TalentModel = new TalentModel();
                 self.CompetencyModel = new CompetencyModel();
                 self.TrainRecordModel = new TrainRecordModel();
+                self.TrainRecordModel2 = new TrainRecordModel2();
 
             },
             init_collections: function() {
@@ -713,6 +774,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.c_competency = new CompetencyCollection(); //能力素质
                 self.c_assessment = new AssessmentCollection(); //绩效得分
                 self.tr_collection = new TrainRecordCollection(); //绩效得分
+                self.tr_collection2 = new TrainRecordCollection2(); //绩效得分
 
             },
             init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch

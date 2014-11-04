@@ -50,9 +50,31 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                         }
                     })
-                    obj.people_id = people_id
+
+                    filter_people = _.filter(filter_people, function(x) {
+                        if (self.select_people) {
+                            var bool = x.people._id == String(self.select_people)
+                        } else {
+                            var bool = true;
+                        }
+                        return bool
+                    })
+                    obj.record_data = filter_people;
+                    obj.people_id = people_id;
                     obj.avatar_id_obj = avatar_id_obj;
+                    if (self.type == 'B') {
+                        $("#talent_train_record_title").html("我的一级下属")
+
+                    } else {
+                        $("#talent_train_record_title").html("我的二级下属")
+
+                    }
+
+                } else {
+                    $("#talent_train_record_title").html("我的培训记录")
+
                 }
+
                 $("#talent_train_record-content").html(self.template(obj));
                 $("#talent_train_record-content").trigger('create');
                 return this;
@@ -64,8 +86,14 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 $("#talent_train_record").on('click', '.talent_train_record_view_mode', function(event) {
                     event.preventDefault();
                     var select = $(this).data("select");
+                    self.select_people = null;
                     window.location = "/m#train_record/" + select;
 
+                }).on('click', 'img', function(event) {
+                    event.preventDefault();
+                    var select_people = $(this).data("people");
+                    self.select_people = select_people;
+                    self.render();
                 })
             }
 
