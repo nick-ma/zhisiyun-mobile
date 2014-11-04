@@ -104,6 +104,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                                 })
                                 self.model.save().done(function(){
                                     alert('转发成功!');
+                                    window.location.href = '#np_list';
                                     $('#btn-send-ok').attr('disabled',false);
                                 })
                                 $("#np_edit-left-panel").panel("close");
