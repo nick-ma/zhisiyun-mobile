@@ -200,6 +200,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 }).on('click', '#btn_show_talent_twitter_select_view', function(event) { //人才提名
                     event.preventDefault();
                     window.location.href = "#talent_twitter_people/t";
+                }).on('click', '#btn_show_talent_train_record_view', function(event) { //人才提名
+                    event.preventDefault();
+                    window.location.href = "#train_record/A";
                 })
             }
 
