@@ -5,7 +5,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
         Handlebars.registerHelper('be_submit', function(data) {
 
             var f_d = _.find(data, function(dt) {
-                return !dt.is_submit && dt.people._id == $('#login_people').val();
+                var people_id = dt.people ? dt.people._id : '';
+                return !dt.is_submit && people_id == $('#login_people').val();
             })
             if (f_d) {
                 return f_d.comment
@@ -15,7 +16,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
         });
         Handlebars.registerHelper('be_submit_show', function(data, options) {
             var f_d = _.find(data, function(dt) {
-                return !dt.is_submit && dt.people._id == $('#login_people').val();
+                var people_id = dt.people ? dt.people._id : '';
+                return !dt.is_submit && people_id == $('#login_people').val();
             })
 
             if (f_d) {
@@ -79,9 +81,9 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     });
                 }
 
-                var pp_maps = _.map(self.model.get('comments'), function(ct) {
-                    return ct.people._id
-                })
+                var pp_maps = _.compact(_.map(self.model.get('comments'), function(ct) {
+                    return ct.people ? ct.people._id : null
+                }))
 
                 pp_maps.push(self.model.get('people'))
                 var pp_items = _.compact(_.map(self.peoples, function(pp) {
