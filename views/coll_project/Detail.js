@@ -1,5 +1,5 @@
 // CollProject Detail View
-// =================
+// ================= 
 
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "../../models/CollTaskModel",
