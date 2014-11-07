@@ -4,6 +4,7 @@
 define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View", "../views/AIWF03View", "../views/TransConfirmView", "../views/AIPrevView",
         "../views/tm_attendance/AttendanceResultChangeView",
+        "../views/tm_attendance/HrAttendanceResultChangeView",
         "../views/tm_attendance/TMAbsenceOfThreeView",
         // 指标选择界面
         "../views/AIPISelectView",
@@ -24,6 +25,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
     function($, Backbone, Handlebars, LZString, async,
         ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView, AIPrevView,
         AttendanceResultChangeView,
+        HrAttendanceResultChangeView,
         TMAbsenceOfThreeView,
         AIPISelectView,
         PIView,
@@ -56,6 +58,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo2/:op_id/:type": "go_do2",
                 "godo3/:op_id/:type": "go_do3",
                 "godo4/:op_id/:type": "go_do4",
+                "godo11/:op_id/:type": "go_do11",
                 "godo8/:op_id/:type": "go_do8",
                 "godo9/:op_id/:type": "go_do9",
                 // "prev_ai/:period/:people/:position": "prev_ai",
@@ -226,12 +229,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                                     self.ai_prev.fetch().done(function() {
                                         self.ai_super.fetch().done(function() {
-                                            self.aiSubCollection.fetch().done(function(){
+                                            self.aiSubCollection.fetch().done(function() {
                                                 cb(null, null);
                                             })
                                         });
                                     });
-                                }else{
+                                } else {
                                     cb(null, null);
                                 }
                             },
@@ -259,17 +262,17 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                         // if($("#login_people").val() == self.ai.attributes.people.toString()){
                         //     $("#ai_wf1-footer").show();
-                            if (self.ai_prev.attributes.quantitative_pis || self.ai_prev.attributes.qualitative_pis) {
-                                $("#btn-ai_wf1-prev").attr("disabled",false);
-                            }else{
-                                $("#btn-ai_wf1-prev").attr("disabled",true);
-                            }
+                        if (self.ai_prev.attributes.quantitative_pis || self.ai_prev.attributes.qualitative_pis) {
+                            $("#btn-ai_wf1-prev").attr("disabled", false);
+                        } else {
+                            $("#btn-ai_wf1-prev").attr("disabled", true);
+                        }
 
-                            if (self.ai_super.attributes.quantitative_pis || self.ai_super.attributes.qualitative_pis) {
-                                $("#btn-ai_wf1-super").attr("disabled",false);
-                            }else{
-                                $("#btn-ai_wf1-super").attr("disabled",true);
-                            }
+                        if (self.ai_super.attributes.quantitative_pis || self.ai_super.attributes.qualitative_pis) {
+                            $("#btn-ai_wf1-super").attr("disabled", false);
+                        } else {
+                            $("#btn-ai_wf1-super").attr("disabled", true);
+                        }
                         // }else{
                         //     $("#ai_wf1-footer").hide();
                         // }
@@ -422,6 +425,55 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     });
                 })
             },
+            go_do11: function(op_id, type) {
+                var self = this;
+                // self.view_mode_state = localStorage.getItem('view_mode_state') || null;
+                // localStorage.removeItem('view_mode_state'); //用完删掉 
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+                async.parallel({
+                    data1: function(cb) {
+                        async.waterfall([
+
+                            function(cb) {
+                                $.get('/admin/tm/beyond_work/wf_task/' + ti_id, function(data) {
+                                    if (data) {
+                                        self.singleHrAttendanceResultChangeView.wf_data = data;
+                                        cb(null, data)
+                                    } else {
+                                        cb(null, null);
+                                    }
+                                })
+
+                            },
+                            function(wf_data, cb) {
+                                var attendance_id = wf_data.ti.process_instance.collection_id;
+                                $.get('/admin/tm/tm_wf/get_hr_collection_data/' + attendance_id, function(data) {
+                                    if (data) {
+                                        self.singleHrAttendanceResultChangeView.attendance = data;
+                                        cb(null, data)
+                                    } else {
+                                        cb(null, null);
+                                    }
+                                })
+                            },
+
+                        ], cb);
+                    }
+                }, function(err, ret) {
+                    self.singleHrAttendanceResultChangeView.view_mode = 'deal_with';
+                    self.singleHrAttendanceResultChangeView.render();
+                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                    $(".ui-flipswitch a").each(function() {
+                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                    });
+                    $("body").pagecontainer("change", "#wf_attendance_batch", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                })
+            },
             go_do8: function(op_id, type) {
                 var ti_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
@@ -567,6 +619,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 })
                 self.singleAttendanceResultChangeView = new AttendanceResultChangeView({
                     el: "#personal_wf_attend-content",
+                });
+                self.singleHrAttendanceResultChangeView = new HrAttendanceResultChangeView({
+                    el: "#personal_wf_attend_batch-content",
                 });
 
                 self.aiPrevView = new AIPrevView();
