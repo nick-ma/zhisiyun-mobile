@@ -183,6 +183,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     callback: function(data, width, height) {
                         // console.log(data, width, height);
                         // $("#upload_pic-content input[type=file]").attr('src', data);
+                        // 在这里打上水印
+                        
                         var xhr = new XMLHttpRequest();
                         xhr.onreadystatechange = function(ev) {
                             // document.getElementById('filesInfo').innerHTML = 'Done!';
