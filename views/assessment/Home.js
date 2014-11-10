@@ -290,9 +290,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts","moment",
                     _.each(this.collection.models, function(x) {
                         my_performance_data.push(x.attributes);
                     })
-                    my_performance_data = _.sortBy(my_performance_data, function(x) {
-                        return x.createDate;
-                    })
+                    // my_performance_data = _.sortBy(my_performance_data, function(x) {
+                    //     return x.periodFrom;
+                    // })
                     draw_my_performance(my_performance_data);
                 }
 
@@ -366,9 +366,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts","moment",
                                 my_performance_data.push(x.attributes);
                             })
 
-                            my_performance_data = _.sortBy(my_performance_data, function(x) {
-                                return x.createDate;
-                            })
+                            // my_performance_data = _.sortBy(my_performance_data, function(x) {
+                            //     return x.periodFrom;
+                            // })
 
                             draw_my_performance(my_performance_data);
 
