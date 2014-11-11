@@ -5,8 +5,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         // 计分公式和等级组
         "../collections/ScoringFormulaCollection", "../collections/GradeGroupCollection",
         "../collections/AssessmentCollection", "../collections/AssessmentVCollection",
+        "../collections/AssessmentSummaryCollection",
         "../collections/PeopleCollection",
         "../models/AssessmentModel",
+        "../models/AssessmentSummaryModel",
         "../collections/AssessmentSubCollection",
         // views
         "../views/assessment/Home", "../views/assessment/HomeHistory",
@@ -16,13 +18,17 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../views/assessment/Detail",
         // 指标选择界面
         "../views/PISelectView",
+        //我的绩效总结
+        "../views/assessment/Summary",
 
         "async", "pull-to-refresh"
     ],
     function($, Backbone, Handlebars, LZString,
         ScoringFormulaCollection, GradeGroupCollection,
         AssessmentCollection, AssessmentVCollection,
+        AssessmentSummaryCollection,
         PeopleCollection,
+        AssessmentSummaryModel,
         AssessmentModel,
         AssessmentSubCollection,
         //views
@@ -32,7 +38,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         AssessmentImprovePlanView, AssessmentImprovePlanEditView,
         AssessmentDetailView,
         PISelectView,
-
+        AssessmentSummaryView,
         async
     ) {
 
@@ -62,6 +68,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 "assessment_improve_plan/:ai_id/:lx/:pi/:ip_id/:seg_name": "assessment_improve_plan_edit", // <- 改
                 // 指标选择界面
                 "pi_select/:mode/:target_field": "pi_select",
+                "summary": "summary", // 绩效总结列表
             },
             assessment_list: function() {
                 var self = this;
@@ -76,7 +83,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         self.homeAssessmentView.c_people = self.c_people;
                         self.homeAssessmentView.c_assessment_sub = self.c_assessment_sub;
                         self.homeAssessmentView.homeAssessmentHistoryView = self.homeAssessmentHistoryView;
-                        
+
                         self.homeAssessmentView.render();
                         self.homeAssessmentHistoryView.render();
                         $.mobile.loading('hide');
@@ -240,6 +247,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 this.piSelectView.render(mode);
             },
             //
+            summary: function() { //绩效总结
+                                var self = this;
+
+                $("body").pagecontainer("change", "#summary_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                console.log(self);
+                self.c_assessment_summary.fetch().done(function() {
+                    self.c_people.fetch().done(function() {
+                        self.AssessmentSummaryView.c_people = self.c_people;
+                        self.AssessmentSummaryView.render();
+                        $.mobile.loading('hide');
+                    })
+                })
+            },
             init_views: function() {
                 var self = this;
                 this.homeAssessmentView = new HomeAssessmentView({
@@ -272,12 +295,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     el: "#pi_select-content",
 
                 })
+                this.AssessmentSummaryView = new AssessmentSummaryView({
+                    el: "#summary_list-content",
+                    collection: self.c_assessment_summary
+
+                })
             },
             init_models: function() {
 
             },
             init_collections: function() {
                 this.c_assessment = new AssessmentCollection(); //考核计划
+                this.c_assessment_summary = new AssessmentSummaryCollection(); //绩效总结
                 this.c_assessment_v = new AssessmentVCollection(); //考核计划-版本
                 this.c_scoringformula = new ScoringFormulaCollection(); //计分公式
                 this.c_gradegroup = new GradeGroupCollection(); //等级组

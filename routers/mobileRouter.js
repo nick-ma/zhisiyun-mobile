@@ -2240,6 +2240,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return '';
         };
       });
+    Handlebars.registerHelper('ai_summary_status', function(status) {
+        var ai_status_txt = {
+            '9': '未总结',
+            '10': '总结中',
+            '11': '总结完成',
+          },
+          ai_status_class = {
+            '9': 'label label-warning',
+            '10': 'label label-info',
+            '11': 'label label-success',
+          };
+          return '<span class="'+ai_status_class[status]+'">'+ai_status_txt[status]+'</span>'
+      });
+
     })();
 
     (function() {
