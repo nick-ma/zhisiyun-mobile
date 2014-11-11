@@ -319,25 +319,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
             var F_0 = function(x) {
                 return x;
             };
-            var F_A01 = function(x, a) {
-                return x / a * 100;
+            var F_A01 = function(x, z, a) {
+                return (a == 0) ? z : x / a * 100;
             };
-            var F_A02 = function(x, a, b, c) {
-                return c / (b - a) * (x - a);
+            var F_A02 = function(x, z, a, b, c) {
+                return ((b - a) * (x - a) == 0) ? z : c / (b - a) * (x - a);
             };
-            var F_A03 = function(x, a) {
+            var F_A03 = function(x, z, a) {
                 return x - a;
             };
-            var F_B01 = function(x, a) {
-                return a / x * 100;
+            var F_B01 = function(x, z, a) {
+                return (x == 0) ? z : a / x * 100;
             };
-            var F_B02 = function(x, a) {
-                return ((a - x) / a + 1) * 100;
+            var F_B02 = function(x, z, a) {
+                return (a == 0) ? z : ((a - x) / a + 1) * 100;
             };
-            var F_B03 = function(x, a, b, c) {
-                return c / (a - b) * (a - x);
+            var F_B03 = function(x, z, a, b, c) {
+                return ((a - b) * (a - x) == 0) ? z : c / (a - b) * (a - x);
             };
-            var F_B04 = function(x, a) {
+            var F_B04 = function(x, z, a) {
                 return a - x;
             };
 
@@ -402,19 +402,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
             if (formula.sf_type == '0') {
                 x = F_0(x);
             } else if (formula.sf_type == 'A01') {
-                x = F_A01(x, r1);
+                x = F_A01(x, formula.divide_by_zero_default, r1);
             } else if (formula.sf_type == 'A02') {
-                x = F_A02(x, r1, r2, formula.max);
+                x = F_A02(x, formula.divide_by_zero_default, r1, r2, formula.max);
             } else if (formula.sf_type == 'A03') {
-                x = F_A03(x, r1);
+                x = F_A03(x, formula.divide_by_zero_default, r1);
             } else if (formula.sf_type == 'B01') {
-                x = F_B01(x, r1);
+                x = F_B01(x, formula.divide_by_zero_default, r1);
             } else if (formula.sf_type == 'B02') {
-                x = F_B02(x, r1);
+                x = F_B02(x, formula.divide_by_zero_default, r1);
             } else if (formula.sf_type == 'B03') {
-                x = F_B03(x, r1, r2, formula.max);
+                x = F_B03(x, formula.divide_by_zero_default, r1, r2, formula.max);
             } else if (formula.sf_type == 'B04') {
-                x = F_B04(x, r1);
+                x = F_B04(x, formula.divide_by_zero_default, r1);
             };
             x = x * formula.magnification; //放大倍率
             // console.log(x);
