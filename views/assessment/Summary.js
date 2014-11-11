@@ -18,7 +18,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
             // Renders all of the Assessment models on the UI
             render: function() {
                 var self = this;
-                console.log(self);
                 var data = _.map(self.collection.models, function(x) {
                     return x.toJSON()
                 })

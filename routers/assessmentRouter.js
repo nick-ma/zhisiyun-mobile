@@ -20,6 +20,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../views/PISelectView",
         //我的绩效总结
         "../views/assessment/Summary",
+        //我的绩效总结编辑
+        "../views/assessment/SummaryEdit",
 
         "async", "pull-to-refresh"
     ],
@@ -39,6 +41,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         AssessmentDetailView,
         PISelectView,
         AssessmentSummaryView,
+        AssessmentSummaryEditView,
+
         async
     ) {
 
@@ -69,6 +73,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 // 指标选择界面
                 "pi_select/:mode/:target_field": "pi_select",
                 "summary": "summary", // 绩效总结列表
+                "summary/edit/:ai_id/:ai_status": "summary_edit", // 绩效总结明细列表
             },
             assessment_list: function() {
                 var self = this;
@@ -248,19 +253,34 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             //
             summary: function() { //绩效总结
-                                var self = this;
-
+                var self = this;
                 $("body").pagecontainer("change", "#summary_list", {
                     reverse: false,
                     changeHash: false,
                 });
-                console.log(self);
                 self.c_assessment_summary.fetch().done(function() {
                     self.c_people.fetch().done(function() {
                         self.AssessmentSummaryView.c_people = self.c_people;
                         self.AssessmentSummaryView.render();
                         $.mobile.loading('hide');
                     })
+                })
+            },
+            summary_edit: function(ai_id, ai_status) { //绩效总结明细查看
+                var self = this;
+
+                $("body").pagecontainer("change", "#summary_edit_form", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.AssessmentSummaryEditView.pre_render();
+                self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb/' + ai_id;
+                self.c_assessment_summary.fetch().done(function() {
+                    self.AssessmentSummaryEditView.ai_status = ai_status;
+                    self.AssessmentSummaryEditView.render();
+                    $.mobile.loading('hide');
+
                 })
             },
             init_views: function() {
@@ -297,6 +317,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 })
                 this.AssessmentSummaryView = new AssessmentSummaryView({
                     el: "#summary_list-content",
+                    collection: self.c_assessment_summary
+
+                })
+                this.AssessmentSummaryEditView = new AssessmentSummaryEditView({
+                    el: "#summary_edit_form-content",
                     collection: self.c_assessment_summary
 
                 })
