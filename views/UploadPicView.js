@@ -21,6 +21,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 var self = this;
                 var um = JSON.parse(localStorage.getItem('upload_model'));
+                self.watermark = um.watermark; //是否加水印
+                self.watermark_text = um.watermark_text;
                 self.model = um.model;
                 self.field = um.field;
                 self.back_url = um.back_url;
@@ -162,6 +164,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var container = document.getElementById(containerid),
                         img = document.createElement("img"),
                         reader;
+                    img.id = 'preview_img';
                     container.appendChild(img);
                     reader = new FileReader();
                     reader.onload = (function(theImg) {
@@ -181,54 +184,94 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     quality: 90,
                     //rotate: 90,
                     callback: function(data, width, height) {
-                        // console.log(data, width, height);
+                        console.log(data, width, height);
+                        var mimeString = data.split(',')[0].split(':')[1].split(';')[0];
+                        console.log(mimeString);
                         // $("#upload_pic-content input[type=file]").attr('src', data);
-                        var xhr = new XMLHttpRequest();
-                        xhr.onreadystatechange = function(ev) {
-                            // document.getElementById('filesInfo').innerHTML = 'Done!';
+                        // 在这里打上水印
+                        var my_canvas = document.getElementById('my_canvas');
+                        my_canvas.width = width;
+                        my_canvas.height = height;
+                        var ctx = my_canvas.getContext('2d');
+                        var tmp_img = new Image();
+                        tmp_img.onload = function(e) {
+                            ctx.drawImage(tmp_img, 0, 0);
+                            if (self.watermark) { //画水印
+                                var text_01 = ['日期:' + moment().format('YYYY-MM-DD HH:mm:ss')];
+                                text_01.push('上传人:' + $("#login_people_name").val());
+                                ctx.font = "18px Arial";
+                                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                                ctx.fillText(text_01.join('  '), 11, 21);
+                                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                                ctx.fillText(text_01.join('  '), 10, 20);
+                                if (self.watermark_text) { //有第二行的文字，画出来
+                                    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                                    ctx.fillText(self.watermark_text, 11, 41);
+                                    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                                    ctx.fillText(self.watermark_text, 10, 40);
+                                };
+                            };
 
-                            if (ev.target.readyState == 4) {
-                                if (ev.target.status == 200) {
-                                    $("#do_upload").text('上传成功');
-                                    var res = JSON.parse(ev.target.responseText);
+                            // 回显到界面
+                            var preview_img = document.getElementById('preview_img');
+                            if (mimeString === 'image/png') {
+                                preview_img.src = my_canvas.toDataURL('image/png');
+                            } else {
+                                preview_img.src = my_canvas.toDataURL('image/jpeg', 0.9);
+                            };
 
-                                    // 利用local storage传递数据
+                            // 上传
 
-                                    // self.model[self.field].push(res._id);
+                            var xhr = new XMLHttpRequest();
+                            xhr.onreadystatechange = function(ev) {
+                                // document.getElementById('filesInfo').innerHTML = 'Done!';
 
-                                    if (_.isArray(self.model[self.field])) { //如果是数组，就push
-                                        self.model[self.field].push(res._id);
-                                    } else { //否则，直接替换－》人员头像
-                                        self.model[self.field] = res._id;
+                                if (ev.target.readyState == 4) {
+                                    if (ev.target.status == 200) {
+                                        $("#do_upload").text('上传成功');
+                                        var res = JSON.parse(ev.target.responseText);
+
+                                        // 利用local storage传递数据
+
+                                        // self.model[self.field].push(res._id);
+
+                                        if (_.isArray(self.model[self.field])) { //如果是数组，就push
+                                            self.model[self.field].push(res._id);
+                                        } else { //否则，直接替换－》人员头像
+                                            self.model[self.field] = res._id;
+                                        };
+
+                                        localStorage.setItem('upload_model_back', JSON.stringify({
+                                            model: self.model
+                                        }))
+                                        localStorage.removeItem('upload_model'); //用完删掉
+
+                                        // 返回调用页面
+
+                                        window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
+                                            window.location.href = '/m' + self.back_url;
+                                        }, 200);
+                                    } else {
+                                        $("#do_upload").text('上传失败');
                                     };
 
-                                    localStorage.setItem('upload_model_back', JSON.stringify({
-                                        model: self.model
-                                    }))
-                                    localStorage.removeItem('upload_model'); //用完删掉
-
-                                    // 返回调用页面
-
-                                    window.setTimeout(function() { //500毫秒后自动跳转回上一个界面
-                                        window.location.href = '/m' + self.back_url;
-                                    }, 200);
-                                } else {
-                                    $("#do_upload").text('上传失败');
+                                    // console.log(res);
                                 };
-
-                                // console.log(res);
+                                // console.log(ev);
                             };
-                            // console.log(ev);
-                        };
 
-                        xhr.open('POST', '/gridfs/put', true);
-                        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                        var post_data = 'data=' + encodeURIComponent(data.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
-                        // var post_data = 'data=' + data;
-                        post_data += '&file_name=' + file.name;
-                        post_data += '&file_type=' + file.type;
-                        // console.log(post_data);
-                        xhr.send(post_data);
+                            xhr.open('POST', '/gridfs/put', true);
+                            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                            var post_data = 'data=' + encodeURIComponent(preview_img.src.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""));
+                            // var post_data = 'data=' + data;
+                            post_data += '&file_name=' + file.name;
+                            post_data += '&file_type=' + file.type;
+                            // console.log(post_data);
+                            xhr.send(post_data);
+
+                        }
+                        tmp_img.src = data;
+
                     }
                 });
                 /*
@@ -295,6 +338,28 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 } else if (size >= 1073741824) {
                     return sprintf('%0.2f GB', size / 1073741824);
                 };
+            },
+            dataURLtoBlob: function(data) {
+                var mimeString = data.split(',')[0].split(':')[1].split(';')[0];
+                var byteString = atob(data.split(',')[1]);
+                var ab = new ArrayBuffer(byteString.length);
+                var ia = new Uint8Array(ab);
+                for (var i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                var bb = (window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder);
+                if (bb) {
+                    //    console.log('BlobBuilder');        
+                    bb = new(window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder)();
+                    bb.append(ab);
+                    return bb.getBlob(mimeString);
+                } else {
+                    //    console.log('Blob');  
+                    bb = new Blob([ab], {
+                        'type': (mimeString)
+                    });
+                    return bb;
+                }
             },
 
         });
