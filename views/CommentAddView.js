@@ -23,6 +23,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
                 var self = this;
                 var cm = JSON.parse(localStorage.getItem('comment_model'));
+                console.log(cm);
                 if (cm) {
                     self.model = cm.model;
                     self.field = cm.field;
@@ -63,11 +64,16 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         //转到上传图片的页面
                         localStorage.removeItem('upload_model_back'); //先清掉
                         var next_url = '#upload_pic';
-                        localStorage.setItem('upload_model', JSON.stringify({
+                        var data4send = {
                             model: self.new_comment,
                             field: 'attachments',
                             back_url: '#comment_add'
-                        }))
+                        }
+                        if (self.model.task_name) { //如果是协作任务，就把任务的名称带过去做到水印上
+                            data4send.watermark = true; //需要加水印
+                            data4send.watermark_text = '任务:' + self.model.task_name;
+                        };
+                        localStorage.setItem('upload_model', JSON.stringify(data4send))
                         window.location.href = next_url;
 
                     })
