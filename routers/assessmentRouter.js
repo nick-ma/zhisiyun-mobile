@@ -258,6 +258,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     reverse: false,
                     changeHash: false,
                 });
+                $.mobile.loading("show");
+                self.AssessmentSummaryView.pre_render();
+                self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb';
                 self.c_assessment_summary.fetch().done(function() {
                     self.c_people.fetch().done(function() {
                         self.AssessmentSummaryView.c_people = self.c_people;
@@ -278,6 +281,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb/' + ai_id;
                 self.c_assessment_summary.fetch().done(function() {
                     self.AssessmentSummaryEditView.ai_status = ai_status;
+                    var is_self = self.c_assessment_summary.models[0].attributes.people._id == String($("#login_people").val());
+                    self.AssessmentSummaryEditView.is_self = is_self;
                     self.AssessmentSummaryEditView.render();
                     $.mobile.loading('hide');
 
