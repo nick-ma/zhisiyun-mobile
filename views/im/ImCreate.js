@@ -100,7 +100,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var str = (type == 'S' ? '通知保存成功！！' : '通知发送成功！！')
                     $.mobile.loading("hide");
                     if (type == 'S') {
-                        alert(str)
+                        self.model.fetch().done(function() {
+                            self.render();
+                            alert(str)
+                        })
                     } else {
                         window.location.href = '/m#im_list'
                     }
