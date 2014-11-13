@@ -34,6 +34,50 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
         function do_save(self, type) {
 
+            if (self.model.get('is_meeting')) {
+
+                if (self.model.get('mobile_resource')) {
+
+                    var m_start_date = self.model.get('m_start_date');
+                    var m_end_date = self.model.get('m_end_date');
+                    var s_date = null;
+                    var e_date = null;
+                    if (self.model.get('is_all_day')) {
+                        s_date = moment(m_start_date).endOf('day').toDate();
+                        e_date = moment(m_end_date).endOf('day').toDate();
+                    } else {
+                        s_date = moment(moment(m_start_date).format('YYYY-MM-DD HH:mm')).toDate();
+                        e_date = moment(moment(m_end_date).format('YYYY-MM-DD HH:mm')).toDate();
+                    }
+
+                    if (e_date < s_date) {
+                        alert("结束日期不能小于开始日期!")
+                        return false;
+                    }
+                    var filters = _.filter(self.free_times, function(tt) {
+                        var tt_start = moment(tt.start).toDate();
+                        var tt_end = moment(tt.end).toDate();
+                        var bool = (tt_start < s_date) && (s_date < tt_end)
+                        var bool_02 = (tt_start < e_date) && (e_date < tt_end)
+                        var bool_03 = (tt_start >= s_date) && (tt_end <= e_date)
+                        var bl = (bool || bool_02);
+                        return (bool || bool_02 || bool_03)
+                    })
+
+                    if (filters.length) {
+                        alert('请选择空余时间段!')
+                        return false
+                    };
+                };
+
+                if (!self.model.get('m_address')) {
+                    alert('请输入会议地址！');
+                    return false
+                };
+
+            };
+
+
 
             $.mobile.loading("show");
             var imgs = []
@@ -71,6 +115,41 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             })
 
         }
+
+
+
+        function show_time_mark(self) {
+            self.free_times = [];
+            var mobile_resource = self.model.get('mobile_resource');
+            var m_start_date = moment(self.model.get('m_start_date')).format('YYYY-MM-DD');
+            var m_end_date = moment(self.model.get('m_end_date')).format('YYYY-MM-DD');
+            var mobile_resource_book = self.model.get('mobile_resource_book');
+
+
+            $.post('/admin/pm/mobile_resource_calendar/get_mobile_resources', {
+                mobile_resource: mobile_resource,
+                m_start_date: m_start_date,
+                m_end_date: m_end_date,
+                mobile_resource_book: mobile_resource_book
+            }, function(data) {
+                self.free_times = data;
+                var maps = _.map(data, function(fl) {
+                    return '<p style="margin-top: 0px; margin-bottom: 0px;">' + moment(fl.start).format('YYYY-MM-DD HH:mm') + ' ~ ' + moment(fl.end).format('YYYY-MM-DD HH:mm') + '</p>'
+                })
+                if (maps.length) {
+                    maps.unshift('<p style="margin-top: 0px; margin-bottom: 0px;">已用时间段：</p>')
+                    $("#im_create_list .is_free_show").show()
+                } else {
+                    $("#im_create_list .is_free_show").hide()
+                }
+                $("#im_create_list .is_free_show").html(maps.join('\n'))
+            })
+
+
+        }
+
+
+
         // Extends Backbone.View
         var ImListView = Backbone.View.extend({
 
@@ -97,7 +176,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             render: function() {
                 var self = this;
                 var rendered_data = '';
-                console.log(self)
 
                 //附件数据
                 if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
@@ -108,7 +186,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
                 if (self.model_view == '0') {
                     $("#im_create_list #btn-create_list-back").addClass('ui-icon-back').removeClass('ui-icon-check')
-                    rendered_data = self.template_im_create(self.model.attributes)
+
+                    var obj = self.model.attributes;
+                    obj.mrs = self.mrs;
+                    rendered_data = self.template_im_create(obj)
                 } else {
                     $("#im_create_list #btn-create_list-back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
                     rendered_data = self.people_select_template({
@@ -117,6 +198,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 }
                 $("#im_create_list-content").html(rendered_data);
                 $("#im_create_list-content").trigger('create');
+
+
+                if (self.model.get('mobile_resource')) {
+                    $('#im_create_list #m_address').attr('disabled', true)
+                } else {
+                    $('#im_create_list #m_address').removeAttr('disabled')
+                }
+                show_time_mark(self);
 
                 return this
             },
@@ -159,7 +248,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var field = $(this).data('field');
                         var val = $(this).val();
                         self.model.set(field, val)
-                    }).on('change', 'select', function(event) {
+                    }).on('change', '.is_check', function(event) {
                         event.preventDefault();
                         var field = $(this).data('field');
                         var la = $(this).val();
@@ -169,6 +258,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         $(".ui-flipswitch a").each(function() {
                             $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                         });
+                    }).on('change', '#mobile_resource', function(event) {
+                        event.preventDefault();
+                        var field = $(this).data('field');
+                        var mobile_resource = $(this).val(); //会议室
+                        if (mobile_resource) {
+                            self.model.set(field, mobile_resource)
+                            var f_d = _.find(self.mrs, function(mr) {
+                                return mr._id == mobile_resource
+                            })
+                            if (f_d) {
+                                self.model.set('m_address', f_d.mr_name + ',' + f_d.mr_address);
+                            };
+                        } else {
+                            self.model.set(field, '')
+                            self.model.set('m_address', '')
+                        }
+                        self.render();
+
+
                     }).on('change', '#m_start_date, #m_end_date', function(event) {
                         event.preventDefault();
                         var type = $(this).data('type');
@@ -185,6 +293,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         } else {
                             self.model.set('time_zone_e', times(current_date).zone)
                         }
+                        show_time_mark(self);
                     }).on('click', '#btn-save', function(event) {
                         event.preventDefault();
                         self.model.set('is_send', false);
@@ -196,6 +305,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             alert('发送内容不能为空!')
                             return false
                         };
+
+
+
                         do_save(self, 'S');
                     }).on('click', '#btn-save_send', function(event) {
                         event.preventDefault();

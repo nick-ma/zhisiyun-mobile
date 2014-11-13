@@ -75,6 +75,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.im.id = im_id;
             self.im.fetch().done(function() {
                 self.imCreateView.peoples = self.peoples
+                self.imCreateView.mrs = self.mrs
+
                 self.imCreateView.render();
 
                 $.mobile.loading("hide");
@@ -108,6 +110,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
                 self.peoples = peoples
             })
+
+            $.get('/admin/pm/mobile_resource/bb', function(data) {
+                self.mrs = data
+            })
+
+
+
         }
 
     });
