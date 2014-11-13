@@ -6,26 +6,49 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
     function($, _, async, Backbone, Handlebars, moment, AssessmentModel, CollTaskModel) {
         var people_ind_superiors, people_superiors, ai_id = null,
             pds = null;
-        // Extends Backbone.View
-        var AssessmentSummaryEditView = Backbone.View.extend({
+        var do_trans = function(trans_data) {
+                // save_form_data_b(function() {
+                var post_data = {
+                    process_instance_id: $("#summary_wf_edit_form-content #process_instance_id").val(),
+                    task_instance_id: $("#summary_wf_edit_form-content #task_instance_id").val(),
+                    process_define_id: $("#summary_wf_edit_form-content #process_define_id").val(),
+                    next_tdid: $("#summary_wf_edit_form-content #next_tdid").val(),
+                    next_user: $("#summary_wf_edit_form-content #next_user_id").val() || $("#select_next_user").val(), //'516cf9a1d26ad4fe48000001', //以后从列表中选出
+                    trans_name: $("#summary_wf_edit_form-content #trans_name").val(), // 转移过来的名称
+                    comment_msg: $("#summary_wf_edit_form-content #comment_msg").val(), // 任务批注 
+                    attachments: trans_data.attachments || null
+                };
+                var post_url = $("#summary_wf_edit_form-content #task_process_url").val();
+                post_url = post_url.replace('<TASK_ID>', $("#summary_wf_edit_form-content #task_instance_id").val());
+                $.post(post_url, post_data, function(data) {
+                        if (data.code == 'OK') {
+                            window.location = '#summary';
+                        } else {
+                            window.location = '#summary';
+
+                        }
+                    })
+                    // })
+            }
+            // Extends Backbone.View
+        var AssessmentSummaryWfEditView = Backbone.View.extend({
             // The View Constructor
             initialize: function() {
-                this.template = Handlebars.compile($("#psh_summary_edit_form_view").html());
+                this.template = Handlebars.compile($("#psh_summary_wf_edit_form_view").html());
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
-                this.pi_template = Handlebars.compile($("#psh_summary_index_view").html());
-                this.wip_template = Handlebars.compile($("#psh_summary_wip_form_view").html());
+                this.pi_template = Handlebars.compile($("#psh_summary_wf_index_view").html());
+                this.trans_template = Handlebars.compile($("#trans_confirm_view").html());
+                this.wip_template = Handlebars.compile($("#psh_summary_wf_wip_form_view").html());
                 this.index_template = Handlebars.compile($("#pi_assessment_pi_select_view").html()); //指标选择
-                this.wf_template = Handlebars.compile($("#pi_assessment_wf_select_view").html()); //流程选择
-
                 this.bind_events();
                 var self = this;
             },
             pre_render: function() {
                 var self = this;
-                $("#summary_edit_form-content").html(self.loading_template({
+                $("#summary_wf_edit_form-content").html(self.loading_template({
                     info_msg: '数据加载中...请稍候'
                 }));
-                $("#summary_edit_form-content").trigger('create');
+                $("#summary_wf_edit_form-content").trigger('create');
                 return this;
             },
             // Renders all of the Assessment models on the UI
@@ -34,13 +57,13 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 var data = _.map(self.collection.models, function(x) {
                     return x.toJSON()
                 })
-                if (self.ai_status >= 10) {
-                    $("#summary_edit_form #summary_name").html("绩效总结查看")
+                //附件数据
+                if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
+                    self.data = JSON.parse(localStorage.getItem('upload_model_back')).model;
+                    localStorage.removeItem('upload_model_back'); //用完删掉
+                };
+                $("#summary_wf_edit_form #summary_name").html("绩效总结流程")
 
-                } else {
-                    $("#summary_edit_form #summary_name").html("绩效总结编辑")
-
-                }
                 var rendered_content = [];
                 var items = data[0].quantitative_pis.items; //ration=2 定量
                 var mark_as_summary_type1_num = 0,
@@ -108,34 +131,66 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     })
                 }
 
-                if (self.ai_status == '9' && self.is_self) {
+                if (self.is_self) {
                     var is_edit = true;
                 } else {
                     var is_edit = false;
 
-                }
+                };
+                if (self.is_ind_superiors) {
+                    var is_ind_superiors = true;
+                } else {
+                    var is_ind_superiors = false;
+
+                };
+                if (self.is_superiors) {
+                    var is_superiors = true;
+                } else {
+                    var is_superiors = false;
+
+                };
                 ai_id = data[0]._id;
                 var render_data = {
                     rendered_content: rendered_content,
                     data: data[0],
                     is_edit: is_edit,
+                    is_ind_superiors: is_ind_superiors,
+                    is_superiors: is_superiors,
+                    type: self.type,
                     type1_len: mark_as_summary_type1_num,
                     type2_len: mark_as_summary_type2_num
 
                 }
-                $("#summary_href").attr("href", '/m#summary');
+                render_data = _.extend(render_data, self.data);
+                $("#summary_wf_edit_form #summary_href").attr("href", '/m#summary');
                 if (index == 'index_select') {
-                    $("#summary_edit_form #summary_name").html("选择待总结的指标");
-                    $("#summary_edit_form #summary_href").data("module", "C");
-                    $("#summary_edit_form #add_pi").data("ai_id", data[0]._id);
-                    $("#summary_edit_form #add_pi").data("type", type);
-                    $("#summary_edit_form #add_pi").show();
-                    $("#summary_edit_form-content").html(self.index_template(render_data));
+                    $("#summary_wf_edit_form #summary_name").html("选择待总结的指标");
+                    $("#summary_wf_edit_form #summary_href").data("module", "C");
+                    $("#summary_wf_edit_form #add_pi").data("ai_id", data[0]._id);
+                    $("#summary_wf_edit_form #add_pi").data("type", type);
+                    $("#summary_wf_edit_form #add_pi").show();
+                    $("#summary_wf_edit_form-content").html(self.index_template(render_data));
 
                 } else {
-                    $("#summary_edit_form-content").html(self.template(render_data));
+                    if (self.view_mode == 'trans') {
+                        $("#summary_wf_edit_form #summary_name").html('数据处理人');
+
+                        $("#summary_wf_edit_form-content").html(self.trans_template(self.trans_data));
+                        // $("#summary_wf_edit_form-content").trigger('create');
+
+                        if (self.trans_data.next_td.node_type == 'END') {
+                            do_trans(self.trans_data);
+                        }
+                    } else {
+
+                        $("#summary_wf_edit_form-content").html(self.template(render_data));
+                        // $("#summary_wf_edit_form-content").trigger('create');
+                        // return this;
+                    }
+
+                    // $("#summary_wf_edit_form-content").html(self.template(render_data));
                 }
-                $("#summary_edit_form-content").trigger('create');
+                $("#summary_wf_edit_form-content").trigger('create');
                 //查找上级和间接上级数据
                 async.series({
                     ind_sup: function(cb) {
@@ -170,7 +225,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     })
                 }
                 //是否可以编辑
-                if (self.ai_status == '9' && self.is_self) {
+                if (self.is_self) {
                     var is_edit = true;
                 } else {
                     var is_edit = false;
@@ -179,31 +234,35 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 var render_data = {
                     data: data[0],
                     is_edit: is_edit,
+                    is_ind_superiors: self.is_ind_superiors,
+                    is_superiors: self.is_superiors,
+                    type: self.type,
+
                     find_pi: find_pi
                 };
                 if (module == 'A') {
-                    $("#summary_edit_form #summary_href").data("module", "A");
-                    $("#summary_edit_form #summary_name").html("不足与改进");
+                    $("#summary_wf_edit_form #summary_href").data("module", "A");
+                    $("#summary_wf_edit_form #summary_name").html("不足与改进");
 
                     render_data.module = 'A';
 
                 } else if (module == 'B') {
-                    $("#summary_edit_form #summary_href").data("module", "B");
-                    $("#summary_edit_form #summary_name").html("绩效亮点分享")
+                    $("#summary_wf_edit_form #summary_href").data("module", "B");
+                    $("#summary_wf_edit_form #summary_name").html("绩效亮点分享")
                     render_data.module = 'B';
 
                 }
 
                 //页签切换时用
-                $("#summary_edit_form .btn-summary_edit_form-change_state").data("module", module)
-                $("#summary_edit_form .btn-summary_edit_form-change_state").data("pi_id", pi_id)
-                $("#summary_edit_form .btn-summary_edit_form-change_state").data("ration", ration)
+                $("#summary_wf_edit_form .btn-summary_wf_edit_form-change_state").data("module", module)
+                $("#summary_wf_edit_form .btn-summary_wf_edit_form-change_state").data("pi_id", pi_id)
+                $("#summary_wf_edit_form .btn-summary_wf_edit_form-change_state").data("ration", ration)
 
-                $("#summary_edit_form-content").html(self.pi_template(render_data));
-                $("#summary_edit_form-footer").show();
+                $("#summary_wf_edit_form-content").html(self.pi_template(render_data));
+                $("#summary_wf_edit_form-footer").show();
 
-                $("#summary_edit_form-content").trigger('create');
-                $("#summary_edit_form #mark_as_watch").parent().addClass('mark_as_watch');
+                $("#summary_wf_edit_form-content").trigger('create');
+                $("#summary_wf_edit_form #mark_as_watch").parent().addClass('mark_as_watch');
                 return this; //指标－绩效总结数据
 
             },
@@ -235,41 +294,31 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 var render_data = {
                     data: data[0],
                     is_edit: is_edit,
+                    is_ind_superiors: self.is_ind_superiors,
+                    is_superiors: self.is_superiors,
+                    type: self.type,
                     find_pi: find_pi
                 };
                 if (module == 'A') {
-                    $("#summary_edit_form #summary_href").data("module", "A");
-                    $("#summary_edit_form #summary_name").html("不足与改进")
+                    $("#summary_wf_edit_form #summary_href").data("module", "A");
+                    $("#summary_wf_edit_form #summary_name").html("不足与改进")
 
                 } else if (module == 'B') {
-                    $("#summary_edit_form #summary_href").data("module", "B");
-                    $("#summary_edit_form #summary_name").html("绩效亮点分享")
+                    $("#summary_wf_edit_form #summary_href").data("module", "B");
+                    $("#summary_wf_edit_form #summary_name").html("绩效亮点分享")
 
                 }
-                $("#summary_edit_form-content").html(self.wip_template(render_data));
-                $("#summary_edit_form-footer").show();
-                $("#summary_edit_form-content").trigger('create');
+                $("#summary_wf_edit_form-content").html(self.wip_template(render_data));
+                $("#summary_wf_edit_form-footer").show();
+                $("#summary_wf_edit_form-content").trigger('create');
                 self.redraw_sparkline();
                 return this; //绩效过程
 
             },
-            render_wf: function(pds) {
-                var self = this;
-                var data = _.map(self.collection.models, function(x) {
-                    return x.toJSON()
-                })
-                var render_data = {
-                    pds: pds
-                }
-                $("#summary_edit_form #summary_name").html("启动审批流程");
-                $("#summary_edit_form-content").html(self.wf_template(render_data));
-                $("#summary_edit_form-content").trigger('create');
-                return this;
 
-            },
             bind_events: function() {
                 var self = this;
-                $("#summary_edit_form").on('click', '.summary_pi', function(event) { //第三层－指标总结入口
+                $("#summary_wf_edit_form").on('click', '.summary_pi', function(event) { //第三层－指标总结入口
                     event.preventDefault();
                     var module = $(this).data("module");
                     var ai_id = $(this).data("ai_id");
@@ -284,12 +333,12 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     if ($(this).data("module")) {
                         self.render();
                         $(this).data("module", "");
-                        $("#summary_edit_form #summary_edit_form-footer").hide();
-                        $("#add_pi").hide();
+                        $("#summary_wf_edit_form #summary_edit_form-footer").hide();
+                        $("#summary_wf_edit_form #add_pi").hide();
                     } else {
                         window.location.href = "/m#summary";
                     }
-                }).on('click', '.btn-summary_edit_form-change_state', function(event) { //定位不足与改进及亮点分享
+                }).on('click', '.btn-summary_wf_edit_form-change_state', function(event) { //定位不足与改进及亮点分享
                     event.preventDefault();
                     var view_filter = $(this).data("view_filter");
                     var module = $(this).data("module");
@@ -313,7 +362,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     event.preventDefault();
                     var ai_id = $(this).data("ai_id");
                     var type = $(this).data("type");
-                    _.each($("#summary_edit_form input[class='pi_select']:checked"), function(x) {
+                    _.each($("#summary_wf_edit_form input[class='pi_select']:checked"), function(x) {
                         var ration = $(x).data("ration");
                         var pi_id = $(x).data("pi_id");
 
@@ -344,16 +393,17 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                 }).on('click', '#btn_save', function(event) { //数据保存接口
                     event.preventDefault();
-                    var ai_id = $(this).data("ai_id");
+
                     var data4save = _.clone(self.collection.models[0].attributes);
                     var type = "success";
-                    self.data_save(data4save, ai_id, type);
+                    self.data_save(data4save, data4save._id, type);
                 }).on('change', "textarea", function(event) {
                     event.preventDefault();
                     var field = String($(this).data("field")).split('-')[0];
+                    var field1 = String($(this).data("field")).split('-')[1];
                     var self_comment = $(this).val();
-                    var ration = $(this).data("ration");
-                    var pi_id = $(this).data("pi_id");
+                    var ration = $(this).data("ration");//定量 定性指标
+                    var pi_id = $(this).data("pi_id");//指标
                     if (ration == '1') {
                         var items = self.collection.models[0].attributes.qualitative_pis.items;
                         var found = self.get_pi(items, pi_id);
@@ -361,66 +411,149 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         var items = self.collection.models[0].attributes.quantitative_pis.items;
                         var found = self.get_pi(items, pi_id);
                     }
-                    if (field == 'summary') {
-                        self.collection.models[0].attributes.summary.self_comment = self_comment;
-                    } else if (field == "gap_analysis") {
-                        found.summary.gap_analysis.self_comment = self_comment;
-                    } else if (field == "improvement_plan") {
-                        found.summary.improvement_plan.self_comment = self_comment;
+                    if (field1 == "self_comment") {//自评数据
+                        if (field == 'summary') {
+                            self.collection.models[0].attributes.summary.self_comment = self_comment;
+                        } else if (field == "gap_analysis") {
+                            found.summary.gap_analysis.self_comment = self_comment;
+                        } else if (field == "improvement_plan") {
+                            found.summary.improvement_plan.self_comment = self_comment;
 
-                    } else if (field == "performance_highlights") {
-                        found.summary.performance_highlights.self_comment = self_comment;
+                        } else if (field == "performance_highlights") {
+                            found.summary.performance_highlights.self_comment = self_comment;
 
+                        }
+                    } else {//上级评语
+
+                        if (field == 'summary') {
+                            self.collection.models[0].attributes.summary[field1]["comment"] = self_comment;
+                            self.collection.models[0].attributes.summary[field1]["createDate"] = new Date();
+
+                        } else if (field == "gap_analysis") {
+                            found.summary.gap_analysis[field1]["comment"] = self_comment;
+                            found.summary.gap_analysis[field1]["createDate"] = new Date();
+                        } else if (field == "improvement_plan") {
+                            found.summary.improvement_plan[field1]["comment"] = self_comment;
+                            found.summary.improvement_plan[field1]["createDate"] = new Date();
+
+                        } else if (field == "performance_highlights") {
+                            found.summary.performance_highlights[field1]["comment"] = self_comment;
+                            found.summary.performance_highlights[field1]["createDate"] = new Date();
+
+                        }
                     }
+
                     var data4save = _.clone(self.collection.models[0].attributes);
                     self.data_save(data4save, ai_id, "no_render"); //自评值的保存
 
-                }).on('click', "#btn_submit", function(event) {
+                }).on('click', 'img', function(event) {
                     event.preventDefault();
-                    var pdcodes = ['AssessmentInstance_summary', ]; //获取绩效总结流程数据，可能有多条，只能选一条
-                    async.times(pdcodes.length, function(n, next) {
-                        var url = '/admin/wf/process_define/get_json_by_code?process_code=' + pdcodes[n];
-                        $.get(url, function(data) {
-                            if (data.length) {
-                                next(null, data[0]);
-                            } else {
-                                next(null, null);
-                            };
-                        });
-                    }, function(err, results) {
-                        pds = _.compact(results);
-                        self.render_wf(pds);
-                    })
-                }).on('click', "#do_submit", function(event) {
+                    // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+                    var img_view = '<img src="' + this.src + '">';
+                    // img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+                    $("#fullscreen-overlay").html(img_view).fadeIn('fast');
+                }).on('click', '.do_trans', function(event) {
                     event.preventDefault();
-                    var wf_select = $("input[class='wf_select']:checked");
-                    var pd_id = wf_select.val();
-                    var process_name = wf_select.data("process_name");
-                    $("#summary_edit_form #btn_save").trigger("click");
-                    var pd = _.find(pds, function(x) {
-                        return x._id == pd_id;
-                    })
-                    if (pd) {
-                        $("#do_submit").attr('disabled', 'disabled');
-                        var process_define = pd._id;
-                        var process_instance_name = self.collection.models[0].attributes.ai_name + '的总结审批流程';
-                        var url = pd.process_start_url;
-                        var post_data = {
-                            process_define: process_define,
-                            process_instance_name: process_instance_name,
-                            ai_id: ai_id,
-                        };
-                        $.post(url, post_data, function(data, textStatus, xhr) {
-                            if (data.code == 'OK') {
-                                var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
-                                window.location = '/m#wf_summary/' + task_id + '/edit';
-                            } else if (data.code == 'ERR') {
-                                $("#do_submit").removeAttr('disabled');
-                                console.log(data.err); //把错误信息输出到控制台，以便查找错误。
-                            }
-                        })
+                    var $this = $(this);
+                    if ($("#summary_wf_edit_form-content #ti_comment").val() == '') {
+                        alert('请填写审批意见！');
+                        return;
+                    }
+                    $(this).attr('disabled', true)
+                    $.mobile.loading("show");
+                    var process_define_id = $("#summary_wf_edit_form-content #process_define_id").val();
+                    var task_define_id = $("#summary_wf_edit_form-content #task_define_id").val();
+                    var process_instance_id = $("#summary_wf_edit_form-content #process_instance_id").val();
+                    var task_process_url = $("#summary_wf_edit_form-content #task_process_url").val();
+                    var task_instance_id = $("#summary_wf_edit_form-content #task_instance_id").val();
 
+                    var direction = $this.data('direction');
+                    var target_id = $this.data('target_id');
+                    var task_name = $this.data('task_name');
+                    var name = $this.data('name');
+                    var roles_type = $this.data('roles_type');
+                    var position_form_field = $this.data('position_form_field');
+                    if (self.view_mode) {
+                        $.post('/admin/wf/trans_confirm_form_4m', {
+                            process_define_id: process_define_id,
+                            task_define_id: task_define_id,
+                            process_instance_id: process_instance_id,
+                            task_process_url: task_process_url,
+                            next_tdname: task_name,
+                            trans_name: name,
+                            ti_comment: $("#summary_wf_edit_form-content #ti_comment").val(),
+                            task_instance_id: task_instance_id,
+                            next_tdid: target_id,
+                            direction: direction,
+                            attachments: self.data.attachments
+                        }, function(data) {
+                            self.view_mode = 'trans';
+                            self.trans_data = data;
+                            $.mobile.loading("hide");
+
+                            self.render();
+                        });
+                    } else {
+                        var obj = self.data;
+                        $.post('/admin/wf/trans_confirm_form_4m', {
+                            process_define_id: process_define_id,
+                            task_define_id: task_define_id,
+                            process_instance_id: process_instance_id,
+                            task_process_url: task_process_url,
+                            next_tdname: task_name,
+                            trans_name: name,
+                            ti_comment: $("#summary_wf_edit_form-content #ti_comment").val(),
+                            task_instance_id: task_instance_id,
+                            next_tdid: target_id,
+                            direction: direction,
+                            attachments: self.data.attachments
+
+                        }, function(data) {
+                            self.view_mode = 'trans';
+                            self.trans_data = data;
+                            $.mobile.loading("hide");
+                            self.render();
+                        });
+
+
+                    }
+
+
+                }).on('click', '#btn_ok', function(e) {
+                    $.mobile.loading("show");
+                    if ($("#next_user_name").val() || $("#select_next_user").val()) {
+                        $("#btn_ok").attr("disabled", "disabled");
+                        if (!self.view_mode) {
+                            do_trans(self.trans_data);
+                        } else {
+                            do_trans(self.trans_data);
+                        }
+                        $.mobile.loading("hide");
+
+                    } else {
+                        alert('请选择下一任务的处理人');
                     };
+                }).on('click', '#btn_trans_cancel', function(event) {
+                    event.preventDefault();
+                    window.location.reload();
+                }).on('click', '#btn_upload_attachment', function(event) {
+
+                    //转到上传图片的页面
+                    localStorage.removeItem('upload_model_back'); //先清掉
+                    var next_url = '#upload_pic';
+                    localStorage.setItem('upload_model', JSON.stringify({
+                        model: self.data,
+                        field: 'attachments',
+                        back_url: window.location.hash
+                    }))
+                    window.location.href = next_url;
+
+
+
+                }).on('click', '#btn_wf_summary_start_userchat', function(event) {
+                    event.preventDefault();
+                    var url = "im://userchat/" + self.data.ai.people._id;
+                    window.location.href = url;
                 })
 
             },
@@ -635,6 +768,6 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
         });
 
         // Returns the View class
-        return AssessmentSummaryEditView;
+        return AssessmentSummaryWfEditView;
 
     });

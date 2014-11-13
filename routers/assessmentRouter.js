@@ -22,6 +22,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../views/assessment/Summary",
         //我的绩效总结编辑
         "../views/assessment/SummaryEdit",
+        //我的绩效总结－流程编辑
+        "../views/assessment/SummaryWfEdit",
 
         "async", "pull-to-refresh"
     ],
@@ -42,6 +44,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         PISelectView,
         AssessmentSummaryView,
         AssessmentSummaryEditView,
+        AssessmentSummaryWfEditView,
 
         async
     ) {
@@ -74,6 +77,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 "pi_select/:mode/:target_field": "pi_select",
                 "summary": "summary", // 绩效总结列表
                 "summary/edit/:ai_id/:ai_status": "summary_edit", // 绩效总结明细列表
+                "godo12/:task_id_or_process_instance_id/:type": "wf_summary", // 流程启动后的界面 或者 流程查看
             },
             assessment_list: function() {
                 var self = this;
@@ -288,6 +292,78 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
                 })
             },
+            wf_summary: function(_id, type) { //流程界面
+                var self = this;
+                $("body").pagecontainer("change", "#summary_wf_edit_form", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.AssessmentSummaryWfEditView.pre_render();
+                if (type == 'view') { //流程查看
+                    var process_instance_id = _id;
+                    async.series({
+                        wf_data: function(cb) {
+                            $.get('/admin/pm/assessment_instance/summary/wf_summary_view_4m/' + process_instance_id, function(data) {
+                                self.AssessmentSummaryWfEditView.data = data;
+                                if (data) {
+                                    cb(null, data.ai._id)
+
+                                } else {
+                                    cb(null, null)
+                                }
+                            })
+                        }
+                    }, function(err, data) {
+                        self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb/' + data.wf_data;
+                        self.c_assessment_summary.fetch().done(function() {
+                            var is_self = self.c_assessment_summary.models[0].attributes.people._id == String($("#login_people").val());
+                            self.AssessmentSummaryWfEditView.is_self = is_self;
+                            self.AssessmentSummaryWfEditView.type = type;
+                            self.AssessmentSummaryWfEditView.render();
+                            $.mobile.loading('hide');
+
+                        })
+                    })
+                } else { //流程编辑
+                    var type = "edit";
+                    var task_id = _id.split("-")[0];
+                    var pd_id = _id.split("-")[1];
+                    var pd_code = _id.split("-")[2];
+                    // var task_id = _id; //流程任务处理，则是任务ID，否则，是流程实例ID；
+                    async.series({
+                        wf_data: function(cb) {
+                            $.get('/admin/pm/assessment_instance/summary/wf_summary_4m/' + task_id, function(data) {
+                                self.AssessmentSummaryWfEditView.data = data;
+                                if (data) {
+                                    cb(null, data.ai._id)
+
+                                } else {
+                                    cb(null, null)
+                                }
+                            })
+                        }
+                    }, function(err, data) {
+                        self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb/' + data.wf_data;
+                        self.c_assessment_summary.fetch().done(function() {
+                            var is_self = self.c_assessment_summary.models[0].attributes.people._id == String($("#login_people").val());
+                           //是否间接上级
+                            var is_ind_superiors = self.c_assessment_summary.models[0].attributes.people.ind_superiors == String($("#login_people").val());
+                           //是否直接上级
+                            var is_superiors = self.c_assessment_summary.models[0].attributes.people.superiors == String($("#login_people").val());
+                            self.AssessmentSummaryWfEditView.is_self = is_self;
+                            self.AssessmentSummaryWfEditView.is_ind_superiors = is_ind_superiors;
+                            self.AssessmentSummaryWfEditView.is_superiors = is_superiors;
+                            self.AssessmentSummaryWfEditView.type = type;
+                            self.AssessmentSummaryWfEditView.render();
+                            $.mobile.loading('hide');
+
+                        })
+                    })
+                }
+
+
+            },
             init_views: function() {
                 var self = this;
                 this.homeAssessmentView = new HomeAssessmentView({
@@ -327,6 +403,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 })
                 this.AssessmentSummaryEditView = new AssessmentSummaryEditView({
                     el: "#summary_edit_form-content",
+                    collection: self.c_assessment_summary
+
+                })
+                this.AssessmentSummaryWfEditView = new AssessmentSummaryWfEditView({
+                    el: "#summary_wf_edit_form-content",
                     collection: self.c_assessment_summary
 
                 })

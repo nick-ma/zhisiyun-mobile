@@ -2268,6 +2268,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           };
         }
       });
+      Handlebars.registerHelper('pi_span', function(ration) {
+        var ration_obj = {
+            '1': '定性',
+            '2': '定量'
+          },
+          ration_obj_class = {
+            '1': 'label label-warning',
+            '2': 'label label-info',
+          };
+        return '<span class="' + ration_obj_class[ration] + '">' + ration_obj[ration] + '</span>'
+      });
+
     })();
 
     (function() {

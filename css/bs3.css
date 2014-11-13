@@ -622,3 +622,9 @@ Timeline UI Base
    position:relative;
    top:-15px;
 }
+/*ui-btn-right2不能用，自己写一个*/
+.a_ui-btn-right2{
+    position:absolute;
+    right: 2.5em;
+    top:0px;
+}
