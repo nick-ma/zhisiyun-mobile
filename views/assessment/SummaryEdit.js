@@ -157,6 +157,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             },
             render_pi: function(module, pi_id, ration) {
                 var self = this;
+                $.mobile.loading("show");
+
                 var data = _.map(self.collection.models, function(x) {
                     return x.toJSON()
                 })
@@ -209,11 +211,15 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                 $("#summary_edit_form-content").trigger('create');
                 $("#summary_edit_form #mark_as_watch").parent().addClass('mark_as_watch');
+                $.mobile.loading('hide');
+
                 return this; //指标－绩效总结数据
 
             },
             render_wip: function(module, pi_id, ration) {
                 var self = this;
+                $.mobile.loading("show");
+
                 var data = _.map(self.collection.models, function(x) {
                         return x.toJSON()
                     })
@@ -257,6 +263,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 $("#summary_edit_form-footer").show();
                 $("#summary_edit_form-content").trigger('create');
                 self.redraw_sparkline();
+                $.mobile.loading('hide');
+
                 return this; //绩效过程
 
             },
@@ -284,6 +292,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var ai_status = $(this).data("ai_status");
                     var ration = $(this).data("ration");
                     self.render_pi(module, pi_id, ration);
+                    $.mobile.loading('hide');
 
 
                 }).on('click', '#summary_href', function(event) { //返回定位
@@ -305,8 +314,12 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     if (view_filter == 'A') {
 
                         self.render_pi(module, pi_id, ration);
+                        $.mobile.loading('hide');
+
                     } else if (view_filter == 'B') {
                         self.render_wip(module, pi_id, ration);
+                        $.mobile.loading('hide');
+
                     }
                 }).on('click', '#btn_add_pi_ration_1', function(event) { //指标选择－不足与改进
                     event.preventDefault();

@@ -210,6 +210,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             },
             render_pi: function(module, pi_id, ration) {
                 var self = this;
+                $.mobile.loading("show");
+
                 var data = _.map(self.collection.models, function(x) {
                     return x.toJSON()
                 })
@@ -272,6 +274,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             },
             render_wip: function(module, pi_id, ration) {
                 var self = this;
+                $.mobile.loading("show");
+
                 var data = _.map(self.collection.models, function(x) {
                         return x.toJSON()
                     })
@@ -332,6 +336,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var ai_status = $(this).data("ai_status");
                     var ration = $(this).data("ration");
                     self.render_pi(module, pi_id, ration);
+                    $.mobile.loading('hide');
 
 
                 }).on('click', '#summary_href', function(event) { //返回定位
@@ -353,8 +358,12 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     if (view_filter == 'A') {
 
                         self.render_pi(module, pi_id, ration);
+                        $.mobile.loading('hide');
+
                     } else if (view_filter == 'B') {
                         self.render_wip(module, pi_id, ration);
+                        $.mobile.loading('hide');
+
                     }
                 }).on('click', '#btn_add_pi_ration_1', function(event) { //指标选择－不足与改进
                     event.preventDefault();
@@ -558,6 +567,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                 }).on('click', '#btn_wf_summary_start_userchat', function(event) {
                     event.preventDefault();
+                    var people = $(this).data("people")||self.collection.models[0].attributes.ai.people._id;
                     var url = "im://userchat/" + self.data.ai.people._id;
                     window.location.href = url;
                 }).on('click', "#btn_add_colltask", function(event) { //不足与改进中的创建任务
