@@ -99,7 +99,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.init_cols();
         //init views
         this.init_views(self)
-        //load data
+          //load data
         this.init_data();
         //
         // this.start_auto_fetch(parseInt(localStorage.getItem('refresh_interval') || 0) * 60 * 1000);
@@ -328,7 +328,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       contact_list: function() { //企业通讯录，列表
         // set detail page's back url every time 
         localStorage.setItem('contact_detail_back_url', '#contact_list')
-        // if (!this.contactListlView.rendered) {
+          // if (!this.contactListlView.rendered) {
         this.contactListlView.render();
         // };
         $("body").pagecontainer("change", "#contact_list", {
@@ -376,73 +376,73 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
         $.mobile.loading("show");
         async.parallel({
-          people: function(cb) {
-            if (self.c_people.get(people_id)) {
-              var tmp = self.c_people.get(people_id);
-              tmp.fetch().done(function() {
-                cb(null, tmp);
-              })
-            } else {
-              var tmp = new PeopleModel({
-                _id: people_id
-              })
-              self.c_people.set(tmp);
-              tmp.fetch().done(function() {
-                cb(null, tmp);
-              })
-            };
+            people: function(cb) {
+              if (self.c_people.get(people_id)) {
+                var tmp = self.c_people.get(people_id);
+                tmp.fetch().done(function() {
+                  cb(null, tmp);
+                })
+              } else {
+                var tmp = new PeopleModel({
+                  _id: people_id
+                })
+                self.c_people.set(tmp);
+                tmp.fetch().done(function() {
+                  cb(null, tmp);
+                })
+              };
 
-            // cb(null, self.c_people.get(people_id));
-          },
-          // payroll: function(cb) {
-          //   self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
-          //   self.c_payroll_myteam.fetch().done(function() {
-          //     cb(null, self.c_payroll_myteam);
-          //   })
-          // },
-          competency: function(cb) {
-            // self.c_competency.get(people_id)
-            if (self.c_competency.get(people_id)) {
-              var tmp = self.c_competency.get(people_id);
-              tmp.fetch().done(function() {
-                cb(null, tmp);
-              })
-            } else {
-              var tmp = new CompetencyModel({
-                people_id: people_id
-              })
-              self.c_competency.set(tmp);
-              tmp.fetch().done(function() {
-                cb(null, tmp);
-              })
-            };
-          },
-          talent: function(cb) {
-            // self.c_competency.get(people_id)
-            if (self.c_talent.get(people_id)) {
-              var tmp = self.c_talent.get(people_id);
-              tmp.fetch().done(function() {
-                cb(null, tmp);
-              })
-            } else {
-              var tmp = new TalentModel({
-                people_id: people_id
-              })
-              self.c_talent.set(tmp);
-              tmp.fetch().done(function() {
-                cb(null, tmp);
-              })
-            };
-          }
-        }, function(err, result) {
-          self.myProfileDetailView.model = result.people;
-          self.myProfileDetailView.competency = result.competency;
-          self.myProfileDetailView.talent = result.talent;
-          self.myProfileDetailView.render();
-          $.mobile.loading("hide");
-        })
-        // this.myProfileDetailView.model = this.c_people.get(login_people);
-        // this.myProfileDetailView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
+              // cb(null, self.c_people.get(people_id));
+            },
+            // payroll: function(cb) {
+            //   self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
+            //   self.c_payroll_myteam.fetch().done(function() {
+            //     cb(null, self.c_payroll_myteam);
+            //   })
+            // },
+            competency: function(cb) {
+              // self.c_competency.get(people_id)
+              if (self.c_competency.get(people_id)) {
+                var tmp = self.c_competency.get(people_id);
+                tmp.fetch().done(function() {
+                  cb(null, tmp);
+                })
+              } else {
+                var tmp = new CompetencyModel({
+                  people_id: people_id
+                })
+                self.c_competency.set(tmp);
+                tmp.fetch().done(function() {
+                  cb(null, tmp);
+                })
+              };
+            },
+            talent: function(cb) {
+              // self.c_competency.get(people_id)
+              if (self.c_talent.get(people_id)) {
+                var tmp = self.c_talent.get(people_id);
+                tmp.fetch().done(function() {
+                  cb(null, tmp);
+                })
+              } else {
+                var tmp = new TalentModel({
+                  people_id: people_id
+                })
+                self.c_talent.set(tmp);
+                tmp.fetch().done(function() {
+                  cb(null, tmp);
+                })
+              };
+            }
+          }, function(err, result) {
+            self.myProfileDetailView.model = result.people;
+            self.myProfileDetailView.competency = result.competency;
+            self.myProfileDetailView.talent = result.talent;
+            self.myProfileDetailView.render();
+            $.mobile.loading("hide");
+          })
+          // this.myProfileDetailView.model = this.c_people.get(login_people);
+          // this.myProfileDetailView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
       },
       myprofile_edit_01: function() { //编辑基本信息
         var self = this;
@@ -824,56 +824,56 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               }
               var tmp_assessment_col = new AssessmentCollection();
               async.timesSeries(assessments.length, function(n, next) {
-                self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
-                async.waterfall([
+                  self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
+                  async.waterfall([
 
-                  function(cb) {
-                    self.c_assessment_v.fetch().done(function() { //获取版本
-                      cb(null, self.c_assessment_v);
-                    })
-                  },
-                  function(c, cb) { //取得本地数据版本，并与之前获取的版本进行比对
-                    var cn = assessments[n].join('_'); //本地localStorage使用的key
-                    var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
-                    var change_flag = false;
-                    change_flag = (local_data.length != c.length);
-                    if (!change_flag) { //没发现长度不一致，继续往下判断
-                      //应该以云端的数据为准
-                      for (var i = 0; i < c.length; i++) {
-                        var found = _.find(local_data, function(x) {
-                          return x._id == c.models[i].get('_id');
-                        })
-                        if (!found) { //云端有，本地没找到，说明有变化。
-                          change_flag = true;
-                          break;
-                        } else {
-                          if (found.lastModified != c.models[i].get('lastModified')) { //找到了，但是最后更改时间戳不一致，说明有变化。
+                    function(cb) {
+                      self.c_assessment_v.fetch().done(function() { //获取版本
+                        cb(null, self.c_assessment_v);
+                      })
+                    },
+                    function(c, cb) { //取得本地数据版本，并与之前获取的版本进行比对
+                      var cn = assessments[n].join('_'); //本地localStorage使用的key
+                      var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
+                      var change_flag = false;
+                      change_flag = (local_data.length != c.length);
+                      if (!change_flag) { //没发现长度不一致，继续往下判断
+                        //应该以云端的数据为准
+                        for (var i = 0; i < c.length; i++) {
+                          var found = _.find(local_data, function(x) {
+                            return x._id == c.models[i].get('_id');
+                          })
+                          if (!found) { //云端有，本地没找到，说明有变化。
                             change_flag = true;
                             break;
+                          } else {
+                            if (found.lastModified != c.models[i].get('lastModified')) { //找到了，但是最后更改时间戳不一致，说明有变化。
+                              change_flag = true;
+                              break;
+                            };
                           };
                         };
                       };
-                    };
-                    if (change_flag) { //发现有变化，重新fetch
-                      tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
-                      tmp_assessment_col.fetch().done(function() {
-                        localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_assessment_col)));
-                        // $.mobile.loading("hide");
-                        if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
-                          self.load_data(self.c_assessment, 'assessment');
-                        };
-                        cb(null, cn + ': fetch new version ok. ');
-                      })
-                    } else {
-                      cb(null, cn + ': no new version.')
-                    };
-                    // cb(null, 'fetch ok->' + assessments[n][1]);
-                  }
-                ], next);
-              }, function(err, result) {
-                console.log('[', moment().format('YYYY-MM-DD HH:mm:SS'), ']', result.join('\n'));
-              })
-              //工作任务数据
+                      if (change_flag) { //发现有变化，重新fetch
+                        tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
+                        tmp_assessment_col.fetch().done(function() {
+                          localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_assessment_col)));
+                          // $.mobile.loading("hide");
+                          if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
+                            self.load_data(self.c_assessment, 'assessment');
+                          };
+                          cb(null, cn + ': fetch new version ok. ');
+                        })
+                      } else {
+                        cb(null, cn + ': no new version.')
+                      };
+                      // cb(null, 'fetch ok->' + assessments[n][1]);
+                    }
+                  ], next);
+                }, function(err, result) {
+                  console.log('[', moment().format('YYYY-MM-DD HH:mm:SS'), ']', result.join('\n'));
+                })
+                //工作任务数据
               var tasks = [];
               for (i = 0; i < localStorage.length; i++) {
                 if (localStorage.key(i).split('_')[0] == 'task') {
@@ -1956,19 +1956,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           }
 
           _.each(type_data, function(temp) {
-            var temp_arr = [];
-            temp_arr.push(temp._id);
-            temp_arr.push(temp.type_name)
-            if (temp._id == String(develope_type)) {
+              var temp_arr = [];
+              temp_arr.push(temp._id);
+              temp_arr.push(temp.type_name)
+              if (temp._id == String(develope_type)) {
 
-              item.push('<option value="' + temp_arr + '" selected>' + temp.type_name + '</option>')
+                item.push('<option value="' + temp_arr + '" selected>' + temp.type_name + '</option>')
 
-            } else {
-              item.push('<option value="' + temp_arr + '" >' + temp.type_name + '</option>')
+              } else {
+                item.push('<option value="' + temp_arr + '" >' + temp.type_name + '</option>')
 
-            }
-          })
-          // item.push('<option value="' + type_temp._id + '" >' + type_temp.type_name + '</option>')
+              }
+            })
+            // item.push('<option value="' + type_temp._id + '" >' + type_temp.type_name + '</option>')
 
         } else {
           item.push('<option>请选择培养方式</option>');
@@ -2240,7 +2240,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           return '';
         };
       });
-    Handlebars.registerHelper('ai_summary_status', function(status) {
+      Handlebars.registerHelper('ai_summary_status', function(status) {
         var ai_status_txt = {
             '9': '未总结',
             '10': '总结中',
@@ -2251,7 +2251,185 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             '10': 'label label-info',
             '11': 'label label-success',
           };
-          return '<span class="'+ai_status_class[status]+'">'+ai_status_txt[status]+'</span>'
+        return '<span class="' + ai_status_class[status] + '">' + ai_status_txt[status] + '</span>'
+      });
+
+      //通用流程
+      Handlebars.registerHelper('join', function(arr, d) {
+        return _.isArray(arr) ? arr.join(d || '') : '';
+      });
+      Handlebars.registerHelper('startWith', function(data1, data2, options) {
+        if (startWith(data1, data2)) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('endWith', function(data1, data2, options) {
+        if (endWith(data1, data2)) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('ne', function(data1, data2, options) {
+        // console.log(data1, data2);
+        if (data1 != data2) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('regtest', function(data, regexp, options) {
+        // console.log(data1, data2);
+        var re = /./;
+        re.compile(regexp);
+        if (re.test(data)) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('getTime', function(date) {
+        return (date) ? moment(date).toDate().getTime() : '';
+      });
+      Handlebars.registerHelper('calcSize', function(data) {
+        return calcSize(data);
+      });
+      Handlebars.registerHelper('getAvatar', function(avatar) {
+        if (avatar) {
+          return '/gridfs/get/' + avatar;
+        } else {
+          return '/img/no-avatar.jpg';
+        }
+      });
+      Handlebars.registerHelper('getCatInfo', function(cat) {
+        return field_cat[cat] || '';
+      });
+      Handlebars.registerHelper('getTrClass', function(cat) {
+        return field_cat_class[cat] || '';
+      });
+      Handlebars.registerHelper('getTrClass2', function(index) {
+        return (index % 2 == 0) ? 'info' : 'warning';
+      });
+      Handlebars.registerHelper('getFieldInfo', function(row, col) {
+        var field = get_field(row, col);
+        if (field) {
+          var ret = [];
+          if (field.require) {
+            ret.push('<span class="text-error">* </span>')
+          };
+          ret.push('<span>[')
+          ret.push(field_cat[field.cat])
+          ret.push(']:')
+          ret.push(field.title)
+          ret.push('</span>')
+          return ret.join('');
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('renderFieldTitleForTable', function(field) {
+        if (field) {
+          var ret = [];
+          if (field.require) {
+            ret.push('<span class="text-error">* </span>')
+          };
+          ret.push('<span>')
+          ret.push(field.title)
+          ret.push('</span>')
+          return ret.join('');
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('renderFieldTitleForTable2', function(field) {
+        if (field) {
+          var ret = [];
+          ret.push('<span>')
+          ret.push(field.title)
+          ret.push('</span>')
+          return ret.join('');
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('renderFieldElementForTable', function(field, row, col, data, data_row, data_col) {
+        // console.log('renderFieldElementForTable', field, data);
+        if (field) {
+          var common_attr = [];
+          common_attr.push('placeholder="' + field.title + '"');
+          common_attr.push('data-row="' + row + '"');
+          common_attr.push('data-col="' + col + '"');
+          common_attr.push('data-data_row="' + data_row + '"');
+          common_attr.push('data-data_col="' + data_col + '"');
+          if (field.require) {
+            common_attr.push('required');
+          };
+          var ca_str = common_attr.join(' ');
+          var value = (data && data[data_col]) ? data[data_col] : ''; //字段里的值
+          var ret = [];
+          if (field.cat == 'str') {
+            if (field.ctype == 'input') {
+              ret.push('<input style="width:100%" type="text" ' + ca_str + ' value="' + value + '">')
+            } else if (field.ctype == 'textarea') {
+              ret.push('<textarea style="width:100%" ' + ca_str + '>' + value + '</textarea>')
+            } else if (field.ctype == 'select') {
+              ret.push('<select style="width:100%" ' + ca_str + '>');
+              _.each(field.options, function(x) {
+                if (value == x) {
+                  ret.push('<option value="' + x + '" selected>' + x + '</opton>');
+                } else {
+                  ret.push('<option value="' + x + '">' + x + '</opton>');
+                };
+              })
+              ret.push('</select>');
+            };
+          } else if (field.cat == 'num') {
+            // if (value === '') {
+            //     value = 0;
+            // };
+            if (field.formula) {
+              ca_str += ' disabled';
+            };
+            ret.push('<input style="width:100%" type="text" ' + ca_str + ' value="' + value + '">')
+          } else if (field.cat == 'date') {
+            ret.push('<input style="width:100%" class="date_field" type="text" ' + ca_str + ' value="' + value + '">')
+          }
+          return ret.join('');
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('genCtypeOptions', function(ctype) {
+        var ret = _.map(ctype_options, function(x) {
+          return '<option value="' + x[0] + '" ' + (ctype == x[0] ? 'selected' : '') + '>' + x[1] + '</option>';
+        })
+        return ret.join('');
+      });
+      
+      Handlebars.registerHelper('getTdStyleByCat', function(cat) {
+        if (cat == 'num') {
+          return 'text-align:right';
+        } else if (cat == 'date') {
+          return 'text-align:center';
+        };
+      });
+
+      Handlebars.registerHelper('getTaskInfo', function(td_id, field) {
+        var td = tds.get(td_id);
+        if (td) {
+          return td.get(field);
+        } else {
+          return '';
+        }
+      });
+      Handlebars.registerHelper('getCurrentTaskColor', function(td_id1, td_id2) {
+        return (td_id1 == td_id2) ? '#6dc666' : '#35a8ca';
+      });
+
+      Handlebars.registerHelper('genPiViewUrl', function(task_view_url, pi_id) {
+        return (task_view_url) ? task_view_url.replace('<PROCESS_INSTANCE_ID>', pi_id) : '';
       });
 
     })();

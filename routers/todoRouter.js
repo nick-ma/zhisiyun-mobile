@@ -54,6 +54,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             routes: {
                 //我的待办
                 "todo": "todo_list",
+                "godo0/:op_id/:type": "go_do0",
                 "godo1/:op_id/:type": "go_do1",
                 "godo2/:op_id/:type": "go_do2",
                 "godo3/:op_id/:type": "go_do3",
@@ -84,6 +85,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     self.todoListView.render();
                     $.mobile.loading("hide");
                 })
+            },
+            go_do0: function(op_id, type) {
+                window.location.href = "#handle_form/"+op_id;
             },
             go_do1: function(op_id, type) {
                 var self = this;
