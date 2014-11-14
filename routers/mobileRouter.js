@@ -2311,6 +2311,184 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return ret.join('');
       });
 
+      //通用流程
+      Handlebars.registerHelper('join', function(arr, d) {
+        return _.isArray(arr) ? arr.join(d || '') : '';
+      });
+      Handlebars.registerHelper('startWith', function(data1, data2, options) {
+        if (startWith(data1, data2)) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('endWith', function(data1, data2, options) {
+        if (endWith(data1, data2)) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('ne', function(data1, data2, options) {
+        // console.log(data1, data2);
+        if (data1 != data2) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('regtest', function(data, regexp, options) {
+        // console.log(data1, data2);
+        var re = /./;
+        re.compile(regexp);
+        if (re.test(data)) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        };
+      });
+      Handlebars.registerHelper('getTime', function(date) {
+        return (date) ? moment(date).toDate().getTime() : '';
+      });
+      Handlebars.registerHelper('calcSize', function(data) {
+        return calcSize(data);
+      });
+      Handlebars.registerHelper('getAvatar', function(avatar) {
+        if (avatar) {
+          return '/gridfs/get/' + avatar;
+        } else {
+          return '/img/no-avatar.jpg';
+        }
+      });
+      Handlebars.registerHelper('getCatInfo', function(cat) {
+        return field_cat[cat] || '';
+      });
+      Handlebars.registerHelper('getTrClass', function(cat) {
+        return field_cat_class[cat] || '';
+      });
+      Handlebars.registerHelper('getTrClass2', function(index) {
+        return (index % 2 == 0) ? 'info' : 'warning';
+      });
+      Handlebars.registerHelper('getFieldInfo', function(row, col) {
+        var field = get_field(row, col);
+        if (field) {
+          var ret = [];
+          if (field.require) {
+            ret.push('<span class="text-error">* </span>')
+          };
+          ret.push('<span>[')
+          ret.push(field_cat[field.cat])
+          ret.push(']:')
+          ret.push(field.title)
+          ret.push('</span>')
+          return ret.join('');
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('renderFieldTitleForTable', function(field) {
+        if (field) {
+          var ret = [];
+          if (field.require) {
+            ret.push('<span class="text-error">* </span>')
+          };
+          ret.push('<span>')
+          ret.push(field.title)
+          ret.push('</span>')
+          return ret.join('');
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('renderFieldTitleForTable2', function(field) {
+        if (field) {
+          var ret = [];
+          ret.push('<span>')
+          ret.push(field.title)
+          ret.push('</span>')
+          return ret.join('');
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('renderFieldElementForTable', function(field, row, col, data, data_row, data_col) {
+        // console.log('renderFieldElementForTable', field, data);
+        if (field) {
+          var common_attr = [];
+          common_attr.push('placeholder="' + field.title + '"');
+          common_attr.push('data-row="' + row + '"');
+          common_attr.push('data-col="' + col + '"');
+          common_attr.push('data-data_row="' + data_row + '"');
+          common_attr.push('data-data_col="' + data_col + '"');
+          if (field.require) {
+            common_attr.push('required');
+          };
+          var ca_str = common_attr.join(' ');
+          var value = (data && data[data_col]) ? data[data_col] : ''; //字段里的值
+          var ret = [];
+          if (field.cat == 'str') {
+            if (field.ctype == 'input') {
+              ret.push('<input style="width:100%" type="text" ' + ca_str + ' value="' + value + '">')
+            } else if (field.ctype == 'textarea') {
+              ret.push('<textarea style="width:100%" ' + ca_str + '>' + value + '</textarea>')
+            } else if (field.ctype == 'select') {
+              ret.push('<select style="width:100%" ' + ca_str + '>');
+              _.each(field.options, function(x) {
+                if (value == x) {
+                  ret.push('<option value="' + x + '" selected>' + x + '</opton>');
+                } else {
+                  ret.push('<option value="' + x + '">' + x + '</opton>');
+                };
+              })
+              ret.push('</select>');
+            };
+          } else if (field.cat == 'num') {
+            // if (value === '') {
+            //     value = 0;
+            // };
+            if (field.formula) {
+              ca_str += ' disabled';
+            };
+            ret.push('<input style="width:100%" type="text" ' + ca_str + ' value="' + value + '">')
+          } else if (field.cat == 'date') {
+            ret.push('<input style="width:100%" class="date_field" type="text" ' + ca_str + ' value="' + value + '">')
+          }
+          return ret.join('');
+        } else {
+          return '';
+        };
+      });
+      Handlebars.registerHelper('genCtypeOptions', function(ctype) {
+        var ret = _.map(ctype_options, function(x) {
+          return '<option value="' + x[0] + '" ' + (ctype == x[0] ? 'selected' : '') + '>' + x[1] + '</option>';
+        })
+        return ret.join('');
+      });
+
+      Handlebars.registerHelper('getTdStyleByCat', function(cat) {
+        if (cat == 'num') {
+          return 'text-align:right';
+        } else if (cat == 'date') {
+          return 'text-align:center';
+        };
+      });
+
+      Handlebars.registerHelper('getTaskInfo', function(td_id, field) {
+        var td = tds.get(td_id);
+        if (td) {
+          return td.get(field);
+        } else {
+          return '';
+        }
+      });
+      Handlebars.registerHelper('getCurrentTaskColor', function(td_id1, td_id2) {
+        return (td_id1 == td_id2) ? '#6dc666' : '#35a8ca';
+      });
+
+      Handlebars.registerHelper('genPiViewUrl', function(task_view_url, pi_id) {
+        return (task_view_url) ? task_view_url.replace('<PROCESS_INSTANCE_ID>', pi_id) : '';
+      });
+
     })();
 
     // Returns the Router class
