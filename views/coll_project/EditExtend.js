@@ -15,6 +15,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 this.template_cf_str_input = Handlebars.compile($("#hbtmp_coll_project_cf_str_input").html());
                 this.template_cf_str_textarea = Handlebars.compile($("#hbtmp_coll_project_cf_str_textarea").html());
                 this.template_cf_str_select = Handlebars.compile($("#hbtmp_coll_project_cf_str_select").html());
+                this.template_cf_str_select_m = Handlebars.compile($("#hbtmp_coll_project_cf_str_select_m").html());
                 this.template_cf_date = Handlebars.compile($("#hbtmp_coll_project_cf_date").html());
                 this.template_cf_color = Handlebars.compile($("#hbtmp_coll_project_cf_color").html());
 
@@ -59,6 +60,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                     rendered.push(self.template_cf_str_textarea(fc_rd));
                                 } else if (fd.ctype == 'select') {
                                     rendered.push(self.template_cf_str_select(fc_rd));
+                                } else if (fd.ctype == 'select_m') {
+                                    rendered.push(self.template_cf_str_select_m(fc_rd));
                                 };
                             } else if (fd.cat == 'num') {
                                 var fc_rd = {
@@ -92,7 +95,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
 
 
                 $("#btn-collproject_edit_extend-back").attr('href', "#collproject_detail/" + self.model.get('_id'));
-    
+
                 $("#collproject_edit_extend-content").html(self.template({
                     cp_cfs_content: rendered.join('')
                 }));
@@ -126,7 +129,35 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     var $this = $(this);
                     var field = $this.data('field');
                     var value = $this.val();
-                    self.model.set(field, value);
+                    if ($this.attr('multiple')) { //多选的下拉筐
+                        // console.log(field, 'multiple:', value);
+                        if (value) {
+                            if (value.length == 1) { //判断是否对应取消的动作
+                                var fdata = self.model.get(field);
+                                var tmp = fdata.split(',');
+                                var found = _.find(tmp, function(x) {
+                                    return x == value[0]
+                                })
+                                if (found) { //原来已经存在这个值，应该删掉
+                                    tmp.splice(tmp.indexOf(found), 1);
+                                    self.model.set(field, tmp.join(','));
+
+                                    self.render(); //重新render
+                                } else {
+                                    self.model.set(field, value[0]);
+                                };
+                            } else {
+                                self.model.set(field, value.join(',')) //转换成逗号分割的数据
+
+                            };
+                        } else {
+                            self.model.set(field, ''); //取消所有的选项时
+                        };
+
+                    } else { //一般的，直接设定值
+                        self.model.set(field, value);
+                    };
+                    // self.model.set(field, value);
                 });
             }
 
