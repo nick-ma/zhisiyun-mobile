@@ -3,7 +3,7 @@
 
 // Includes file dependencies
 define(["jquery", "backbone", "handlebars", "lzstring",
-    //首页
+    //首页  
     "../views/HomeObjectiveView", "../collections/ObjectiveCollection",
     // "../views/HomeAssessmentView", "../views/HomeAssessmentHistoryView", "../views/HomeAssessmentPIListView", "../collections/AssessmentCollection", "../views/AssessmentCommentView", "../views/AssessmentUpdateValueView", "../views/AssessmentImprovePlanView", "../views/AssessmentImprovePlanEditView", "../collections/AssessmentVCollection",
     "../views/HomeTaskView", "../views/HomeMyTeamView", "../collections/TaskVCollection",
