@@ -99,7 +99,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         this.init_cols();
         //init views
         this.init_views(self)
-          //load data
+        //load data
         this.init_data();
         //
         // this.start_auto_fetch(parseInt(localStorage.getItem('refresh_interval') || 0) * 60 * 1000);
@@ -328,7 +328,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       contact_list: function() { //企业通讯录，列表
         // set detail page's back url every time 
         localStorage.setItem('contact_detail_back_url', '#contact_list')
-          // if (!this.contactListlView.rendered) {
+        // if (!this.contactListlView.rendered) {
         this.contactListlView.render();
         // };
         $("body").pagecontainer("change", "#contact_list", {
@@ -376,73 +376,73 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         });
         $.mobile.loading("show");
         async.parallel({
-            people: function(cb) {
-              if (self.c_people.get(people_id)) {
-                var tmp = self.c_people.get(people_id);
-                tmp.fetch().done(function() {
-                  cb(null, tmp);
-                })
-              } else {
-                var tmp = new PeopleModel({
-                  _id: people_id
-                })
-                self.c_people.set(tmp);
-                tmp.fetch().done(function() {
-                  cb(null, tmp);
-                })
-              };
+          people: function(cb) {
+            if (self.c_people.get(people_id)) {
+              var tmp = self.c_people.get(people_id);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            } else {
+              var tmp = new PeopleModel({
+                _id: people_id
+              })
+              self.c_people.set(tmp);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            };
 
-              // cb(null, self.c_people.get(people_id));
-            },
-            // payroll: function(cb) {
-            //   self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
-            //   self.c_payroll_myteam.fetch().done(function() {
-            //     cb(null, self.c_payroll_myteam);
-            //   })
-            // },
-            competency: function(cb) {
-              // self.c_competency.get(people_id)
-              if (self.c_competency.get(people_id)) {
-                var tmp = self.c_competency.get(people_id);
-                tmp.fetch().done(function() {
-                  cb(null, tmp);
-                })
-              } else {
-                var tmp = new CompetencyModel({
-                  people_id: people_id
-                })
-                self.c_competency.set(tmp);
-                tmp.fetch().done(function() {
-                  cb(null, tmp);
-                })
-              };
-            },
-            talent: function(cb) {
-              // self.c_competency.get(people_id)
-              if (self.c_talent.get(people_id)) {
-                var tmp = self.c_talent.get(people_id);
-                tmp.fetch().done(function() {
-                  cb(null, tmp);
-                })
-              } else {
-                var tmp = new TalentModel({
-                  people_id: people_id
-                })
-                self.c_talent.set(tmp);
-                tmp.fetch().done(function() {
-                  cb(null, tmp);
-                })
-              };
-            }
-          }, function(err, result) {
-            self.myProfileDetailView.model = result.people;
-            self.myProfileDetailView.competency = result.competency;
-            self.myProfileDetailView.talent = result.talent;
-            self.myProfileDetailView.render();
-            $.mobile.loading("hide");
-          })
-          // this.myProfileDetailView.model = this.c_people.get(login_people);
-          // this.myProfileDetailView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
+            // cb(null, self.c_people.get(people_id));
+          },
+          // payroll: function(cb) {
+          //   self.c_payroll_myteam.url = '/admin/py/payroll_people/get_payroll_instances?people=' + people_id + '&ct=' + (new Date()).getTime();
+          //   self.c_payroll_myteam.fetch().done(function() {
+          //     cb(null, self.c_payroll_myteam);
+          //   })
+          // },
+          competency: function(cb) {
+            // self.c_competency.get(people_id)
+            if (self.c_competency.get(people_id)) {
+              var tmp = self.c_competency.get(people_id);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            } else {
+              var tmp = new CompetencyModel({
+                people_id: people_id
+              })
+              self.c_competency.set(tmp);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            };
+          },
+          talent: function(cb) {
+            // self.c_competency.get(people_id)
+            if (self.c_talent.get(people_id)) {
+              var tmp = self.c_talent.get(people_id);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            } else {
+              var tmp = new TalentModel({
+                people_id: people_id
+              })
+              self.c_talent.set(tmp);
+              tmp.fetch().done(function() {
+                cb(null, tmp);
+              })
+            };
+          }
+        }, function(err, result) {
+          self.myProfileDetailView.model = result.people;
+          self.myProfileDetailView.competency = result.competency;
+          self.myProfileDetailView.talent = result.talent;
+          self.myProfileDetailView.render();
+          $.mobile.loading("hide");
+        })
+        // this.myProfileDetailView.model = this.c_people.get(login_people);
+        // this.myProfileDetailView.render(this.c_competency.get(login_people), this.c_talent.get(login_people));
       },
       myprofile_edit_01: function() { //编辑基本信息
         var self = this;
@@ -824,56 +824,56 @@ define(["jquery", "backbone", "handlebars", "lzstring",
               }
               var tmp_assessment_col = new AssessmentCollection();
               async.timesSeries(assessments.length, function(n, next) {
-                  self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
-                  async.waterfall([
+                self.c_assessment_v.url = '/admin/pm/assessment_instance/get_my_assessments_v_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
+                async.waterfall([
 
-                    function(cb) {
-                      self.c_assessment_v.fetch().done(function() { //获取版本
-                        cb(null, self.c_assessment_v);
-                      })
-                    },
-                    function(c, cb) { //取得本地数据版本，并与之前获取的版本进行比对
-                      var cn = assessments[n].join('_'); //本地localStorage使用的key
-                      var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
-                      var change_flag = false;
-                      change_flag = (local_data.length != c.length);
-                      if (!change_flag) { //没发现长度不一致，继续往下判断
-                        //应该以云端的数据为准
-                        for (var i = 0; i < c.length; i++) {
-                          var found = _.find(local_data, function(x) {
-                            return x._id == c.models[i].get('_id');
-                          })
-                          if (!found) { //云端有，本地没找到，说明有变化。
+                  function(cb) {
+                    self.c_assessment_v.fetch().done(function() { //获取版本
+                      cb(null, self.c_assessment_v);
+                    })
+                  },
+                  function(c, cb) { //取得本地数据版本，并与之前获取的版本进行比对
+                    var cn = assessments[n].join('_'); //本地localStorage使用的key
+                    var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
+                    var change_flag = false;
+                    change_flag = (local_data.length != c.length);
+                    if (!change_flag) { //没发现长度不一致，继续往下判断
+                      //应该以云端的数据为准
+                      for (var i = 0; i < c.length; i++) {
+                        var found = _.find(local_data, function(x) {
+                          return x._id == c.models[i].get('_id');
+                        })
+                        if (!found) { //云端有，本地没找到，说明有变化。
+                          change_flag = true;
+                          break;
+                        } else {
+                          if (found.lastModified != c.models[i].get('lastModified')) { //找到了，但是最后更改时间戳不一致，说明有变化。
                             change_flag = true;
                             break;
-                          } else {
-                            if (found.lastModified != c.models[i].get('lastModified')) { //找到了，但是最后更改时间戳不一致，说明有变化。
-                              change_flag = true;
-                              break;
-                            };
                           };
                         };
                       };
-                      if (change_flag) { //发现有变化，重新fetch
-                        tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
-                        tmp_assessment_col.fetch().done(function() {
-                          localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_assessment_col)));
-                          // $.mobile.loading("hide");
-                          if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
-                            self.load_data(self.c_assessment, 'assessment');
-                          };
-                          cb(null, cn + ': fetch new version ok. ');
-                        })
-                      } else {
-                        cb(null, cn + ': no new version.')
-                      };
-                      // cb(null, 'fetch ok->' + assessments[n][1]);
-                    }
-                  ], next);
-                }, function(err, result) {
-                  console.log('[', moment().format('YYYY-MM-DD HH:mm:SS'), ']', result.join('\n'));
-                })
-                //工作任务数据
+                    };
+                    if (change_flag) { //发现有变化，重新fetch
+                      tmp_assessment_col.url = '/admin/pm/assessment_instance/get_my_assessments_4m?people=' + assessments[n][1] + '&ct=' + (new Date()).getTime();
+                      tmp_assessment_col.fetch().done(function() {
+                        localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(tmp_assessment_col)));
+                        // $.mobile.loading("hide");
+                        if (assessments[n][1] == $("#login_people").val()) { //如果是本人的，重新load一下data，以便通知各个view更新界面
+                          self.load_data(self.c_assessment, 'assessment');
+                        };
+                        cb(null, cn + ': fetch new version ok. ');
+                      })
+                    } else {
+                      cb(null, cn + ': no new version.')
+                    };
+                    // cb(null, 'fetch ok->' + assessments[n][1]);
+                  }
+                ], next);
+              }, function(err, result) {
+                console.log('[', moment().format('YYYY-MM-DD HH:mm:SS'), ']', result.join('\n'));
+              })
+              //工作任务数据
               var tasks = [];
               for (i = 0; i < localStorage.length; i++) {
                 if (localStorage.key(i).split('_')[0] == 'task') {
@@ -1956,19 +1956,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           }
 
           _.each(type_data, function(temp) {
-              var temp_arr = [];
-              temp_arr.push(temp._id);
-              temp_arr.push(temp.type_name)
-              if (temp._id == String(develope_type)) {
+            var temp_arr = [];
+            temp_arr.push(temp._id);
+            temp_arr.push(temp.type_name)
+            if (temp._id == String(develope_type)) {
 
-                item.push('<option value="' + temp_arr + '" selected>' + temp.type_name + '</option>')
+              item.push('<option value="' + temp_arr + '" selected>' + temp.type_name + '</option>')
 
-              } else {
-                item.push('<option value="' + temp_arr + '" >' + temp.type_name + '</option>')
+            } else {
+              item.push('<option value="' + temp_arr + '" >' + temp.type_name + '</option>')
 
-              }
-            })
-            // item.push('<option value="' + type_temp._id + '" >' + type_temp.type_name + '</option>')
+            }
+          })
+          // item.push('<option value="' + type_temp._id + '" >' + type_temp.type_name + '</option>')
 
         } else {
           item.push('<option>请选择培养方式</option>');
@@ -2280,135 +2280,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return '<span class="' + ration_obj_class[ration] + '">' + ration_obj[ration] + '</span>'
       });
 
-    })();
+      Handlebars.registerHelper('genMultipleOptions', function(option, data) {
+        var ret = [];
+        ret.push('<option value="' + option + '" ');
+        if (data && !!_.find(data.split(','), function(x) {
+          return x == option
+        })) {
+          ret.push('selected');
+        };
+        ret.push(' >' + option);
+        ret.push('</option>');
+        return ret.join('');
+      });
 
-    (function() {
-      var ezswipe_container, ezswipe_surface, i, style, _droid_swipe, _ezSwipes;
-      _droid_swipe = function(el) {
-        var dispatchEvent, _child;
-        dispatchEvent = function(name, delta) {
-          var event, settings;
-          settings = {
-            detail: {
-              delta: delta,
-              bubbles: false,
-              cancelable: true
-            }
-          };
-          el.parentNode.dispatchEvent(new CustomEvent(name, settings));
-        };
-        _child = el.querySelectorAll("._ezswipe_surface")[0];
-        el.ezSwipe = {
-          center: {
-            x: (_child.clientWidth / 2) - (el.clientWidth / 2),
-            y: (_child.clientHeight / 2) - (el.clientHeight / 2)
-          },
-          timer: null,
-          scrolling: false,
-          starttime: 0,
-          last: {
-            x: 0,
-            y: 0,
-            t: 0
-          }
-        };
-        el.scrollLeft = el.ezSwipe.center.x;
-        el.scrollTop = el.ezSwipe.center.y;
-        el.onscroll = function(e) {
-          var d, delta;
-          d = new Date().getTime();
-          if ((el.scrollLeft !== el.ezSwipe.center.x) || (el.scrollTop !== el.ezSwipe.center.y)) {
-            if (!el.ezSwipe.scrolling) {
-              delta = {
-                x: 0,
-                y: 0,
-                t: 0
-              };
-              el.ezSwipe.starttime = d;
-              el.ezSwipe.last = delta;
-              dispatchEvent("swipeStart", delta);
-              el.ezSwipe.scrolling = true;
-            } else {
-              delta = {
-                x: el.ezSwipe.center.x - el.scrollLeft - el.ezSwipe.last.x,
-                y: el.ezSwipe.center.y - el.scrollTop - el.ezSwipe.last.y,
-                t: d - el.ezSwipe.starttime - el.ezSwipe.last.t
-              };
-              el.ezSwipe.last = {
-                x: el.ezSwipe.center.x - el.scrollLeft,
-                y: el.ezSwipe.center.y - el.scrollTop,
-                t: d - el.ezSwipe.starttime
-              };
-              dispatchEvent("swipeMove", delta);
-            }
-            if (el.ezSwipe.timer) {
-              clearTimeout(el.ezSwipe.timer);
-            }
-            el.ezSwipe.timer = setTimeout(function() {
-              el.ezSwipe.timer = null;
-              d = new Date().getTime();
-              delta = {
-                x: el.ezSwipe.center.x - el.scrollLeft,
-                y: el.ezSwipe.center.y - el.scrollTop,
-                t: d - el.ezSwipe.starttime
-              };
-              el.ezSwipe.last = delta;
-              dispatchEvent("swipeEnd", delta);
-              if (Math.abs(delta.y) > Math.abs(delta.x)) {
-                if (delta.y < 0) {
-                  dispatchEvent("swipeUp", delta);
-                } else {
-                  dispatchEvent("swipeDown", delta);
-                }
-              } else {
-                if (delta.x < 0) {
-                  dispatchEvent("swipeLeft", delta);
-                } else {
-                  dispatchEvent("swipeRight", delta);
-                }
-              }
-              el.ezSwipe.scrolling = false;
-              _droid_swipe(el);
-            }, 100);
-          }
-        };
-      };
-      _ezSwipes = document.querySelectorAll("._ezswipe");
-      i = 0;
-      while (i < _ezSwipes.length) {
-        ezswipe_container = document.createElement("div");
-        ezswipe_container.classList.add("_ezswipe_container");
-        _ezSwipes[i].style.overflow = "hidden";
-        style = ezswipe_container.style;
-        style.webkitUserSelect = "none";
-        style.webkitOverflowScrolling = "touch";
-        style.overflow = "auto";
-        style.opacity = 0;
-        style.top = 0;
-        style.left = 0;
-        style.position = "absolute";
-        if (_ezSwipes[i].offsetWidth > document.width) {
-          style.width = document.width + "px";
-        } else {
-          style.width = _ezSwipes[i].offsetWidth + "px";
-        }
-        if (_ezSwipes[i].offsetHeight > document.height) {
-          style.height = document.height + "px";
-        } else {
-          style.height = _ezSwipes[i].offsetHeight + "px";
-        }
-        ezswipe_surface = document.createElement("div");
-        ezswipe_surface.classList.add("_ezswipe_surface");
-        style = ezswipe_surface.style;
-        style.position = "relative";
-        style.width = "300%";
-        style.height = "300%";
-        ezswipe_container.appendChild(ezswipe_surface);
-        _droid_swipe(_ezSwipes[i].insertBefore(ezswipe_container, _ezSwipes[i].firstElementChild));
-        i++;
-      }
     })();
-
 
     // Returns the Router class
     return MainRouter;
