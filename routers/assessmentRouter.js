@@ -307,6 +307,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                             $.get('/admin/pm/assessment_instance/summary/wf_summary_view_4m/' + process_instance_id, function(data) {
                                 self.AssessmentSummaryWfEditView.data = data;
                                 if (data) {
+                                    console.log(data);
                                     cb(null, data.ai._id)
 
                                 } else {
@@ -372,6 +373,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                                     })
                                 })
                             } else {
+                                var type = "view";
                                 var process_instance_id = data.msg.process_instance;
                                 async.series({
                                     wf_data: function(cb) {

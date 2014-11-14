@@ -182,6 +182,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                             do_trans(self.trans_data);
                         }
                     } else {
+                        $("#summary_wf_edit_form #add_pi").hide();
 
                         $("#summary_wf_edit_form-content").html(self.template(render_data));
                         // $("#summary_wf_edit_form-content").trigger('create');
@@ -217,12 +218,15 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var find_pi = _.find(items, function(x) {
                         return x.pi == String(pi_id)
                     })
+                    find_pi.ration = ration;
 
                 } else if (ration == '2') {
                     var items = data[0].quantitative_pis.items; //ration=2 定量
                     var find_pi = _.find(items, function(x) {
                         return x.pi == String(pi_id)
                     })
+                    find_pi.ration = ration;
+
                 }
                 //是否可以编辑
                 if (self.is_self) {
@@ -277,12 +281,14 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var find_pi = _.find(items, function(x) {
                         return x.pi == String(pi_id)
                     })
-
+                    find_pi.ration = ration;
                 } else if (ration == '2') {
                     var items = data[0].quantitative_pis.items; //ration=2 定量
                     var find_pi = _.find(items, function(x) {
                         return x.pi == String(pi_id)
                     })
+                    find_pi.ration = ration;
+
                 }
                 //是否可以编辑
                 if (self.ai_status == '9' && self.is_self) {

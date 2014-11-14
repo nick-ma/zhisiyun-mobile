@@ -134,6 +134,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     $("#summary_edit_form-content").html(self.index_template(render_data));
 
                 } else {
+                    $("#summary_edit_form #add_pi").hide();
+
                     $("#summary_edit_form-content").html(self.template(render_data));
                 }
                 $("#summary_edit_form-content").trigger('create');
@@ -709,9 +711,9 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                                 self.render_pi(module, pi_id, ration);
                                 $.mobile.loading('hide');
 
-                            } else if (type == "render") {
+                            } else if (type != "no_render") {
                                 self.render();
-                            } else {
+                            } else if (type == "render") {
                                 self.render();
                             }
                             if (type == "success") {
