@@ -307,7 +307,6 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                             $.get('/admin/pm/assessment_instance/summary/wf_summary_view_4m/' + process_instance_id, function(data) {
                                 self.AssessmentSummaryWfEditView.data = data;
                                 if (data) {
-                                    console.log(data);
                                     cb(null, data.ai._id)
 
                                 } else {
@@ -342,6 +341,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     $.get('/admin/pm/assessment_instance/summary/edit_m/' + task_id, function(data) {
                         if (data.code == "OK") {
                             if (data.msg.task_state != 'FINISHED') {
+                                var type = "edit";
+
                                 // var task_id = _id; //流程任务处理，则是任务ID，否则，是流程实例ID；
                                 async.series({
                                     wf_data: function(cb) {
