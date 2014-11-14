@@ -397,6 +397,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var col = $this.data('col');
                         var index = $this.data('index');
 
+                        $("#form_table_form-content select").trigger('change')
                         //做表单验证
                         var field = get_field(row, col);
                         var data = field.data[index];

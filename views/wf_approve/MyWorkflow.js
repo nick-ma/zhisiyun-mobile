@@ -45,6 +45,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             },
             bind_event: function() {
                 var self = this;
+                $("#wf_my_workflow")
+                    .on('click', '#btn-my_workflow-back', function(event) {
+                        event.preventDefault();
+                        
+                        self.mode = '1';
+                        self.render();
+                    })
                 $("#wf_my_workflow-content")
                     .on('click', '#start_form', function(event) {
                         event.preventDefault();
