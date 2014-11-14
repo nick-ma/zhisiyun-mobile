@@ -10,11 +10,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
             // The View Constructor
             initialize: function() {
                 this.template = Handlebars.compile($("#psh_summary_list_view").html());
+                this.loading_template = Handlebars.compile($("#loading_template_view").html());
+
                 this.left_template = Handlebars.compile($("#hbtmp_assessment_left_view").html());
                 this.bind_events();
                 var self = this;
             },
-
+            pre_render: function() {
+                var self = this;
+                $("#summary_list-content").html(self.loading_template({
+                    info_msg: '数据加载中...请稍候'
+                }));
+                $("#summary_list-content").trigger('create');
+                return this;
+            },
             // Renders all of the Assessment models on the UI
             render: function() {
                 var self = this;
