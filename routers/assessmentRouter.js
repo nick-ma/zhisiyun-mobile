@@ -318,7 +318,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                         self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb/' + data.wf_data;
                         self.c_assessment_summary.fetch().done(function() {
                             var is_self = self.c_assessment_summary.models[0].attributes.people._id == String($("#login_people").val());
+                            //是否间接上级
+                            var is_ind_superiors = self.c_assessment_summary.models[0].attributes.people.ind_superiors == String($("#login_people").val());
+                            //是否直接上级
+                            var is_superiors = self.c_assessment_summary.models[0].attributes.people.superiors == String($("#login_people").val());
+
                             self.AssessmentSummaryWfEditView.is_self = is_self;
+                            self.AssessmentSummaryWfEditView.is_ind_superiors = is_ind_superiors;
+                            self.AssessmentSummaryWfEditView.is_superiors = is_superiors;
+
                             self.AssessmentSummaryWfEditView.type = type;
                             self.AssessmentSummaryWfEditView.render();
                             $.mobile.loading('hide');
@@ -330,36 +338,79 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     var task_id = _id.split("-")[0];
                     var pd_id = _id.split("-")[1];
                     var pd_code = _id.split("-")[2];
-                    // var task_id = _id; //流程任务处理，则是任务ID，否则，是流程实例ID；
-                    async.series({
-                        wf_data: function(cb) {
-                            $.get('/admin/pm/assessment_instance/summary/wf_summary_4m/' + task_id, function(data) {
-                                self.AssessmentSummaryWfEditView.data = data;
-                                if (data) {
-                                    cb(null, data.ai._id)
+                    $.get('/admin/pm/assessment_instance/summary/edit_m/' + task_id, function(data) {
+                        if (data.code == "OK") {
+                            if (data.msg.task_state != 'FINISHED') {
+                                // var task_id = _id; //流程任务处理，则是任务ID，否则，是流程实例ID；
+                                async.series({
+                                    wf_data: function(cb) {
+                                        $.get('/admin/pm/assessment_instance/summary/wf_summary_4m/' + task_id, function(data) {
+                                            self.AssessmentSummaryWfEditView.data = data;
+                                            if (data) {
+                                                cb(null, data.ai._id)
 
-                                } else {
-                                    cb(null, null)
-                                }
-                            })
+                                            } else {
+                                                cb(null, null)
+                                            }
+                                        })
+                                    }
+                                }, function(err, data) {
+                                    self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb/' + data.wf_data;
+                                    self.c_assessment_summary.fetch().done(function() {
+                                        var is_self = self.c_assessment_summary.models[0].attributes.people._id == String($("#login_people").val());
+                                        //是否间接上级
+                                        var is_ind_superiors = self.c_assessment_summary.models[0].attributes.people.ind_superiors == String($("#login_people").val());
+                                        //是否直接上级
+                                        var is_superiors = self.c_assessment_summary.models[0].attributes.people.superiors == String($("#login_people").val());
+                                        self.AssessmentSummaryWfEditView.is_self = is_self;
+                                        self.AssessmentSummaryWfEditView.is_ind_superiors = is_ind_superiors;
+                                        self.AssessmentSummaryWfEditView.is_superiors = is_superiors;
+                                        self.AssessmentSummaryWfEditView.type = type;
+                                        self.AssessmentSummaryWfEditView.render();
+                                        $.mobile.loading('hide');
+
+                                    })
+                                })
+                            } else {
+                                var process_instance_id = data.msg.process_instance;
+                                async.series({
+                                    wf_data: function(cb) {
+                                        $.get('/admin/pm/assessment_instance/summary/wf_summary_view_4m/' + process_instance_id, function(data) {
+                                            self.AssessmentSummaryWfEditView.data = data;
+                                            if (data) {
+                                                cb(null, data.ai._id)
+
+                                            } else {
+                                                cb(null, null)
+                                            }
+                                        })
+                                    }
+                                }, function(err, data) {
+                                    self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb/' + data.wf_data;
+                                    self.c_assessment_summary.fetch().done(function() {
+                                        var is_self = self.c_assessment_summary.models[0].attributes.people._id == String($("#login_people").val());
+                                        //是否间接上级
+                                        var is_ind_superiors = self.c_assessment_summary.models[0].attributes.people.ind_superiors == String($("#login_people").val());
+                                        //是否直接上级
+                                        var is_superiors = self.c_assessment_summary.models[0].attributes.people.superiors == String($("#login_people").val());
+
+                                        self.AssessmentSummaryWfEditView.is_self = is_self;
+                                        self.AssessmentSummaryWfEditView.is_ind_superiors = is_ind_superiors;
+                                        self.AssessmentSummaryWfEditView.is_superiors = is_superiors;
+
+                                        self.AssessmentSummaryWfEditView.type = type;
+                                        self.AssessmentSummaryWfEditView.render();
+                                        $.mobile.loading('hide');
+
+                                    })
+                                })
+                            }
+
+                        } else {
+                            alert(data.code)
                         }
-                    }, function(err, data) {
-                        self.c_assessment_summary.url = '/admin/pm/assessment_instance/summary/bb/' + data.wf_data;
-                        self.c_assessment_summary.fetch().done(function() {
-                            var is_self = self.c_assessment_summary.models[0].attributes.people._id == String($("#login_people").val());
-                           //是否间接上级
-                            var is_ind_superiors = self.c_assessment_summary.models[0].attributes.people.ind_superiors == String($("#login_people").val());
-                           //是否直接上级
-                            var is_superiors = self.c_assessment_summary.models[0].attributes.people.superiors == String($("#login_people").val());
-                            self.AssessmentSummaryWfEditView.is_self = is_self;
-                            self.AssessmentSummaryWfEditView.is_ind_superiors = is_ind_superiors;
-                            self.AssessmentSummaryWfEditView.is_superiors = is_superiors;
-                            self.AssessmentSummaryWfEditView.type = type;
-                            self.AssessmentSummaryWfEditView.render();
-                            $.mobile.loading('hide');
-
-                        })
                     })
+
                 }
 
 

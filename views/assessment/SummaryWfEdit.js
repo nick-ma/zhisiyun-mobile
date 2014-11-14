@@ -3,7 +3,7 @@
 
 // Includes file dependencies
 define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "../../models/AssessmentModel", "../../models/CollTaskModel"],
-    function($, _, async, Backbone, Handlebars, moment, AssessmentModel, CollTaskModel) {
+    function($, _, async, Backbone, Handlebars, moment, AssessmentModel, CollTask) {
         var people_ind_superiors, people_superiors, ai_id = null,
             pds = null;
         var do_trans = function(trans_data) {
@@ -55,9 +55,9 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             render: function(index, type) {
                 var self = this;
                 var data = _.map(self.collection.models, function(x) {
-                    return x.toJSON()
-                })
-                //附件数据
+                        return x.toJSON()
+                    })
+                    //附件数据
                 if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
                     self.data = JSON.parse(localStorage.getItem('upload_model_back')).model;
                     localStorage.removeItem('upload_model_back'); //用完删掉
@@ -402,8 +402,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var field = String($(this).data("field")).split('-')[0];
                     var field1 = String($(this).data("field")).split('-')[1];
                     var self_comment = $(this).val();
-                    var ration = $(this).data("ration");//定量 定性指标
-                    var pi_id = $(this).data("pi_id");//指标
+                    var ration = $(this).data("ration"); //定量 定性指标
+                    var pi_id = $(this).data("pi_id"); //指标
                     if (ration == '1') {
                         var items = self.collection.models[0].attributes.qualitative_pis.items;
                         var found = self.get_pi(items, pi_id);
@@ -411,7 +411,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         var items = self.collection.models[0].attributes.quantitative_pis.items;
                         var found = self.get_pi(items, pi_id);
                     }
-                    if (field1 == "self_comment") {//自评数据
+                    if (field1 == "self_comment") { //自评数据
                         if (field == 'summary') {
                             self.collection.models[0].attributes.summary.self_comment = self_comment;
                         } else if (field == "gap_analysis") {
@@ -423,7 +423,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                             found.summary.performance_highlights.self_comment = self_comment;
 
                         }
-                    } else {//上级评语
+                    } else { //上级评语
 
                         if (field == 'summary') {
                             self.collection.models[0].attributes.summary[field1]["comment"] = self_comment;
@@ -554,6 +554,79 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     event.preventDefault();
                     var url = "im://userchat/" + self.data.ai.people._id;
                     window.location.href = url;
+                }).on('click', "#btn_add_colltask", function(event) { //不足与改进中的创建任务
+                    event.preventDefault();
+                    var $this = $(this);
+                    var confirm_msg = '确认为当前指标创建一个任务吗？';
+                    if (confirm(confirm_msg)) { //优化一点效率
+                        var pi_id = $this.data('pi_id');
+                        var ration = $this.data('ration');
+                        var found;
+                        if (ration == '1') {
+                            var items = self.collection.models[0].attributes.qualitative_pis.items;
+                            found = self.get_pi(items, pi_id);
+                        } else if (ration == '2') {
+                            var items = self.collection.models[0].attributes.quantitative_pis.items;
+                            found = self.get_pi(items, pi_id);
+                        };
+                        if (found) {
+
+                            //新建一个coll task
+                            var new_coll_task = {
+                                task_name: '新建绩效总结任务-' + self.collection.models[0].attributes.ai_name,
+                                task_descrpt: '指标:' + found.pi_name,
+                                start: new Date(),
+                                end: moment().add(10, 'day').toDate(),
+                                th: $("#login_people").val(),
+                                pi: { //关联的考核指标-跟绩效合同相关－只关联一个pi
+                                    ai_id: ai_id || self.collection.models[0].attributes._id,
+                                    pi_lx: (ration == "1") ? 'dx' : 'dl', // 类型： dl：定量  dx：定性
+                                    pi_id: pi_id,
+                                    period_name: self.collection.models[0].attributes.period_name,
+                                    pi_name: found.pi_name,
+                                    people_name: $("#login_people_name").val(),
+                                },
+                            };
+                            var ct = new CollTask(new_coll_task);
+                            ct.save().done(function() {
+                                found.summary.coll_tasks.push(ct.toJSON());
+                                var ai_id = ai_id || self.collection.models[0].attributes._id;
+                                var data4save = _.clone(self.collection.models[0].attributes);
+                                var type = "render_pi";
+                                $.mobile.loading('show');
+
+                                self.data_save(data4save, ai_id, type, 'A' + '/' + pi_id + '/' + ration);
+                            })
+                        };
+                    }
+                }).on('click', "#mark_as_watch", function(event) { //用change会触发多次事件
+                    event.preventDefault();
+                    var $this = $(this);
+                    var pi_id = $this.data('pi_id');
+                    var ration = $this.data('ration');
+                    var found;
+                    if (ration == '1') {
+                        var items = self.collection.models[0].attributes.qualitative_pis.items;
+                        found = self.get_pi(items, pi_id);
+                    } else if (ration == '2') {
+                        var items = self.collection.models[0].attributes.quantitative_pis.items;
+                        found = self.get_pi(items, pi_id);
+                    };
+                    if (found) {
+                        var if_mark_as_watch = $("#summary_wf_edit_form input[id='mark_as_watch']:checked");
+                        if (if_mark_as_watch.length > 0) {
+                            found.summary.mark_as_watch = true;
+
+                        } else {
+                            found.summary.mark_as_watch = false;
+                        }
+                        var ai_id = ai_id || self.collection.models[0].attributes._id;
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        var type = "render_pi";
+                        $.mobile.loading('show');
+                        self.data_save(data4save, ai_id, type, 'A' + '/' + pi_id + '/' + ration);
+
+                    }
                 })
 
             },
@@ -645,7 +718,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 })
                 return found
             },
-            data_save: function(data4save, ai_id, type) {
+            data_save: function(data4save, ai_id, type, render_type) {
                 var self = this;
                 //回复populate出来的字段
                 _.each(data4save.quantitative_pis.items, function(x) {
@@ -753,7 +826,16 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     success: function(model, response, options) {
                         self.collection.url = '/admin/pm/assessment_instance/summary/bb/' + ai_id;
                         self.collection.fetch().done(function() {
-                            if (type != "no_render") {
+                            if (type == "render_pi") {
+                                var module = String(render_type).split('/')[0];
+                                var pi_id = String(render_type).split('/')[1];
+                                var ration = String(render_type).split('/')[2];
+                                self.render_pi(module, pi_id, ration);
+                                $.mobile.loading('hide');
+
+                            } else if (type != "no_render") {
+                                self.render();
+                            } else if (type == "render") {
                                 self.render();
                             }
                             if (type == "success") {

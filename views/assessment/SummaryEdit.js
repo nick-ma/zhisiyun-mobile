@@ -3,9 +3,10 @@
 
 // Includes file dependencies
 define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "../../models/AssessmentModel", "../../models/CollTaskModel"],
-    function($, _, async, Backbone, Handlebars, moment, AssessmentModel, CollTaskModel) {
+    function($, _, async, Backbone, Handlebars, moment, AssessmentModel, CollTask) {
         var people_ind_superiors, people_superiors, ai_id = null,
-            pds = null;
+            pds = null,
+            wfs = [];
         // Extends Backbone.View
         var AssessmentSummaryEditView = Backbone.View.extend({
             // The View Constructor
@@ -162,12 +163,14 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var find_pi = _.find(items, function(x) {
                         return x.pi == String(pi_id)
                     })
-
+                    find_pi.ration = 1;
                 } else if (ration == '2') {
                     var items = data[0].quantitative_pis.items; //ration=2 定量
                     var find_pi = _.find(items, function(x) {
                         return x.pi == String(pi_id)
                     })
+                    find_pi.ration = 2;
+
                 }
                 //是否可以编辑
                 if (self.ai_status == '9' && self.is_self) {
@@ -218,12 +221,14 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var find_pi = _.find(items, function(x) {
                         return x.pi == String(pi_id)
                     })
+                    find_pi.ration = 1;
 
                 } else if (ration == '2') {
                     var items = data[0].quantitative_pis.items; //ration=2 定量
                     var find_pi = _.find(items, function(x) {
                         return x.pi == String(pi_id)
                     })
+                    find_pi.ration = 2;
                 }
                 //是否可以编辑
                 if (self.ai_status == '9' && self.is_self) {
@@ -413,7 +418,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         $.post(url, post_data, function(data, textStatus, xhr) {
                             if (data.code == 'OK') {
                                 var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
-                                window.location = '/m#wf_summary/' + task_id + '/edit';
+                                window.location = '/m#godo12/' + task_id + '/edit';
                             } else if (data.code == 'ERR') {
                                 $("#do_submit").removeAttr('disabled');
                                 console.log(data.err); //把错误信息输出到控制台，以便查找错误。
@@ -421,6 +426,83 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         })
 
                     };
+                }).on('click', "#btn_add_colltask", function(event) { //不足与改进中的创建任务
+                    event.preventDefault();
+                    var $this = $(this);
+                    var confirm_msg = '确认为当前指标创建一个任务吗？';
+                    if (confirm(confirm_msg)) { //优化一点效率
+                        var pi_id = $this.data('pi_id');
+                        var ration = $this.data('ration');
+                        var found;
+                        if (ration == '1') {
+                            var items = self.collection.models[0].attributes.qualitative_pis.items;
+                            found = self.get_pi(items, pi_id);
+                        } else if (ration == '2') {
+                            var items = self.collection.models[0].attributes.quantitative_pis.items;
+                            found = self.get_pi(items, pi_id);
+                        };
+                        if (found) {
+
+                            //新建一个coll task
+                            var new_coll_task = {
+                                task_name: '新建绩效总结任务-' + self.collection.models[0].attributes.ai_name,
+                                task_descrpt: '指标:' + found.pi_name,
+                                start: new Date(),
+                                end: moment().add(10, 'day').toDate(),
+                                th: $("#login_people").val(),
+                                pi: { //关联的考核指标-跟绩效合同相关－只关联一个pi
+                                    ai_id: ai_id || self.collection.models[0].attributes._id,
+                                    pi_lx: (ration == "1") ? 'dx' : 'dl', // 类型： dl：定量  dx：定性
+                                    pi_id: pi_id,
+                                    period_name: self.collection.models[0].attributes.period_name,
+                                    pi_name: found.pi_name,
+                                    people_name: $("#login_people_name").val(),
+                                },
+                            };
+                            var ct = new CollTask(new_coll_task);
+                            ct.save().done(function() {
+                                found.summary.coll_tasks.push(ct.toJSON());
+                                var ai_id = ai_id || self.collection.models[0].attributes._id;
+                                var data4save = _.clone(self.collection.models[0].attributes);
+                                var type = "render_pi";
+                                $.mobile.loading('show');
+
+                                self.data_save(data4save, ai_id, type, 'A' + '/' + pi_id + '/' + ration);
+                            })
+                        };
+                    }
+                }).on('click', "#mark_as_watch", function(event) { //用change会触发多次事件
+                    event.preventDefault();
+                    var $this = $(this);
+                    var pi_id = $this.data('pi_id');
+                    var ration = $this.data('ration');
+                    var found;
+                    if (ration == '1') {
+                        var items = self.collection.models[0].attributes.qualitative_pis.items;
+                        found = self.get_pi(items, pi_id);
+                    } else if (ration == '2') {
+                        var items = self.collection.models[0].attributes.quantitative_pis.items;
+                        found = self.get_pi(items, pi_id);
+                    };
+                    if (found) {
+                        var if_mark_as_watch = $("#summary_edit_form input[id='mark_as_watch']:checked");
+                        if (if_mark_as_watch.length > 0) {
+                            found.summary.mark_as_watch = true;
+
+                        } else {
+                            found.summary.mark_as_watch = false;
+                        }
+                        var ai_id = ai_id || self.collection.models[0].attributes._id;
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        var type = "render_pi";
+                        $.mobile.loading('show');
+                        self.data_save(data4save, ai_id, type, 'A' + '/' + pi_id + '/' + ration);
+
+                    }
+                }).on('click', "#btn_wf_view", function(event) {
+                    event.preventDefault();
+                    var ai_id = ai_id || self.collection.models[0].attributes._id;
+                    self.get_wfs(ai_id);
                 })
 
             },
@@ -512,7 +594,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 })
                 return found
             },
-            data_save: function(data4save, ai_id, type) {
+            data_save: function(data4save, ai_id, type, render_type) {
                 var self = this;
                 //回复populate出来的字段
                 _.each(data4save.quantitative_pis.items, function(x) {
@@ -620,7 +702,16 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     success: function(model, response, options) {
                         self.collection.url = '/admin/pm/assessment_instance/summary/bb/' + ai_id;
                         self.collection.fetch().done(function() {
-                            if (type != "no_render") {
+                            if (type == "render_pi") {
+                                var module = String(render_type).split('/')[0];
+                                var pi_id = String(render_type).split('/')[1];
+                                var ration = String(render_type).split('/')[2];
+                                self.render_pi(module, pi_id, ration);
+                                $.mobile.loading('hide');
+
+                            } else if (type == "render") {
+                                self.render();
+                            } else {
                                 self.render();
                             }
                             if (type == "success") {
@@ -630,6 +721,14 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                     },
                     error: function(model, xhr, options) {}
+                });
+            },
+            get_wfs: function(ai_id) {
+                $.get('/admin/wf/process_instance/get_pis_by_cid?cid=' + ai_id + '&codes=AssessmentInstance_summary', function(data) {
+                    if (data.code == 'OK') {
+                        var wfs = data.data;
+                        window.location.href = "/m#godo12/" + wfs[0]._id + '/view';
+                    };
                 });
             }
         });
