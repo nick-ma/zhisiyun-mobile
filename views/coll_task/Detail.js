@@ -22,6 +22,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 // The render method is called when CollTask Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
                 this.view_mode = 'basic'; //初始化为基本信息界面
+                this.show_p_task = true;
+                this.show_sub_tasks = true;
+                this.show_checkin_records = true;
+                this.show_comments = true;
                 this.bind_event();
             },
             pre_render: function() { //预先render
@@ -32,6 +36,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
             render: function() {
 
                 var self = this;
+                self.show_p_task = true;
+                self.show_sub_tasks = true;
+                self.show_checkin_records = true;
+                self.show_comments = true;
+                var login_people = $("#login_people").val();
                 // 判断是否更换了任务
                 if (self.pre_model_id != self.model.get('_id')) {
                     self.view_mode = 'basic';
@@ -50,7 +59,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     return;
                 };
+                var show_btn_do_accept = false;
+                if (login_people == self.model.attributes.th._id) {
+                    show_btn_do_accept = true;
+                }
                 var render_data = self.model.toJSON();
+                render_data.show_btn_do_accept = show_btn_do_accept;
                 var ct_last_view = JSON.parse(localStorage.getItem('ct_last_view')) || [];
                 var found = _.find(ct_last_view, function(x) {
                     return x._id == render_data._id;
@@ -65,7 +79,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 }), function(x) {
                     return x.toJSON();
                 })
-                render_data.login_people = $("#login_people").val();
+                render_data.login_people = login_people;
                 //设定列表的返回路径，自己或下属
                 $("#btn-colltask_detail-list").attr('href', self.colltask_detail_back_url);
                 //设定返回按钮的地址
@@ -130,15 +144,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 };
                 $("#colltask_detail-content").html(rendered);
                 $("#colltask_detail-content").trigger('create');
-                if ($("#login_people").val() == self.model.attributes.th._id) {
-                    $("#colltask_detail-footer").show();
-                } else {
-                    $("#colltask_detail-footer").hide();
-                }
+
 
                 //确定权限
-                var login_people = $("#login_people").val();
+
                 var rights = [0, 0, 0, 0];
+
                 if (login_people == self.model.attributes.creator._id) { //创建人
                     var tmp_rights = [0, 1, 0, 0];
                     for (var i = 0; i < rights.length; i++) {
@@ -190,8 +201,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 // 设定人员信息卡的返回地址
                 localStorage.setItem('contact_detail_back_url', '#colltask_detail/' + self.model.get('_id'));
 
-                //hold
+                // hold
                 self.hold_back_url();
+                // 用户权限
+                if (login_people == self.model.attributes.th._id || login_people == self.model.attributes.creator._id) {
+                    $("#colltask_detail-footer").show();
+                } else {
+                    $("#colltask_detail-footer").hide();
+                }
                 return this;
 
             },
@@ -254,11 +271,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     .on('click', '#btn-ct-add_sub_task', function(event) {
                         event.preventDefault();
+                        event.stopPropagation();
                         var url = '#colltask_edit/add/' + self.model.get('_id');
                         window.location.href = url;
                     })
                     .on('click', '#btn-ct-add_comment', function(event) {
                         event.preventDefault();
+                        event.stopPropagation();
                         localStorage.removeItem('comment_model_back'); //先把返回值清掉
                         localStorage.setItem('comment_model', JSON.stringify({
                             model: self.model,
@@ -282,6 +301,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     .on('click', '#btn-ct-checkin', function(event) {
                         event.preventDefault();
+                        event.stopPropagation();
                         var now = new Date();
                         var end = new Date(self.model.get('end'));
                         if (self.model.get('allday')) { //如果是全天任务，则取结束日期的最后时刻。
@@ -298,6 +318,90 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         var syscmd_url = 'cmd://app/checkin/coll_task/' + self.model.get('_id');
                         window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
 
+                    })
+                    .on('click', '.toggle_p_task', function(event) {
+                        event.preventDefault();
+                        if (self.show_p_task) {
+
+                            $("#colltask_detail-content li.p_task").fadeOut(200);
+                            self.show_p_task = false;
+                        } else {
+                            $("#colltask_detail-content li.p_task").fadeIn(200)
+                            self.show_p_task = true;
+                        };
+                    })
+                    .on('click', '.toggle_sub_tasks', function(event) {
+                        event.preventDefault();
+                        if (self.show_sub_tasks) {
+
+                            $("#colltask_detail-content li.sub_tasks").fadeOut(200);
+                            self.show_sub_tasks = false;
+                        } else {
+                            $("#colltask_detail-content li.sub_tasks").fadeIn(200)
+                            self.show_sub_tasks = true;
+                        };
+                    })
+                    .on('click', '.toggle_checkin_records', function(event) {
+                        event.preventDefault();
+                        if (self.show_checkin_records) {
+
+                            $("#colltask_detail-content li.checkin_records").fadeOut(200);
+                            self.show_checkin_records = false;
+                        } else {
+                            $("#colltask_detail-content li.checkin_records").fadeIn(200)
+                            self.show_checkin_records = true;
+                        };
+                    })
+                    .on('click', '.toggle_comments', function(event) {
+                        event.preventDefault();
+                        if (self.show_comments) {
+
+                            $("#colltask_detail-content li.comments").fadeOut(200);
+                            self.show_comments = false;
+                        } else {
+                            $("#colltask_detail-content li.comments").fadeIn(200)
+                            self.show_comments = true;
+                        };
+                    })
+                    .on('click', '.btn_ct_do_score', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var type = $this.data('type');
+                        var index = $this.data('index');
+                        var $sel_ct_score_level = $("#do_ct_score_popup #sel_ct_score_level")
+                        var $ct_score_comment = $("#do_ct_score_popup #ct_score_comment")
+
+                        var score = 0,
+                            scores_level = '',
+                            scores_comment = '',
+                            options = [];
+                        // console.log(type, index);
+                        if (type == 'th') {
+                            score = self.model.attributes.scores[type] || 0;
+                            scores_level = self.model.attributes.scores_level[type] || '';
+                            scores_comment = self.model.attributes.scores_comment[type] || '';
+                        } else {
+                            score = self.model.attributes.scores[type][index] || 0;
+                            scores_level = self.model.attributes.scores_level[type][index] || '';
+                            scores_comment = self.model.attributes.scores_comment[type][index] || '';
+                        };
+                        _.each(self.ctsl.tsl, function(x) {
+                            options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
+                        })
+                        //生成下拉框
+                        $sel_ct_score_level.html(options.join('')).trigger('change');
+                        $ct_score_comment.val(scores_comment);
+                        $("#do_ct_score_popup #btn_do_ct_score").data('type', type).data('index', index);
+                        $("#do_ct_score_popup").popup('open');
+                    })
+                    .on('click', '#btn-do-accept', function(event) {
+                        event.preventDefault();
+                        self.model.set('did_accepted', true);
+                        self.model.save().done(function() {
+                            self.model.fetch().done(function() {
+                                self.render();
+                            })
+                        })
                     });
 
                 $("#colltask_detail-footer")
@@ -319,21 +423,41 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         event.preventDefault();
                         var x = self.model.get('isfinished');
                         if (!x) { //准备关闭任务，提示打分
-                            var th_score = prompt('请为本任务评分', 90);
-                            if (th_score) {
-                                var th_score_comment = prompt('您为本任务打了' + th_score + '分！\n请对本任务做出评价，以便让更多的人了解你。', '')
-                                self.model.attributes.scores.th = th_score;
-                                self.model.attributes.scores_comment.th = th_score_comment || '无';
-                                self.model.set('isfinished', true);
-                                self.model.save().done(function() {
-                                    self.model.fetch().done(function() {
-                                        alert('任务已完成');
-                                        window.location.href = '#colltask';
-                                    })
-                                })
-                            } else {
-                                alert('请评分')
-                            };
+                            self.model.set('isfinished', true);
+                            var $sel_ct_score_level = $("#do_ct_score_popup #sel_ct_score_level")
+                            var $ct_score_comment = $("#do_ct_score_popup #ct_score_comment")
+
+                            var score = 0,
+                                scores_level = '',
+                                scores_comment = '',
+                                options = [];
+                            // console.log(type, index);
+                            score = self.model.attributes.scores['th'] || 0;
+                            scores_level = self.model.attributes.scores_level['th'] || '';
+                            scores_comment = self.model.attributes.scores_comment['th'] || '';
+                            _.each(self.ctsl.tsl, function(x) {
+                                options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
+                            })
+                            //生成下拉框
+                            $sel_ct_score_level.html(options.join('')).trigger('change');
+                            $ct_score_comment.val(scores_comment);
+                            $("#do_ct_score_popup #btn_do_ct_score").data('type', 'th');
+                            $("#do_ct_score_popup").popup('open');
+                            // var th_score = prompt('请为本任务评分', 90);
+                            // if (th_score) {
+                            //     var th_score_comment = prompt('您为本任务打了' + th_score + '分！\n请对本任务做出评价，以便让更多的人了解你。', '')
+                            //     self.model.attributes.scores.th = th_score;
+                            //     self.model.attributes.scores_comment.th = th_score_comment || '无';
+                            //     self.model.set('isfinished', true);
+                            //     self.model.save().done(function() {
+                            //         self.model.fetch().done(function() {
+                            //             alert('任务已完成');
+                            //             window.location.href = '#colltask';
+                            //         })
+                            //     })
+                            // } else {
+                            //     alert('请评分')
+                            // };
                         } else {
                             if (confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！')) {
                                 self.model.set('isfinished', false);
@@ -443,6 +567,37 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         $("#colltask_detail-left-panel").panel('open');
                         // window.location.href = '#colltask'
                     })
+
+                $("#do_ct_score_popup")
+                    .on('click', '#btn_do_ct_score', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var type = $this.data('type');
+                        var index = $this.data('index');
+
+                        var $sel_ct_score_level = $("#do_ct_score_popup #sel_ct_score_level")
+                        var $ct_score_comment = $("#do_ct_score_popup #ct_score_comment")
+                        var score = $sel_ct_score_level.val();
+                        var score_level = $sel_ct_score_level.find('option:selected').text();
+                        var score_comment = $ct_score_comment.val();
+                        // console.log(type, index);
+                        if (type == 'th') {
+                            self.model.attributes.scores[type] = score;
+                            self.model.attributes.scores_level[type] = score_level;
+                            self.model.attributes.scores_comment[type] = score_comment;
+                        } else {
+                            self.model.attributes.scores[type][index] = score;
+                            self.model.attributes.scores_level[type][index] = score_level;
+                            self.model.attributes.scores_comment[type][index] = score_comment;
+                        };
+                        self.model.save().done(function() {
+                            self.model.fetch().done(function() {
+                                self.render();
+                            })
+                            $("#do_ct_score_popup").popup('close');
+                        })
+                    });
+
             },
             test_in: function(key, val, coll) {
                 var flag = false;

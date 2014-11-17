@@ -117,7 +117,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             //获取相关的helper数据
                             var sph = JSON.parse(localStorage.getItem('sp_helper'));
                             sph.model[self.target_field] = _.map(people_selected, function(x) {
-                                return _.pick(x.toJSON(), ['_id', 'people_name', 'position_name', 'ou_name', 'company_name']);
+                                return _.pick(x.toJSON(), ['_id', 'people_name', 'position_name', 'ou_name', 'company_name','avatar']);
                             })
                             //写回去
                             localStorage.setItem('sp_helper_back', JSON.stringify(sph));

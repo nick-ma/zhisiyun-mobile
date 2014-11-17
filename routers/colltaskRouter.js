@@ -23,6 +23,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 self.init_collections();
                 self.init_views();
                 self.bind_events();
+                self.init_config_data();
                 console.info('app message: colltask router initialized');
                 // Backbone.history.start();
             },
@@ -81,6 +82,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     changeHash: false,
                 });
                 $.mobile.loading("show");
+                self.collTaskDetailView.ctsl = self.ctsl;
                 self.collTaskDetailView.pre_render();
                 if (self.c_colltask.get(ct_id)) {
                     self.collTaskDetailView.model = self.c_colltask.get(ct_id);
@@ -234,6 +236,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
             },
             bind_events: function() {
 
+            },
+            init_config_data: function() {
+                var self = this;
+                $.get("/admin/pm/coll_task_sl/bb/getdata", function(data) { //评分等级组
+                    self.ctsl = _.clone(data);
+                })
             }
         });
 

@@ -60,6 +60,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 this.c_collproject.fetch().done(function() {
                     self.collProjectListViewAll.cp_types = self.cp_types;
                     self.collProjectListViewAll.cpfd = self.cpfd;
+                    self.collProjectListViewAll.cpsl = self.cpsl;
                     // self.collProjectListViewAll.date_pj_typeset = '0'
                     self.collProjectListViewAll.render()
                     $.mobile.loading("hide");
@@ -81,6 +82,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     self.collProjectListViewAll2.people_id = people_id;
                     self.collProjectListViewAll2.cp_types = self.cp_types;
                     self.collProjectListViewAll2.cpfd = self.cpfd;
+                    self.collProjectListViewAll2.cpsl = self.cpsl;
                     // self.collProjectListViewAll2.date_pj_typeset = '0'
                     self.collProjectListViewAll2.render()
                     $.mobile.loading("hide");
@@ -98,6 +100,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     self.collProjectDetailView.c_contacts = self.c_contacts;
                     self.collProjectDetailView.cp_types = self.cp_types;
                     self.collProjectDetailView.cpfd = self.cpfd;
+                    self.collProjectDetailView.cpsl = self.cpsl;
                     if (self.c_collproject.get(cp_id)) {
                         self.collProjectDetailView.model = self.c_collproject.get(cp_id);
                         self.collProjectDetailView.model.fetch().done(function() {
@@ -230,6 +233,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 })
                 $.get("/admin/pm/coll_project_field/bb/getdata", function(data) {
                     self.cpfd = _.clone(data);
+                })
+                $.get("/admin/pm/coll_project_sl/bb/getdata", function(data) { //评分等级组
+                    self.cpsl = _.clone(data);
                 })
             }
         });
