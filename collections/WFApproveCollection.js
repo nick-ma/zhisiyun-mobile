@@ -9,7 +9,7 @@ define(["jquery", "backbone", "models/WFApproveModel"], function($, Backbone, WF
 
         // The Collection constructor
         initialize: function(models, options) {
-            this.date_offset = 30; //默认取90天
+            this.date_offset = 30; //默认取30天
         },
         url: function() {
             return '/admin/free_wf/approve/bb?date_offset=' + this.date_offset + '&ct=' + (new Date()).getTime();
