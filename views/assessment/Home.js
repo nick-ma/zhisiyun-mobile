@@ -2,8 +2,8 @@
 // =============
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "highcharts","moment", "../../models/AssessmentModel"],
-    function($, _, Backbone, Handlebars, Highcharts,moment, AssessmentModel) {
+define(["jquery", "underscore", "backbone", "handlebars", "highcharts", "moment", "../../models/AssessmentModel"],
+    function($, _, Backbone, Handlebars, Highcharts, moment, AssessmentModel) {
         var p_parent_titles = [],
             p_children_datas = [],
             p_parent_datas = [];
@@ -288,11 +288,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts","moment",
 
                     var my_performance_data = [];
                     _.each(this.collection.models, function(x) {
-                        my_performance_data.push(x.attributes);
-                    })
-                    // my_performance_data = _.sortBy(my_performance_data, function(x) {
-                    //     return x.periodFrom;
-                    // })
+                            my_performance_data.push(x.attributes);
+                        })
+                        // my_performance_data = _.sortBy(my_performance_data, function(x) {
+                        //     return x.periodFrom;
+                        // })
                     draw_my_performance(my_performance_data);
                 }
 
@@ -378,6 +378,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts","moment",
                             $("#assessment_list-left-panel").panel("close");
                         })
                     });
+                $("#assessment_list").on('click', '.left-panel', function(event) {
+                    event.preventDefault();
+                    var view_mode = $(this).data("view_mode");
+                    window.location.href = '/m#'+view_mode;
+                    $("#show_summary_review-left-panel").panel("close");
+                }).on('swiperight', function(event) { //向右滑动，打开左边的面板
+                    event.preventDefault();
+                    $("#show_summary_review-left-panel").panel("open");
+                })
             }
 
         });

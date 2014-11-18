@@ -444,7 +444,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 });
                 $.mobile.loading("show");
                 self.AssessmentReviewView.pre_render();
-                self.c_assessment_review.url = '/admin/pm/assessment_instance/review/bb';
+                self.c_assessment_review.url = '/admin/pm/assessment_instance/review/bb?source=m';
                 self.c_assessment_review.fetch().done(function() {
                     self.c_people.fetch().done(function() {
                         self.AssessmentReviewView.c_people = self.c_people;

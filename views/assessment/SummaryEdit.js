@@ -46,6 +46,9 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 var items = data[0].quantitative_pis.items; //ration=2 定量
                 var mark_as_summary_type1_num = 0,
                     mark_as_summary_type2_num = 0; //指标个数；
+                var exist_pi_1 = [],
+                    exist_pi_2 = [];
+
                 if (index == 'index_select') {
                     _.each(items, function(x) {
                         x.people = self.collection.models[0].get('people');
@@ -54,9 +57,11 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         rendered_content.push(x);
                         if (x.mark_as_summary_type1) {
                             mark_as_summary_type1_num += 1;
+                            exist_pi_1.push(x)
                         }
                         if (x.mark_as_summary_type2) {
                             mark_as_summary_type2_num += 1;
+                            exist_pi_2.push(x);
                         }
 
                     })
@@ -86,9 +91,12 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         x.ai_status = self.ai_status;
                         rendered_content.push(x);
                         if (x.mark_as_summary_type1) {
+                            exist_pi_1.push(x)
                             mark_as_summary_type1_num += 1;
                         }
                         if (x.mark_as_summary_type2) {
+                            exist_pi_2.push(x)
+
                             mark_as_summary_type2_num += 1;
                         }
                     })
@@ -132,6 +140,17 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     $("#summary_edit_form #add_pi").data("type", type);
                     $("#summary_edit_form #add_pi").show();
                     $("#summary_edit_form-content").html(self.index_template(render_data));
+                    var $container = $("#summary_edit_form-content");
+                    if (type == '1') {
+                        _.each(exist_pi_1, function(x) {
+                            $container.find("#cb-" + x._id).attr('checked', true);
+                        })
+                    } else if (type == '2') {
+                        _.each(exist_pi_2, function(x) {
+                            $container.find("#cb-" + x._id).attr('checked', true);
+                        })
+                    }
+
 
                 } else {
                     $("#summary_edit_form #add_pi").hide();
@@ -333,6 +352,34 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     event.preventDefault();
                     var ai_id = $(this).data("ai_id");
                     var type = $(this).data("type");
+
+                    var items_1 = self.collection.models[0].attributes.qualitative_pis.items;
+
+                    if (type == '1') {
+                        _.each(items_1, function(i) {
+                            i.mark_as_summary_type1 = false;
+                        })
+                    } else {
+                        _.each(items_1, function(i) {
+                            i.mark_as_summary_type2 = false;
+
+                        })
+                    }
+
+                    var items_2 = self.collection.models[0].attributes.quantitative_pis.items;
+
+                    if (type == '1') {
+                        _.each(items_2, function(i) {
+                            i.mark_as_summary_type1 = false;
+                        })
+                    } else {
+                        _.each(items_2, function(i) {
+                            i.mark_as_summary_type2 = false;
+
+                        })
+                    }
+
+
                     _.each($("#summary_edit_form input[class='pi_select']:checked"), function(x) {
                         var ration = $(x).data("ration");
                         var pi_id = $(x).data("pi_id");
@@ -341,9 +388,11 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                             var items = self.collection.models[0].attributes.qualitative_pis.items;
                             var found = self.get_pi(items, pi_id);
                             if (type == '1') {
+
                                 found.mark_as_summary_type1 = true;
 
                             } else {
+
                                 found.mark_as_summary_type2 = true;
 
                             }

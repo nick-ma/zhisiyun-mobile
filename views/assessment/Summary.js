@@ -84,6 +84,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
 
 
                     });
+                    $("#summary_list").on('click','.go_back',function(event){
+                        event.preventDefault();
+                        window.location ="/m#assessment_list";
+                    })
             }
 
         });
