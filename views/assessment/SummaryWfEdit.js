@@ -54,6 +54,12 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             // Renders all of the Assessment models on the UI
             render: function(index, type) {
                 var self = this;
+
+                if (!!localStorage.getItem('to_do_back_url')) {
+                    self.to_do_back_url = localStorage.getItem('to_do_back_url');
+                    localStorage.removeItem('to_do_back_url');
+                }
+
                 var data = _.map(self.collection.models, function(x) {
                         return x.toJSON()
                     })
@@ -368,7 +374,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         $("#summary_wf_edit_form #summary_edit_form-footer").hide();
                         $("#summary_wf_edit_form #add_pi").hide();
                     } else {
-                        window.location.href = "/m#summary";
+                        // window.location.href = "/m#summary";
+                        window.location.href = self.to_do_back_url;
                     }
                 }).on('click', '.btn-summary_wf_edit_form-change_state', function(event) { //定位不足与改进及亮点分享
                     event.preventDefault();

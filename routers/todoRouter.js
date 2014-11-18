@@ -76,15 +76,19 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "pis_select": "pis_select",
                 "create_pi": "create_pi",
                 //查看
-                "goview0/:op_id": "go_view0",
-                "goview1/:op_id": "go_view1",
-                "goview3/:op_id": "go_view3",
+                "godo0_view/:op_id": "go_view0",
+                "godo1_view/:op_id": "go_view1",
+                "godo3_view/:op_id": "go_view3",
+                "godo8_view/:op_id": "go_view8",//请假
+                "godo9_view/:op_id": "go_view9",//消假
+                "godo12_view/:op_id": "go_view12",//绩效总结
+                "godo13_view/:op_id": "go_view13",//绩效面谈
             },
             todo_list: function() { //我的待办
                 var self = this;
                 //从待办进入时，做标记，后面做返回时用到
                 localStorage.setItem('view_mode_state', '1');
-                localStorage.setItem('wf_three_back_url', window.location.href);
+                localStorage.setItem('to_do_back_url', window.location.href);
 
                 $("body").pagecontainer("change", "#todo_list", {
                     reverse: false,
@@ -828,7 +832,18 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     }
                 })
             },
-
+            go_view8: function(op_id){
+                window.location.href = "#leave_form_p/"+op_id+"/L";
+            },
+            go_view9: function(op_id){
+                window.location.href = "#back_leave_form_p/"+op_id+"/L";
+            },
+            go_view12: function(op_id){
+                window.location.href = "#godo12/"+op_id+"/view";
+            },
+            go_view13: function(op_id){
+                window.location.href = "#godo13/"+op_id+"/view";
+            },
             init_views: function() {
                 var self = this;
 

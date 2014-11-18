@@ -99,6 +99,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             assessment_list: function() {
                 var self = this;
+                localStorage.setItem('to_do_back_url', window.location.href);
                 // self.refresh_data();
                 $("body").pagecontainer("change", "#assessment_list", {
                     reverse: false,

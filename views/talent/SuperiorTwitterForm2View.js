@@ -27,6 +27,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
             render: function() {
 
                 var self = this;
+
+                if (!!localStorage.getItem('to_do_back_url')) {
+                    self.to_do_back_url = localStorage.getItem('to_do_back_url');
+                    localStorage.removeItem('to_do_back_url');
+                }
+
                 var twitter_data = self.collection.attributes.twitter_data;
                 //推荐培养方向
                 var rendered_data = _.map(twitter_data, function(x) {
@@ -93,6 +99,8 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 }, self.wf_data);
                 $("#superior_twitter_form2-content").html(self.template(obj));
                 $("#superior_twitter_form2-content").trigger('create');
+
+                $("#twitter_back").attr("href",self.to_do_back_url);
                 return this;
             },
             bind_event: function() {
