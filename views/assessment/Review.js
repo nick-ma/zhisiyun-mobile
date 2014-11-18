@@ -44,21 +44,39 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     var $this = $(this);
                     self.view_filter = $this.data('view_filter');
                     if (self.view_filter) {
-                        self.peoples = _.filter(self.c_people.models, function(x) {
-                            return x.attributes[self.view_filter];
-                        })
+                        if (self.view_filter == "myteam") {
+                            self.peoples = _.filter(self.c_people.models, function(x) {
+                                return x.attributes[self.view_filter];
+                            })
+                            var people = [],
+                                position = [];
+                            _.each(self.peoples, function(x) {
+                                people.push(x.attributes._id);
+                                position.push(x.attributes.position);
+                            })
+                            self.collection.url = '/admin/pm/assessment_instance/review/bb?people=' + people.join(',') + '&position=' + position.join(',') + '&source=m';
+                            self.collection.fetch().done(function() {
+                                self.render();
+                                $("#review_list #review_name").html("一级下属");
+                            })
+                        } else {
+                            self.peoples = _.filter(self.c_people.models, function(x) {
+                                return x.attributes[self.view_filter];
+                            })
 
-                        var rendered = {
-                            people: [],
-                        };
-                        _.each(self.peoples, function(x) {
-                            rendered.people.push(x.attributes);
-                        });
+                            var rendered = {
+                                people: [],
+                            };
+                            _.each(self.peoples, function(x) {
+                                rendered.people.push(x.attributes);
+                            });
 
-                        $("#review_list-left-panel-content").html(self.left_template(rendered));
-                        $("#review_list-left-panel-content").trigger('create');
+                            $("#review_list-left-panel-content").html(self.left_template(rendered));
+                            $("#review_list-left-panel-content").trigger('create');
 
-                        $("#review_list-left-panel").panel("open");
+                            $("#review_list-left-panel").panel("open");
+                        }
+
                     } else { //自己侧边栏
                         $("#review_list #review_name").html($("#login_people_name").val() + '的绩效面谈');
 
@@ -84,10 +102,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
 
 
                     });
-                     $("#review_list").on('click','.go_back',function(event){
-                        event.preventDefault();
-                        window.location ="/m#assessment_list";
-                    })
+                $("#review_list").on('click', '.go_back', function(event) {
+                    event.preventDefault();
+                    window.location = "/m#assessment_list";
+                })
             }
 
         });
