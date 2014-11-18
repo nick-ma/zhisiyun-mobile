@@ -61,6 +61,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
 
                         $("#summary_list-left-panel").panel("open");
                     } else { //自己侧边栏
+                        $("#summary_list #summary_name").html($("#login_people_name").val() + '的绩效总结');
+
                         self.collection.url = '/admin/pm/assessment_instance/summary/bb';
                         self.collection.fetch().done(function() {
                             self.render();

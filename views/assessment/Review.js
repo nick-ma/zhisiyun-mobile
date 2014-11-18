@@ -60,7 +60,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
 
                         $("#review_list-left-panel").panel("open");
                     } else { //自己侧边栏
-                        self.collection.url = '/admin/pm/assessment_instance/summary/bb';
+                        $("#review_list #review_name").html($("#login_people_name").val() + '的绩效面谈');
+
+                        self.collection.url = '/admin/pm/assessment_instance/review/bb?source=m';
                         self.collection.fetch().done(function() {
                             self.render();
                         })
@@ -74,7 +76,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                         var people = $this.data('up_id');
                         var position = $this.data("position");
                         $("#review_list #review_name").html($this.data('people_name') + '的绩效面谈');
-                        self.collection.url = '/admin/pm/assessment_instance/review/bb?people=' + people+'&position='+position;
+                        self.collection.url = '/admin/pm/assessment_instance/review/bb?people=' + people + '&position=' + position + '&source=m';
                         self.collection.fetch().done(function() {
                             self.render();
                         })

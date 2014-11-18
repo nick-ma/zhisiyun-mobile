@@ -2,7 +2,7 @@
 // =============================
 
 // Includes file dependencies
-define(["jquery", "backbone", "models/AssessmentSummaryModel"], function($, Backbone, AssessmentSummaryModel) {
+define(["jquery", "backbone", "models/AssessmentReviewModel"], function($, Backbone, AssessmentReviewModel) {
 
     // Extends Backbone.Router
     var Collection = Backbone.Collection.extend({
@@ -15,7 +15,7 @@ define(["jquery", "backbone", "models/AssessmentSummaryModel"], function($, Back
             return '/admin/pm/assessment_instance/review/bb';
         },
         // Sets the Collection model property to be a Assessment Model
-        model: AssessmentSummaryModel,
+        model: AssessmentReviewModel,
     });
     // Returns the Model class
     return Collection;
