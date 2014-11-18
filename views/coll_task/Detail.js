@@ -40,6 +40,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 self.show_sub_tasks = true;
                 self.show_checkin_records = true;
                 self.show_comments = true;
+                var login_people = $("#login_people").val();
                 // 判断是否更换了任务
                 if (self.pre_model_id != self.model.get('_id')) {
                     self.view_mode = 'basic';
@@ -58,7 +59,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     return;
                 };
+                var show_btn_do_accept = false;
+                if (login_people == self.model.attributes.creator._id || login_people == self.model.attributes.th._id) {
+                    show_btn_do_accept = true;
+                }
                 var render_data = self.model.toJSON();
+                render_data.show_btn_do_accept = show_btn_do_accept;
                 var ct_last_view = JSON.parse(localStorage.getItem('ct_last_view')) || [];
                 var found = _.find(ct_last_view, function(x) {
                     return x._id == render_data._id;
@@ -73,7 +79,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 }), function(x) {
                     return x.toJSON();
                 })
-                render_data.login_people = $("#login_people").val();
+                render_data.login_people = login_people;
                 //设定列表的返回路径，自己或下属
                 $("#btn-colltask_detail-list").attr('href', self.colltask_detail_back_url);
                 //设定返回按钮的地址
@@ -138,15 +144,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 };
                 $("#colltask_detail-content").html(rendered);
                 $("#colltask_detail-content").trigger('create');
-                if ($("#login_people").val() == self.model.attributes.th._id) {
-                    $("#colltask_detail-footer").show();
-                } else {
-                    $("#colltask_detail-footer").hide();
-                }
+
 
                 //确定权限
-                var login_people = $("#login_people").val();
+
                 var rights = [0, 0, 0, 0];
+
                 if (login_people == self.model.attributes.creator._id) { //创建人
                     var tmp_rights = [0, 1, 0, 0];
                     for (var i = 0; i < rights.length; i++) {
@@ -198,15 +201,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 // 设定人员信息卡的返回地址
                 localStorage.setItem('contact_detail_back_url', '#colltask_detail/' + self.model.get('_id'));
 
-                //hold
+                // hold
                 self.hold_back_url();
-
-                //
-                // if (self.show_checkin_records) {
-                //     $("#colltask_detail-content li.checkin_records").show(200);
-                // } else {
-                //     $("#colltask_detail-content li.checkin_records").hide(200)
-                // };
+                // 用户权限
+                if (login_people == self.model.attributes.th._id || login_people == self.model.attributes.creator._id) {
+                    $("#colltask_detail-footer").show();
+                } else {
+                    $("#colltask_detail-footer").hide();
+                }
                 return this;
 
             },
@@ -373,7 +375,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                             scores_level = '',
                             scores_comment = '',
                             options = [];
-                        console.log(type, index);
+                        // console.log(type, index);
                         if (type == 'th') {
                             score = self.model.attributes.scores[type] || 0;
                             scores_level = self.model.attributes.scores_level[type] || '';
@@ -391,6 +393,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         $ct_score_comment.val(scores_comment);
                         $("#do_ct_score_popup #btn_do_ct_score").data('type', type).data('index', index);
                         $("#do_ct_score_popup").popup('open');
+                    })
+                    .on('click', '#btn-do-accept', function(event) {
+                        event.preventDefault();
+                        self.model.set('did_accepted',true);
+                        self.model.save().done(function() {
+                            self.model.fetch().done(function() {
+                                self.render();
+                            })
+                        })
                     });
 
                 $("#colltask_detail-footer")
@@ -549,7 +560,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         var score = $sel_ct_score_level.val();
                         var score_level = $sel_ct_score_level.find('option:selected').text();
                         var score_comment = $ct_score_comment.val();
-                        console.log(type, index);
+                        // console.log(type, index);
                         if (type == 'th') {
                             self.model.attributes.scores[type] = score;
                             self.model.attributes.scores_level[type] = score_level;
