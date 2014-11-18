@@ -360,6 +360,37 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                             $("#colltask_detail-content li.comments").fadeIn(200)
                             self.show_comments = true;
                         };
+                    })
+                    .on('click', '.btn_ct_do_score', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var type = $this.data('type');
+                        var index = $this.data('index');
+                        var $sel_ct_score_level = $("#do_ct_score_popup #sel_ct_score_level")
+                        var $ct_score_comment = $("#do_ct_score_popup #ct_score_comment")
+
+                        var score = 0,
+                            scores_level = '',
+                            scores_comment = '',
+                            options = [];
+                        console.log(type, index);
+                        if (type == 'th') {
+                            score = self.model.attributes.scores[type] || 0;
+                            scores_level = self.model.attributes.scores_level[type] || '';
+                            scores_comment = self.model.attributes.scores_comment[type] || '';
+                        } else {
+                            score = self.model.attributes.scores[type][index] || 0;
+                            scores_level = self.model.attributes.scores_level[type][index] || '';
+                            scores_comment = self.model.attributes.scores_comment[type][index] || '';
+                        };
+                        _.each(self.ctsl.tsl, function(x) {
+                            options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
+                        })
+                        //生成下拉框
+                        $sel_ct_score_level.html(options.join('')).trigger('change');
+                        $ct_score_comment.val(scores_comment);
+                        $("#do_ct_score_popup #btn_do_ct_score").data('type', type).data('index', index);
+                        $("#do_ct_score_popup").popup('open');
                     });
 
                 $("#colltask_detail-footer")
@@ -505,6 +536,37 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         $("#colltask_detail-left-panel").panel('open');
                         // window.location.href = '#colltask'
                     })
+
+                $("#do_ct_score_popup")
+                    .on('click', '#btn_do_ct_score', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var type = $this.data('type');
+                        var index = $this.data('index');
+
+                        var $sel_ct_score_level = $("#do_ct_score_popup #sel_ct_score_level")
+                        var $ct_score_comment = $("#do_ct_score_popup #ct_score_comment")
+                        var score = $sel_ct_score_level.val();
+                        var score_level = $sel_ct_score_level.find('option:selected').text();
+                        var score_comment = $ct_score_comment.val();
+                        console.log(type, index);
+                        if (type == 'th') {
+                            self.model.attributes.scores[type] = score;
+                            self.model.attributes.scores_level[type] = score_level;
+                            self.model.attributes.scores_comment[type] = score_comment;
+                        } else {
+                            self.model.attributes.scores[type][index] = score;
+                            self.model.attributes.scores_level[type][index] = score_level;
+                            self.model.attributes.scores_comment[type][index] = score_comment;
+                        };
+                        self.model.save().done(function() {
+                            self.model.fetch().done(function() {
+                                self.render();
+                            })
+                            $("#do_ct_score_popup").popup('close');
+                        })
+                    });
+
             },
             test_in: function(key, val, coll) {
                 var flag = false;
