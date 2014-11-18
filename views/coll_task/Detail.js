@@ -60,7 +60,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     return;
                 };
                 var show_btn_do_accept = false;
-                if (login_people == self.model.attributes.creator._id || login_people == self.model.attributes.th._id) {
+                if (login_people == self.model.attributes.th._id) {
                     show_btn_do_accept = true;
                 }
                 var render_data = self.model.toJSON();
@@ -396,7 +396,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     .on('click', '#btn-do-accept', function(event) {
                         event.preventDefault();
-                        self.model.set('did_accepted',true);
+                        self.model.set('did_accepted', true);
                         self.model.save().done(function() {
                             self.model.fetch().done(function() {
                                 self.render();
@@ -423,21 +423,41 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         event.preventDefault();
                         var x = self.model.get('isfinished');
                         if (!x) { //准备关闭任务，提示打分
-                            var th_score = prompt('请为本任务评分', 90);
-                            if (th_score) {
-                                var th_score_comment = prompt('您为本任务打了' + th_score + '分！\n请对本任务做出评价，以便让更多的人了解你。', '')
-                                self.model.attributes.scores.th = th_score;
-                                self.model.attributes.scores_comment.th = th_score_comment || '无';
-                                self.model.set('isfinished', true);
-                                self.model.save().done(function() {
-                                    self.model.fetch().done(function() {
-                                        alert('任务已完成');
-                                        window.location.href = '#colltask';
-                                    })
-                                })
-                            } else {
-                                alert('请评分')
-                            };
+                            self.model.set('isfinished', true);
+                            var $sel_ct_score_level = $("#do_ct_score_popup #sel_ct_score_level")
+                            var $ct_score_comment = $("#do_ct_score_popup #ct_score_comment")
+
+                            var score = 0,
+                                scores_level = '',
+                                scores_comment = '',
+                                options = [];
+                            // console.log(type, index);
+                            score = self.model.attributes.scores['th'] || 0;
+                            scores_level = self.model.attributes.scores_level['th'] || '';
+                            scores_comment = self.model.attributes.scores_comment['th'] || '';
+                            _.each(self.ctsl.tsl, function(x) {
+                                options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
+                            })
+                            //生成下拉框
+                            $sel_ct_score_level.html(options.join('')).trigger('change');
+                            $ct_score_comment.val(scores_comment);
+                            $("#do_ct_score_popup #btn_do_ct_score").data('type', 'th');
+                            $("#do_ct_score_popup").popup('open');
+                            // var th_score = prompt('请为本任务评分', 90);
+                            // if (th_score) {
+                            //     var th_score_comment = prompt('您为本任务打了' + th_score + '分！\n请对本任务做出评价，以便让更多的人了解你。', '')
+                            //     self.model.attributes.scores.th = th_score;
+                            //     self.model.attributes.scores_comment.th = th_score_comment || '无';
+                            //     self.model.set('isfinished', true);
+                            //     self.model.save().done(function() {
+                            //         self.model.fetch().done(function() {
+                            //             alert('任务已完成');
+                            //             window.location.href = '#colltask';
+                            //         })
+                            //     })
+                            // } else {
+                            //     alert('请评分')
+                            // };
                         } else {
                             if (confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！')) {
                                 self.model.set('isfinished', false);
