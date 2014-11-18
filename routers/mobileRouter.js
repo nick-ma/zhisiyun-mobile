@@ -2271,6 +2271,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         return '<span class="' + ai_status_class[status] + '">' + ai_status_txt[status] + '</span>'
       });
+      Handlebars.registerHelper('ai_appeal_status', function(status) {
+        var appeal_status_txt = {
+            '0': '未申诉',
+            '1': '申诉中',
+            '2': '申诉完成',
+            '3': '已改分',
+          },
+          appeal_status_class = {
+            '0': 'label-warning',
+            '1': 'label-important',
+            '2': 'label-info',
+            '3': 'label-success',
+          };
+
+        return '<span class="' + appeal_status_class[status] + '">' + appeal_status_txt[status] + '</span>'
+      });
       Handlebars.registerHelper('showCTState', function(end, isfinished) {
         return show_ct_state(end, isfinished);
 
@@ -2296,6 +2312,19 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             '2': 'label label-info',
           };
         return '<span class="' + ration_obj_class[ration] + '">' + ration_obj[ration] + '</span>'
+      });
+      Handlebars.registerHelper('others_span', function(item_type) {
+        var item_type_obj = {
+            '1': '加分项',
+            '2': '减分项',
+            '3': '一票否决项'
+          },
+          item_type_obj_class = {
+            '1': 'label label-info',
+            '2': 'label label-success',
+            '3': 'label label-warning'
+          };
+        return '<span class="' + item_type_obj_class[item_type] + '">' + item_type_obj[item_type] + '</span>'
       });
 
       Handlebars.registerHelper('genMultipleOptions', function(option, data) {
@@ -2488,7 +2517,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('genPiViewUrl', function(task_view_url, pi_id) {
         return (task_view_url) ? task_view_url.replace('<PROCESS_INSTANCE_ID>', pi_id) : '';
       });
-
+      Handlebars.registerHelper('others_3', function(data) { //一票否决项得违法情况
+        if (data == 0) {
+          return '<span class="label label-info">没有违反</span>'
+        } else {
+          return '<span class="label label-important">违反</span>'
+        };
+      });
     })();
 
     // Returns the Router class

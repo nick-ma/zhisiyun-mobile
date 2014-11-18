@@ -60,11 +60,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     return;
                 };
                 var show_btn_do_accept = false;
-                if (login_people == self.model.attributes.th._id) {
+                if (!self.model.get('isfinished') && login_people == self.model.attributes.th._id) {
                     show_btn_do_accept = true;
                 }
                 var render_data = self.model.toJSON();
                 render_data.show_btn_do_accept = show_btn_do_accept;
+                if (self.model.get('isfinished')) { //如果是完成的任务，就用任务的完成日期作为结束时间点
+                    render_data.time_progress = parseInt(self.calc_time_complete_percent(self.model.get('start'), self.model.get('end'), self.model.get('dof')));
+                } else {
+                    render_data.time_progress = parseInt(self.calc_time_complete_percent(self.model.get('start'), self.model.get('end')));
+                };
                 var ct_last_view = JSON.parse(localStorage.getItem('ct_last_view')) || [];
                 var found = _.find(ct_last_view, function(x) {
                     return x._id == render_data._id;
@@ -354,6 +359,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     .on('click', '.toggle_comments', function(event) {
                         event.preventDefault();
+                        event.stopPropagation();
                         if (self.show_comments) {
 
                             $("#colltask_detail-content li.comments").fadeOut(200);
@@ -478,10 +484,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                                 };
                                 self.model.attributes.final_judgement = ''; //清空评定内容。
                                 self.model.save().done(function() {
-
+                                    self.model.fetch().done(function() {
+                                        self.render();
+                                    })
                                     alert('任务已重新打开');
-                                    self.render();
-
                                 })
                             };
 
@@ -613,6 +619,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 if (this.colltask_detail_back_url.substr(0, 9) != '#colltask') {
                     localStorage.setItem('colltask_detail_back_url', this.colltask_detail_back_url);
                 };
+            },
+            calc_time_complete_percent: function(start, end, dof) {
+                var now = new Date();
+                if (dof) {
+                    now = new Date(dof);
+                };
+
+                function calc(s, e) {
+                    var time_complete = Math.round(((now - new Date(s)) / (new Date(e) - new Date(s)) * 100) * 100) / 100;
+                    if (time_complete < 0) {
+                        time_complete = 0;
+                    } else if (time_complete > 100) {
+                        time_complete = 100;
+                    }
+                    return time_complete;
+                }
+                return calc(start, end);
             }
         });
 
