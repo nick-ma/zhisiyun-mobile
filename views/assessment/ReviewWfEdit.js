@@ -439,7 +439,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                 }).on('click', '#btn_save', function(event) { //数据保存接口
                     event.preventDefault();
-                    var ai_id = $(this).data("ai_id");
+                    var ai_id = $(this).data("ai_id")||self.collection.models[0].attributes._id;
                     var data4save = _.clone(self.collection.models[0].attributes);
                     var type = "success";
                     self.data_save(data4save, ai_id, type);
@@ -521,8 +521,6 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         return;
                     }
                     if (self.is_self) {
-                        console.log($("#review_wf_edit_form-content #step221").val());
-                        console.log($("#review_wf_edit_form-content #step222").val());
                         if (String($("#review_wf_edit_form-content #step221").val()) == undefined || String($("#review_wf_edit_form-content #step222").val()) == undefined) {
                             alert('面谈接受人栏目不能为空！');
                             return;

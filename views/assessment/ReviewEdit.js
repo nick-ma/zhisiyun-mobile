@@ -2,12 +2,62 @@
 // =============================================================
 
 // Includes file dependencies
-define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "../../models/AssessmentModel", "../../models/CollTaskModel"],
-    function($, _, async, Backbone, Handlebars, moment, AssessmentModel, CollTask) {
+define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "../../models/AssessmentModel", "../../models/CollTaskModel", "../../models/TaskModel"],
+    function($, _, async, Backbone, Handlebars, moment, AssessmentModel, CollTask, Event) {
         var people_ind_superiors, people_superiors, ai_id = null,
             pds = null,
             wfs = [];
-        // Extends Backbone.View
+
+        function post_to_work_plan(render_data, cb) {
+                var ai_id = ai_id || render_data._id;
+                var post_data = {
+                    origin_oid: ai_id || render_data._id,
+                    origin_cat: 'review'
+                };
+                $.post('/admin/pm/work_plan/remove_by_origin', post_data, function(data, textStatus, xhr) {
+                    if (data.code == 'OK') { //删除成功
+                        // return;
+                        var create_event = function(people) {
+                                var new_event = {
+                                    creator: $("#login_people").val(),
+                                    people: people,
+                                    title: render_data.ai_name + '的绩效面谈会议',
+                                    allDay: false,
+                                    start: moment(render_data.review.start).format('YYYY-MM-DD HH:mm'),
+                                    end: moment(render_data.review.end).format('YYYY-MM-DD HH:mm'),
+                                    tags: '绩效面谈,' + render_data.ai_name,
+                                    url: '/admin/pm/assessment_instance/review/bbform?ai_id=' + ai_id,
+                                    origin_oid: ai_id,
+                                    origin_cat: 'review',
+                                    editable: false,
+                                    startEditable: false,
+                                    durationEditable: false,
+                                    origin: '1',
+                                };
+                                new_event.description = '请与会人准时参加';
+                                new Event(new_event).save();
+                            }
+                            // console.log(ai.attributes.review.initiator);
+                            // 开始插入新的数据
+                        if (render_data.review.initiator) { //发起人
+                            create_event(render_data.review.initiator._id || render_data.review.initiator);
+                        } else {
+                            create_event($("#login_people").val());
+
+                        };
+                        create_event(render_data.people._id); //被约人
+                        _.each(render_data.review.attendees, function(x) { //其他参与人--已经去掉了populate
+                            // console.log(ai.attributes.review.initiator);
+                            if (x._id != render_data.people._id && ($("#login_people").val() && $("#login_people").val() != x._id)) {
+                                // console.log(x);
+                                create_event(x._id);
+                            };
+                        })
+                        cb(null, 'OK');
+                    };
+                });
+            }
+            // Extends Backbone.View
         var AssessmentReviewEditView = Backbone.View.extend({
             // The View Constructor
             initialize: function() {
@@ -271,10 +321,17 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                 }).on('click', '#btn_save', function(event) { //数据保存接口
                     event.preventDefault();
-                    var ai_id = $(this).data("ai_id");
+                    var ai_id = $(this).data("ai_id") || self.collection.models[0].attributes._id;
                     var data4save = _.clone(self.collection.models[0].attributes);
                     var type = "success";
-                    self.data_save(data4save, ai_id, type);
+                    async.series({
+                        create_plan: function(cb) {
+                            post_to_work_plan(data4save, cb)
+                        }
+                    }, function(err, result) {
+                        self.data_save(data4save, ai_id, type);
+
+                    })
                 }).on('change', "textarea", function(event) {
                     event.preventDefault();
                     var field = String($(this).data("field")).split('-');
@@ -433,6 +490,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         self.collection.url = '/admin/pm/assessment_instance/review/bb/' + ai_id;
 
                         self.collection.fetch().done(function() {
+
                             if (type == "success") {
                                 alert("数据保存成功!");
                                 self.render();
