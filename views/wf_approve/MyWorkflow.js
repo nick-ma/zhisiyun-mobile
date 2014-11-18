@@ -53,7 +53,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.render();
                     })
                 $("#wf_my_workflow-content")
-                    .on('click', '#start_form', function(event) {
+                    .on('click', '.start_form', function(event) {
                         event.preventDefault();
                         var $this = $(this);
                         var _id = $this.data('up_id');

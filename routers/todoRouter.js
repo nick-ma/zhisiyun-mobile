@@ -15,6 +15,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/PICollection",
         "../collections/MYPICollection",
         "../collections/AISubCollection",
+        "../collections/TaskFinishedListCollection",
+        "../collections/WFMyWorkflowCollection",
+        "../collections/WFApproveCollection",
 
         "../models/WFDataModel", "../models/AIModel", "../models/TeamModel", "../models/AIDatasModel", "../models/DataCollectionModel", "../models/AIPrevModel", "../models/AISuperModel", "../models/PIModel",
         "../models/TmAttendanceModel",
@@ -35,6 +38,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         PICollection,
         MYPICollection,
         AISubCollection,
+        TaskFinishedListCollection,
+        WFMyWorkflowCollection,
+        WFApproveCollection,
 
         WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel, AIPrevModel, AISuperModel, PIModel,
         TmAttendanceModel, TMAbsenceOfThreeModel, PIDatasModel
@@ -62,12 +68,17 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo11/:op_id/:type": "go_do11",
                 "godo8/:op_id/:type": "go_do8",
                 "godo9/:op_id/:type": "go_do9",
+                "godo13/:op_id/:type": "go_do13",
                 // "prev_ai/:period/:people/:position": "prev_ai",
                 // "super_ai/:period/:position": "super_ai",
                 "prev_ai": "prev_ai",
                 "super_ai": "super_ai",
                 "pis_select": "pis_select",
                 "create_pi": "create_pi",
+                //查看
+                "goview0/:op_id": "go_view0",
+                "goview1/:op_id": "go_view1",
+                "goview3/:op_id": "go_view3",
             },
             todo_list: function() { //我的待办
                 var self = this;
@@ -81,13 +92,51 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 $.mobile.loading("show");
                 self.todoListView.pre_render();
 
-                self.todoListView.collection.fetch().done(function() {
+                // self.todoListView.collection.fetch().done(function() {
+                //     self.tfList.fetch().done(function() {
+                //         self.c_wf_my_workflow.fetch().done(function() {
+                //             self.c_wf_approve.fetch().done(function() {
+                //                 self.todoListView.tfList = self.tfList;
+                //                 self.todoListView.c_wf_my_workflow = self.c_wf_my_workflow;
+                //                 self.todoListView.c_wf_approve = self.c_wf_approve;
+                //                 self.todoListView.render();
+                //                 $.mobile.loading("hide");
+                //             })
+                //         })
+                //     })
+                // })
+
+                async.parallel({
+                    data1: function(cb) {
+                        self.todoListView.collection.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
+                    data2: function(cb) {
+                        self.tfList.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
+                    data3: function(cb) {
+                        self.c_wf_my_workflow.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
+                    data4: function(cb) {
+                        self.c_wf_approve.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
+                }, function(err, ret) {
+                    self.todoListView.tfList = self.tfList;
+                    self.todoListView.c_wf_my_workflow = self.c_wf_my_workflow;
+                    self.todoListView.c_wf_approve = self.c_wf_approve;
                     self.todoListView.render();
                     $.mobile.loading("hide");
-                })
+                });
             },
             go_do0: function(op_id, type) {
-                window.location.href = "#handle_form/"+op_id;
+                window.location.href = "#handle_form/" + op_id;
             },
             go_do1: function(op_id, type) {
                 var self = this;
@@ -491,6 +540,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var pd_code = op_id.split("-")[2];
                 window.location.href = '/m#back_leave_form_t/' + ti_id + '/T';
             },
+            go_do13: function(op_id, type) {
+                window.location.href = '#wf_approve_edit/' + op_id;
+            },
             // prev_ai: function(period, people, position) {
             prev_ai: function() {
                 var self = this;
@@ -512,15 +564,15 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 // self.ai_prev.fetch().done(function() {
                 self.piCollection.fetch().done(function() {
-                    self.aiPrevView.pi_source = '1';
-                    self.aiPrevView.ai_data = self.ai;
-                    self.aiPrevView.pis = self.piCollection;
-                    self.aiPrevView.model = self.ai_prev;
-                    self.aiPrevView.peoples_data = self.ai_datas.attributes.peoples;
-                    self.aiPrevView.render();
-                    $.mobile.loading("hide");
-                })
-                // })
+                        self.aiPrevView.pi_source = '1';
+                        self.aiPrevView.ai_data = self.ai;
+                        self.aiPrevView.pis = self.piCollection;
+                        self.aiPrevView.model = self.ai_prev;
+                        self.aiPrevView.peoples_data = self.ai_datas.attributes.peoples;
+                        self.aiPrevView.render();
+                        $.mobile.loading("hide");
+                    })
+                    // })
             },
             // super_ai: function(period, position) {
             super_ai: function() {
@@ -541,15 +593,15 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                 // self.ai_super.fetch().done(function() {
                 self.piCollection.fetch().done(function() {
-                    self.aiPrevView.pi_source = '5';
-                    self.aiPrevView.ai_data = self.ai;
-                    self.aiPrevView.pis = self.piCollection;
-                    self.aiPrevView.model = self.ai_super;
-                    self.aiPrevView.peoples_data = self.ai_datas.attributes.peoples;
-                    self.aiPrevView.render();
-                    $.mobile.loading("hide");
-                })
-                // })
+                        self.aiPrevView.pi_source = '5';
+                        self.aiPrevView.ai_data = self.ai;
+                        self.aiPrevView.pis = self.piCollection;
+                        self.aiPrevView.model = self.ai_super;
+                        self.aiPrevView.peoples_data = self.ai_datas.attributes.peoples;
+                        self.aiPrevView.render();
+                        $.mobile.loading("hide");
+                    })
+                    // })
             },
             //----------指标选择----------//
             pis_select: function() {
@@ -595,6 +647,184 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         self.piView.render();
                         $.mobile.loading("hide");
                     });
+                })
+            },
+
+            go_view0: function(op_id, type) {
+                window.location.href = "#handle_form_view/" + op_id;
+            },
+            go_view1: function(op_id, type) {
+                var self = this;
+                //判断是否时待办进入，还是返回
+                self.view_mode_state = localStorage.getItem('view_mode_state') || null;
+                localStorage.removeItem('view_mode_state'); //用完删掉 
+
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+
+                async.parallel({
+                    data1: function(cb) {
+                        async.waterfall([
+
+                            function(cb) {
+                                self.wf_data.id = ti_id;
+                                self.wf_data.fetch().done(function() {
+                                    cb(null, self.wf_data);
+                                });
+                            },
+                            function(wf_data, cb) {
+                                if (wf_data.attributes.ti) {
+                                    self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
+                                    self.ai.fetch().done(function() {
+                                        cb(null, self.ai);
+                                    });
+                                } else {
+                                    cb(null, null);
+                                }
+                            },
+                            function(ai, cb) {
+                                if (ai) {
+                                    self.team_data.id = ai.attributes.people;
+                                    self.team_data.fetch().done(function() {
+                                        cb(null, null); //不需要传递
+                                    });
+                                } else {
+                                    cb(null, null);
+                                }
+                            },
+                        ], cb);
+                    },
+                    data2: function(cb) {
+                        self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
+                        self.ai_datas.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
+                }, function(err, ret) {
+                    if (self.wf_data.attributes.ti) {
+                        self.wf01View.wf_data = self.wf_data;
+                        self.wf01View.ai = self.ai;
+                        self.wf01View.team_data = self.team_data;
+                        self.wf01View.ai_datas = self.ai_datas;
+                        if (self.view_mode_state) {
+                            self.wf01View.view_mode = '';
+                        }
+                        self.wf01View.render();
+
+                        $("body").pagecontainer("change", "#ai_wf", {
+                            reverse: false,
+                            changeHash: false,
+                        });
+                    } else {
+                        alert('该任务已经办理完成！');
+                    }
+                })
+            },
+            go_view3: function(op_id, type) {
+                localStorage.setItem('ai_add_pi_back_url', window.location.href);
+                var self = this;
+                self.view_mode_state = localStorage.getItem('view_mode_state') || null;
+                localStorage.removeItem('view_mode_state'); //用完删掉 
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+
+                $.mobile.loading("show");
+                self.wf03View.pre_render();
+
+                async.parallel({
+                    data1: function(cb) {
+                        async.waterfall([
+
+                            function(cb) {
+                                self.wf_data.id = ti_id;
+                                self.wf_data.fetch().done(function() {
+                                    cb(null, self.wf_data);
+                                });
+                            },
+                            function(wf_data, cb) {
+                                if (wf_data.attributes.ti) {
+                                    self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
+                                    self.ai.fetch().done(function() {
+                                        cb(null, self.ai);
+                                    });
+                                } else {
+                                    cb(null, null);
+                                }
+                            },
+                            function(ai, cb) {
+                                if (ai) {
+                                    self.ai_prev.period = ai.attributes.period;
+                                    self.ai_prev.people = ai.attributes.people;
+                                    self.ai_prev.position = ai.attributes.position;
+
+                                    self.ai_super.period = ai.attributes.period;
+                                    self.ai_super.position = ai.attributes.position;
+
+                                    self.aiSubCollection.period = ai.attributes.period;
+                                    self.aiSubCollection.position = ai.attributes.position;
+
+                                    self.ai_prev.fetch().done(function() {
+                                        self.ai_super.fetch().done(function() {
+                                            self.aiSubCollection.fetch().done(function() {
+                                                cb(null, null);
+                                            })
+                                        });
+                                    });
+                                } else {
+                                    cb(null, null);
+                                }
+                            },
+                        ], cb);
+                    },
+                    data2: function(cb) {
+                        self.ai_datas.url = '/admin/pm/assessment_instance/get_assessment_instance_json_4m';
+                        self.ai_datas.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
+                }, function(err, ret) {
+                    if (self.wf_data.attributes.ti) {
+                        self.wf03View.wf_data = self.wf_data;
+                        self.wf03View.ai = self.ai;
+                        self.wf03View.ai_prev = self.ai_prev;
+                        self.wf03View.ai_super = self.ai_super;
+                        self.wf03View.aiSubCollection = self.aiSubCollection;
+                        self.wf03View.ai_datas = self.ai_datas;
+                        if (self.view_mode_state) {
+                            self.wf03View.view_mode = '';
+                        }
+                        self.wf03View.render();
+                        $.mobile.loading("hide");
+
+                        // if($("#login_people").val() == self.ai.attributes.people.toString()){
+                        //     $("#ai_wf1-footer").show();
+                        if (self.ai_prev.attributes.quantitative_pis || self.ai_prev.attributes.qualitative_pis) {
+                            $("#btn-ai_wf1-prev").attr("disabled", false);
+                        } else {
+                            $("#btn-ai_wf1-prev").attr("disabled", true);
+                        }
+
+                        if (self.ai_super.attributes.quantitative_pis || self.ai_super.attributes.qualitative_pis) {
+                            $("#btn-ai_wf1-super").attr("disabled", false);
+                        } else {
+                            $("#btn-ai_wf1-super").attr("disabled", true);
+                        }
+                        // }else{
+                        //     $("#ai_wf1-footer").hide();
+                        // }
+
+                        $("body").pagecontainer("change", "#ai_wf1", {
+                            reverse: false,
+                            changeHash: false,
+                        });
+                    } else {
+                        alert('该任务已经办理完成！');
+                        // self.todoListView.collection.fetch().done(function() {
+                        //     self.todoListView.render();
+                        // })
+                    }
                 })
             },
 
@@ -659,10 +889,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.piCollection = new PICollection();
                 self.myPICollection = new MYPICollection();
                 self.aiSubCollection = new AISubCollection();
+                self.tfList = new TaskFinishedListCollection();
+                self.c_wf_approve = new WFApproveCollection(); //全体相关的流程
+                self.c_wf_my_workflow = new WFMyWorkflowCollection(); //我的相关的流程
             },
             init_data: function() {
                 // var self = this;
-                this.todoList.fetch();
+                // this.todoList.fetch();
             },
         });
 
