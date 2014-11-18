@@ -310,6 +310,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var pi_id = $(this).data("pi_id");
                     var ai_status = $(this).data("ai_status");
                     var ration = $(this).data("ration");
+                    $.mobile.loading("show");
                     self.render_pi(module, pi_id, ration);
                     $.mobile.loading('hide');
 
@@ -331,11 +332,14 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var pi_id = $(this).data("pi_id");
                     var ration = $(this).data("ration");
                     if (view_filter == 'A') {
+                        $.mobile.loading("show");
 
                         self.render_pi(module, pi_id, ration);
                         $.mobile.loading('hide');
 
                     } else if (view_filter == 'B') {
+                        $.mobile.loading("show");
+
                         self.render_wip(module, pi_id, ration);
                         $.mobile.loading('hide');
 
@@ -446,7 +450,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                 }).on('click', "#btn_submit", function(event) {
                     event.preventDefault();
-                    var pdcodes = ['AssessmentInstance_summary', ]; //获取绩效总结流程数据，可能有多条，只能选一条
+                    var pdcodes = ['AssessmentInstance_summary','AssessmentInstance_summary01' ]; //获取绩效总结流程数据，可能有多条，只能选一条
                     async.times(pdcodes.length, function(n, next) {
                         var url = '/admin/wf/process_define/get_json_by_code?process_code=' + pdcodes[n];
                         $.get(url, function(data) {
@@ -770,6 +774,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                                 var module = String(render_type).split('/')[0];
                                 var pi_id = String(render_type).split('/')[1];
                                 var ration = String(render_type).split('/')[2];
+                                $.mobile.loading("show");
+
                                 self.render_pi(module, pi_id, ration);
                                 $.mobile.loading('hide');
 
@@ -788,7 +794,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 });
             },
             get_wfs: function(ai_id) {
-                $.get('/admin/wf/process_instance/get_pis_by_cid?cid=' + ai_id + '&codes=AssessmentInstance_summary', function(data) {
+                $.get('/admin/wf/process_instance/get_pis_by_cid?cid=' + ai_id + '&codes=AssessmentInstance_summary,AssessmentInstance_summary01', function(data) {
                     if (data.code == 'OK') {
                         var wfs = data.data;
                         window.location.href = "/m#godo12/" + wfs[0]._id + '/view';
