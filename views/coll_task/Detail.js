@@ -22,6 +22,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 // The render method is called when CollTask Models are added to the Collection
                 // this.collection.on("sync", this.render, this);
                 this.view_mode = 'basic'; //初始化为基本信息界面
+                this.show_p_task = true;
+                this.show_sub_tasks = true;
+                this.show_checkin_records = true;
+                this.show_comments = true;
                 this.bind_event();
             },
             pre_render: function() { //预先render
@@ -32,6 +36,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
             render: function() {
 
                 var self = this;
+                self.show_p_task = true;
+                self.show_sub_tasks = true;
+                self.show_checkin_records = true;
+                self.show_comments = true;
                 // 判断是否更换了任务
                 if (self.pre_model_id != self.model.get('_id')) {
                     self.view_mode = 'basic';
@@ -192,6 +200,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
 
                 //hold
                 self.hold_back_url();
+
+                //
+                // if (self.show_checkin_records) {
+                //     $("#colltask_detail-content li.checkin_records").show(200);
+                // } else {
+                //     $("#colltask_detail-content li.checkin_records").hide(200)
+                // };
                 return this;
 
             },
@@ -254,11 +269,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     .on('click', '#btn-ct-add_sub_task', function(event) {
                         event.preventDefault();
+                        event.stopPropagation();
                         var url = '#colltask_edit/add/' + self.model.get('_id');
                         window.location.href = url;
                     })
                     .on('click', '#btn-ct-add_comment', function(event) {
                         event.preventDefault();
+                        event.stopPropagation();
                         localStorage.removeItem('comment_model_back'); //先把返回值清掉
                         localStorage.setItem('comment_model', JSON.stringify({
                             model: self.model,
@@ -282,6 +299,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     .on('click', '#btn-ct-checkin', function(event) {
                         event.preventDefault();
+                        event.stopPropagation();
                         var now = new Date();
                         var end = new Date(self.model.get('end'));
                         if (self.model.get('allday')) { //如果是全天任务，则取结束日期的最后时刻。
@@ -298,6 +316,50 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         var syscmd_url = 'cmd://app/checkin/coll_task/' + self.model.get('_id');
                         window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
 
+                    })
+                    .on('click', '.toggle_p_task', function(event) {
+                        event.preventDefault();
+                        if (self.show_p_task) {
+
+                            $("#colltask_detail-content li.p_task").fadeOut(200);
+                            self.show_p_task = false;
+                        } else {
+                            $("#colltask_detail-content li.p_task").fadeIn(200)
+                            self.show_p_task = true;
+                        };
+                    })
+                    .on('click', '.toggle_sub_tasks', function(event) {
+                        event.preventDefault();
+                        if (self.show_sub_tasks) {
+
+                            $("#colltask_detail-content li.sub_tasks").fadeOut(200);
+                            self.show_sub_tasks = false;
+                        } else {
+                            $("#colltask_detail-content li.sub_tasks").fadeIn(200)
+                            self.show_sub_tasks = true;
+                        };
+                    })
+                    .on('click', '.toggle_checkin_records', function(event) {
+                        event.preventDefault();
+                        if (self.show_checkin_records) {
+
+                            $("#colltask_detail-content li.checkin_records").fadeOut(200);
+                            self.show_checkin_records = false;
+                        } else {
+                            $("#colltask_detail-content li.checkin_records").fadeIn(200)
+                            self.show_checkin_records = true;
+                        };
+                    })
+                    .on('click', '.toggle_comments', function(event) {
+                        event.preventDefault();
+                        if (self.show_comments) {
+
+                            $("#colltask_detail-content li.comments").fadeOut(200);
+                            self.show_comments = false;
+                        } else {
+                            $("#colltask_detail-content li.comments").fadeIn(200)
+                            self.show_comments = true;
+                        };
                     });
 
                 $("#colltask_detail-footer")
