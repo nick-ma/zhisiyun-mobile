@@ -88,6 +88,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         },
         wf_three: function() {
             var self = this;
+            localStorage.setItem('wf_three_back_url', window.location.href);
             $.get('/admin/tm/beyond_work/wf_three_data_4_m', function(data) {
                 if (data) {
                     var temp_arr = [],

@@ -84,6 +84,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var self = this;
                 //从待办进入时，做标记，后面做返回时用到
                 localStorage.setItem('view_mode_state', '1');
+                localStorage.setItem('wf_three_back_url', window.location.href);
 
                 $("body").pagecontainer("change", "#todo_list", {
                     reverse: false,

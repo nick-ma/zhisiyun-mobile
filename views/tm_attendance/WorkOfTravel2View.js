@@ -30,6 +30,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			// Renders all of the CollTask models on the UI
 			render: function() {
 				var self = this;
+
+				if (!!localStorage.getItem('wf_three_back_url')) {
+					self.wf_three_back_url = localStorage.getItem('wf_three_back_url');
+					localStorage.removeItem('wf_three_back_url');
+				}
 				//流程数据
 				var wf_data = self.wf_data;
 				var obj = _.extend(wf_data, {});
@@ -63,7 +68,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
 				});
 
-
+				// $("#go_back").attr("href",self.wf_three_back_url);
 			},
 			render2: function() {
 				var self = this;
@@ -93,7 +98,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						$("#personal_wf_work_of_travel-content2").find("select").attr("disabled", true);
 
 					} else if (self.page_mode == 'wf_three') {
-						window.location.href = "/m#wf_three";
+						// window.location.href = "/m#wf_three";
+						window.location.href = self.wf_three_back_url;
 					} else {
 						window.location.href = "/m";
 					}
