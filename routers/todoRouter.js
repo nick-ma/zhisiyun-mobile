@@ -68,7 +68,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo11/:op_id/:type": "go_do11",
                 "godo8/:op_id/:type": "go_do8",
                 "godo9/:op_id/:type": "go_do9",
-                "godo13/:op_id/:type": "go_do13",
+                "godofree/:op_id/:type": "go_dofree",
                 // "prev_ai/:period/:people/:position": "prev_ai",
                 // "super_ai/:period/:position": "super_ai",
                 "prev_ai": "prev_ai",
@@ -545,7 +545,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var pd_code = op_id.split("-")[2];
                 window.location.href = '/m#back_leave_form_t/' + ti_id + '/T';
             },
-            go_do13: function(op_id, type) {
+            go_dofree: function(op_id, type) {
                 window.location.href = '#wf_approve_edit/' + op_id;
             },
             // prev_ai: function(period, people, position) {
