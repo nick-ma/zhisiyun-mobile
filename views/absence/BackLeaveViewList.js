@@ -48,10 +48,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             this.model_view = '0';
         },
         // Renders all of the Task models on the UI
-        
+
         render: function() {
             $("#leaveofabsence_name").html('假期查看')
             var self = this;
+
+            if (!!localStorage.getItem('to_do_back_url')) {
+                self.to_do_back_url = localStorage.getItem('to_do_back_url');
+                localStorage.removeItem('to_do_back_url');
+            }
+
             var rendered_data = '';
             if (self.model_view == '0') {
                 var f_d = _.find(self.obj.absences, function(ab) {
@@ -99,7 +105,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     self.model_view = '0'
                     self.render();
                 } else {
-                    window.location.href = "/m#leave_list"
+                    // window.location.href = "/m#leave_list"
+                    window.location.href = self.to_do_back_url;
                 }
             }).on('click', '#btn-create_back_leave', function(event) {
                 var leave_id = $(this).attr('leave_id');

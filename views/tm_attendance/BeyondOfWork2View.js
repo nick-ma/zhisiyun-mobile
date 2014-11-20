@@ -29,6 +29,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			// Renders all of the CollTask models on the UI
 			render: function() {
 				var self = this;
+				if (!!localStorage.getItem('to_do_back_url')) {
+					self.to_do_back_url = localStorage.getItem('to_do_back_url');
+					localStorage.removeItem('to_do_back_url');
+				}
 				//流程数据
 				var wf_data = self.wf_data;
 				//流程数据
@@ -111,7 +115,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						$("#personal_wf_beyond_of_work-content2").find("select").attr("disabled", true);
 
 					} else if (self.page_mode == 'wf_three') {
-						window.location.href = "/m#wf_three";
+
+						// window.location.href = "/m#wf_three";
+						window.location.href = self.to_do_back_url;
 					} else {
 						window.location.href = "/m";
 					}

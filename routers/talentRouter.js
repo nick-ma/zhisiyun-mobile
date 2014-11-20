@@ -96,7 +96,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "twitter_list": "twitter_list", //人才提名历史数据
                 "talent_twitter_people/:type": "talent_twitter_people", //人员选择（人才提名）
                 "godo10/:op_id/:type": "go_do10",
-                "godo10_view/:pi_id": "go_do10_view", //市区公干流程查看
+                "godo10_view/:pi_id": "go_do10_view", //人才提名流程查看
                 "plan_list_detail/:plan_id": "plan_list_detail", //人才培养计划明细
                 "plan_list_detail/:plan_id/:divide_id": "plan_list_detail_operation", //人才培养计划明细
                 "course": "course", //课程选择
@@ -264,6 +264,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             twitter_list: function() { //我的人才提名历史数据
                 var self = this;
+                localStorage.setItem('to_do_back_url', window.location.href);
                 $("body").pagecontainer("change", "#superior_twitter_list", {
                     reverse: false,
                     changeHash: false,

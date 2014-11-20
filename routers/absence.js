@@ -51,6 +51,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         leave_list: function() {
             var self = this;
+            localStorage.setItem('to_do_back_url', window.location.href);
             self.leaveOfAbsences.fetch().done(function() {
                 self.leaveView.leaveOfAbsence = self.leaveOfAbsence;
                 self.leaveView.render();
