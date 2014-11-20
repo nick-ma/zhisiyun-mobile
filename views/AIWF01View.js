@@ -215,8 +215,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     }
                 } else if (self.view_mode == 'pi_detail') {
                     $("#ai_wf_title").html('指标明细');
+                    if (self.mode) {
+                        this.template = Handlebars.compile($("#assessment_dl_pi_detail_view2").html());
+                    } else {
+                        this.template = Handlebars.compile($("#assessment_dl_pi_detail_view").html());
+                    }
 
-                    this.template = Handlebars.compile($("#assessment_dl_pi_detail_view").html());
                     $("#ai_wf-content").html(self.template(self.item_obj));
                     $("#ai_wf-content").trigger('create');
 
@@ -229,64 +233,71 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                     self.item_obj.pi = self.item;
 
-                    this.template = Handlebars.compile($("#assessment_dx_pi_detail_view").html());
+                    if (self.mode) {
+                        this.template = Handlebars.compile($("#assessment_dx_pi_detail_view2").html());
+                    } else {
+                        this.template = Handlebars.compile($("#assessment_dx_pi_detail_view").html());
+                    }
+
                     $("#ai_wf-content").html(self.template(self.item_obj));
                     $("#ai_wf-content").trigger('create');
 
-                    //判断是哪个环节，只要评估人对应的环节才能评分
-                    //是自己
-                    if ($("#login_people").val() == self.ai.attributes.people) {
-                        $("#self").removeAttr("disabled");
-                        if ($("#self-button").length) {
-                            $("#self-button").attr("class", "ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow");
-                        } else {
-                            $($("#self")[0].parentNode).attr("class", "ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset");
+                    if (!self.mode) {
+                        //判断是哪个环节，只要评估人对应的环节才能评分
+                        //是自己
+                        if ($("#login_people").val() == self.ai.attributes.people) {
+                            $("#self").removeAttr("disabled");
+                            if ($("#self-button").length) {
+                                $("#self-button").attr("class", "ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow");
+                            } else {
+                                $($("#self")[0].parentNode).attr("class", "ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset");
+                            }
                         }
-                    }
-                    //是间接上级
-                    var ai_people = _.find(self.peoples_data, function(p) {
-                        return p._id == self.ai.attributes.people;
-                    })
-                    var indirect_superior = _.find(self.peoples_data, function(p) {
-                        return p.position._id == ai_people.position.position_indirect_superior || p.parttime_positions.indexOf(ai_people.position.position_indirect_superior) != -1;
-                    })
-
-                    if (indirect_superior && indirect_superior._id == $("#login_people").val()) {
-                        $("#indirect").removeAttr("disabled");
-                        if ($("#indirect-button").length) {
-                            $("#indirect-button").attr("class", "ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow");
-                        } else {
-                            $($("#indirect")[0].parentNode).attr("class", "ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset");
-                        }
-                    }
-                    //是上级
-                    if (self.uu && self.uu[0]._id == $("#login_people").val()) {
-                        $("#superior").removeAttr("disabled");
-                        if ($("#superior-button").length) {
-                            $("#superior-button").attr("class", "ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow");
-                        } else {
-                            $($("#superior")[0].parentNode).attr("class", "ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset");
-                        }
-
-                    }
-                    //是上上级
-                    var superior = _.find(self.peoples_data, function(p) {
-                        return p._id == self.uu[0]._id;
-                    })
-                    if (!!superior) {
-                        var superior_superior = _.find(self.peoples_data, function(p) {
-                            return p.position._id == superior.position.position_indirect_superior || p.parttime_positions.indexOf(superior.position.position_indirect_superior) != -1;
+                        //是间接上级
+                        var ai_people = _.find(self.peoples_data, function(p) {
+                            return p._id == self.ai.attributes.people;
                         })
-                    }
+                        var indirect_superior = _.find(self.peoples_data, function(p) {
+                            return p.position._id == ai_people.position.position_indirect_superior || p.parttime_positions.indexOf(ai_people.position.position_indirect_superior) != -1;
+                        })
 
-                    if (superior_superior && superior_superior._id == $("#login_people").val()) {
-                        $("#superior_superior").removeAttr("disabled");
-                        if ($("#superior_superior-button").length) {
-                            $("#superior_superior-button").attr("class", "ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow");
-                        } else {
-                            $($("#superior_superior")[0].parentNode).attr("class", "ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset");
+                        if (indirect_superior && indirect_superior._id == $("#login_people").val()) {
+                            $("#indirect").removeAttr("disabled");
+                            if ($("#indirect-button").length) {
+                                $("#indirect-button").attr("class", "ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow");
+                            } else {
+                                $($("#indirect")[0].parentNode).attr("class", "ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset");
+                            }
+                        }
+                        //是上级
+                        if (self.uu && self.uu[0]._id == $("#login_people").val()) {
+                            $("#superior").removeAttr("disabled");
+                            if ($("#superior-button").length) {
+                                $("#superior-button").attr("class", "ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow");
+                            } else {
+                                $($("#superior")[0].parentNode).attr("class", "ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset");
+                            }
+
+                        }
+                        //是上上级
+                        var superior = _.find(self.peoples_data, function(p) {
+                            return p._id == self.uu[0]._id;
+                        })
+                        if (!!superior) {
+                            var superior_superior = _.find(self.peoples_data, function(p) {
+                                return p.position._id == superior.position.position_indirect_superior || p.parttime_positions.indexOf(superior.position.position_indirect_superior) != -1;
+                            })
                         }
 
+                        if (superior_superior && superior_superior._id == $("#login_people").val()) {
+                            $("#superior_superior").removeAttr("disabled");
+                            if ($("#superior_superior-button").length) {
+                                $("#superior_superior-button").attr("class", "ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow");
+                            } else {
+                                $($("#superior_superior")[0].parentNode).attr("class", "ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset");
+                            }
+
+                        }
                     }
                 } else if (self.view_mode == 'ai_pi_comment') {
                     $("#ai_wf_title").html('沟通记录');
@@ -300,6 +311,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 if (!self.obj) {
                     self.get_datas();
                 }
+
+                //查看界面
+                if (self.mode) {
+                    self.obj.mode = 'view';
+                }
+
                 this.template = Handlebars.compile($("#wf01_view").html());
                 $("#ai_wf-content").html(self.template(self.obj));
                 $("#ai_wf-content").trigger('create');
