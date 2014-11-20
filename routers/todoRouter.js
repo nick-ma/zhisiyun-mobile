@@ -83,6 +83,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo9_view/:op_id": "go_view9",//消假
                 "godo12_view/:op_id": "go_view12",//绩效总结
                 "godo13_view/:op_id": "go_view13",//绩效面谈
+                "godo14_view/:op_id": "go_view14",//绩效申诉
             },
             todo_list: function() { //我的待办
                 var self = this;
@@ -843,6 +844,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             go_view13: function(op_id){
                 window.location.href = "#godo13/"+op_id+"/view";
+            },
+            go_view14: function(op_id){
+                window.location.href = "#godo14/"+op_id+"/view";
             },
             init_views: function() {
                 var self = this;
