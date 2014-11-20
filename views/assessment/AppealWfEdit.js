@@ -54,6 +54,12 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             // Renders all of the Assessment models on the UI
             render: function(index, type) {
                 var self = this;
+
+                if (!!localStorage.getItem('to_do_back_url')) {
+                    self.to_do_back_url = localStorage.getItem('to_do_back_url');
+                    localStorage.removeItem('to_do_back_url');
+                }
+
                 var data = _.map(self.collection.models, function(x) {
                     return x.toJSON()
                 })
@@ -478,7 +484,8 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         self.render();
                         $(this).data("module", "");
                     } else {
-                        window.location.href = "/m#appeal";
+                        // window.location.href = "/m#appeal";
+                        window.location.href = self.to_do_back_url;
                     }
                 }).on('click', '#btn_add_appeal_item', function(event) { //指标选择－不足与改进
                     event.preventDefault();
