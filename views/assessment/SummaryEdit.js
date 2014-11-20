@@ -304,197 +304,199 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             bind_events: function() {
                 var self = this;
                 $("#summary_edit_form").on('click', '.summary_pi', function(event) { //第三层－指标总结入口
-                    event.preventDefault();
-                    var module = $(this).data("module");
-                    var ai_id = $(this).data("ai_id");
-                    var pi_id = $(this).data("pi_id");
-                    var ai_status = $(this).data("ai_status");
-                    var ration = $(this).data("ration");
-                    $.mobile.loading("show");
-                    self.render_pi(module, pi_id, ration);
-                    $.mobile.loading('hide');
-
-
-                }).on('click', '#summary_href', function(event) { //返回定位
-                    event.preventDefault();
-                    if ($(this).data("module")) {
-                        self.render();
-                        $(this).data("module", "");
-                        $("#summary_edit_form #summary_edit_form-footer").hide();
-                        $("#add_pi").hide();
-                    } else {
-                        window.location.href = "/m#summary";
-                    }
-                }).on('click', '.btn-summary_edit_form-change_state', function(event) { //定位不足与改进及亮点分享
-                    event.preventDefault();
-                    var view_filter = $(this).data("view_filter");
-                    var module = $(this).data("module");
-                    var pi_id = $(this).data("pi_id");
-                    var ration = $(this).data("ration");
-                    if (view_filter == 'A') {
+                        event.preventDefault();
+                        var module = $(this).data("module");
+                        var ai_id = $(this).data("ai_id");
+                        var pi_id = $(this).data("pi_id");
+                        var ai_status = $(this).data("ai_status");
+                        var ration = $(this).data("ration");
                         $.mobile.loading("show");
-
                         self.render_pi(module, pi_id, ration);
                         $.mobile.loading('hide');
 
-                    } else if (view_filter == 'B') {
-                        $.mobile.loading("show");
 
-                        self.render_wip(module, pi_id, ration);
-                        $.mobile.loading('hide');
+                    }).on('click', '#summary_href', function(event) { //返回定位
+                        event.preventDefault();
+                        if ($(this).data("module")) {
+                            self.render();
+                            $(this).data("module", "");
+                            $("#summary_edit_form #summary_edit_form-footer").hide();
+                            $("#add_pi").hide();
+                        } else {
+                            window.location.href = "/m#summary";
+                        }
+                    }).on('click', '.btn-summary_edit_form-change_state', function(event) { //定位不足与改进及亮点分享
+                        event.preventDefault();
+                        var view_filter = $(this).data("view_filter");
+                        var module = $(this).data("module");
+                        var pi_id = $(this).data("pi_id");
+                        var ration = $(this).data("ration");
+                        if (view_filter == 'A') {
+                            $.mobile.loading("show");
 
-                    }
-                }).on('click', '#btn_add_pi_ration_1', function(event) { //指标选择－不足与改进
-                    event.preventDefault();
-                    var index = "index_select";
-                    self.render(index, '1')
-                }).on('click', '#btn_add_pi_ration_2', function(event) { //指标选择
-                    event.preventDefault();
-                    var index = "index_select";
-                    self.render(index, '2')
-                }).on('click', '#add_pi', function(event) { //添加指标
-                    event.preventDefault();
-                    var ai_id = $(this).data("ai_id");
-                    var type = $(this).data("type");
+                            self.render_pi(module, pi_id, ration);
+                            $.mobile.loading('hide');
 
-                    var items_1 = self.collection.models[0].attributes.qualitative_pis.items;
+                        } else if (view_filter == 'B') {
+                            $.mobile.loading("show");
 
-                    if (type == '1') {
-                        _.each(items_1, function(i) {
-                            i.mark_as_summary_type1 = false;
+                            self.render_wip(module, pi_id, ration);
+                            $.mobile.loading('hide');
+
+                        }
+                    }).on('click', '#btn_add_pi_ration_1', function(event) { //指标选择－不足与改进
+                        event.preventDefault();
+                        var index = "index_select";
+                        self.render(index, '1')
+                    }).on('click', '#btn_add_pi_ration_2', function(event) { //指标选择
+                        event.preventDefault();
+                        var index = "index_select";
+                        self.render(index, '2')
+                    }).on('click', '#add_pi', function(event) { //添加指标
+                        event.preventDefault();
+                        var ai_id = $(this).data("ai_id");
+                        var type = $(this).data("type");
+
+                        var items_1 = self.collection.models[0].attributes.qualitative_pis.items;
+
+                        if (type == '1') {
+                            _.each(items_1, function(i) {
+                                i.mark_as_summary_type1 = false;
+                            })
+                        } else {
+                            _.each(items_1, function(i) {
+                                i.mark_as_summary_type2 = false;
+
+                            })
+                        }
+
+                        var items_2 = self.collection.models[0].attributes.quantitative_pis.items;
+
+                        if (type == '1') {
+                            _.each(items_2, function(i) {
+                                i.mark_as_summary_type1 = false;
+                            })
+                        } else {
+                            _.each(items_2, function(i) {
+                                i.mark_as_summary_type2 = false;
+
+                            })
+                        }
+
+
+                        _.each($("#summary_edit_form input[class='pi_select']:checked"), function(x) {
+                            var ration = $(x).data("ration");
+                            var pi_id = $(x).data("pi_id");
+
+                            if (ration == '1') {
+                                var items = self.collection.models[0].attributes.qualitative_pis.items;
+                                var found = self.get_pi(items, pi_id);
+                                if (type == '1') {
+
+                                    found.mark_as_summary_type1 = true;
+
+                                } else {
+
+                                    found.mark_as_summary_type2 = true;
+
+                                }
+                            } else if (ration == '2') {
+                                var items = self.collection.models[0].attributes.quantitative_pis.items;
+                                var found = self.get_pi(items, pi_id);
+                                if (type == '1') {
+                                    found.mark_as_summary_type1 = true;
+
+                                } else {
+                                    found.mark_as_summary_type2 = true;
+
+                                }
+                            }
                         })
-                    } else {
-                        _.each(items_1, function(i) {
-                            i.mark_as_summary_type2 = false;
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        self.data_save(data4save, ai_id, null);
 
-                        })
-                    }
-
-                    var items_2 = self.collection.models[0].attributes.quantitative_pis.items;
-
-                    if (type == '1') {
-                        _.each(items_2, function(i) {
-                            i.mark_as_summary_type1 = false;
-                        })
-                    } else {
-                        _.each(items_2, function(i) {
-                            i.mark_as_summary_type2 = false;
-
-                        })
-                    }
-
-
-                    _.each($("#summary_edit_form input[class='pi_select']:checked"), function(x) {
-                        var ration = $(x).data("ration");
-                        var pi_id = $(x).data("pi_id");
-
+                    }).on('click', '#btn_save', function(event) { //数据保存接口
+                        event.preventDefault();
+                        var ai_id = $(this).data("ai_id");
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        var type = "success";
+                        self.data_save(data4save, ai_id, type);
+                    }).on('change', "textarea", function(event) {
+                        event.preventDefault();
+                        var field = String($(this).data("field")).split('-')[0];
+                        var self_comment = $(this).val();
+                        var ration = $(this).data("ration");
+                        var pi_id = $(this).data("pi_id");
                         if (ration == '1') {
                             var items = self.collection.models[0].attributes.qualitative_pis.items;
                             var found = self.get_pi(items, pi_id);
-                            if (type == '1') {
-
-                                found.mark_as_summary_type1 = true;
-
-                            } else {
-
-                                found.mark_as_summary_type2 = true;
-
-                            }
                         } else if (ration == '2') {
                             var items = self.collection.models[0].attributes.quantitative_pis.items;
                             var found = self.get_pi(items, pi_id);
-                            if (type == '1') {
-                                found.mark_as_summary_type1 = true;
-
-                            } else {
-                                found.mark_as_summary_type2 = true;
-
-                            }
                         }
+                        if (field == 'summary') {
+                            self.collection.models[0].attributes.summary.self_comment = self_comment;
+                        } else if (field == "gap_analysis") {
+                            found.summary.gap_analysis.self_comment = self_comment;
+                        } else if (field == "improvement_plan") {
+                            found.summary.improvement_plan.self_comment = self_comment;
+
+                        } else if (field == "performance_highlights") {
+                            found.summary.performance_highlights.self_comment = self_comment;
+
+                        }
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        self.data_save(data4save, ai_id, "no_render"); //自评值的保存
+
                     })
-                    var data4save = _.clone(self.collection.models[0].attributes);
-                    self.data_save(data4save, ai_id, null);
+                    // .on('click', "#btn_submit", function(event) {
+                    //                     event.preventDefault();
+                    //                     var pdcodes = ['AssessmentInstance_summary','AssessmentInstance_summary01' ]; //获取绩效总结流程数据，可能有多条，只能选一条
+                    //                     async.times(pdcodes.length, function(n, next) {
+                    //                         var url = '/admin/wf/process_define/get_json_by_code?process_code=' + pdcodes[n];
+                    //                         $.get(url, function(data) {
+                    //                             if (data.length) {
+                    //                                 next(null, data[0]);
+                    //                             } else {
+                    //                                 next(null, null);
+                    //                             };
+                    //                         });
+                    //                     }, function(err, results) {
+                    //                         pds = _.compact(results);
+                    //                         self.render_wf(pds);
+                    //                     })
+                    //                 }).on('click', "#do_submit", function(event) {
+                    //                     event.preventDefault();
+                    //                     var wf_select = $("input[class='wf_select']:checked");
+                    //                     var pd_id = wf_select.val();
+                    //                     var process_name = wf_select.data("process_name");
+                    //                     $("#summary_edit_form #btn_save").trigger("click");
+                    //                     var pd = _.find(pds, function(x) {
+                    //                         return x._id == pd_id;
+                    //                     })
+                    //                     if (pd) {
+                    //                         $("#do_submit").attr('disabled', 'disabled');
+                    //                         var process_define = pd._id;
+                    //                         var process_instance_name = self.collection.models[0].attributes.ai_name + '的总结审批流程';
+                    //                         var url = pd.process_start_url;
+                    //                         var post_data = {
+                    //                             process_define: process_define,
+                    //                             process_instance_name: process_instance_name,
+                    //                             ai_id: ai_id,
+                    //                         };
+                    //                         $.post(url, post_data, function(data, textStatus, xhr) {
+                    //                             if (data.code == 'OK') {
+                    //                                 var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
+                    //                                 window.location = '/m#godo12/' + task_id + '/edit';
+                    //                             } else if (data.code == 'ERR') {
+                    //                                 $("#do_submit").removeAttr('disabled');
+                    //                                 console.log(data.err); //把错误信息输出到控制台，以便查找错误。
+                    //                             }
+                    //                         })
 
-                }).on('click', '#btn_save', function(event) { //数据保存接口
-                    event.preventDefault();
-                    var ai_id = $(this).data("ai_id");
-                    var data4save = _.clone(self.collection.models[0].attributes);
-                    var type = "success";
-                    self.data_save(data4save, ai_id, type);
-                }).on('change', "textarea", function(event) {
-                    event.preventDefault();
-                    var field = String($(this).data("field")).split('-')[0];
-                    var self_comment = $(this).val();
-                    var ration = $(this).data("ration");
-                    var pi_id = $(this).data("pi_id");
-                    if (ration == '1') {
-                        var items = self.collection.models[0].attributes.qualitative_pis.items;
-                        var found = self.get_pi(items, pi_id);
-                    } else if (ration == '2') {
-                        var items = self.collection.models[0].attributes.quantitative_pis.items;
-                        var found = self.get_pi(items, pi_id);
-                    }
-                    if (field == 'summary') {
-                        self.collection.models[0].attributes.summary.self_comment = self_comment;
-                    } else if (field == "gap_analysis") {
-                        found.summary.gap_analysis.self_comment = self_comment;
-                    } else if (field == "improvement_plan") {
-                        found.summary.improvement_plan.self_comment = self_comment;
-
-                    } else if (field == "performance_highlights") {
-                        found.summary.performance_highlights.self_comment = self_comment;
-
-                    }
-                    var data4save = _.clone(self.collection.models[0].attributes);
-                    self.data_save(data4save, ai_id, "no_render"); //自评值的保存
-
-                }).on('click', "#btn_submit", function(event) {
-                    event.preventDefault();
-                    var pdcodes = ['AssessmentInstance_summary','AssessmentInstance_summary01' ]; //获取绩效总结流程数据，可能有多条，只能选一条
-                    async.times(pdcodes.length, function(n, next) {
-                        var url = '/admin/wf/process_define/get_json_by_code?process_code=' + pdcodes[n];
-                        $.get(url, function(data) {
-                            if (data.length) {
-                                next(null, data[0]);
-                            } else {
-                                next(null, null);
-                            };
-                        });
-                    }, function(err, results) {
-                        pds = _.compact(results);
-                        self.render_wf(pds);
-                    })
-                }).on('click', "#do_submit", function(event) {
-                    event.preventDefault();
-                    var wf_select = $("input[class='wf_select']:checked");
-                    var pd_id = wf_select.val();
-                    var process_name = wf_select.data("process_name");
-                    $("#summary_edit_form #btn_save").trigger("click");
-                    var pd = _.find(pds, function(x) {
-                        return x._id == pd_id;
-                    })
-                    if (pd) {
-                        $("#do_submit").attr('disabled', 'disabled');
-                        var process_define = pd._id;
-                        var process_instance_name = self.collection.models[0].attributes.ai_name + '的总结审批流程';
-                        var url = pd.process_start_url;
-                        var post_data = {
-                            process_define: process_define,
-                            process_instance_name: process_instance_name,
-                            ai_id: ai_id,
-                        };
-                        $.post(url, post_data, function(data, textStatus, xhr) {
-                            if (data.code == 'OK') {
-                                var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
-                                window.location = '/m#godo12/' + task_id + '/edit';
-                            } else if (data.code == 'ERR') {
-                                $("#do_submit").removeAttr('disabled');
-                                console.log(data.err); //把错误信息输出到控制台，以便查找错误。
-                            }
-                        })
-
-                    };
-                }).on('click', "#btn_add_colltask", function(event) { //不足与改进中的创建任务
+                //                     };
+                //                 })
+                .on('click', "#btn_add_colltask", function(event) { //不足与改进中的创建任务
                     event.preventDefault();
                     var $this = $(this);
                     var confirm_msg = '确认为当前指标创建一个任务吗？';
@@ -571,6 +573,29 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     event.preventDefault();
                     var ai_id = ai_id || self.collection.models[0].attributes._id;
                     self.get_wfs(ai_id);
+                }).on('click', "#btn_submit", function(event) {
+                    event.preventDefault();
+                    var ai_id = self.collection.models[0].attributes._id;
+                    var ai_name = self.collection.models[0].attributes.ai_name;
+                    var post_data = {
+                        ai_id: ai_id,
+                        ai_name: ai_name,
+                        type: 'summary'
+                    }
+                    $("#btn_submit").attr('disabled', "disabled");
+                    var url = '/admin/pm/assessment_instance/appeal/wf_create';
+                    if (confirm("确认提交审批吗？")) {
+                        $.post(url, post_data, function(data, textStatus, xhr) {
+                            if (data.code == 'OK') {
+                                var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
+                                window.location = '/m#godo12/' + task_id + '/edit';
+                            } else if (data.code == 'ERR') {
+                                $("#btn_submit").removeAttr('disabled');
+                                console.log(data.err); //把错误信息输出到控制台，以便查找错误。
+                            }
+                        })
+                    }
+
                 })
 
             },

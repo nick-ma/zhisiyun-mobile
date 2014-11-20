@@ -271,156 +271,158 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 var self = this;
 
                 $("#review_edit_form").on('click', '#add_attendees', function(event) { //第三层－指标总结入口
-                    event.preventDefault();
-                    var data = _.map(self.collection.models, function(x) {
-                        return x.toJSON()
-                    })
-                    var url = '#people_select/m/attendees';
-                    localStorage.setItem('sp_helper', JSON.stringify({
-                        model: data[0].review,
-                        back_url: window.location.hash,
-                    })); //放到local storage里面，便于后面选择屏幕进行操作
-                    window.location.href = url;
-                }).on('click', '#review_href', function(event) { //返回定位
-                    event.preventDefault();
-                    window.location.href = "/m#review";
-                }).on('click', '.btn-review_edit_form-change_state', function(event) { //定位不足与改进及亮点分享
-                    event.preventDefault();
-                    var view_filter = $(this).data("view_filter");
-                    $.mobile.loading('show');
+                        event.preventDefault();
+                        var data = _.map(self.collection.models, function(x) {
+                            return x.toJSON()
+                        })
+                        var url = '#people_select/m/attendees';
+                        localStorage.setItem('sp_helper', JSON.stringify({
+                            model: data[0].review,
+                            back_url: window.location.hash,
+                        })); //放到local storage里面，便于后面选择屏幕进行操作
+                        window.location.href = url;
+                    }).on('click', '#review_href', function(event) { //返回定位
+                        event.preventDefault();
+                        window.location.href = "/m#review";
+                    }).on('click', '.btn-review_edit_form-change_state', function(event) { //定位不足与改进及亮点分享
+                        event.preventDefault();
+                        var view_filter = $(this).data("view_filter");
+                        $.mobile.loading('show');
 
-                    if (view_filter == 'A') {
+                        if (view_filter == 'A') {
 
-                        self.render();
-                        $.mobile.loading('hide');
+                            self.render();
+                            $.mobile.loading('hide');
 
-                    } else if (view_filter == 'B') {
-                        self.render_step1();
-                        $.mobile.loading('hide');
+                        } else if (view_filter == 'B') {
+                            self.render_step1();
+                            $.mobile.loading('hide');
 
-                    } else if (view_filter == 'C') {
-                        self.render_step2();
-                        $.mobile.loading('hide');
+                        } else if (view_filter == 'C') {
+                            self.render_step2();
+                            $.mobile.loading('hide');
 
-                    } else if (view_filter == 'D') {
-                        self.render_step3();
-                        $.mobile.loading('hide');
-                    }
-                }).on('click', '.delete_attendees', function(event) { //添加指标
-                    event.preventDefault();
-                    var people_id = $(this).data("up_id");
-                    var data = _.map(self.collection.models, function(x) {
-                        return x.toJSON()
-                    });
-                    data[0].review.attendees = _.filter(data[0].review.attendees, function(x) {
-                        return x._id != String(people_id)
-                    })
-                    var data4save = _.clone(data[0]);
-                    var type = "delete";
-                    self.data_save(data4save, ai_id, type);
-
-                }).on('click', '#btn_save', function(event) { //数据保存接口
-                    event.preventDefault();
-                    var ai_id = $(this).data("ai_id") || self.collection.models[0].attributes._id;
-                    var data4save = _.clone(self.collection.models[0].attributes);
-                    var type = "success";
-                    async.series({
-                        create_plan: function(cb) {
-                            post_to_work_plan(data4save, cb)
+                        } else if (view_filter == 'D') {
+                            self.render_step3();
+                            $.mobile.loading('hide');
                         }
-                    }, function(err, result) {
+                    }).on('click', '.delete_attendees', function(event) { //添加指标
+                        event.preventDefault();
+                        var people_id = $(this).data("up_id");
+                        var data = _.map(self.collection.models, function(x) {
+                            return x.toJSON()
+                        });
+                        data[0].review.attendees = _.filter(data[0].review.attendees, function(x) {
+                            return x._id != String(people_id)
+                        })
+                        var data4save = _.clone(data[0]);
+                        var type = "delete";
                         self.data_save(data4save, ai_id, type);
 
-                    })
-                }).on('change', "textarea", function(event) {
-                    event.preventDefault();
-                    var field = String($(this).data("field")).split('-');
-                    var comment = $(this).val();
-                    self.collection.models[0].attributes[field[0]][field[1]] = comment;
-                    var data4save = _.clone(self.collection.models[0].attributes);
-                    self.data_save(data4save, ai_id, "no_render"); //自评值的保存
-
-                }).on('change', "#place", function(event) {
-                    event.preventDefault();
-                    var ai_id = ai_id || self.collection.models[0].attributes._id;
-                    self.collection.models[0].attributes.review.place = $(this).val();
-                    var data4save = _.clone(self.collection.models[0].attributes);
-                    self.data_save(data4save, ai_id, null); //自评值的保存
-
-                }).on('change', "#start,#end", function(event) {
-                    event.preventDefault();
-                    var field = $(this).data("field");
-                    var start = self.collection.models[0].attributes.start;
-                    var end = self.collection.models[0].attributes.end;
-                    var ai_id = ai_id || self.collection.models[0].attributes._id;
-                    if (field == "start") {
-                        // if (moment($(this).val()).isAfter(moment(end))) {
-                        //     alert("面谈开始时间需小于面谈结束时间")
-                        // } else {
-                        self.collection.models[0].attributes.review.start = moment($(this).val());
-
-                        // }
-
-                    } else if (field == "end") {
-                        // if (moment($(this).val()).isBefore(moment(start))) {
-                        //     alert("面谈结束时间需大于面谈开始时间")
-                        // } else {
-                        self.collection.models[0].attributes.review.end = moment($(this).val());
-
-                        // }
-
-                    }
-                    var data4save = _.clone(self.collection.models[0].attributes);
-                    self.data_save(data4save, ai_id, "date"); //自评值的保存
-
-
-                }).on('click', "#btn_submit", function(event) {
-                    event.preventDefault();
-                    var pdcodes = ['AssessmentInstance_review', ]; //获取绩效总结流程数据，可能有多条，只能选一条
-                    async.times(pdcodes.length, function(n, next) {
-                        var url = '/admin/wf/process_define/get_json_by_code?process_code=' + pdcodes[n];
-                        $.get(url, function(data) {
-                            if (data.length) {
-                                next(null, data[0]);
-                            } else {
-                                next(null, null);
-                            };
-                        });
-                    }, function(err, results) {
-                        pds = _.compact(results);
-                        self.render_wf(pds);
-                    })
-                }).on('click', "#do_submit", function(event) {
-                    event.preventDefault();
-                    var wf_select = $("input[class='wf_select']:checked");
-                    var pd_id = wf_select.val();
-                    var process_name = wf_select.data("process_name");
-                    $("#review_edit_form #btn_save").trigger("click");
-                    var pd = _.find(pds, function(x) {
-                        return x._id == pd_id;
-                    })
-                    if (pd) {
-                        $("#do_submit").attr('disabled', 'disabled');
-                        var process_define = pd._id;
-                        var process_instance_name = self.collection.models[0].attributes.ai_name + '的面谈审批流程';
-                        var url = pd.process_start_url;
-                        var post_data = {
-                            process_define: process_define,
-                            process_instance_name: process_instance_name,
-                            ai_id: ai_id,
-                        };
-                        $.post(url, post_data, function(data, textStatus, xhr) {
-                            if (data.code == 'OK') {
-                                var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
-                                window.location = '/m#godo13/' + task_id + '/edit';
-                            } else if (data.code == 'ERR') {
-                                $("#do_submit").removeAttr('disabled');
-                                console.log(data.err); //把错误信息输出到控制台，以便查找错误。
+                    }).on('click', '#btn_save', function(event) { //数据保存接口
+                        event.preventDefault();
+                        var ai_id = $(this).data("ai_id") || self.collection.models[0].attributes._id;
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        var type = "success";
+                        async.series({
+                            create_plan: function(cb) {
+                                post_to_work_plan(data4save, cb)
                             }
-                        })
+                        }, function(err, result) {
+                            self.data_save(data4save, ai_id, type);
 
-                    };
-                }).on('click', "#btn_wf_view", function(event) {
+                        })
+                    }).on('change', "textarea", function(event) {
+                        event.preventDefault();
+                        var field = String($(this).data("field")).split('-');
+                        var comment = $(this).val();
+                        self.collection.models[0].attributes[field[0]][field[1]] = comment;
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        self.data_save(data4save, ai_id, "no_render"); //自评值的保存
+
+                    }).on('change', "#place", function(event) {
+                        event.preventDefault();
+                        var ai_id = ai_id || self.collection.models[0].attributes._id;
+                        self.collection.models[0].attributes.review.place = $(this).val();
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        self.data_save(data4save, ai_id, null); //自评值的保存
+
+                    }).on('change', "#start,#end", function(event) {
+                        event.preventDefault();
+                        var field = $(this).data("field");
+                        var start = self.collection.models[0].attributes.start;
+                        var end = self.collection.models[0].attributes.end;
+                        var ai_id = ai_id || self.collection.models[0].attributes._id;
+                        if (field == "start") {
+                            // if (moment($(this).val()).isAfter(moment(end))) {
+                            //     alert("面谈开始时间需小于面谈结束时间")
+                            // } else {
+                            self.collection.models[0].attributes.review.start = moment($(this).val());
+
+                            // }
+
+                        } else if (field == "end") {
+                            // if (moment($(this).val()).isBefore(moment(start))) {
+                            //     alert("面谈结束时间需大于面谈开始时间")
+                            // } else {
+                            self.collection.models[0].attributes.review.end = moment($(this).val());
+
+                            // }
+
+                        }
+                        var data4save = _.clone(self.collection.models[0].attributes);
+                        self.data_save(data4save, ai_id, "date"); //自评值的保存
+
+
+                    })
+                    // .on('click', "#btn_submit", function(event) {
+                    //                     event.preventDefault();
+                    //                     var pdcodes = ['AssessmentInstance_review', ]; //获取绩效总结流程数据，可能有多条，只能选一条
+                    //                     async.times(pdcodes.length, function(n, next) {
+                    //                         var url = '/admin/wf/process_define/get_json_by_code?process_code=' + pdcodes[n];
+                    //                         $.get(url, function(data) {
+                    //                             if (data.length) {
+                    //                                 next(null, data[0]);
+                    //                             } else {
+                    //                                 next(null, null);
+                    //                             };
+                    //                         });
+                    //                     }, function(err, results) {
+                    //                         pds = _.compact(results);
+                    //                         self.render_wf(pds);
+                    //                     })
+                    //                 }).on('click', "#do_submit", function(event) {
+                    //                     event.preventDefault();
+                    //                     var wf_select = $("input[class='wf_select']:checked");
+                    //                     var pd_id = wf_select.val();
+                    //                     var process_name = wf_select.data("process_name");
+                    //                     $("#review_edit_form #btn_save").trigger("click");
+                    //                     var pd = _.find(pds, function(x) {
+                    //                         return x._id == pd_id;
+                    //                     })
+                    //                     if (pd) {
+                    //                         $("#do_submit").attr('disabled', 'disabled');
+                    //                         var process_define = pd._id;
+                    //                         var process_instance_name = self.collection.models[0].attributes.ai_name + '的面谈审批流程';
+                    //                         var url = pd.process_start_url;
+                    //                         var post_data = {
+                    //                             process_define: process_define,
+                    //                             process_instance_name: process_instance_name,
+                    //                             ai_id: ai_id,
+                    //                         };
+                    //                         $.post(url, post_data, function(data, textStatus, xhr) {
+                    //                             if (data.code == 'OK') {
+                    //                                 var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
+                    //                                 window.location = '/m#godo13/' + task_id + '/edit';
+                    //                             } else if (data.code == 'ERR') {
+                    //                                 $("#do_submit").removeAttr('disabled');
+                    //                                 console.log(data.err); //把错误信息输出到控制台，以便查找错误。
+                    //                             }
+                    //                         })
+
+                //                     };
+                //                 })
+                .on('click', "#btn_wf_view", function(event) {
                     event.preventDefault();
                     var ai_id = ai_id || self.collection.models[0].attributes._id;
                     self.get_wfs(ai_id);
@@ -440,6 +442,30 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         back_url: window.location.hash
                     }))
                     window.location.href = next_url;
+                }).on('click', "#btn_submit", function(event) {
+                    event.preventDefault();
+                    var ai_id = self.collection.models[0].attributes._id;
+                    var ai_name = self.collection.models[0].attributes.ai_name;
+                    var post_data = {
+                        ai_id: ai_id,
+                        ai_name: ai_name,
+                        type: 'review'
+                    }
+                    $("#btn_submit").attr('disabled', "disabled");
+
+                    var url = '/admin/pm/assessment_instance/appeal/wf_review_create';
+                    if (confirm("确认提交审批吗？")) {
+                        $.post(url, post_data, function(data, textStatus, xhr) {
+                            if (data.code == 'OK') {
+                                var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
+                                window.location = '/m#godo13/' + task_id + '/edit';
+                            } else if (data.code == 'ERR') {
+                                $("#btn_submit").removeAttr('disabled');
+                                console.log(data.err); //把错误信息输出到控制台，以便查找错误。
+                            }
+                        })
+                    }
+
                 })
 
             },
