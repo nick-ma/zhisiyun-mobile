@@ -117,6 +117,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "models/Task
                     var value = $this.val();
                     if (field === 'start' || field === 'end' || field === 'alarm_date_absolute') {
                         value = value.replace('T', ' '); //把T换掉，保存UCT的时间
+                        value = value.replace('Z', ''); //把Z换掉，保存UCT的时间 -- 三星手机的问题（超级怪，shit！）
                     }
                     if (field === 'is_complete' || field === 'allDay' || field === 'has_alarms') {
                         value = (value === 'true') ? true : false;

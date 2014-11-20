@@ -122,6 +122,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var value = $this.val();
                         if (field === 'start' || field === 'end') {
                             value = value.replace('T', ' '); //把T换掉，保存UCT的时间
+                            value = value.replace('Z', ''); //把Z换掉，保存UCT的时间 -- fix shit samsum bug!
                         }
                         self.model.set(field, value);
                     })
