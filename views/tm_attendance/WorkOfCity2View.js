@@ -51,9 +51,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var first_data = _.first(wf_data.leave.data);
 				var last_data = _.last(wf_data.leave.data);
 				self.wf_data.leave.create_start_date = moment(first_data.start_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_s
-				self.wf_data.leave.create_end_date = moment(first_data.end_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_e
+				self.wf_data.leave.create_end_date = moment(last_data.end_date).format('YYYY-MM-DD') + ' ' + last_data.time_zone_e
 				obj.create_start_date = moment(first_data.start_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_s;
-				obj.create_end_date = moment(first_data.end_date).format('YYYY-MM-DD') + ' ' + first_data.time_zone_e;
+				obj.create_end_date = moment(last_data.end_date).format('YYYY-MM-DD') + ' ' + last_data.time_zone_e;
 				//当天工作时间
 				obj.leave.hours = wf_data.leave.hours ? wf_data.leave.hours : '';
 				$("#personal_wf_work_of_city-content2").html(self.template(obj));
