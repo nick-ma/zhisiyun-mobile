@@ -17,34 +17,34 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
         }
 
         function format(date) {
-            return moment(date).format("YYYYMMDD");
-        }
-        //im_send
+                return moment(date).format("YYYYMMDD");
+            }
+            //im_send
         function im_send(temp_data, tag) {
-            var require_data = [];
-            require_data.push({
-                'plan_id': temp_data._id,
-                'plan_name': temp_data.plan_name,
-                'develope_direct': temp_data.develope_direct,
-                'people': temp_data.people,
-                'people_no': temp_data.people_no,
-                'people_name': temp_data.people_name,
-                'period_start': temp_data.period_start,
-                'period_end': temp_data.period_end,
-                'des_career': temp_data.des_career,
-                'des_career_name': temp_data.des_career_name,
-                'des_position': temp_data.des_position,
-                'des_position_name': temp_data.des_position_name,
-                'plan_s': $("#talent_develope_detail_list #plan_s").val(),
-                'plan_e': $("#talent_develope_detail_list #plan_e").val()
-            });
-            var post_data = 'require_data=' + JSON.stringify(require_data);
-            post_data += '&tag=' + tag;
-            $.post('/admin/pm/talent_develope/im_send', post_data, function(data) {
-                console.log(data)
-            })
-        }
-        // Extends Backbone.View
+                var require_data = [];
+                require_data.push({
+                    'plan_id': temp_data._id,
+                    'plan_name': temp_data.plan_name,
+                    'develope_direct': temp_data.develope_direct,
+                    'people': temp_data.people,
+                    'people_no': temp_data.people_no,
+                    'people_name': temp_data.people_name,
+                    'period_start': temp_data.period_start,
+                    'period_end': temp_data.period_end,
+                    'des_career': temp_data.des_career,
+                    'des_career_name': temp_data.des_career_name,
+                    'des_position': temp_data.des_position,
+                    'des_position_name': temp_data.des_position_name,
+                    'plan_s': $("#talent_develope_detail_list #plan_s").val(),
+                    'plan_e': $("#talent_develope_detail_list #plan_e").val()
+                });
+                var post_data = 'require_data=' + JSON.stringify(require_data);
+                post_data += '&tag=' + tag;
+                $.post('/admin/pm/talent_develope/im_send', post_data, function(data) {
+                    console.log(data)
+                })
+            }
+            // Extends Backbone.View
         var DevelopePlanDetailListView = Backbone.View.extend({
 
             // The View Constructor
@@ -206,333 +206,417 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"],
                 var change = 1;
 
                 $("#talent_develope_detail_list").on('click', "#btn_go_back", function(event) {
-                    event.preventDefault();
-                    var plan_list_mode = localStorage.getItem("plan_list_mode");
-                    // localStorage.removeItem("plan_list_mode");
-                    localStorage.setItem("plan_detail_list_mode", plan_list_mode);
-                    window.location.href = "#plan_list";
-                }).on('click', '.open-left-panel', function(event) {
-                    event.preventDefault();
-                    $("#talent_develope_detail-basic-left-panel").panel("open");
-                }).on('swiperight', function(event) { //向右滑动，打开左边的面板
-                    event.preventDefault();
-                    $("#talent_develope_detail-basic-left-panel").panel("open");
-                }).on('vmousemove', 'img', function(event) {
-                    event.preventDefault();
-                    var img_view = '<img src="' + this.src + '">';
-                    $("#fullscreen-overlay").html(img_view).fadeIn('fast');
-                }).on('change', '.chzn-select', function(event) {
-                    event.preventDefault();
-                    var up_id = $(this).data("up_id");
-                    // var plans = plan.models[0].get("plan_divide");
-                    var plans = self.collection.models[0].attributes.plan_divide;
-                    var plan_id = self.collection.models[0].attributes._id;
-                    var found = get_data(up_id, plans)
-                    var field1 = $(this).data("field1")
-                    var field2 = $(this).data("field2")
-                    var _id = String($(this).val()).split(',')[0];
-                    var name = String($(this).val()).split(',')[1]
-                    if (found) {
-                        found[field1] = _id;
-                        found[field2] = name;
-                        async.parallel({
-                            save_data: function(cb) {
+                        event.preventDefault();
+                        var plan_list_mode = localStorage.getItem("plan_list_mode");
+                        // localStorage.removeItem("plan_list_mode");
+                        localStorage.setItem("plan_detail_list_mode", plan_list_mode);
+                        window.location.href = "#plan_list";
+                    }).on('click', '.open-left-panel', function(event) {
+                        event.preventDefault();
+                        $("#talent_develope_detail-basic-left-panel").panel("open");
+                    }).on('swiperight', function(event) { //向右滑动，打开左边的面板
+                        event.preventDefault();
+                        $("#talent_develope_detail-basic-left-panel").panel("open");
+                    }).on('vmousemove', 'img', function(event) {
+                        event.preventDefault();
+                        var img_view = '<img src="' + this.src + '">';
+                        $("#fullscreen-overlay").html(img_view).fadeIn('fast');
+                    }).on('change', '.chzn-select', function(event) {
+                        event.preventDefault();
+                        var up_id = $(this).data("up_id");
+                        // var plans = plan.models[0].get("plan_divide");
+                        var plans = self.collection.models[0].attributes.plan_divide;
+                        var plan_id = self.collection.models[0].attributes._id;
+                        var found = get_data(up_id, plans)
+                        var field1 = $(this).data("field1")
+                        var field2 = $(this).data("field2")
+                        var _id = String($(this).val()).split(',')[0];
+                        var name = String($(this).val()).split(',')[1]
+                        if (found) {
+                            found[field1] = _id;
+                            found[field2] = name;
+                            async.parallel({
+                                save_data: function(cb) {
+                                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                                        success: function(model, response, options) {
+                                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                            self.collection.fetch();
+                                            // plan.trigger('sync')
+                                            self.render();
+                                            cb(null, 'OK')
+                                        },
+                                        error: function(model, xhr, options) {
+                                            cb(null, 'ERR')
+                                        }
+                                    });
+                                },
+                                im_send: function(cb) { //im消息发送
+                                    if (change == 1) {
+                                        change++;
+                                        var require_data = [];
+                                        var temp_data = self.collection.models[0].attributes;
+                                        require_data.push({
+                                            'plan_id': temp_data._id,
+                                            'plan_name': temp_data.plan_name,
+                                            'develope_direct': temp_data.develope_direct,
+                                            'people': temp_data.people,
+                                            'people_no': temp_data.people_no,
+                                            'people_name': temp_data.people_name,
+                                            'period_start': temp_data.period_start,
+                                            'period_end': temp_data.period_end,
+                                            'des_career': temp_data.des_career,
+                                            'des_career_name': temp_data.des_career_name,
+                                            'des_position': temp_data.des_position,
+                                            'des_position_name': temp_data.des_position_name,
+                                        });
+                                        var post_data = 'require_data=' + JSON.stringify(require_data);
+                                        post_data += '&tag=change';
+                                        $.post('/admin/pm/talent_develope/im_send', post_data, cb)
+                                    } else {
+                                        cb(null, 'ok')
+                                    }
+
+                                }
+                            })
+
+                            // //通过Tag标签来控制与候选人培养计划的消息发送,共用一个接口
+                            // if (change == 1) {
+                            //     var require_data = [];
+                            //     var temp_data = self.collection.models[0].attributes;
+                            //     require_data.push({
+                            //         'plan_name': temp_data.plan_name,
+                            //         'develope_direct': temp_data.develope_direct,
+                            //         'people': temp_data.people,
+                            //         'people_no': temp_data.people_no,
+                            //         'people_name': temp_data.people_name,
+                            //         'period_start': temp_data.period_start,
+                            //         'period_end': temp_data.period_end,
+                            //         'des_career': temp_data.des_career,
+                            //         'des_career_name': temp_data.des_career_name,
+                            //         'des_position': temp_data.des_position,
+                            //         'des_position_name': temp_data.des_position_name,
+                            //     });
+                            //     var post_data = 'require_data=' + JSON.stringify(require_data);
+                            //     post_data += '&tag=change';
+                            //     if (post_data) {
+                            //         $.post('/admin/pm/talent_develope/email_send', post_data)
+                            //     }
+                            //     change++;
+                            // }
+
+
+                        }
+
+                    }).on('click', '#btn_delete', function(event) { //删除明细计划
+                        event.preventDefault();
+                        var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                        var divide_id = $(this).data("divide_id");
+                        my_confirm("确认删除该明细计划吗?", null, function() {
+                                $.mobile.loading("show");
+                                var filter_plan_data = _.filter(self.collection.models[0].attributes.plan_divide, function(x) {
+                                    return x._id != String(divide_id)
+                                })
+                                self.collection.models[0].attributes.plan_divide = filter_plan_data;
                                 self.collection.models[0].save(self.collection.models[0].attributes, {
                                     success: function(model, response, options) {
                                         self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                        self.collection.fetch();
-                                        // plan.trigger('sync')
-                                        self.render();
-                                        cb(null, 'OK')
+                                        self.collection.fetch().done(function() {
+                                            alert("该培养计划明细删除成功!")
+                                            self.render();
+                                            var temp_data = self.collection.models[0].attributes;
+                                            im_send(temp_data, 'delete');
+                                        });
+
+
                                     },
                                     error: function(model, xhr, options) {
-                                        cb(null, 'ERR')
+                                        alert("内部服务器错误,请联系系统管理员!")
                                     }
-                                });
-                            },
-                            im_send: function(cb) { //im消息发送
-                                if (change == 1) {
-                                    change++;
-                                    var require_data = [];
-                                    var temp_data = self.collection.models[0].attributes;
-                                    require_data.push({
-                                        'plan_id': temp_data._id,
-                                        'plan_name': temp_data.plan_name,
-                                        'develope_direct': temp_data.develope_direct,
-                                        'people': temp_data.people,
-                                        'people_no': temp_data.people_no,
-                                        'people_name': temp_data.people_name,
-                                        'period_start': temp_data.period_start,
-                                        'period_end': temp_data.period_end,
-                                        'des_career': temp_data.des_career,
-                                        'des_career_name': temp_data.des_career_name,
-                                        'des_position': temp_data.des_position,
-                                        'des_position_name': temp_data.des_position_name,
+                                })
+                            })
+                            // if (confirm("确认删除该明细计划吗?")) {
+                            //     var filter_plan_data = _.filter(self.collection.models[0].attributes.plan_divide, function(x) {
+                            //         return x._id != String(divide_id)
+                            //     })
+                            //     self.collection.models[0].attributes.plan_divide = filter_plan_data;
+                            //     self.collection.models[0].save(self.collection.models[0].attributes, {
+                            //         success: function(model, response, options) {
+                            //             self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                            //             self.collection.fetch().done(function() {
+                            //                 alert("该培养计划明细删除成功!")
+                            //                 self.render();
+                            //                 var temp_data = self.collection.models[0].attributes;
+                            //                 im_send(temp_data, 'delete');
+                            //             });
+
+
+                        //         },
+                        //         error: function(model, xhr, options) {
+                        //             alert("内部服务器错误,请联系系统管理员!")
+                        //         }
+                        //     })
+                        // };
+                    }).on('click', '#btn_add_plan_detail', function(event) { //添加明细计划
+                        event.preventDefault();
+                        var plan_id = self.collection.models[0].attributes._id;
+                        var periodTo = self.collection.models[0].attributes.period_end;
+                        my_confirm("确认添加明细计划吗?", null, function() {
+                                $.mobile.loading("show");
+                                if (moment().isAfter(moment(periodTo))) {//此处消息框谈不出来
+                                    alert('该培养计划已结束，请重新添加培养计划!!!')
+                                } else if (!moment().isAfter(moment(periodTo)) && moment(new Date()).add('d', 15).isAfter(moment(periodTo))) {
+                                    var obj = {
+                                        'plan_s': moment(),
+                                        'plan_e': moment(periodTo).subtract('d', 1),
+                                        'creator': $("#login_people").val(),
+                                        'create_time': new Date(),
+                                        'check_people': $("#login_people").val(),
+                                        'mentor': self.mentor_data
+                                    }
+                                    self.collection.models[0].attributes.plan_divide.push(obj);
+                                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                                        success: function(model, response, options) {
+                                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                            self.collection.fetch().done(function() {
+                                                alert('培养明细计划添加成功')
+                                                self.render();
+                                                var temp_data = self.collection.models[0].attributes;
+                                                im_send(temp_data, 'add');
+                                            });
+
+                                        },
+                                        error: function(model, xhr, options) {
+                                            alert("内部服务器错误,请联系系统管理员!")
+                                        }
                                     });
-                                    var post_data = 'require_data=' + JSON.stringify(require_data);
-                                    post_data += '&tag=change';
-                                    $.post('/admin/pm/talent_develope/im_send', post_data, cb)
                                 } else {
-                                    cb(null, 'ok')
+                                    var obj = {
+                                        'plan_s': moment(),
+                                        'plan_e': moment(new Date()).add('d', 15),
+                                        'creator': $("#login_people").val(),
+                                        'create_time': new Date(),
+                                        'check_people': $("#login_people").val(),
+                                        'mentor': self.mentor_data
+
+
+
+                                    }
+                                    self.collection.models[0].attributes.plan_divide.push(obj);
+                                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                                        success: function(model, response, options) {
+                                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                            self.collection.fetch().done(function() {
+                                                alert('培养明细计划添加成功')
+                                                self.render();
+                                                var temp_data = self.collection.models[0].attributes;
+                                                im_send(temp_data, 'add');
+                                            });
+
+                                        },
+                                        error: function(model, xhr, options) {
+                                            alert("内部服务器错误,请联系系统管理员!")
+                                        }
+                                    });
                                 }
+                                $.mobile.loading("hide");
 
-                            }
-                        })
+                            })
+                            // if (confirm("确认添加明细计划吗?")) {
 
-                        // //通过Tag标签来控制与候选人培养计划的消息发送,共用一个接口
-                        // if (change == 1) {
-                        //     var require_data = [];
-                        //     var temp_data = self.collection.models[0].attributes;
-                        //     require_data.push({
-                        //         'plan_name': temp_data.plan_name,
-                        //         'develope_direct': temp_data.develope_direct,
-                        //         'people': temp_data.people,
-                        //         'people_no': temp_data.people_no,
-                        //         'people_name': temp_data.people_name,
-                        //         'period_start': temp_data.period_start,
-                        //         'period_end': temp_data.period_end,
-                        //         'des_career': temp_data.des_career,
-                        //         'des_career_name': temp_data.des_career_name,
-                        //         'des_position': temp_data.des_position,
-                        //         'des_position_name': temp_data.des_position_name,
-                        //     });
-                        //     var post_data = 'require_data=' + JSON.stringify(require_data);
-                        //     post_data += '&tag=change';
-                        //     if (post_data) {
-                        //         $.post('/admin/pm/talent_develope/email_send', post_data)
+                        //     if (moment().isAfter(moment(periodTo))) {
+                        //         alert('该培养计划已结束，请重新添加培养计划!!!')
+                        //     } else if (!moment().isAfter(moment(periodTo)) && moment(new Date()).add('d', 15).isAfter(moment(periodTo))) {
+                        //         var obj = {
+                        //             'plan_s': moment(),
+                        //             'plan_e': moment(periodTo).subtract('d', 1),
+                        //             'creator': $("#login_people").val(),
+                        //             'create_time': new Date(),
+                        //             'check_people': $("#login_people").val(),
+                        //             'mentor': self.mentor_data
+                        //         }
+                        //         self.collection.models[0].attributes.plan_divide.push(obj);
+                        //         self.collection.models[0].save(self.collection.models[0].attributes, {
+                        //             success: function(model, response, options) {
+                        //                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                        //                 self.collection.fetch().done(function() {
+                        //                     alert('培养明细计划添加成功')
+                        //                     self.render();
+                        //                     var temp_data = self.collection.models[0].attributes;
+                        //                     im_send(temp_data, 'add');
+                        //                 });
+
+                        //             },
+                        //             error: function(model, xhr, options) {
+                        //                 alert("内部服务器错误,请联系系统管理员!")
+                        //             }
+                        //         });
+                        //     } else {
+                        //         var obj = {
+                        //             'plan_s': moment(),
+                        //             'plan_e': moment(new Date()).add('d', 15),
+                        //             'creator': $("#login_people").val(),
+                        //             'create_time': new Date(),
+                        //             'check_people': $("#login_people").val(),
+                        //             'mentor': self.mentor_data
+
+
+
+                        //         }
+                        //         self.collection.models[0].attributes.plan_divide.push(obj);
+                        //         self.collection.models[0].save(self.collection.models[0].attributes, {
+                        //             success: function(model, response, options) {
+                        //                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                        //                 self.collection.fetch().done(function() {
+                        //                     alert('培养明细计划添加成功')
+                        //                     self.render();
+                        //                     var temp_data = self.collection.models[0].attributes;
+                        //                     im_send(temp_data, 'add');
+                        //                 });
+
+                        //             },
+                        //             error: function(model, xhr, options) {
+                        //                 alert("内部服务器错误,请联系系统管理员!")
+                        //             }
+                        //         });
                         //     }
-                        //     change++;
                         // }
 
-
-                    }
-
-                }).on('click', '#btn_delete', function(event) { //删除明细计划
-                    event.preventDefault();
-                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
-                    var divide_id = $(this).data("divide_id");
-                    if (confirm("确认删除该明细计划吗?")) {
-                        var filter_plan_data = _.filter(self.collection.models[0].attributes.plan_divide, function(x) {
-                            return x._id != String(divide_id)
-                        })
-                        self.collection.models[0].attributes.plan_divide = filter_plan_data;
+                    }).on('click', '#btn_save', function(event) { //删除明细计划
+                        event.preventDefault();
+                        var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                        var divide_id = $(this).data("divide_id");
                         self.collection.models[0].save(self.collection.models[0].attributes, {
                             success: function(model, response, options) {
                                 self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                                 self.collection.fetch().done(function() {
-                                    alert("该培养计划明细删除成功!")
+                                    alert("数据保存成功!")
                                     self.render();
                                     var temp_data = self.collection.models[0].attributes;
-                                    im_send(temp_data, 'delete');
-                                });
+                                    if (plan_s_change) {
+                                        im_send(temp_data, 'plan_s_change', divide_id);
 
+                                    } else if (plan_e_change) {
+                                        im_send(temp_data, 'plan_e_change', divide_id);
+
+                                    }
+
+                                });
 
                             },
                             error: function(model, xhr, options) {
                                 alert("内部服务器错误,请联系系统管理员!")
                             }
+                        });
+                    }).on('change', '#plan_s,#plan_e', function(event) {
+                        event.preventDefault();
+                        var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
+                        var divide_id = $(this).data("divide_id");
+                        var field = $(this).data("field");
+                        var period_start = moment(self.collection.models[0].attributes.period_start);
+                        var period_end = moment(self.collection.models[0].attributes.period_end);
+                        var date = $(this).val();
+                        var filter_plan_data = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
+                            return x._id == String(divide_id)
                         })
-                    };
-                }).on('click', '#btn_add_plan_detail', function(event) { //添加明细计划
-                    event.preventDefault();
-                    var plan_id = self.collection.models[0].attributes._id;
-                    var periodTo = self.collection.models[0].attributes.period_end;
-                    if (confirm("确认添加明细计划吗?")) {
 
-                        if (moment().isAfter(moment(periodTo))) {
-                            alert('该培养计划已结束，请重新添加培养计划!!!')
-                        } else if (!moment().isAfter(moment(periodTo)) && moment(new Date()).add('d', 15).isAfter(moment(periodTo))) {
-                            var obj = {
-                                'plan_s': moment(),
-                                'plan_e': moment(periodTo).subtract('d', 1),
-                                'creator': $("#login_people").val(),
-                                'create_time': new Date(),
-                                'check_people': $("#login_people").val(),
-                                'mentor': self.mentor_data
+                        if (field == "plan_s") {
+                            if (moment(date).isBefore(period_start)) {
+                                alert('计划分解开始时间需大于计划开始时间')
+                            } else if (moment(date).isAfter(period_end)) {
+                                alert('计划分解开始时间需小于于计划束时间')
+
+                            } else {
+                                if (format(filter_plan_data.plan_s) != String(format(date))) {
+                                    plan_s_change = true;
+                                } else {
+                                    plan_s_change = false;
+                                }
+                                filter_plan_data[field] = date;
+
                             }
-                            self.collection.models[0].attributes.plan_divide.push(obj);
                             self.collection.models[0].save(self.collection.models[0].attributes, {
                                 success: function(model, response, options) {
                                     self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                                     self.collection.fetch().done(function() {
-                                        alert('培养明细计划添加成功')
                                         self.render();
-                                        var temp_data = self.collection.models[0].attributes;
-                                        im_send(temp_data, 'add');
                                     });
+
 
                                 },
                                 error: function(model, xhr, options) {
                                     alert("内部服务器错误,请联系系统管理员!")
                                 }
-                            });
+                            })
                         } else {
-                            var obj = {
-                                'plan_s': moment(),
-                                'plan_e': moment(new Date()).add('d', 15),
-                                'creator': $("#login_people").val(),
-                                'create_time': new Date(),
-                                'check_people': $("#login_people").val(),
-                                'mentor': self.mentor_data
+                            if (moment(date).isAfter(period_end)) {
+                                alert('计划分解结束时间需小于计划结束时间')
+                            } else if (moment(date).isBefore(period_start)) {
+                                alert('计划分解结束时间需大于计划开始时间')
 
+                            } else {
+                                if (format(filter_plan_data.plan_s) != String(format(date))) {
+                                    plan_e_change = true;
+                                } else {
+                                    plan_e_change = false;
+                                }
 
+                                filter_plan_data[field] = date;
 
                             }
-                            self.collection.models[0].attributes.plan_divide.push(obj);
                             self.collection.models[0].save(self.collection.models[0].attributes, {
                                 success: function(model, response, options) {
                                     self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
                                     self.collection.fetch().done(function() {
-                                        alert('培养明细计划添加成功')
                                         self.render();
-                                        var temp_data = self.collection.models[0].attributes;
-                                        im_send(temp_data, 'add');
-                                    });
 
+                                    });
                                 },
                                 error: function(model, xhr, options) {
                                     alert("内部服务器错误,请联系系统管理员!")
                                 }
-                            });
+                            })
                         }
-                    }
-
-                }).on('click', '#btn_save', function(event) { //删除明细计划
-                    event.preventDefault();
-                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
-                    var divide_id = $(this).data("divide_id");
-                    self.collection.models[0].save(self.collection.models[0].attributes, {
-                        success: function(model, response, options) {
-                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                            self.collection.fetch().done(function() {
-                                alert("数据保存成功!")
+                    }).on('click', '#btn-talent-refresh', function(event) {
+                        event.preventDefault();
+                        var plan_id = self.collection.models[0].attributes._id;
+                        $.mobile.loading("show");
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                                self.collection.fetch();
                                 self.render();
-                                var temp_data = self.collection.models[0].attributes;
-                                if (plan_s_change) {
-                                    im_send(temp_data, 'plan_s_change', divide_id);
-
-                                } else if (plan_e_change) {
-                                    im_send(temp_data, 'plan_e_change', divide_id);
-
-                                }
-
-                            });
-
-                        },
-                        error: function(model, xhr, options) {
-                            alert("内部服务器错误,请联系系统管理员!")
-                        }
-                    });
-                }).on('change', '#plan_s,#plan_e', function(event) {
-                    event.preventDefault();
-                    var plan_id = $(this).data("plan_id") || self.collection.models[0].attributes._id;
-                    var divide_id = $(this).data("divide_id");
-                    var field = $(this).data("field");
-                    var period_start = moment(self.collection.models[0].attributes.period_start);
-                    var period_end = moment(self.collection.models[0].attributes.period_end);
-                    var date = $(this).val();
-                    var filter_plan_data = _.find(self.collection.models[0].attributes.plan_divide, function(x) {
-                        return x._id == String(divide_id)
-                    })
-
-                    if (field == "plan_s") {
-                        if (moment(date).isBefore(period_start)) {
-                            alert('计划分解开始时间需大于计划开始时间')
-                        } else if (moment(date).isAfter(period_end)) {
-                            alert('计划分解开始时间需小于于计划束时间')
-
-                        } else {
-                            if (format(filter_plan_data.plan_s) != String(format(date))) {
-                                plan_s_change = true;
-                            } else {
-                                plan_s_change = false;
-                            }
-                            filter_plan_data[field] = date;
-
-                        }
-                        self.collection.models[0].save(self.collection.models[0].attributes, {
-                            success: function(model, response, options) {
-                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch().done(function() {
-                                    self.render();
-                                });
-
-
+                                $("#talent_develope_detail-basic-left-panel").panel("close");
+                                $.mobile.loading("hide");
                             },
                             error: function(model, xhr, options) {
                                 alert("内部服务器错误,请联系系统管理员!")
                             }
                         })
-                    } else {
-                        if (moment(date).isAfter(period_end)) {
-                            alert('计划分解结束时间需小于计划结束时间')
-                        } else if (moment(date).isBefore(period_start)) {
-                            alert('计划分解结束时间需大于计划开始时间')
-
-                        } else {
-                            if (format(filter_plan_data.plan_s) != String(format(date))) {
-                                plan_e_change = true;
-                            } else {
-                                plan_e_change = false;
-                            }
-
-                            filter_plan_data[field] = date;
-
-                        }
-                        self.collection.models[0].save(self.collection.models[0].attributes, {
-                            success: function(model, response, options) {
-                                self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                                self.collection.fetch().done(function() {
-                                    self.render();
-
-                                });
-                            },
-                            error: function(model, xhr, options) {
-                                alert("内部服务器错误,请联系系统管理员!")
-                            }
-                        })
-                    }
-                }).on('click', '#btn-talent-refresh', function(event) {
-                    event.preventDefault();
-                    var plan_id = self.collection.models[0].attributes._id;
-                    $.mobile.loading("show");
-                    self.collection.models[0].save(self.collection.models[0].attributes, {
-                        success: function(model, response, options) {
-                            self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                            self.collection.fetch();
-                            self.render();
-                            $("#talent_develope_detail-basic-left-panel").panel("close");
-                            $.mobile.loading("hide");
-                        },
-                        error: function(model, xhr, options) {
-                            alert("内部服务器错误,请联系系统管理员!")
-                        }
                     })
-                })
-                // .on('change', '#talent_develope_detail-basic-left-panel input[name=state]', function(event) {
-                //     event.preventDefault();
-                //     var $this = $(this);
-                //     self.state = $this.val();
-                //     self.pass = $("#talent_develope_detail-basic-left-panel #talent_result").val();
-                //     var plan_id = self.collection.models[0].attributes._id;
-                //     self.collection.fetch();
-                //     self.render();
-                //     $("#talent_develope_detail-basic-left-panel").panel("close");
-                //     $.mobile.loading("hide");
-                // })
-                .on('change', '#talent_develope_detail-basic-left-panel select', function(event) {
-                    event.preventDefault();
-                    var $this = $(this);
-                    var is_pass = $this.val();
-                    self.state = $("#talent_develope_detail-basic-left-panel input[name=state]:checked").val();
-                    self.pass = String(is_pass);
-                    var plan_id = self.collection.models[0].attributes._id;
-                    self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
-                    self.collection.fetch();
-                    self.render();
-                    $("#talent_develope_detail-basic-left-panel").panel("close");
-                    $.mobile.loading("hide");
-                })
+                    // .on('change', '#talent_develope_detail-basic-left-panel input[name=state]', function(event) {
+                    //     event.preventDefault();
+                    //     var $this = $(this);
+                    //     self.state = $this.val();
+                    //     self.pass = $("#talent_develope_detail-basic-left-panel #talent_result").val();
+                    //     var plan_id = self.collection.models[0].attributes._id;
+                    //     self.collection.fetch();
+                    //     self.render();
+                    //     $("#talent_develope_detail-basic-left-panel").panel("close");
+                    //     $.mobile.loading("hide");
+                    // })
+                    .on('change', '#talent_develope_detail-basic-left-panel select', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var is_pass = $this.val();
+                        self.state = $("#talent_develope_detail-basic-left-panel input[name=state]:checked").val();
+                        self.pass = String(is_pass);
+                        var plan_id = self.collection.models[0].attributes._id;
+                        self.collection.url = '/admin/pm/talent_develope/plan/' + plan_id;
+                        self.collection.fetch();
+                        self.render();
+                        $("#talent_develope_detail-basic-left-panel").panel("close");
+                        $.mobile.loading("hide");
+                    })
                     .on('click', '.plan_state', function(event) {
                         event.preventDefault();
                         var $this = $(this);

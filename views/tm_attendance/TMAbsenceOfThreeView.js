@@ -65,10 +65,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var self = this;
 
 				$("#wf_three").on('click', '.wf_three_view_mode', function(event) {
-					event.preventDefault();
-					absence_type = $(this).data("select");
-					self.render();
-				})
+						event.preventDefault();
+						absence_type = $(this).data("select");
+						self.render();
+					})
 					.on('click', '#btn_wf_add', function(event) {
 						event.preventDefault();
 						var type = absence_type;
@@ -85,7 +85,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							'W': '确定申请出差流程?',
 							'C': '确定申请公干流程?'
 						}
-						if (confirm(temp_obj2[type])) {
+						my_confirm(temp_obj2[type], null, function() {
 							$.mobile.loading("show");
 							$("#btn_wf_add").attr("disabled", "disabled");
 							$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
@@ -95,7 +95,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 								$.mobile.loading("hide");
 
 							})
-						}
+						})
+						// if (confirm(temp_obj2[type])) {
+						// 	$.mobile.loading("show");
+						// 	$("#btn_wf_add").attr("disabled", "disabled");
+						// 	$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
+						// 		var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+						// 		console.log(goto_url);
+						// 		window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
+						// 		$.mobile.loading("hide");
+
+						// 	})
+						// }
 
 					}).on('click', '.open-left-panel', function(event) {
 						event.preventDefault();

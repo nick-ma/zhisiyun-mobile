@@ -627,7 +627,10 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     event.preventDefault();
                     var $this = $(this);
                     var confirm_msg = '确认为当前指标创建一个任务吗？';
-                    if (confirm(confirm_msg)) { //优化一点效率
+                    // if (confirm(confirm_msg)) { //优化一点效率
+                    my_confirm(confirm_msg, null, function() {
+                        $.mobile.loading("show");
+
                         var pi_id = $this.data('pi_id');
                         var ration = $this.data('ration');
                         var found;
@@ -662,12 +665,14 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                                 var ai_id = ai_id || self.collection.models[0].attributes._id;
                                 var data4save = _.clone(self.collection.models[0].attributes);
                                 var type = "render_pi";
-                                $.mobile.loading('show');
+                                // $.mobile.loading('show');
 
                                 self.data_save(data4save, ai_id, type, 'A' + '/' + pi_id + '/' + ration);
+                                $.mobile.loading('hide');
+
                             })
                         };
-                    }
+                    })
                 }).on('click', "#mark_as_watch", function(event) { //用change会触发多次事件
                     event.preventDefault();
                     var $this = $(this);
