@@ -40,6 +40,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../views/assessment/Appeal",
         //我的绩效申诉编辑
         "../views/assessment/AppealEdit",
+        //我的绩效申诉－流程编辑
+        "../views/assessment/AppealWfEdit",
 
         "async", "pull-to-refresh"
     ],
@@ -70,6 +72,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         AssessmentReviewWfEditView,
         AssessmentAppealView, //我的绩效申诉
         AssessmentAppealEditView, //我的绩效申诉
+        AssessmentAppealWfEditView,
 
         async
     ) {
@@ -108,6 +111,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 "godo13/:task_id_or_process_instance_id/:type": "wf_review", // 流程启动后的界面 或者 流程查看
                 "appeal": "appeal", // 绩效申诉列表
                 "appeal/edit/:ai_id/:ai_status": "appeal_edit", // 绩效申诉明细列表
+                "godo14/:task_id_or_process_instance_id/:type": "wf_appeal", // 流程启动后的界面 或者 流程查看
 
             },
             assessment_list: function() {
@@ -623,7 +627,110 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
                 })
             },
+            wf_appeal: function(_id, type) { //流程界面
+                var self = this;
+                $("body").pagecontainer("change", "#appeal_wf_edit_form", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.AssessmentAppealWfEditView.pre_render();
+                if (type == 'view') { //流程查看
+                    var process_instance_id = _id;
+                    async.series({
+                        wf_data: function(cb) {
+                            $.get('/admin/pm/assessment_instance/review/wf_review_view_4m/' + process_instance_id, function(data) {
+                                self.AssessmentAppealWfEditView.data = data;
+                                if (data) {
+                                    cb(null, data.ai._id)
 
+                                } else {
+                                    cb(null, null)
+                                }
+                            })
+                        }
+                    }, function(err, data) {
+                        self.c_assessment_appeal.url = '/admin/pm/assessment_instance/appeal/bb/' + data.wf_data;
+                        self.c_assessment_appeal.fetch().done(function() {
+                            var is_self = self.c_assessment_appeal.models[0].attributes.people == String($("#login_people").val());
+                            self.AssessmentAppealWfEditView.is_self = is_self;
+                            self.AssessmentAppealWfEditView.view_status = type;
+                            self.AssessmentAppealWfEditView.render();
+                            $.mobile.loading('hide');
+
+                        })
+                    })
+                } else { //流程编辑
+                    var type = "edit";
+                    var task_id = _id.split("-")[0];
+                    var pd_id = _id.split("-")[1];
+                    var pd_code = _id.split("-")[2];
+                    $.get('/admin/pm/assessment_instance/summary/edit_m/' + task_id, function(data) {
+                        if (data.code == "OK") {
+                            if (data.msg.task_state != 'FINISHED') {
+                                var type = "edit";
+
+                                // var task_id = _id; //流程任务处理，则是任务ID，否则，是流程实例ID；
+                                async.series({
+                                    wf_data: function(cb) {
+                                        $.get('/admin/pm/assessment_instance/summary/wf_summary_4m/' + task_id, function(data) {
+                                            self.AssessmentAppealWfEditView.data = data;
+                                            if (data) {
+                                                cb(null, data.ai._id)
+
+                                            } else {
+                                                cb(null, null)
+                                            }
+                                        })
+                                    }
+                                }, function(err, data) {
+                                    self.c_assessment_appeal.url = '/admin/pm/assessment_instance/appeal/bb/' + data.wf_data;
+                                    self.c_assessment_appeal.fetch().done(function() {
+                                        var is_self = self.c_assessment_appeal.models[0].attributes.people == String($("#login_people").val());
+                                        self.AssessmentAppealWfEditView.is_self = is_self;
+                                        self.AssessmentAppealWfEditView.view_status = type;
+                                        self.AssessmentAppealWfEditView.render();
+                                        $.mobile.loading('hide');
+
+                                    })
+                                })
+                            } else {
+                                var type = "view";
+                                var process_instance_id = data.msg.process_instance;
+                                async.series({
+                                    wf_data: function(cb) {
+                                        $.get('/admin/pm/assessment_instance/review/wf_review_view_4m/' + process_instance_id, function(data) {
+                                            self.AssessmentAppealWfEditView.data = data;
+                                            if (data) {
+                                                cb(null, data.ai._id)
+
+                                            } else {
+                                                cb(null, null)
+                                            }
+                                        })
+                                    }
+                                }, function(err, data) {
+                                    self.c_assessment_appeal.url = '/admin/pm/assessment_instance/appeal/bb/' + data.wf_data;
+                                    self.c_assessment_appeal.fetch().done(function() {
+                                        var is_self = self.c_assessment_appeal.models[0].attributes.people == String($("#login_people").val());
+                                        self.AssessmentAppealWfEditView.is_self = is_self;
+                                        self.AssessmentAppealWfEditView.view_status = type;
+                                        self.AssessmentAppealWfEditView.render();
+                                        $.mobile.loading('hide');
+
+                                    })
+                                })
+                            }
+
+                        } else {
+                            alert(data.code)
+                        }
+                    })
+
+                }
+
+
+            },
             init_views: function() {
                 var self = this;
                 this.homeAssessmentView = new HomeAssessmentView({
@@ -693,6 +800,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 })
                 this.AssessmentAppealEditView = new AssessmentAppealEditView({ //绩效申诉
                     el: "#appeal_edit_form-content",
+                    collection: self.c_assessment_appeal
+
+                })
+                 this.AssessmentAppealWfEditView = new AssessmentAppealWfEditView({
+                    el: "#appeal_wf_edit_form-content",
                     collection: self.c_assessment_appeal
 
                 })

@@ -5,14 +5,39 @@
 define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "../../models/AssessmentModel", "../../models/CollTaskModel"],
     function($, _, async, Backbone, Handlebars, moment, AssessmentModel, CollTask) {
         var people_ind_superiors, people_superiors, ai_id = null,
-            pds = null,
-            wfs = [];
-        // Extends Backbone.View
-        var AssessmentAppealEditView = Backbone.View.extend({
+            pds = null;
+        var do_trans = function(trans_data) {
+                // save_form_data_b(function() {
+                var post_data = {
+                    process_instance_id: $("#appeal_wf_edit_form-content #process_instance_id").val(),
+                    task_instance_id: $("#appeal_wf_edit_form-content #task_instance_id").val(),
+                    process_define_id: $("#appeal_wf_edit_form-content #process_define_id").val(),
+                    next_tdid: $("#appeal_wf_edit_form-content #next_tdid").val(),
+                    next_user: $("#appeal_wf_edit_form-content #next_user_id").val() || $("#select_next_user").val(), //'516cf9a1d26ad4fe48000001', //以后从列表中选出
+                    trans_name: $("#appeal_wf_edit_form-content #trans_name").val(), // 转移过来的名称
+                    comment_msg: $("#appeal_wf_edit_form-content #comment_msg").val(), // 任务批注 
+                    attachments: trans_data.attachments || null
+                };
+                var post_url = $("#appeal_wf_edit_form-content #task_process_url").val();
+                post_url = post_url.replace('<TASK_ID>', $("#appeal_wf_edit_form-content #task_instance_id").val());
+                $.post(post_url, post_data, function(data) {
+                        if (data.code == 'OK') {
+                            window.location = '#appeal';
+                        } else {
+                            window.location = '#appeal';
+
+                        }
+                    })
+                    // })
+            }
+            // Extends Backbone.View
+        var AssessmentAppealWfEditView = Backbone.View.extend({
             // The View Constructor
             initialize: function() {
-                this.template = Handlebars.compile($("#psh_appeal_edit_form_view").html());
+                this.template = Handlebars.compile($("#psh_appeal_wf_edit_form_view").html());
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
+                this.trans_template = Handlebars.compile($("#trans_confirm_view").html());
+
                 this.index_template = Handlebars.compile($("#psh_appeal_item_select_view").html()); //指标选择
                 this.reason_template = Handlebars.compile($("#psh_appeal_reason_view").html()); //申诉理由
                 this.bind_events();
@@ -20,10 +45,10 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             },
             pre_render: function() {
                 var self = this;
-                $("#appeal_edit_form-content").html(self.loading_template({
+                $("#appeal_wf_edit_form-content").html(self.loading_template({
                     info_msg: '数据加载中...请稍候'
                 }));
-                $("#appeal_edit_form-content").trigger('create');
+                $("#appeal_wf_edit_form-content").trigger('create');
                 return this;
             },
             // Renders all of the Assessment models on the UI
@@ -33,13 +58,18 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     return x.toJSON()
                 })
                 var people = self.collection.models[0].get('people');
-                if (self.view_status == "B") {
+                if (self.view_status == "view") {
                     var is_edit = false;
-                    $("#appeal_edit_form #appeal_name").html("绩效申诉查看")
+                    $("#appeal_wf_edit_form #appeal_name").html("申诉流程查看")
 
-                } else if (self.view_status == "A") {
+                } else if (self.view_status == "edit") {
+                    if (self.is_self) {
+                        var is_status = false;
+                    } else {
+                        var is_status = true;
+                    }
                     var is_edit = true;
-                    $("#appeal_edit_form #appeal_name").html("绩效申诉编辑")
+                    $("#appeal_wf_edit_form #appeal_name").html("申诉流程编辑")
 
                 }
                 var rendered_content = [];
@@ -211,14 +241,20 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var item_type = sphb_upload.model.item_type;
                     // data[0].review.attachments =[];
                     localStorage.removeItem('upload_model_back'); //用完删掉
-                     _.each(self.collection.models[0].attributes.qualitative_pis.items, function(x) {
+                    _.each(self.collection.models[0].attributes.qualitative_pis.items, function(x) {
                         x.appeal.attachments = _.map(x.appeal.attachments, function(y) {
-                            return y._id;
+                            if (y) {
+                                return y._id;
+
+                            }
                         })
                     })
                     _.each(self.collection.models[0].attributes.quantitative_pis.items, function(x) {
                         x.appeal.attachments = _.map(x.appeal.attachments, function(y) {
-                            return y._id;
+                            if (y) {
+                                return y._id;
+
+                            }
                         })
                     })
                     _.each(self.collection.models[0].attributes.others, function(x) {
@@ -235,22 +271,22 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         var ration = item_type;
                         var pi_id = item_id;
                         if (ration == '1') {
-                           
+
                             var items = self.collection.models[0].attributes.qualitative_pis.items;
                             var found = self.get_pi(items, pi_id);
+
                             found.appeal.attachments.push(attachments[0]);
 
 
                         } else if (ration == '2') {
-                           
 
                             var items = self.collection.models[0].attributes.quantitative_pis.items;
                             var found = self.get_pi(items, pi_id);
+
                             found.appeal.attachments.push(attachments[0]);
 
                         }
                     } else if (module == "B") {
-                       
 
                         var item = item_id;
                         if (item_type == '1') {
@@ -276,7 +312,11 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         success: function(model, response, options) {
                             self.collection.url = '/admin/pm/assessment_instance/appeal/bb/' + ai_id;
                             self.collection.fetch().done(function() {
-                                self.render_pi(module, 'A', item_id, item_type);
+                                var obj_status = {
+                                    'A': 'edit',
+                                    'B': 'view'
+                                }
+                                self.render_pi(module, obj_status['A'], item_id, item_type);
                             })
 
                         }
@@ -288,20 +328,23 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         others_content: others_content,
                         data: data[0],
                         is_edit: is_edit,
+                        is_status: is_status,
                         type1_len: mark_as_appeal_dl_num,
                         type2_len: mark_as_appeal_dx_num,
                         type3_len: mark_as_appeal_other1_num,
                         type4_len: mark_as_appeal_other2_num,
                         type5_len: mark_as_appeal_other3_num
                     }
+                    render_data = _.extend(render_data, self.data);
+
                     $("#appeal_href").attr("href", '/m#appeal');
                     if (index == 'index_select') {
-                        $("#appeal_edit_form #appeal_name").html("选择绩效申诉项目");
-                        $("#appeal_edit_form #appeal_href").data("module", "detail");
-                        $("#appeal_edit_form #add_pi").data("ai_id", data[0]._id);
-                        $("#appeal_edit_form #add_pi").show();
-                        $("#appeal_edit_form-content").html(self.index_template(render_data));
-                        var $container = $("#appeal_edit_form-content");
+                        $("#appeal_wf_edit_form #appeal_name").html("选择绩效申诉项目");
+                        $("#appeal_wf_edit_form #appeal_href").data("module", "detail");
+                        $("#appeal_wf_edit_form #add_pi").data("ai_id", data[0]._id);
+                        $("#appeal_wf_edit_form #add_pi").show();
+                        $("#appeal_wf_edit_form-content").html(self.index_template(render_data));
+                        var $container = $("#appeal_wf_edit_form-content");
 
                         _.each(exist_item, function(x) {
                             $container.find("#cb-" + x._id).attr('checked', true);
@@ -309,11 +352,23 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
 
                     } else {
-                        $("#appeal_edit_form #add_pi").hide();
+                        if (self.view_mode == 'trans') {
+                            $("#appeal_wf_edit_form #appeal_name").html('数据处理人');
 
-                        $("#appeal_edit_form-content").html(self.template(render_data));
+                            $("#appeal_wf_edit_form-content").html(self.trans_template(self.trans_data));
+                            // $("#summary_wf_edit_form-content").trigger('create');
+
+                            if (self.trans_data.next_td.node_type == 'END') {
+                                do_trans(self.trans_data);
+                            }
+                        } else {
+                            $("#appeal_wf_edit_form #add_pi").hide();
+
+                            $("#appeal_wf_edit_form-content").html(self.template(render_data));
+
+                        }
                     }
-                    $("#appeal_edit_form-content").trigger('create');
+                    $("#appeal_wf_edit_form-content").trigger('create');
                 }
 
 
@@ -327,7 +382,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         return x.toJSON()
                     })
                     //是否可以编辑
-                if (self.view_status == 'A') {
+                if (self.view_status == 'edit' && self.is_self) {
                     var is_edit = true;
                 } else {
                     var is_edit = false;
@@ -374,10 +429,10 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 //*module == 'A' 指标选择   'B':加减分项选择
 
                 render_data.data_source = module;
-                $("#appeal_edit_form #appeal_href").data("module", module);
-                $("#appeal_edit_form #appeal_name").html("申诉理由及证据");
-                $("#appeal_edit_form-content").html(self.reason_template(render_data));
-                $("#appeal_edit_form-content").trigger('create');
+                $("#appeal_wf_edit_form #appeal_href").data("module", module);
+                $("#appeal_wf_edit_form #appeal_name").html("申诉理由及证据");
+                $("#appeal_wf_edit_form-content").html(self.reason_template(render_data));
+                $("#appeal_wf_edit_form-content").trigger('create');
                 $.mobile.loading('hide');
 
                 return this; //指标－绩效总结数据
@@ -385,15 +440,19 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             },
             bind_events: function() {
                 var self = this;
-                $("#appeal_edit_form").on('click', '.appeal_pi', function(event) { //第三层－绩效指标选择
+                $("#appeal_wf_edit_form").on('click', '.appeal_pi', function(event) { //第三层－绩效指标选择
                     event.preventDefault();
                     var module = $(this).data("module");
                     var ai_id = $(this).data("ai_id");
                     var pi_id = $(this).data("pi_id");
+                    var obj_status = {
+                        'A': 'edit',
+                        'B': 'view'
+                    }
                     var view_status = $(this).data("view_status");
                     var ration = $(this).data("ration");
                     $.mobile.loading("show");
-                    self.render_pi(module, view_status, pi_id, ration);
+                    self.render_pi(module, obj_status[view_status], pi_id, ration);
                     $.mobile.loading('hide');
 
 
@@ -404,8 +463,12 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var item = $(this).data("item");
                     var item_type = $(this).data("item_type");
                     var view_status = $(this).data("view_status");
+                    var obj_status = {
+                        'A': 'edit',
+                        'B': 'view'
+                    }
                     $.mobile.loading("show");
-                    self.render_pi(module, view_status, item, item_type);
+                    self.render_pi(module, obj_status[view_status], item, item_type);
                     $.mobile.loading('hide');
 
 
@@ -442,7 +505,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         }
 
                     })
-                    _.each($("#appeal_edit_form input[class='appeal_item_select']:checked"), function(x) {
+                    _.each($("#appeal_wf_edit_form input[class='appeal_item_select']:checked"), function(x) {
                         var type = $(x).data("type");
                         if (type == "ration") {
                             var ration = $(x).data("ration");
@@ -489,7 +552,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                 }).on('click', '#btn_save', function(event) { //数据保存接口
                     event.preventDefault();
-                    var ai_id = $(this).data("ai_id");
+                    var ai_id = $(this).data("ai_id") || self.collection.models[0].attributes._id;
                     var data4save = _.clone(self.collection.models[0].attributes);
                     var type = "success";
                     self.data_save(data4save, ai_id, type);
@@ -536,33 +599,6 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var data4save = _.clone(self.collection.models[0].attributes);
                     self.data_save(data4save, ai_id, "no_render"); //自评值的保存
 
-                }).on('click', "#btn_submit", function(event) {
-                    event.preventDefault();
-                    var ai_id = self.collection.models[0].attributes._id;
-                    var ai_name = self.collection.models[0].attributes.ai_name;
-                    var post_data = {
-                        ai_id: ai_id,
-                        ai_name: ai_name,
-                        type: 'appeal'
-                    }
-                    var url = '/admin/pm/assessment_instance/appeal/wf_create';
-                    if (confirm("确认提交审批吗？")) {
-                        $.post(url, post_data, function(data, textStatus, xhr) {
-                            if (data.code == 'OK') {
-                            $("#btn_submit").attr('disabled', "disabled");
-                                var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
-                                window.location = '/m#godo14/' + task_id + '/edit';
-                            } else if (data.code == 'ERR') {
-                                $("#btn_submit").removeAttr('disabled');
-                                console.log(data.err); //把错误信息输出到控制台，以便查找错误。
-                            }
-                        })
-                    }
-
-                }).on('click', "#btn_wf_view", function(event) {
-                    event.preventDefault();
-                    var ai_id = ai_id || self.collection.models[0].attributes._id;
-                    self.get_wfs(ai_id);
                 }).on('click', '#btn_upload_attachment', function(event) { //添加附件
                     event.preventDefault();
                     var data = _.map(self.collection.models, function(x) {
@@ -594,6 +630,142 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         back_url: window.location.hash
                     }))
                     window.location.href = next_url;
+                }).on('click', '.do_trans', function(event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    if ($("#appeal_wf_edit_form-content #ti_comment").val() == '') {
+                        alert('请填写审批意见！');
+                        return;
+                    }
+                    $(this).attr('disabled', true)
+                    $.mobile.loading("show");
+                    var process_define_id = $("#appeal_wf_edit_form-content #process_define_id").val();
+                    var task_define_id = $("#appeal_wf_edit_form-content #task_define_id").val();
+                    var process_instance_id = $("#appeal_wf_edit_form-content #process_instance_id").val();
+                    var task_process_url = $("#appeal_wf_edit_form-content #task_process_url").val();
+                    var task_instance_id = $("#appeal_wf_edit_form-content #task_instance_id").val();
+
+                    var direction = $this.data('direction');
+                    var target_id = $this.data('target_id');
+                    var task_name = $this.data('task_name');
+                    var name = $this.data('name');
+                    var roles_type = $this.data('roles_type');
+                    var position_form_field = $this.data('position_form_field');
+                    if (self.view_mode) {
+                        $.post('/admin/wf/trans_confirm_form_4m', {
+                            process_define_id: process_define_id,
+                            task_define_id: task_define_id,
+                            process_instance_id: process_instance_id,
+                            task_process_url: task_process_url,
+                            next_tdname: task_name,
+                            trans_name: name,
+                            ti_comment: $("#appeal_wf_edit_form-content #ti_comment").val(),
+                            task_instance_id: task_instance_id,
+                            next_tdid: target_id,
+                            direction: direction,
+                            attachments: self.data.attachments
+                        }, function(data) {
+                            self.view_mode = 'trans';
+                            self.trans_data = data;
+                            $.mobile.loading("hide");
+
+                            self.render();
+                        });
+                    } else {
+                        var obj = self.data;
+                        $.post('/admin/wf/trans_confirm_form_4m', {
+                            process_define_id: process_define_id,
+                            task_define_id: task_define_id,
+                            process_instance_id: process_instance_id,
+                            task_process_url: task_process_url,
+                            next_tdname: task_name,
+                            trans_name: name,
+                            ti_comment: $("#appeal_wf_edit_form-content #ti_comment").val(),
+                            task_instance_id: task_instance_id,
+                            next_tdid: target_id,
+                            direction: direction,
+                            attachments: self.data.attachments
+
+                        }, function(data) {
+                            self.view_mode = 'trans';
+                            self.trans_data = data;
+                            $.mobile.loading("hide");
+                            self.render();
+                        });
+
+
+                    }
+                }).on('click', '#btn_ok', function(e) {
+                    $.mobile.loading("show");
+                    if ($("#next_user_name").val() || $("#select_next_user").val()) {
+                        $("#btn_ok").attr("disabled", "disabled");
+                        if (!self.view_mode) {
+                            do_trans(self.trans_data);
+                        } else {
+                            do_trans(self.trans_data);
+                        }
+                        $.mobile.loading("hide");
+
+                    } else {
+                        alert('请选择下一任务的处理人');
+                    };
+                }).on('click', '#btn_trans_cancel', function(event) {
+                    event.preventDefault();
+                    window.location.reload();
+                }).on('click', '#btn_wf_appeal_start_userchat', function(event) {
+                    event.preventDefault();
+                    var people = $(this).data("people") || self.collection.models[0].attributes.ai.people._id;
+                    var url = "im://userchat/" + self.data.ai.people._id;
+                    window.location.href = url;
+                }).on('change', '.is_agree', function(event) {
+                    event.preventDefault();
+                    var ai_id = self.collection.models[0].attributes._id;
+                    var $this = $(this);
+                    var module = $this.data("module");
+                    var status = $this.data("status");
+                    if (module == "A") {
+                        var ration = $this.data("ration");
+                        var pi_id = $this.data("pi_id");
+                        if (ration == '1') {
+
+                            var items = self.collection.models[0].attributes.qualitative_pis.items;
+                            var found = self.get_pi(items, pi_id);
+
+                            found.appeal.status = status;
+
+
+                        } else if (ration == '2') {
+
+                            var items = self.collection.models[0].attributes.quantitative_pis.items;
+                            var found = self.get_pi(items, pi_id);
+
+                            found.appeal.status = status;
+
+                        }
+                    } else if (module == "B") {
+
+                        var item_type = $this.data("item_type");
+                        var item = $this.data("item");
+                        if (item_type == '1') {
+                            var others = self.collection.models[0].attributes.others;
+                            var found = self.get_item(others, item_type, item);
+                            found.appeal.status = status;
+
+
+                        } else if (item_type == '2') {
+                            var others = self.collection.models[0].attributes.others;
+                            var found = self.get_item(others, item_type, item);
+                            found.appeal.status = status;
+
+                        } else if (item_type == '3') {
+                            var others = self.collection.models[0].attributes.others;
+                            var found = self.get_item(others, item_type, item);
+                            found.appeal.status = status;
+
+                        }
+                    }
+                    var data4save = _.clone(self.collection.models[0].attributes);
+                    self.data_save(data4save, ai_id, null);
                 })
 
             },
@@ -619,7 +791,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
             data_save: function(data4save, ai_id, type) {
                 var self = this;
                 _.each(data4save.quantitative_pis.items, function(x) {
-                    // x.appeal.attachments =[];
+                    // x.appeal.attachments = [];
                     x.appeal.attachments = _.map(x.appeal.attachments, function(y) {
                         if (y) {
                             return y._id;
@@ -628,7 +800,9 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     })
                 })
                 _.each(data4save.qualitative_pis.items, function(x) {
+                    // x.appeal.attachments = []
                     x.appeal.attachments = _.map(x.appeal.attachments, function(y) {
+
                         if (y) {
                             return y._id;
 
@@ -637,7 +811,9 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 })
                 _.each(data4save.others, function(x) {
                     _.each(x.items, function(y) {
+                        // y.appeal.attachments = [];
                         y.appeal.attachments = _.map(y.appeal.attachments, function(z) {
+
                             if (z) {
                                 return z._id;
                             }
@@ -657,6 +833,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                             }
                             if (type == "success") {
                                 alert("数据保存成功!");
+                                self.render();
                             }
                         })
 
@@ -664,17 +841,10 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     error: function(model, xhr, options) {}
                 });
             },
-            get_wfs: function(ai_id) {
-                $.get('/admin/wf/process_instance/get_pis_by_cid?cid=' + ai_id + '&codes=AssessmentInstance_appeal', function(data) {
-                    if (data.code == 'OK') {
-                        var wfs = data.data;
-                        window.location.href = "/m#godo14/" + wfs[0]._id + '/view';
-                    };
-                });
-            }
+
         });
 
         // Returns the View class
-        return AssessmentAppealEditView;
+        return AssessmentAppealWfEditView;
 
     });

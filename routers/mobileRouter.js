@@ -2280,7 +2280,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           },
           appeal_status_class = {
             '0': 'label-warning',
-            '1': 'label-important',
+            '1': 'label-danger',
             '2': 'label-info',
             '3': 'label-success',
           };
