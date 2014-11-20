@@ -413,17 +413,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                 $("#colltask_detail-footer")
                     .on('click', '#btn-colltask_detail-remove', function(event) {
                         event.preventDefault();
-                        if (confirm('确认删除本任务吗？')) { //确认是否删除
+                        my_confirm('确认删除本任务吗？', null, function() {
                             var coll = self.model.collection;
                             coll.remove(self.model);
                             coll.trigger('sync');
 
-                            self.model.destroy().done(function() {
-                                alert('任务删除成功');
-                                window.location.href = '#colltask';
-
-                            })
-                        };
+                            self.model.destroy({
+                                success: function() {
+                                    setTimeout(function() {
+                                        alert('任务删除成功', function() {
+                                            window.location.href = '#colltask';
+                                        });
+                                    }, 1000);
+                                },
+                                error:function() {
+                                    setTimeout(function() {
+                                        alert('任务删除失败');
+                                    }, 100);
+                                },
+                            });
+                        })
+                        
                     })
                     .on('click', '#btn-colltask_detail-complete', function(event) {
                         event.preventDefault();
@@ -465,7 +475,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                             //     alert('请评分')
                             // };
                         } else {
-                            if (confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！')) {
+                            my_confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！', null, function() {
+
                                 self.model.set('isfinished', false);
                                 self.model.set('score', 0);
                                 self.model.attributes.scores.th = 0;
@@ -483,13 +494,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                                     self.model.attributes.scores_comment.ntms[i] = '';
                                 };
                                 self.model.attributes.final_judgement = ''; //清空评定内容。
+                                // alert('任务已重新打开');
                                 self.model.save().done(function() {
                                     self.model.fetch().done(function() {
                                         self.render();
+                                        setTimeout(function() {
+                                            alert('任务已重新打开')
+                                        }, 100)
                                     })
-                                    alert('任务已重新打开');
                                 })
-                            };
+                            })
+                            // if (confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！')) {
+
+                            // };
 
                         };
 
@@ -509,42 +526,48 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     })
                     .on('click', '#btn-colltask_detail-sync_cal', function(event) { //发送到我的日历
                         event.preventDefault();
-                        if (self.model && confirm('确认同步到我的工作日历吗？')) {
-                            $.mobile.loading("show");
-                            var login_people = $("#login_people").val();
-                            var post_data = {
-                                origin_oid: self.model.get('_id'),
-                                origin_cat: 'coll_task',
-                                people: login_people, //只删除当前登录用户的
-                            };
-                            $.post('/admin/pm/work_plan/remove_by_origin', post_data, function(data, textStatus, xhr) {
-                                var new_event = {
-                                    creator: login_people,
-                                    people: login_people,
-                                    title: self.model.get('task_name'),
-                                    allDay: self.model.get('allday'),
-                                    start: moment(self.model.get('start')).format('YYYY-MM-DD'),
-                                    end: moment(self.model.get('end')).format('YYYY-MM-DD'),
-                                    tags: '协作任务',
-                                    // url: '/admin/pm/assessment_instance/wip/bbform?ai_id=' + ai_id,
+                        if (self.model) {
+                            my_confirm('确认同步到我的工作日历吗？', null, function() {
+                                $.mobile.loading("show");
+                                var login_people = $("#login_people").val();
+                                var post_data = {
                                     origin_oid: self.model.get('_id'),
                                     origin_cat: 'coll_task',
-                                    editable: false,
-                                    startEditable: false,
-                                    durationEditable: false,
-                                    origin: '1',
-                                    is_complete: self.model.get('isfinished'),
+                                    people: login_people, //只删除当前登录用户的
                                 };
-                                if (!new_event.allDay) {
-                                    new_event.start = moment(self.model.get('start')).format('YYYY-MM-DD HH:mm');
-                                    new_event.end = moment(self.model.get('end')).format('YYYY-MM-DD HH:mm');
-                                };
-                                new_event.description = self.model.get('task_descrpt');
-                                new TaskModel(new_event).save().done(function() {
-                                    alert('同步到日历项成功');
-                                    $.mobile.loading("hide");
-                                });
+                                $.post('/admin/pm/work_plan/remove_by_origin', post_data, function(data, textStatus, xhr) {
+                                    var new_event = {
+                                        creator: login_people,
+                                        people: login_people,
+                                        title: self.model.get('task_name'),
+                                        allDay: self.model.get('allday'),
+                                        start: moment(self.model.get('start')).format('YYYY-MM-DD'),
+                                        end: moment(self.model.get('end')).format('YYYY-MM-DD'),
+                                        tags: '协作任务',
+                                        // url: '/admin/pm/assessment_instance/wip/bbform?ai_id=' + ai_id,
+                                        origin_oid: self.model.get('_id'),
+                                        origin_cat: 'coll_task',
+                                        editable: false,
+                                        startEditable: false,
+                                        durationEditable: false,
+                                        origin: '1',
+                                        is_complete: self.model.get('isfinished'),
+                                    };
+                                    if (!new_event.allDay) {
+                                        new_event.start = moment(self.model.get('start')).format('YYYY-MM-DD HH:mm');
+                                        new_event.end = moment(self.model.get('end')).format('YYYY-MM-DD HH:mm');
+                                    };
+                                    new_event.description = self.model.get('task_descrpt');
+                                    new TaskModel(new_event).save().done(function() {
+                                        setTimeout(function() {
+                                            alert('同步到日历项成功');
+                                        }, 100);
+
+                                        $.mobile.loading("hide");
+                                    });
+                                })
                             })
+
                         };
                         $("#colltask_detail-left-panel").panel('close');
                     })

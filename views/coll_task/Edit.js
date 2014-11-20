@@ -84,11 +84,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         if (self.model.isValid()) {
                             self.model.save().done(function() { //保存
                                 if (self.ct_id) {
-                                    alert('任务保存成功')
-                                    window.setTimeout(function() {
+                                    alert('任务保存成功', function() {
                                         var next_page = "#colltask_detail/" + self.model.get('_id');
                                         window.location.href = next_page;
-                                    }, 100);
+                                    })
+
                                 } else {
                                     self.render();
                                 };

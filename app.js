@@ -281,7 +281,43 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         window.location.href = "cmd://app/init"; //向外壳发出初始化完成的信号
       }
     }, 1000);
+    $("#my_alert").popup(); //初始化自定义alert框
+    $("#my_confirm").popup(); //初始化自定义confirm框
 
+    window.alert = function(msg, cb) { //默认的alert框的替换
+      console.log('message: alert->', msg);
+      $("#my_alert").html(msg.replace(/\n/g, '<br>')).popup('open');
+      window.setTimeout(function() {
+        $("#my_alert").popup('close');
+        if (cb && typeof cb == 'function') {
+          cb();
+        };
+      }, 3000);
+
+    }
+    window.my_confirm = function(msg, cb_cancel, cb_ok) { //默认的confirm框的替换
+
+      $("#my_confirm #confirm_msg").html(msg.replace(/\n/g, '<br>'))
+      $("#my_confirm").popup('open');
+      $("#my_confirm").off('click');
+      $("#my_confirm")
+        .on('click', '#btn_ok', function(event) {
+          event.preventDefault();
+          console.log('message: ok');
+          $("#my_confirm").popup('close');
+          if (cb_ok && typeof cb_ok == 'function') {
+            cb_ok();
+          };
+        })
+        .on('click', '#btn_cancel', function(event) {
+          event.preventDefault();
+          console.log('message: cancel');
+          $("#my_confirm").popup('close');
+          if (cb_cancel && typeof cb_cancel == 'function') {
+            cb_cancel();
+          };
+        });
+    }
   });
   // Instantiates a new Backbone.js Mobile Router
   // this.router = new Mobile();
