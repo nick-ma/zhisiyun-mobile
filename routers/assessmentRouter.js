@@ -7,10 +7,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../collections/AssessmentCollection", "../collections/AssessmentVCollection",
         "../collections/AssessmentSummaryCollection", //我的绩效总结
         "../collections/AssessmentReviewCollection", //绩效面谈
+        "../collections/AssessmentAppealCollection", //绩效申诉
         "../collections/PeopleCollection",
         "../models/AssessmentModel",
         "../models/AssessmentSummaryModel", //我的绩效总结
         "../models/AssessmentReviewModel", //绩效面谈
+        "../models/AssessmentAppealModel", //绩效申诉
         "../collections/AssessmentSubCollection",
         // views
         "../views/assessment/Home", "../views/assessment/HomeHistory",
@@ -34,6 +36,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         //我的绩效面谈－流程编辑
         "../views/assessment/ReviewWfEdit",
 
+        //我的绩效申诉
+        "../views/assessment/Appeal",
+        //我的绩效申诉编辑
+        "../views/assessment/AppealEdit",
+
         "async", "pull-to-refresh"
     ],
     function($, Backbone, Handlebars, LZString,
@@ -41,9 +48,11 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         AssessmentCollection, AssessmentVCollection,
         AssessmentSummaryCollection,
         AssessmentReviewCollection,
+        AssessmentAppealCollection,
         PeopleCollection,
         AssessmentSummaryModel,
         AssessmentReviewModel,
+        AssessmentAppealModel,
         AssessmentModel,
         AssessmentSubCollection,
         //views
@@ -53,12 +62,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         AssessmentImprovePlanView, AssessmentImprovePlanEditView,
         AssessmentDetailView,
         PISelectView,
-        AssessmentSummaryView,
+        AssessmentSummaryView, //我的绩效总结
         AssessmentSummaryEditView,
         AssessmentSummaryWfEditView,
-        AssessmentReviewView,
+        AssessmentReviewView, //我的绩效面谈
         AssessmentReviewEditView,
         AssessmentReviewWfEditView,
+        AssessmentAppealView, //我的绩效申诉
+        AssessmentAppealEditView, //我的绩效申诉
 
         async
     ) {
@@ -95,6 +106,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 "review": "review", // 绩效面谈列表
                 "review/edit/:ai_id/:ai_status": "review_edit", // 绩效总结明细列表
                 "godo13/:task_id_or_process_instance_id/:type": "wf_review", // 流程启动后的界面 或者 流程查看
+                "appeal": "appeal", // 绩效申诉列表
+                "appeal/edit/:ai_id/:ai_status": "appeal_edit", // 绩效申诉明细列表
 
             },
             assessment_list: function() {
@@ -557,7 +570,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                                         })
                                     }
                                 }, function(err, data) {
-                                self.c_assessment_review.url = '/admin/pm/assessment_instance/review/bb/' + data.wf_data;
+                                    self.c_assessment_review.url = '/admin/pm/assessment_instance/review/bb/' + data.wf_data;
                                     self.c_assessment_review.fetch().done(function() {
                                         var is_self = self.c_assessment_review.models[0].attributes.people._id == String($("#login_people").val());
                                         self.AssessmentReviewWfEditView.is_self = is_self;
@@ -577,6 +590,37 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 }
 
 
+            },
+            appeal: function() { //绩效申诉
+                var self = this;
+                $("body").pagecontainer("change", "#appeal_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.AssessmentAppealView.pre_render();
+                self.c_assessment_appeal.url = '/admin/pm/assessment_instance/appeal/bb';
+                self.c_assessment_appeal.fetch().done(function() {
+                    self.AssessmentAppealView.render();
+                    $.mobile.loading('hide');
+                })
+            },
+            appeal_edit: function(ai_id, view_status) { //绩效申诉明细查看
+                var self = this;
+
+                $("body").pagecontainer("change", "#appeal_edit_form", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.AssessmentAppealEditView.pre_render();
+                self.c_assessment_appeal.url = '/admin/pm/assessment_instance/appeal/bb/' + ai_id;
+                self.c_assessment_appeal.fetch().done(function() {
+                    self.AssessmentAppealEditView.view_status = view_status;
+                    self.AssessmentAppealEditView.render();
+                    $.mobile.loading('hide');
+
+                })
             },
 
             init_views: function() {
@@ -641,6 +685,16 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     collection: self.c_assessment_review
 
                 })
+                this.AssessmentAppealView = new AssessmentAppealView({ //绩效申诉
+                    el: "#appeal_list-content",
+                    collection: self.c_assessment_appeal
+
+                })
+                this.AssessmentAppealEditView = new AssessmentAppealEditView({ //绩效申诉
+                    el: "#appeal_edit_form-content",
+                    collection: self.c_assessment_appeal
+
+                })
             },
             init_models: function() {
 
@@ -649,6 +703,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 this.c_assessment = new AssessmentCollection(); //考核计划
                 this.c_assessment_summary = new AssessmentSummaryCollection(); //绩效总结
                 this.c_assessment_review = new AssessmentReviewCollection(); //绩效面谈
+                this.c_assessment_appeal = new AssessmentAppealCollection(); //绩效申诉
                 this.c_assessment_v = new AssessmentVCollection(); //考核计划-版本
                 this.c_scoringformula = new ScoringFormulaCollection(); //计分公式
                 this.c_gradegroup = new GradeGroupCollection(); //等级组
