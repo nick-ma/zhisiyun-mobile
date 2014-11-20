@@ -6,12 +6,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
         "../models/WFApproveModel", "../models/ProcessInstanceModel",
         "../collections/WFApproveCollection", "../collections/WFMyWorkflowCollection",
         "../views/wf_approve/List", "../views/wf_approve/Detail", "../views/wf_approve/Edit", "../views/wf_approve/MyWorkflow",
-        "../views/wf_approve/FormHeaderView", "../views/wf_approve/FormBodyView", "../views/wf_approve/FormFooterView"
+        "../views/wf_approve/FormHeaderView", "../views/wf_approve/FormBodyView", "../views/wf_approve/FormFooterView",
+        "../views/wf_approve/FormHeaderVView", "../views/wf_approve/FormBodyVView", "../views/wf_approve/FormFooterVView"
     ],
     function($, Backbone, Handlebars, LZString, moment, async,
         WFApproveModel, ProcessInstanceModel, WFApproveCollection, WFMyWorkflowCollection,
         WFApproveListView, WFApproveDetailView, WFApproveEditView, WFMyWorkflowView,
-        FormHeaderView, FormBodyView, FormFooterView
+        FormHeaderView, FormBodyView, FormFooterView,
+        FormHeaderVView, FormBodyVView, FormFooterVView
     ) {
 
         var WFApproveRouter = Backbone.Router.extend({
@@ -32,7 +34,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                 "wf_approve_edit/:fa_id": "wf_approve_edit",
                 "wf_my_workflow": "wf_my_workflow",
                 "handle_form/:task_id": "handle_form",
-                "handle_form_view/:task_id": "handle_form_view",
+                "handle_form_view/:pi_id": "handle_form_view",
             },
 
             //--------报批事项--------//
@@ -132,6 +134,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                     reverse: false,
                     changeHash: false,
                 });
+                //隐藏返回按钮，只有从待办进的时候才显示
+                $("#btn-mwf-back").attr("style","display:none");
                 $.mobile.loading("show");
 
                 $.get('/admin/wf/universal/handle_form_4m/' + task_id, function(data) {
@@ -211,76 +215,51 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                     reverse: false,
                     changeHash: false,
                 });
+                $("#btn-mwf-back").attr("style","display:block");
                 $.mobile.loading("show");
 
-                // $.get('/admin/wf/universal/handle_form_4m/' + task_id, function(data) {
-                    async.parallel({
-                        // peoples_data: function(cb) {
-                        //     init_peoples(cb);
-                        // },
-                        // ref_pis_data: function(cb) {
-                        //     init_ref_pis(cb);
-                        // },
-                        wf_data: function(cb) {
-                            fetch_data2(pi_id, cb);
-                        }
-                    }, function(err, result) {
-                        self.ti = result.wf_data.ti;
-                        self.pi.set(result.wf_data.ti.process_instance);
+                async.parallel({
+                    peoples_data: function(cb) {
+                        init_peoples(cb);
+                    },
+                    wf_data: function(cb) {
+                        fetch_data2(pi_id, cb);
+                    }
+                }, function(err, result) {
+                    self.pi.id = pi_id;
+                    self.flowchart_data = result.wf_data.flowchart_data.tds;
+                    // 处理数据－start
+                    var tmp = [];
+                    tmp.push(_.find(self.flowchart_data, function(x) {
+                        return x.node_type == 'START'
+                    }))
+                    tmp = tmp.concat(_.sortBy(_.filter(self.flowchart_data, function(x) {
+                        return x.node_type == "TASK"
+                    }), function(x) {
+                        return x.sequence;
+                    }));
+                    tmp.push(_.find(self.flowchart_data, function(x) {
+                        return x.node_type == 'END'
+                    }))
+                    self.flowchart_data = tmp;
 
-                        self.td = result.wf_data.td;
-                        self.tts = result.wf_data.tts;
-                        self.pd = result.wf_data.pd;
-                        self.history_tasks = result.wf_data.history_tasks;
-                        self.flowchart_data = result.wf_data.flowchart_data;
-                        self.attachments = result.wf_data.attachments;
-                        self.ref_pis = result.ref_pis_data;
-                        self.users_data = result.peoples_data;
-                        // 处理数据－start
-                        // var tmp = [];
-                        // tmp.push(_.find(self.flowchart_data, function(x) {
-                        //     return x.node_type == 'START'
-                        // }))
-                        // tmp = tmp.concat(_.sortBy(_.filter(self.flowchart_data, function(x) {
-                        //     return x.node_type == "TASK"
-                        // }), function(x) {
-                        //     return x.sequence;
-                        // }));
-                        // tmp.push(_.find(self.flowchart_data, function(x) {
-                        //     return x.node_type == 'END'
-                        // }))
-                        // self.flowchart_data = tmp;
+                    // 处理数据－end
 
-                        // 处理数据－end
-                        self.fh_v.pi = self.pi;
-                        self.fh_v.ti = self.ti;
-                        self.fb_v.pi = self.pi;
-                        self.fb_v.td = self.td;
-                        self.ff_v.pi = self.pi;
-                        self.ff_v.ti = self.ti;
-                        self.ff_v.pd = self.pd;
-                        self.ff_v.td = self.td;
-                        self.ff_v.tts = self.tts;
-                        self.ff_v.history_tasks = self.history_tasks;
-                        self.ff_v.flowchart_data = self.flowchart_data;
-                        self.ff_v.attachments = self.attachments;
-                        self.ff_v.supreme_leader = data.supreme_leader;
-                        self.ff_v.ref_pis = self.ref_pis;
-                        self.ff_v.users = self.users_data;
-                        self.pi.fetch().done(function() {
-                            self.fh_v.render();
-                            self.fb_v.render();
-                            self.ff_v.render();
+                    self.fh_vv.pi = self.pi;
+                    self.fb_vv.pi = self.pi;
+                    self.ff_vv.pi = self.pi;
+                    self.ff_vv.history_tasks = result.wf_data.history_tasks;
+                    self.ff_vv.flowchart_data = self.flowchart_data;
+                    self.ff_vv.users = result.peoples_data;
+                    self.ff_vv.ctd = result.wf_data.flowchart_data.ctd;
 
-                            // $("#form_header").show();
-                            // $("#form_body").show();
-                            // $("#form_footer").show();
-                            // $("#confirm_trans").hide();
-
-                            $.mobile.loading("hide");
-                        })
+                    self.pi.fetch().done(function() {
+                        self.fh_vv.render();
+                        self.fb_vv.render();
+                        self.ff_vv.render();
+                        $.mobile.loading("hide");
                     })
-                // })
+                })
             },
 
             init_views: function() {
@@ -302,6 +281,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                 self.fh_v = new FormHeaderView();
                 self.fb_v = new FormBodyView();
                 self.ff_v = new FormFooterView();
+                
+                self.fh_vv = new FormHeaderVView();
+                self.fb_vv = new FormBodyVView();
+                self.ff_vv = new FormFooterVView();
             },
             init_models: function() {
                 this.pi = new ProcessInstanceModel(); //当前任务的流程实例，表单的主要部分由这个来渲染。
@@ -321,13 +304,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                 cb(null, data);
             })
         };
-        
+
         function fetch_data2(pi_id, cb) {
             var url = '/admin/wf/universal/view_data/' + pi_id;
             $.get(url, function(data) {
                 cb(null, data);
             })
         };
+
         function init_ref_pis(cb) {
             $.get('/admin/wf/universal/ref_pis', function(data) {
                 cb(null, data);

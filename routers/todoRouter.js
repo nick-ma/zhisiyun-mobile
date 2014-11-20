@@ -76,7 +76,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "pis_select": "pis_select",
                 "create_pi": "create_pi",
                 //查看
-                "godo0_view/:op_id": "go_view0",
+                "godo0_view/:op_id": "go_view0",//通用流程
                 "godo1_view/:op_id": "go_view1",
                 "godo3_view/:op_id": "go_view3",
                 "godo8_view/:op_id": "go_view8",//请假

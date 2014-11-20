@@ -318,7 +318,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                         return x.attributes._id.toString() == _id;
                     });
 
-                    self.view_mode = '4';
+                    self.view_mode = '5';
                     self.render();
                 })
                 .on('click', '#btn_cancel', function(event) {
