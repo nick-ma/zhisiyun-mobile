@@ -37,8 +37,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			initialize: function() {
 				var self = this;
 				this.template = Handlebars.compile($("#hbtmp_personal_wf_attend_view_task").html());
-				this.trans_template = Handlebars.compile($("#trans_confirm_view").html());
-
 				// The render method is called when CollTask Models are added to the Collection
 				this.bind_event();
 			},
@@ -54,7 +52,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				//流程数据
 				var wf_data = self.wf_data;
 				var attendance = self.attendance;
-				var is_self = self.is_self;
 				var bool = false;
 				var arr_change = [];
 				var time = is_work_on_off(self.date);
@@ -77,56 +74,44 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					var bool = true;
 				}
 
-				var filter_data = _.filter(data, function(temp) {
-					var bool = !!~temp.work_result.indexOf("NCM") || !!~temp.work_result.indexOf("NCA");
-					return bool && temp.is_job_day && moment(temp.job_date).format("YYYY-MM-DD") == String(self.date);
-				})
-				filter_data = _.each(filter_data, function(temp) {
-					temp.format_time = moment(temp.job_date).format("YYYYMMDD");
-					if (bool) {
-						if (!!~attendance.work_result.indexOf("NCM")) {
-							temp.change_no_card_on = true;
-						} else {
-							temp.change_no_card_on = false;
-
-						}
-						if (!!~attendance.work_result.indexOf("NCA")) {
-							temp.change_no_card_off = true;
-
-						} else {
-							temp.change_no_card_off = false;
-
-						}
-						temp.change_reason = attendance.change_reason;
+				var temp = {};
+				if (bool) {
+					if (!!~attendance.work_result.indexOf("NCM")) {
+						temp.change_no_card_on = true;
 					} else {
-						if (!!~temp.work_result.indexOf("NCM")) {
-							temp.change_no_card_on = true;
-						} else {
-							temp.change_no_card_on = false;
+						temp.change_no_card_on = false;
 
-						}
-						if (!!~temp.work_result.indexOf("NCA")) {
-							temp.change_no_card_off = true;
-
-						} else {
-							temp.change_no_card_off = false;
-
-						}
-						temp.change_reason = '';
 					}
+					if (!!~attendance.work_result.indexOf("NCA")) {
+						temp.change_no_card_off = true;
 
-					
-					temp.is_self = is_self;
-					temp.attachments = wf_data.attachments;
-					temp.history_tasks = wf_data.history_tasks;
-				})
-				var rendered_data = _.map(filter_data, function(x) {
-					return x;
-				})
+					} else {
+						temp.change_no_card_off = false;
+
+					}
+					temp.change_reason = attendance.change_reason;
+				} else {
+					if (!!~temp.work_result.indexOf("NCM")) {
+						temp.change_no_card_on = true;
+					} else {
+						temp.change_no_card_on = false;
+
+					}
+					if (!!~temp.work_result.indexOf("NCA")) {
+						temp.change_no_card_off = true;
+
+					} else {
+						temp.change_no_card_off = false;
+
+					}
+					temp.change_reason = '';
+				}
+				temp.attachments = wf_data.attachments;
+				temp.history_tasks = wf_data.history_tasks;
+				temp = _.extend(temp, attendance);
 				var obj = {
-					attendance_data: rendered_data,
 					time: time,
-					attendance: attendance
+					attendance_data: [temp]
 				}
 				$("#personal_wf_attend_view-content").html(self.template(obj));
 				$("#personal_wf_attend_view-content").trigger('create');

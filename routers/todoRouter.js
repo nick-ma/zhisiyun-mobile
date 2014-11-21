@@ -29,8 +29,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
     function($, Backbone, Handlebars, LZString, async,
         ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView, AIPrevView,
         AttendanceResultChangeView,
-        HrAttendanceResultChangeView,
         AttendanceResultChange2View,
+        HrAttendanceResultChangeView,
         TMAbsenceOfThreeView,
         AIPISelectView,
         PIView,
@@ -495,10 +495,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         async.waterfall([
 
                             function(cb) {
-                                $.get('/admin/tm/tm_wf/' + view_4m, function(data) {
+                                $.get('/admin/tm/tm_wf/view_4m/' + pi_id, function(data) {
                                     if (data) {
-                                        self.singleHrAttendanceResultChange2View.wf_data = data;
-                                        self.singleHrAttendanceResultChange2View.attendance = data.paep;
+                                        self.singleAttendanceResultChange2View.wf_data = data;
+                                        self.singleAttendanceResultChange2View.attendance = data.paep;
                                         cb(null, data)
                                     } else {
                                         cb(null, null);
@@ -507,16 +507,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                             },
                             function(data, cb) {
-                                var people = data.paep.people;
-                                self.singleHrAttendanceResultChange2View.people = people;
+                                var people = data.paep.people._id;
+                                self.singleAttendanceResultChange2View.people = people;
                                 async.parallel({
                                     model: function(cb) {
                                         self.tmattendance.url = '/admin/tm/cardrecord/m_bb/' + people;
                                         self.tmattendance.fetch().done(function() {
                                             self.tmattendances.remove(self.tmattendance);
                                             self.tmattendances.push(self.tmattendance);
-                                            self.singleHrAttendanceResultChange2View.model = self.tmattendance;
-                                            self.singleHrAttendanceResultChange2View.date = data ? data.change_date : '';
+                                            self.singleAttendanceResultChange2View.model = self.tmattendance;
+                                            self.singleAttendanceResultChange2View.date = data ? data.change_date : '';
                                             cb(null, 'OK');
 
                                         })
@@ -524,12 +524,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                     get_work_time: function(cb) {
                                         $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
                                             var times = data.times;
-                                            self.singleHrAttendanceResultChange2View.time_type = data.type;
-                                            self.singleHrAttendanceResultChange2View.times = times;
+                                            self.singleAttendanceResultChange2View.time_type = data.type;
+                                            self.singleAttendanceResultChange2View.times = times;
 
                                             var type = data.type;
                                             var datas = data.datas;
-                                            self.singleHrAttendanceResultChange2View.times_configs = [];
+                                            self.singleAttendanceResultChange2View.times_configs = [];
                                             if (type == '0') {
                                                 var group = _.groupBy(datas, function(data) {
                                                     return data.work_time
@@ -541,7 +541,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                                         return time._id == String(k)
                                                     });
                                                     o.time = f_d;
-                                                    self.singleHrAttendanceResultChange2View.times_configs.push(o)
+                                                    self.singleAttendanceResultChange2View.times_configs.push(o)
                                                 })
                                             } else if (type == '1') {
                                                 _.each(datas, function(dt) {
@@ -551,7 +551,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                                         return time._id == String(dt.work_time)
                                                     });
                                                     o.time = f_d;
-                                                    self.singleHrAttendanceResultChange2View.times_configs.push(o)
+                                                    self.singleAttendanceResultChange2View.times_configs.push(o)
                                                 })
                                             } else if (type == '2') {
                                                 var group = _.groupBy(datas, function(data) {
@@ -564,7 +564,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                                         return time._id == String(k)
                                                     });
                                                     o.time = f_d;
-                                                    self.singleHrAttendanceResultChange2View.times_configs.push(o)
+                                                    self.singleAttendanceResultChange2View.times_configs.push(o)
                                                 })
                                             };
                                             cb(null, 'OK');
@@ -576,8 +576,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         ], cb);
                     }
                 }, function(err, ret) {
-
-                    self.singleHrAttendanceResultChange2View.render();
+                    $("body").pagecontainer("change", "#wf_attendance_view", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                    self.singleAttendanceResultChange2View.render();
                     $("#personal_wf_attend_view-content").find("button").attr("disabled", true);
                     $("#personal_wf_attend_view-content").find("input").attr("disabled", true);
                     $("#personal_wf_attend_view-content").find("textarea").attr("disabled", true);
@@ -588,10 +591,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                     $("#personal_wf_attend_view-content #change_no_card_on").attr("disabled", true);
                     $("#personal_wf_attend_view-content #change_reason").attr("disabled", true);
-                    $("body").pagecontainer("change", "#wf_attendance_view", {
-                        reverse: false,
-                        changeHash: false,
-                    });
+
                 })
             },
 
@@ -988,7 +988,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.singleHrAttendanceResultChangeView = new HrAttendanceResultChangeView({
                     el: "#personal_wf_attend_batch-content",
                 });
-                self.singleHrAttendanceResultChange2View = new AttendanceResultChange2View({
+                self.singleAttendanceResultChange2View = new AttendanceResultChange2View({
                     el: "#personal_wf_attend_view-content",
                 });
 
