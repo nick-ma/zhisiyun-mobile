@@ -599,50 +599,96 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var self = this;
                 // self.view_mode_state = localStorage.getItem('view_mode_state') || null;
                 // localStorage.removeItem('view_mode_state'); //用完删掉 
-                var ti_id = op_id.split("-")[0];
-                var pd_id = op_id.split("-")[1];
-                var pd_code = op_id.split("-")[2];
-                async.parallel({
-                    data1: function(cb) {
-                        async.waterfall([
+                if (type == 'view') {
+                  
+                    async.parallel({
+                        data1: function(cb) {
+                            async.waterfall([
 
-                            function(cb) {
-                                $.get('/admin/tm/beyond_work/wf_task/' + ti_id, function(data) {
-                                    if (data) {
-                                        self.singleHrAttendanceResultChangeView.wf_data = data;
-                                        cb(null, data)
-                                    } else {
-                                        cb(null, null);
-                                    }
-                                })
+                                function(cb) {
+                                    $.get('/admin/tm/tm_wf/hr_view_4m/' + op_id, function(data) {
+                                        if (data) {
+                                            self.singleHrAttendanceResultChangeView.wf_data = data;
+                                            cb(null, data)
+                                        } else {
+                                            cb(null, null);
+                                        }
+                                    })
 
-                            },
-                            function(wf_data, cb) {
-                                var attendance_id = wf_data.ti.process_instance.collection_id;
-                                $.get('/admin/tm/tm_wf/get_hr_collection_data/' + attendance_id, function(data) {
-                                    if (data) {
-                                        self.singleHrAttendanceResultChangeView.attendance = data;
-                                        cb(null, data)
-                                    } else {
-                                        cb(null, null);
-                                    }
-                                })
-                            },
+                                },
+                                function(wf_data, cb) {
+                                    var attendance_id = wf_data.paep._id;
+                                    $.get('/admin/tm/tm_wf/get_hr_collection_data/' + attendance_id, function(data) {
+                                        if (data) {
+                                            self.singleHrAttendanceResultChangeView.attendance = data;
+                                            cb(null, data)
+                                        } else {
+                                            cb(null, null);
+                                        }
+                                    })
+                                },
 
-                        ], cb);
-                    }
-                }, function(err, ret) {
-                    self.singleHrAttendanceResultChangeView.view_mode = 'deal_with';
-                    self.singleHrAttendanceResultChangeView.render();
-                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
-                    $(".ui-flipswitch a").each(function() {
-                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
-                    });
-                    $("body").pagecontainer("change", "#wf_attendance_batch", {
-                        reverse: false,
-                        changeHash: false,
-                    });
-                })
+                            ], cb);
+                        }
+                    }, function(err, ret) {
+                        self.singleHrAttendanceResultChangeView.view_mode = 'view';
+                        self.singleHrAttendanceResultChangeView.render();
+                        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                        $(".ui-flipswitch a").each(function() {
+                            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                        });
+                        $("body").pagecontainer("change", "#wf_attendance_batch", {
+                            reverse: false,
+                            changeHash: false,
+                        });
+                    })
+                } else {
+                    var ti_id = op_id.split("-")[0];
+                    var pd_id = op_id.split("-")[1];
+                    var pd_code = op_id.split("-")[2];
+                    async.parallel({
+                        data1: function(cb) {
+                            async.waterfall([
+
+                                function(cb) {
+                                    $.get('/admin/tm/beyond_work/wf_task/' + ti_id, function(data) {
+                                        if (data) {
+                                            self.singleHrAttendanceResultChangeView.wf_data = data;
+                                            cb(null, data)
+                                        } else {
+                                            cb(null, null);
+                                        }
+                                    })
+
+                                },
+                                function(wf_data, cb) {
+                                    var attendance_id = wf_data.ti.process_instance.collection_id;
+                                    $.get('/admin/tm/tm_wf/get_hr_collection_data/' + attendance_id, function(data) {
+                                        if (data) {
+                                            self.singleHrAttendanceResultChangeView.attendance = data;
+                                            cb(null, data)
+                                        } else {
+                                            cb(null, null);
+                                        }
+                                    })
+                                },
+
+                            ], cb);
+                        }
+                    }, function(err, ret) {
+                        self.singleHrAttendanceResultChangeView.view_mode = 'deal_with';
+                        self.singleHrAttendanceResultChangeView.render();
+                        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                        $(".ui-flipswitch a").each(function() {
+                            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                        });
+                        $("body").pagecontainer("change", "#wf_attendance_batch", {
+                            reverse: false,
+                            changeHash: false,
+                        });
+                    })
+                }
+
             },
             go_do8: function(op_id, type) {
                 var ti_id = op_id.split("-")[0];

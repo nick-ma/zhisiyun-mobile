@@ -45,7 +45,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			// Renders all of the CollTask models on the UI
 			render: function() {
 				var self = this;
-				
+
 				//附件数据
 				if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
 					self.wf_data = JSON.parse(localStorage.getItem('upload_model_back')).model;
@@ -112,7 +112,57 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						rendered_data.push(attendance);
 						var obj = {
 							attendance_data: rendered_data,
-							attendance: attendance
+							attendance: attendance,
+							view_mode: 'edit'
+
+						}
+						$("#personal_wf_attend_batch-content").html(self.template(obj));
+						$("#personal_wf_attend_batch-content").trigger('create');
+						$("#btn_save").hide();
+
+						return this;
+					} else if (self.view_mode == 'view') {
+						if (attendance) {
+							if (!!~attendance.work_result.indexOf('L')) {
+
+								arr_change.push(true);
+							} else {
+								arr_change.push(false);
+							};
+							if (!!~attendance.work_result.indexOf('E')) {
+								arr_change.push(true);
+							} else {
+								arr_change.push(false);
+							};
+						}
+						if (!!~arr_change.indexOf(true)) {
+							var bool = true;
+						}
+						if (bool) {
+							if (!!~attendance.work_result.indexOf("L")) {
+								attendance.change_no_card_on = true;
+							} else {
+								attendance.change_no_card_on = false;
+
+							}
+							if (!!~attendance.work_result.indexOf("E")) {
+								attendance.change_no_card_off = true;
+
+							} else {
+								attendance.change_no_card_off = false;
+
+							}
+						}
+						attendance.people = attendance.people;
+						attendance.job_date = attendance.change_date;
+						attendance.attachments = wf_data.attachments;
+						attendance.history_tasks = wf_data.history_tasks;
+						var rendered_data = [];
+						rendered_data.push(attendance);
+						var obj = {
+							attendance_data: rendered_data,
+							attendance: attendance,
+							view_mode: 'view'
 						}
 						$("#personal_wf_attend_batch-content").html(self.template(obj));
 						$("#personal_wf_attend_batch-content").trigger('create');
@@ -220,11 +270,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					window.location.reload();
 				})
 				$("#personal_wf_attend_batch-content").on('click', '#btn_wf_start_userchat', function(event) {
-					event.preventDefault();
-					var url = "im://userchat/" + self.attendance.people;
-					console.log(url);
-					window.location.href = url;
-				}).on('click', '#btn_upload_attachment', function(event) {
+						event.preventDefault();
+						var url = "im://userchat/" + self.attendance.people;
+						console.log(url);
+						window.location.href = url;
+					}).on('click', '#btn_upload_attachment', function(event) {
 						//转到上传图片的页面
 						localStorage.removeItem('upload_model_back'); //先清掉
 						var next_url = '#upload_pic';
@@ -236,16 +286,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						window.location.href = next_url;
 
 
-				}).on('click', 'img', function(event) {
-					event.preventDefault();
-					// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
-					var img_view = '<img src="' + this.src + '">';
-					// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
-					$("#fullscreen-overlay").html(img_view).fadeIn('fast');
-				})
-				// $("#wf_attendance")
+					}).on('click', 'img', function(event) {
+						event.preventDefault();
+						// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+						var img_view = '<img src="' + this.src + '">';
+						// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+						$("#fullscreen-overlay").html(img_view).fadeIn('fast');
+					})
+					// $("#wf_attendance")
 			},
-			
+
 		});
 
 		// Returns the View class
