@@ -24,7 +24,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../models/TmAttendanceModel",
         "../models/TMAbsenceOfThreeModel",
         "../models/PIDatasModel",
-
+        "../models/WFDataViewModel",
     ],
     function($, Backbone, Handlebars, LZString, async,
         ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView, AIPrevView,
@@ -45,7 +45,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         WFApproveCollection,
 
         WFDataModel, AIModel, TeamModel, AIDatasModel, DataCollectionModel, AIPrevModel, AISuperModel, PIModel,
-        TmAttendanceModel, TMAbsenceOfThreeModel, PIDatasModel
+        TmAttendanceModel, TMAbsenceOfThreeModel, PIDatasModel, WFDataViewModel
     ) {
 
         var ToDoRouter = Backbone.Router.extend({
@@ -79,8 +79,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "create_pi": "create_pi",
                 //查看
                 "godo0_view/:op_id": "go_view0", //通用流程
-                "godo1_view/:op_id": "go_view1",
-                "godo3_view/:op_id": "go_view3",
+                "godo1_view/:op_id": "go_view1", //绩效考核
+                "godo2_view/:op_id": "go_view2", //数据收集
+                "godo3_view/:op_id": "go_view3", //绩效计划
                 "godo4_view/:op_id": "go_view4", //考勤异常流程查看
                 "godo8_view/:op_id": "go_view8", //请假
                 "godo9_view/:op_id": "go_view9", //消假
@@ -102,20 +103,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 });
                 $.mobile.loading("show");
                 self.todoListView.pre_render();
-
-                // self.todoListView.collection.fetch().done(function() {
-                //     self.tfList.fetch().done(function() {
-                //         self.c_wf_my_workflow.fetch().done(function() {
-                //             self.c_wf_approve.fetch().done(function() {
-                //                 self.todoListView.tfList = self.tfList;
-                //                 self.todoListView.c_wf_my_workflow = self.c_wf_my_workflow;
-                //                 self.todoListView.c_wf_approve = self.c_wf_approve;
-                //                 self.todoListView.render();
-                //                 $.mobile.loading("hide");
-                //             })
-                //         })
-                //     })
-                // })
 
                 async.parallel({
                     data1: function(cb) {
@@ -213,7 +200,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             changeHash: false,
                         });
                     } else {
-                        alert('该任务已经办理完成！');
+                        window.location.href = "#godo1_view/"+self.wf_data.attributes.ti.process_instance._id;
                     }
                 })
             },
@@ -346,10 +333,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             changeHash: false,
                         });
                     } else {
-                        alert('该任务已经办理完成！');
-                        // self.todoListView.collection.fetch().done(function() {
-                        //     self.todoListView.render();
-                        // })
+                        window.location.href = "#godo3_view/"+self.wf_data.attributes.ti.process_instance._id;
                     }
                 })
             },
@@ -601,7 +585,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 // self.view_mode_state = localStorage.getItem('view_mode_state') || null;
                 // localStorage.removeItem('view_mode_state'); //用完删掉 
                 if (type == 'view') {
-                  
+
                     async.parallel({
                         data1: function(cb) {
                             async.waterfall([
@@ -823,7 +807,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.view_mode_state = localStorage.getItem('view_mode_state') || null;
                 localStorage.removeItem('view_mode_state'); //用完删掉 
 
-                var ti_id = op_id.split("-")[0];
+                var pi_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
 
@@ -832,20 +816,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         async.waterfall([
 
                             function(cb) {
-                                self.wf_data.id = ti_id;
-                                self.wf_data.fetch().done(function() {
-                                    cb(null, self.wf_data);
+                                self.wf_data_v.id = pi_id;
+                                self.wf_data_v.fetch().done(function() {
+                                    cb(null, self.wf_data_v);
                                 });
                             },
-                            function(wf_data, cb) {
-                                if (wf_data.attributes.ti) {
-                                    self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
-                                    self.ai.fetch().done(function() {
-                                        cb(null, self.ai);
-                                    });
-                                } else {
-                                    cb(null, null);
-                                }
+                            function(wf_data_v, cb) {
+                                self.ai.id = wf_data_v.attributes.pi.collection_id;
+                                self.ai.fetch().done(function() {
+                                    cb(null, self.ai);
+                                });
                             },
                             function(ai, cb) {
                                 if (ai) {
@@ -866,23 +846,20 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         });
                     },
                 }, function(err, ret) {
-                    if (self.wf_data.attributes.ti) {
-                        self.wf01View.wf_data = self.wf_data;
-                        self.wf01View.ai = self.ai;
-                        self.wf01View.team_data = self.team_data;
-                        self.wf01View.ai_datas = self.ai_datas;
-                        if (self.view_mode_state) {
-                            self.wf01View.view_mode = '';
-                        }
-                        self.wf01View.render();
-
-                        $("body").pagecontainer("change", "#ai_wf", {
-                            reverse: false,
-                            changeHash: false,
-                        });
-                    } else {
-                        alert('该任务已经办理完成！');
+                    self.wf01View.wf_data = self.wf_data_v;
+                    self.wf01View.ai = self.ai;
+                    self.wf01View.team_data = self.team_data;
+                    self.wf01View.ai_datas = self.ai_datas;
+                    if (self.view_mode_state) {
+                        self.wf01View.view_mode = '';
                     }
+                    self.wf01View.mode = 'view';
+                    self.wf01View.render();
+
+                    $("body").pagecontainer("change", "#ai_wf", {
+                        reverse: false,
+                        changeHash: false,
+                    });
                 })
             },
             go_view3: function(op_id, type) {
@@ -890,7 +867,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var self = this;
                 self.view_mode_state = localStorage.getItem('view_mode_state') || null;
                 localStorage.removeItem('view_mode_state'); //用完删掉 
-                var ti_id = op_id.split("-")[0];
+                var pi_id = op_id.split("-")[0];
                 var pd_id = op_id.split("-")[1];
                 var pd_code = op_id.split("-")[2];
 
@@ -902,20 +879,16 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         async.waterfall([
 
                             function(cb) {
-                                self.wf_data.id = ti_id;
-                                self.wf_data.fetch().done(function() {
-                                    cb(null, self.wf_data);
+                                self.wf_data_v.id = pi_id;
+                                self.wf_data_v.fetch().done(function() {
+                                    cb(null, self.wf_data_v);
                                 });
                             },
-                            function(wf_data, cb) {
-                                if (wf_data.attributes.ti) {
-                                    self.ai.id = wf_data.attributes.ti.process_instance.collection_id;
-                                    self.ai.fetch().done(function() {
-                                        cb(null, self.ai);
-                                    });
-                                } else {
-                                    cb(null, null);
-                                }
+                            function(wf_data_v, cb) {
+                                self.ai.id = wf_data_v.attributes.pi.collection_id;
+                                self.ai.fetch().done(function() {
+                                    cb(null, self.ai);
+                                });
                             },
                             function(ai, cb) {
                                 if (ai) {
@@ -949,46 +922,35 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         });
                     },
                 }, function(err, ret) {
-                    if (self.wf_data.attributes.ti) {
-                        self.wf03View.wf_data = self.wf_data;
-                        self.wf03View.ai = self.ai;
-                        self.wf03View.ai_prev = self.ai_prev;
-                        self.wf03View.ai_super = self.ai_super;
-                        self.wf03View.aiSubCollection = self.aiSubCollection;
-                        self.wf03View.ai_datas = self.ai_datas;
-                        if (self.view_mode_state) {
-                            self.wf03View.view_mode = '';
-                        }
-                        self.wf03View.render();
-                        $.mobile.loading("hide");
-
-                        // if($("#login_people").val() == self.ai.attributes.people.toString()){
-                        //     $("#ai_wf1-footer").show();
-                        if (self.ai_prev.attributes.quantitative_pis || self.ai_prev.attributes.qualitative_pis) {
-                            $("#btn-ai_wf1-prev").attr("disabled", false);
-                        } else {
-                            $("#btn-ai_wf1-prev").attr("disabled", true);
-                        }
-
-                        if (self.ai_super.attributes.quantitative_pis || self.ai_super.attributes.qualitative_pis) {
-                            $("#btn-ai_wf1-super").attr("disabled", false);
-                        } else {
-                            $("#btn-ai_wf1-super").attr("disabled", true);
-                        }
-                        // }else{
-                        //     $("#ai_wf1-footer").hide();
-                        // }
-
-                        $("body").pagecontainer("change", "#ai_wf1", {
-                            reverse: false,
-                            changeHash: false,
-                        });
-                    } else {
-                        alert('该任务已经办理完成！');
-                        // self.todoListView.collection.fetch().done(function() {
-                        //     self.todoListView.render();
-                        // })
+                    self.wf03View.wf_data = self.wf_data_v;
+                    self.wf03View.ai = self.ai;
+                    self.wf03View.ai_prev = self.ai_prev;
+                    self.wf03View.ai_super = self.ai_super;
+                    self.wf03View.aiSubCollection = self.aiSubCollection;
+                    self.wf03View.ai_datas = self.ai_datas;
+                    if (self.view_mode_state) {
+                        self.wf03View.view_mode = '';
                     }
+                    self.wf03View.mode = 'view';
+                    self.wf03View.render();
+                    $.mobile.loading("hide");
+
+                    if (self.ai_prev.attributes.quantitative_pis || self.ai_prev.attributes.qualitative_pis) {
+                        $("#btn-ai_wf1-prev").attr("disabled", false);
+                    } else {
+                        $("#btn-ai_wf1-prev").attr("disabled", true);
+                    }
+
+                    if (self.ai_super.attributes.quantitative_pis || self.ai_super.attributes.qualitative_pis) {
+                        $("#btn-ai_wf1-super").attr("disabled", false);
+                    } else {
+                        $("#btn-ai_wf1-super").attr("disabled", true);
+                    }
+
+                    $("body").pagecontainer("change", "#ai_wf1", {
+                        reverse: false,
+                        changeHash: false,
+                    });
                 })
             },
             go_view8: function(op_id) {
@@ -1055,6 +1017,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             init_models: function() {
                 var self = this;
                 self.wf_data = new WFDataModel();
+                self.wf_data_v = new WFDataViewModel();
                 self.ai = new AIModel();
                 self.ai_prev = new AIPrevModel();
                 self.ai_super = new AISuperModel();

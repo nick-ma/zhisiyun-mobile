@@ -414,11 +414,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var sfcs = [];
                 var sfs = find_sf(pi_f);
                 var sf_ids = [];
-                _.each(sfs,function(x){
+                _.each(sfs, function(x) {
                     sf_ids.push(x.sf);
                 })
-                _.each(sfcs_data,function(x){
-                    if(x._id.indexOf(sf_ids) != -1){
+                _.each(sfcs_data, function(x) {
+                    if (x._id.indexOf(sf_ids) != -1) {
                         sfcs.push(x);
                     }
                 })
@@ -432,7 +432,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 self.item_obj.unit_data = unit_data;
                 self.item_obj.unit_groups = unit_groups;
                 // self.item_obj.sfcs_data = sfcs_data;//全部
-                self.item_obj.sfcs_data = sfcs;//个人适用
+                self.item_obj.sfcs_data = sfcs; //个人适用
                 self.item_obj.pi_f = pi_f;
                 self.item_obj.aiSubCollection = self.aiSubCollection.models;
                 self.view_mode = 'pi_detail';
@@ -496,7 +496,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 var $this = $(this);
                 var up_id = $this.data('up_id');
 
-                self.ai_sub = _.find(self.aiSubCollection.models,function(x){
+                self.ai_sub = _.find(self.aiSubCollection.models, function(x) {
                     return x.attributes._id == up_id;
                 })
 
@@ -1044,14 +1044,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 } else if (self.view_mode == 'pi_detail') {
                     $("#ai_wf_title").html('指标明细');
 
-                    this.template = Handlebars.compile($("#assessment_dl_pi_detail_view").html());
+                    //查看界面
+                    if (self.mode) {
+                        this.template = Handlebars.compile($("#assessment_dl_pi_detail_view2").html());
+                    }else{
+                        this.template = Handlebars.compile($("#assessment_dl_pi_detail_view").html());
+                    }
                     $("#ai_wf1-content").html(self.template(self.item_obj));
                     $("#ai_wf1-content").trigger('create');
 
                 } else if (self.view_mode == 'pi_detail2') {
                     $("#ai_wf_title").html('指标明细');
 
-                    this.template = Handlebars.compile($("#assessment_dx_pi_detail_view").html());
+                    //查看界面
+                    if (self.mode) {
+                        this.template = Handlebars.compile($("#assessment_dx_pi_detail_view2").html());
+                    }else{
+                        this.template = Handlebars.compile($("#assessment_dx_pi_detail_view").html());
+                    }
+                    
                     $("#ai_wf1-content").html(self.template(self.item_obj));
                     $("#ai_wf1-content").trigger('create');
                 } else if (self.view_mode == 'ai_pi_comment') {
@@ -1076,7 +1087,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     $("#ai_wf1-content").html(self.template(rendered_data));
                     $("#ai_wf1-content").trigger('create');
                 } else if (self.view_mode == 'sub_pi_detail') {
-                    
+
                     this.template = Handlebars.compile($("#sub_pi_detail_view").html());
 
                     $("#ai_wf1-content").html(self.template(self.ai_sub.attributes));
@@ -1094,19 +1105,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 _.each(obj.ai.qualitative_pis.items, function(x) {
                     obj.ai.qualitative_pis.weight += parseFloat(x.weight);
                 });
+                //查看界面
+                if (self.mode) {
+                    obj.mode = 'view';
+                }
 
                 this.template = Handlebars.compile($("#wf03_view").html());
                 $("#ai_wf1-content").html(self.template(obj));
                 $("#ai_wf1-content").trigger('create');
 
-                if ($("#login_people").val() == self.ai.attributes.people.toString()) {
+                if (($("#login_people").val() == self.ai.attributes.people.toString()) && !self.mode) {
                     $("#ai_wf1-footer").show();
                 } else {
                     $("#ai_wf1-footer").hide();
                 }
             }
 
-            //对自己不显示发起聊天的按钮
+            //对自己不显示发起聊天的按钮或者是查看界面
             if ($("#login_people").val() == ai_data.people) {
                 $("#ai_wf-content").find('#btn_ai1_start_userchat').hide();
             };
