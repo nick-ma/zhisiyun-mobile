@@ -500,7 +500,10 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     event.preventDefault();
                     var $this = $(this);
                     var confirm_msg = '确认为当前指标创建一个任务吗？';
-                    if (confirm(confirm_msg)) { //优化一点效率
+                    // if (confirm(confirm_msg)) { //优化一点效率
+                    my_confirm(confirm_msg, null, function() {
+                        $.mobile.loading("show");
+
                         var pi_id = $this.data('pi_id');
                         var ration = $this.data('ration');
                         var found;
@@ -535,12 +538,14 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                                 var ai_id = ai_id || self.collection.models[0].attributes._id;
                                 var data4save = _.clone(self.collection.models[0].attributes);
                                 var type = "render_pi";
-                                $.mobile.loading('show');
+                                // $.mobile.loading('show');
 
                                 self.data_save(data4save, ai_id, type, 'A' + '/' + pi_id + '/' + ration);
+                                $.mobile.loading('hide');
+
                             })
                         };
-                    }
+                    })
                 }).on('click', "#mark_as_watch", function(event) { //用change会触发多次事件
                     event.preventDefault();
                     var $this = $(this);
@@ -584,17 +589,22 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     }
                     $("#btn_submit").attr('disabled', "disabled");
                     var url = '/admin/pm/assessment_instance/appeal/wf_create';
-                    if (confirm("确认提交审批吗？")) {
+                    // if (confirm("确认提交审批吗？")) {
+                    my_confirm("确认提交审批吗?", null, function() {
+                        $.mobile.loading("show");
+
                         $.post(url, post_data, function(data, textStatus, xhr) {
                             if (data.code == 'OK') {
                                 var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
                                 window.location = '/m#godo12/' + task_id + '/edit';
+                                $.mobile.loading("hide");
+
                             } else if (data.code == 'ERR') {
                                 $("#btn_submit").removeAttr('disabled');
                                 console.log(data.err); //把错误信息输出到控制台，以便查找错误。
                             }
                         })
-                    }
+                    })
 
                 })
 

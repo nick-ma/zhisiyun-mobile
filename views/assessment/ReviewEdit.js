@@ -454,17 +454,22 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     $("#btn_submit").attr('disabled', "disabled");
 
                     var url = '/admin/pm/assessment_instance/appeal/wf_review_create';
-                    if (confirm("确认提交审批吗？")) {
+                    // if (confirm("确认提交审批吗？")) {
+                    my_confirm("确认提交审批吗?", null, function() {
+                        $.mobile.loading("show");
+
                         $.post(url, post_data, function(data, textStatus, xhr) {
                             if (data.code == 'OK') {
                                 var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
                                 window.location = '/m#godo13/' + task_id + '/edit';
+                                $.mobile.loading("hide");
+
                             } else if (data.code == 'ERR') {
                                 $("#btn_submit").removeAttr('disabled');
                                 console.log(data.err); //把错误信息输出到控制台，以便查找错误。
                             }
                         })
-                    }
+                    })
 
                 })
 

@@ -52,30 +52,30 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
           self.twitter_people = tmp
         }
         _.each(tmp, function(x) {
-          var single_competency = _.filter(competency, function(temp) {
-            return x._id == String(temp.people_id)
-          })
-          // console.log(single_competency)
-          // x.competency = single_competency;
-          if (single_competency) {
-            var scores = [],
-              repeat_id = [];
-            _.each(single_competency, function(L1) {
-              if (!~repeat_id.indexOf(String(L1.qi_id))) {
-                scores.push(L1)
-              }
-              repeat_id.push(String(L1.qi_id))
+            var single_competency = _.filter(competency, function(temp) {
+                return x._id == String(temp.people_id)
+              })
+              // console.log(single_competency)
+              // x.competency = single_competency;
+            if (single_competency) {
+              var scores = [],
+                repeat_id = [];
+              _.each(single_competency, function(L1) {
+                if (!~repeat_id.indexOf(String(L1.qi_id))) {
+                  scores.push(L1)
+                }
+                repeat_id.push(String(L1.qi_id))
 
+              })
+              x.competency = scores;
+            }
+
+            var single_talent = _.find(talent, function(temp) {
+              return x._id == String(temp.people_id)
             })
-            x.competency = scores;
-          }
-
-          var single_talent = _.find(talent, function(temp) {
-            return x._id == String(temp.people_id)
+            x.talent = single_talent ? single_talent.lambda_data : '';
           })
-          x.talent = single_talent ? single_talent.lambda_data : '';
-        })
-        // console.log(tmp)
+          // console.log(tmp)
         $("#talent_lambda_list-content").html(self.template({
           people: tmp
         }));
@@ -122,32 +122,59 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
           var people_selected = self.twitter_people;
           if (people_selected.length > 0) {
-            if (confirm("确认启动人才提名流程吗？")) {
-              var twitter_data = [],
-                peoples = [];
-              _.each(people_selected, function(x) {
-                var obj = {};
-                obj.people = x._id;
-                obj.position = x.position;
-                peoples.push(x._id);
-                twitter_data.push(obj)
-              })
-              var obj = {
-                peoples: peoples,
-                twitter_data: twitter_data,
-                superior: self.people
-              }
+            my_confirm("确认启动人才提名流程吗？", null, function() {
+                $.mobile.loading("show");
+                var twitter_data = [],
+                  peoples = [];
+                _.each(people_selected, function(x) {
+                  var obj = {};
+                  obj.people = x._id;
+                  obj.position = x.position;
+                  peoples.push(x._id);
+                  twitter_data.push(obj)
+                })
+                var obj = {
+                  peoples: peoples,
+                  twitter_data: twitter_data,
+                  superior: self.people
+                }
 
-              $.mobile.loading("show");
-              $("#btn-people_select-ok").attr("disabled", "disabled");
-              $.post('/admin/pm/talent_wf/wf_create', obj, function(data) {
-                var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
-                console.log(goto_url);
-                window.location.href = '/m#godo10/' + goto_url + '/' + 1;
-                $.mobile.loading("hide");
+                $.mobile.loading("show");
+                $("#btn-people_select-ok").attr("disabled", "disabled");
+                $.post('/admin/pm/talent_wf/wf_create', obj, function(data) {
+                  var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+                  console.log(goto_url);
+                  window.location.href = '/m#godo10/' + goto_url + '/' + 1;
+                  $.mobile.loading("hide");
 
+                })
               })
-            }
+              // if (confirm("确认启动人才提名流程吗？")) {
+              //   var twitter_data = [],
+              //     peoples = [];
+              //   _.each(people_selected, function(x) {
+              //     var obj = {};
+              //     obj.people = x._id;
+              //     obj.position = x.position;
+              //     peoples.push(x._id);
+              //     twitter_data.push(obj)
+              //   })
+              //   var obj = {
+              //     peoples: peoples,
+              //     twitter_data: twitter_data,
+              //     superior: self.people
+              //   }
+
+            //   $.mobile.loading("show");
+            //   $("#btn-people_select-ok").attr("disabled", "disabled");
+            //   $.post('/admin/pm/talent_wf/wf_create', obj, function(data) {
+            //     var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+            //     console.log(goto_url);
+            //     window.location.href = '/m#godo10/' + goto_url + '/' + 1;
+            //     $.mobile.loading("hide");
+
+            //   })
+            // }
 
           } else {
             alert("请选择提名人员!!!")

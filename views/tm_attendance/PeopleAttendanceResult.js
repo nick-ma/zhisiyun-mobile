@@ -67,13 +67,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							change_date: $(this).data("date"),
 							type: 'A'
 						}
-						if (confirm("是否申请处理考勤异常?")) {
+						my_confirm("是否申请处理考勤异常?", null, function() {
+							$.mobile.loading("show");
 							$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
 								var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
 								window.location.href = '/m' + '#godo4/' + goto_url + '/' + 1;
-							})
+								$.mobile.loading("hide");
 
-						}
+							})
+						})
+						// if (confirm("是否申请处理考勤异常?")) {
+						// 	$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
+						// 		var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+						// 		window.location.href = '/m' + '#godo4/' + goto_url + '/' + 1;
+						// 	})
+
+						// }
 					})
 					.on('click', '#go_back', function(event) {
 						event.preventDefault();

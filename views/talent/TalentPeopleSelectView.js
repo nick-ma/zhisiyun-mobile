@@ -52,7 +52,10 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                         return self.collection.get(x.value);
                     });
                     if (people_selected.length > 0) {
-                        if (confirm("确认启动人才提名流程吗？")) {
+                        // if (confirm("确认启动人才提名流程吗？")) {
+                        my_confirm("确认启动人才提名流程吗?", null, function() {
+                            $.mobile.loading("show");
+
                             var twitter_data = [],
                                 peoples = [];
                             _.each(people_selected, function(x) {
@@ -77,7 +80,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                                 $.mobile.loading("hide");
 
                             })
-                        }
+                        })
 
                     } else {
                         alert("请选择提名人员!!!")

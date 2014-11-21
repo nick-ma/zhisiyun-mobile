@@ -211,7 +211,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     var item_type = sphb_upload.model.item_type;
                     // data[0].review.attachments =[];
                     localStorage.removeItem('upload_model_back'); //用完删掉
-                     _.each(self.collection.models[0].attributes.qualitative_pis.items, function(x) {
+                    _.each(self.collection.models[0].attributes.qualitative_pis.items, function(x) {
                         x.appeal.attachments = _.map(x.appeal.attachments, function(y) {
                             return y._id;
                         })
@@ -235,14 +235,14 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         var ration = item_type;
                         var pi_id = item_id;
                         if (ration == '1') {
-                           
+
                             var items = self.collection.models[0].attributes.qualitative_pis.items;
                             var found = self.get_pi(items, pi_id);
                             found.appeal.attachments.push(attachments[0]);
 
 
                         } else if (ration == '2') {
-                           
+
 
                             var items = self.collection.models[0].attributes.quantitative_pis.items;
                             var found = self.get_pi(items, pi_id);
@@ -250,7 +250,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
 
                         }
                     } else if (module == "B") {
-                       
+
 
                         var item = item_id;
                         if (item_type == '1') {
@@ -546,18 +546,23 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                         type: 'appeal'
                     }
                     var url = '/admin/pm/assessment_instance/appeal/wf_create';
-                    if (confirm("确认提交审批吗？")) {
+                    // if (confirm("确认提交审批吗？")) {
+                    my_confirm("确认提交审批吗?", null, function() {
+                        $.mobile.loading("show");
+
                         $.post(url, post_data, function(data, textStatus, xhr) {
                             if (data.code == 'OK') {
-                            $("#btn_submit").attr('disabled', "disabled");
+                                $("#btn_submit").attr('disabled', "disabled");
                                 var task_id = data.data.ti._id + '-' + data.data.pd._id + '-' + data.data.pd.process_code;
                                 window.location = '/m#godo14/' + task_id + '/edit';
+                                $.mobile.loading("hide");
+
                             } else if (data.code == 'ERR') {
                                 $("#btn_submit").removeAttr('disabled');
                                 console.log(data.err); //把错误信息输出到控制台，以便查找错误。
                             }
                         })
-                    }
+                    })
 
                 }).on('click', "#btn_wf_view", function(event) {
                     event.preventDefault();
