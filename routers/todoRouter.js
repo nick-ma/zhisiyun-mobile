@@ -4,6 +4,7 @@
 define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/ToDoListView", "../views/AIWF01View", "../views/AIWF02View", "../views/AIWF03View", "../views/TransConfirmView", "../views/AIPrevView",
         "../views/tm_attendance/AttendanceResultChangeView",
+        "../views/tm_attendance/AttendanceResultChange2View",
         "../views/tm_attendance/HrAttendanceResultChangeView",
         "../views/tm_attendance/TMAbsenceOfThreeView",
         // 指标选择界面
@@ -29,6 +30,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         ToDoListView, AIWF01View, AIWF02View, AIWF03View, TransConfirmView, AIPrevView,
         AttendanceResultChangeView,
         HrAttendanceResultChangeView,
+        AttendanceResultChange2View,
         TMAbsenceOfThreeView,
         AIPISelectView,
         PIView,
@@ -76,13 +78,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "pis_select": "pis_select",
                 "create_pi": "create_pi",
                 //查看
-                "godo0_view/:op_id": "go_view0",//通用流程
+                "godo0_view/:op_id": "go_view0", //通用流程
                 "godo1_view/:op_id": "go_view1",
                 "godo3_view/:op_id": "go_view3",
-                "godo8_view/:op_id": "go_view8",//请假
-                "godo9_view/:op_id": "go_view9",//消假
-                "godo12_view/:op_id": "go_view12",//绩效总结
-                "godo13_view/:op_id": "go_view13",//绩效面谈
+                "godo8_view/:op_id": "go_view8", //请假
+                "godo9_view/:op_id": "go_view9", //消假
+                "godo12_view/:op_id": "go_view12", //绩效总结
+                "godo13_view/:op_id": "go_view13", //绩效面谈
+                "godo4_view/:op_id": "go_view4", //考勤异常流程查看
             },
             todo_list: function() { //我的待办
                 var self = this;
@@ -483,6 +486,113 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     });
                 })
             },
+            go_view4: function(pi_id) { //考勤异常流程查看
+                var self = this;
+                async.parallel({
+                    data1: function(cb) {
+                        async.waterfall([
+
+                            function(cb) {
+                                $.get('/admin/tm/tm_wf/' + view_4m, function(data) {
+                                    if (data) {
+                                        self.singleHrAttendanceResultChange2View.wf_data = data;
+                                        self.singleHrAttendanceResultChange2View.attendance = data.paep;
+                                        cb(null, data)
+                                    } else {
+                                        cb(null, null);
+                                    }
+                                })
+
+                            },
+                            function(data, cb) {
+                                var people = data.paep.people;
+                                self.singleHrAttendanceResultChange2View.people = people;
+                                async.parallel({
+                                    model: function(cb) {
+                                        self.tmattendance.url = '/admin/tm/cardrecord/m_bb/' + people;
+                                        self.tmattendance.fetch().done(function() {
+                                            self.tmattendances.remove(self.tmattendance);
+                                            self.tmattendances.push(self.tmattendance);
+                                            self.singleHrAttendanceResultChange2View.model = self.tmattendance;
+                                            self.singleHrAttendanceResultChange2View.date = data ? data.change_date : '';
+                                            cb(null, 'OK');
+
+                                        })
+                                    },
+                                    get_work_time: function(cb) {
+                                        $.get('/admin/tm/beyond_work/get_work_times/' + people, function(data) {
+                                            var times = data.times;
+                                            self.singleHrAttendanceResultChange2View.time_type = data.type;
+                                            self.singleHrAttendanceResultChange2View.times = times;
+
+                                            var type = data.type;
+                                            var datas = data.datas;
+                                            self.singleHrAttendanceResultChange2View.times_configs = [];
+                                            if (type == '0') {
+                                                var group = _.groupBy(datas, function(data) {
+                                                    return data.work_time
+                                                })
+                                                _.each(group, function(ys, k) {
+                                                    var o = {};
+                                                    o.calendar_data = ys;
+                                                    var f_d = _.find(times, function(time) {
+                                                        return time._id == String(k)
+                                                    });
+                                                    o.time = f_d;
+                                                    self.singleHrAttendanceResultChange2View.times_configs.push(o)
+                                                })
+                                            } else if (type == '1') {
+                                                _.each(datas, function(dt) {
+                                                    var o = {};
+                                                    o.calendar_data = dt.calendar_data;
+                                                    var f_d = _.find(times, function(time) {
+                                                        return time._id == String(dt.work_time)
+                                                    });
+                                                    o.time = f_d;
+                                                    self.singleHrAttendanceResultChange2View.times_configs.push(o)
+                                                })
+                                            } else if (type == '2') {
+                                                var group = _.groupBy(datas, function(data) {
+                                                    return data.work_time
+                                                })
+                                                _.each(group, function(ys, k) {
+                                                    var o = {};
+                                                    o.calendar_data = ys;
+                                                    var f_d = _.find(times, function(time) {
+                                                        return time._id == String(k)
+                                                    });
+                                                    o.time = f_d;
+                                                    self.singleHrAttendanceResultChange2View.times_configs.push(o)
+                                                })
+                                            };
+                                            cb(null, 'OK');
+
+                                        })
+                                    },
+                                }, cb)
+                            }
+                        ], cb);
+                    }
+                }, function(err, ret) {
+
+                    self.singleHrAttendanceResultChange2View.render();
+                    $("#personal_wf_attend_view-content").find("button").attr("disabled", true);
+                    $("#personal_wf_attend_view-content").find("input").attr("disabled", true);
+                    $("#personal_wf_attend_view-content").find("textarea").attr("disabled", true);
+                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                    $(".ui-flipswitch a").each(function() {
+                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                    });
+
+                    $("#personal_wf_attend_view-content #change_no_card_on").attr("disabled", true);
+                    $("#personal_wf_attend_view-content #change_reason").attr("disabled", true);
+                    $("body").pagecontainer("change", "#wf_attendance_view", {
+                        reverse: false,
+                        changeHash: false,
+                    });
+                })
+            },
+
             go_do11: function(op_id, type) {
                 var self = this;
                 // self.view_mode_state = localStorage.getItem('view_mode_state') || null;
@@ -832,17 +942,17 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     }
                 })
             },
-            go_view8: function(op_id){
-                window.location.href = "#leave_form_p/"+op_id+"/L";
+            go_view8: function(op_id) {
+                window.location.href = "#leave_form_p/" + op_id + "/L";
             },
-            go_view9: function(op_id){
-                window.location.href = "#back_leave_form_p/"+op_id+"/L";
+            go_view9: function(op_id) {
+                window.location.href = "#back_leave_form_p/" + op_id + "/L";
             },
-            go_view12: function(op_id){
-                window.location.href = "#godo12/"+op_id+"/view";
+            go_view12: function(op_id) {
+                window.location.href = "#godo12/" + op_id + "/view";
             },
-            go_view13: function(op_id){
-                window.location.href = "#godo13/"+op_id+"/view";
+            go_view13: function(op_id) {
+                window.location.href = "#godo13/" + op_id + "/view";
             },
             init_views: function() {
                 var self = this;
@@ -872,6 +982,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 });
                 self.singleHrAttendanceResultChangeView = new HrAttendanceResultChangeView({
                     el: "#personal_wf_attend_batch-content",
+                });
+                self.singleHrAttendanceResultChange2View = new AttendanceResultChange2View({
+                    el: "#personal_wf_attend_view-content",
                 });
 
                 self.aiPrevView = new AIPrevView();
