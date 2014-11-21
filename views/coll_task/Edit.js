@@ -84,11 +84,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         if (self.model.isValid()) {
                             self.model.save().done(function() { //保存
                                 if (self.ct_id) {
-                                    alert('任务保存成功')
-                                    window.setTimeout(function() {
+                                    alert('任务保存成功', function() {
                                         var next_page = "#colltask_detail/" + self.model.get('_id');
                                         window.location.href = next_page;
-                                    }, 100);
+                                    })
+
                                 } else {
                                     self.render();
                                 };
@@ -122,6 +122,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         var value = $this.val();
                         if (field === 'start' || field === 'end') {
                             value = value.replace('T', ' '); //把T换掉，保存UCT的时间
+                            value = value.replace('Z', ''); //把Z换掉，保存UCT的时间 -- fix shit samsum bug!
                         }
                         self.model.set(field, value);
                     })

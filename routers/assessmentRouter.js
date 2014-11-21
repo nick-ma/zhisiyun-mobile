@@ -598,6 +598,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             },
             appeal: function() { //绩效申诉
                 var self = this;
+                localStorage.setItem('to_do_back_url', window.location.href);
                 $("body").pagecontainer("change", "#appeal_list", {
                     reverse: false,
                     changeHash: false,

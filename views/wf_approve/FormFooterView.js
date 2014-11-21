@@ -41,17 +41,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
         Handlebars.registerHelper('genTransButtons', function(tts) {
             var tmp_btn = '<button class="ui-btn btn_do_trans btn %s" data-target="%s", data-direction="%s", data-trans_name="%s"><i class="%s"></i>  %s</button>';
             var ret = [];
-            _.each(tts, function(x) {
-                var btn_class = (x.direction == 'F') ? 'btn-success' : 'btn-danger';
-                var btn = sprintf(tmp_btn, btn_class, x.target._id, x.direction, x.name, x.icon, x.name);
-                if (x.restrict == '') {
-                    ret.push(btn);
-                } else if (x.restrict == '1' && supreme_leader) { //最高领导＋最高领导专用
-                    ret.push(btn);
-                } else if (x.restrict == '2' && !supreme_leader) { //不是最高领导＋除最高领导外使用
-                    ret.push(btn);
-                };
-            })
+            if (tts) {
+                _.each(tts, function(x) {
+                    var btn_class = (x.direction == 'F') ? 'btn-success' : 'btn-danger';
+                    var btn = sprintf(tmp_btn, btn_class, x.target._id, x.direction, x.name, x.icon, x.name);
+                    if (x.restrict == '') {
+                        ret.push(btn);
+                    } else if (x.restrict == '1' && supreme_leader) { //最高领导＋最高领导专用
+                        ret.push(btn);
+                    } else if (x.restrict == '2' && !supreme_leader) { //不是最高领导＋除最高领导外使用
+                        ret.push(btn);
+                    };
+                })
+            }
             return ret.join('');
         });
         Handlebars.registerHelper('getCCUsers', function(cc_users) {

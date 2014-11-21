@@ -35,56 +35,56 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             };
         });
 
-        // Handlebars.registerHelper('renderFieldElement', function(row, col) {
-        //     var field = get_field(row, col);
-        //     if (field) {
-        //         var common_attr = [];
-        //         common_attr.push('placeholder="' + field.title + '"');
-        //         common_attr.push('data-row="' + field.row + '"');
-        //         common_attr.push('data-col="' + field.col + '"');
-        //         if (field.require) {
-        //             common_attr.push('required');
-        //         };
-        //         var ca_str = common_attr.join(' ');
-        //         var value = field.data ? field.data : ''; //字段里的值
-        //         //判断当前的任务节点是否能进行编辑
-        //         var task_editable = _.find(field.task_editable, function(x) {
-        //             return x.td == td._id
-        //         })
-        //         disabled = (task_editable && task_editable.flag) ? '' : 'disabled';
+        Handlebars.registerHelper('renderFieldElement', function(row, col) {
+            var field = get_field(row, col);
+            if (field) {
+                var common_attr = [];
+                common_attr.push('placeholder="' + field.title + '"');
+                common_attr.push('data-row="' + field.row + '"');
+                common_attr.push('data-col="' + field.col + '"');
+                if (field.require) {
+                    common_attr.push('required');
+                };
+                var ca_str = common_attr.join(' ');
+                var value = field.data ? field.data : ''; //字段里的值
+                //判断当前的任务节点是否能进行编辑
+                var task_editable = _.find(field.task_editable, function(x) {
+                    return x.td == td._id
+                })
+                disabled = (task_editable && task_editable.flag) ? '' : 'disabled';
 
-        //         var ret = [];
-        //         if (field.cat == 'str') {
-        //             if (field.ctype == 'input') {
-        //                 ret.push('<input type="text" ' + ca_str + ' value="' + value + '" ' + disabled + '>')
-        //             } else if (field.ctype == 'textarea') {
-        //                 ret.push('<textarea ' + ca_str + ' ' + disabled + '>' + value + '</textarea>')
-        //             } else if (field.ctype == 'select') {
-        //                 ret.push('<select ' + ca_str + ' ' + disabled + '>');
-        //                 _.each(field.options, function(x) {
-        //                     if (value == x) {
-        //                         ret.push('<option value="' + x + '" selected>' + x + '</opton>');
-        //                     } else {
-        //                         ret.push('<option value="' + x + '">' + x + '</opton>');
-        //                     };
-        //                 })
-        //                 ret.push('</select>');
-        //             };
-        //         } else if (field.cat == 'num') {
-        //             ret.push('<input type="text" ' + ca_str + ' value="' + value + '" ' + disabled + '>')
-        //         } else if (field.cat == 'date') {
-        //             ret.push('<input class="date_field" type="date" ' + ca_str + ' value="' + value + '" ' + disabled + '>')
-        //         } else if (startWith(field.cat, 'table')) {
-        //             var table_render_data = field;
-        //             table_render_data.disabled = disabled;
-        //             ret.push(tmp_form_table(table_render_data)); //也要渲染value， disabled
-        //         };
+                var ret = [];
+                if (field.cat == 'str') {
+                    if (field.ctype == 'input') {
+                        ret.push('<input type="text" ' + ca_str + ' value="' + value + '" ' + disabled + '>')
+                    } else if (field.ctype == 'textarea') {
+                        ret.push('<textarea ' + ca_str + ' ' + disabled + '>' + value + '</textarea>')
+                    } else if (field.ctype == 'select') {
+                        ret.push('<select ' + ca_str + ' ' + disabled + '>');
+                        _.each(field.options, function(x) {
+                            if (value == x) {
+                                ret.push('<option value="' + x + '" selected>' + x + '</opton>');
+                            } else {
+                                ret.push('<option value="' + x + '">' + x + '</opton>');
+                            };
+                        })
+                        ret.push('</select>');
+                    };
+                } else if (field.cat == 'num') {
+                    ret.push('<input type="text" ' + ca_str + ' value="' + value + '" ' + disabled + '>')
+                } else if (field.cat == 'date') {
+                    ret.push('<input class="date_field" type="date" ' + ca_str + ' value="' + value + '" ' + disabled + '>')
+                } else if (startWith(field.cat, 'table')) {
+                    var table_render_data = field;
+                    table_render_data.disabled = disabled;
+                    ret.push(tmp_form_table(table_render_data)); //也要渲染value， disabled
+                };
 
-        //         return ret.join('');
-        //     } else {
-        //         return '';
-        //     };
-        // });
+                return ret.join('');
+            } else {
+                return '';
+            };
+        });
 
         Handlebars.registerHelper('getTableCellValue', function(data_row, col, decimal_digits, thousands) {
             // console.log(data_row, col, decimal_digits);
