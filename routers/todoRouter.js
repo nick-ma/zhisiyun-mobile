@@ -67,9 +67,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo2/:op_id/:type": "go_do2",
                 "godo3/:op_id/:type": "go_do3",
                 "godo4/:op_id/:type": "go_do4",
-                "godo11/:op_id/:type": "go_do11",
                 "godo8/:op_id/:type": "go_do8",
                 "godo9/:op_id/:type": "go_do9",
+                "godo11/:op_id/:type": "go_do11",
                 "godofree/:op_id/:type": "go_dofree",
                 // "prev_ai/:period/:people/:position": "prev_ai",
                 // "super_ai/:period/:position": "super_ai",
@@ -81,12 +81,13 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo0_view/:op_id": "go_view0", //通用流程
                 "godo1_view/:op_id": "go_view1",
                 "godo3_view/:op_id": "go_view3",
+                "godo4_view/:op_id": "go_view4", //考勤异常流程查看
                 "godo8_view/:op_id": "go_view8", //请假
                 "godo9_view/:op_id": "go_view9", //消假
+                "godo11_view/:op_id": "go_view11", //HR考勤批量
                 "godo12_view/:op_id": "go_view12", //绩效总结
                 "godo13_view/:op_id": "go_view13", //绩效面谈
                 "godo14_view/:op_id": "go_view14", //绩效申诉
-                "godo4_view/:op_id": "go_view4", //考勤异常流程查看
 
             },
             todo_list: function() { //我的待办
@@ -995,6 +996,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             go_view9: function(op_id) {
                 window.location.href = "#back_leave_form_p/" + op_id + "/L";
+            },
+            go_view11: function(op_id) {
+                window.location.href = "#godo11/" + op_id + "/view";
             },
             go_view12: function(op_id) {
                 window.location.href = "#godo12/" + op_id + "/view";

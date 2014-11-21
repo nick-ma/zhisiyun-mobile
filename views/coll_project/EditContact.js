@@ -114,7 +114,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/ContactM
                     })
                     .on('click', '#btn_clib_add_contact', function(event) {
                         event.preventDefault();
-                        self.contacts_data = self.c_contacts.models;
+                        self.contacts_data = _.filter(self.c_contacts.models,function(x){
+                            return x.attributes.is_show;
+                        });
                         if (self.contacts_data.length) {
                             self.view_mode = 'contact_lib';
                             self.render();
