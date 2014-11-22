@@ -203,6 +203,7 @@ define(["jquery", "underscore", "backbone", "handlebars"], function($, _, Backbo
                 }
             } else {
                 this.template = Handlebars.compile($("#wf02_view").html());
+                obj.mode = self.mode;
                 $("#dc_wf-content").html(self.template(obj));
                 $("#dc_wf-content").trigger('create');
             }
