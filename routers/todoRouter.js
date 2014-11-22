@@ -80,7 +80,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 //查看
                 "godo0_view/:op_id": "go_view0", //通用流程
                 "godo1_view/:op_id": "go_view1", //绩效考核
-                "godo2_view/:op_id": "go_view2", //数据收集
+                "godo2_view/:op_id": "go_view2", //他人评估
                 "godo3_view/:op_id": "go_view3", //绩效计划
                 "godo4_view/:op_id": "go_view4", //考勤异常流程查看
                 "godo8_view/:op_id": "go_view8", //请假
@@ -200,7 +200,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             changeHash: false,
                         });
                     } else {
-                        window.location.href = "#godo1_view/"+self.wf_data.attributes.ti.process_instance._id;
+                        window.location.href = "#godo1_view/" + self.wf_data.attributes.ti.process_instance._id;
                     }
                 })
             },
@@ -333,7 +333,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             changeHash: false,
                         });
                     } else {
-                        window.location.href = "#godo3_view/"+self.wf_data.attributes.ti.process_instance._id;
+                        window.location.href = "#godo3_view/" + self.wf_data.attributes.ti.process_instance._id;
                     }
                 })
             },
@@ -861,6 +861,33 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                         changeHash: false,
                     });
                 })
+            },
+            go_view2: function(op_id, type) {
+                var self = this;
+                self.view_mode_state = localStorage.getItem('view_mode_state') || null;
+                localStorage.removeItem('view_mode_state'); //用完删掉 
+                var ti_id = op_id.split("-")[0];
+                var pd_id = op_id.split("-")[1];
+                var pd_code = op_id.split("-")[2];
+
+                self.wf_data_v.id = ti_id;
+                self.wf_data_v.fetch().done(function(data) {
+                    self.dc.id = self.wf_data_v.attributes.pi.collection_id;
+                    self.dc.fetch().done(function(data1) {
+                        self.wf02View.wf_data = self.wf_data_v;
+                        self.wf02View.dc = self.dc;
+                        if (self.view_mode_state) {
+                            self.wf02View.view_mode = '';
+                        }
+                        self.wf02View.mode = 'view';
+                        self.wf02View.render();
+
+                        $("body").pagecontainer("change", "#dc_wf", {
+                            reverse: false,
+                            changeHash: false,
+                        });
+                    });
+                });
             },
             go_view3: function(op_id, type) {
                 localStorage.setItem('ai_add_pi_back_url', window.location.href);
