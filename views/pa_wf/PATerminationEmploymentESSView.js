@@ -1,23 +1,23 @@
-// pa terminate employment ess View 人员转正流程（个人发起）
+// pa ending probation ess View 人员离职流程（个人发起）
 // =============================================================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../models/PAEndingProbation"],
-    function($, _, Backbone, Handlebars, moment, PAEndingProbation) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../models/PATerminationEmployment"],
+    function($, _, Backbone, Handlebars, moment, PATerminationEmployment) {
         var paep_id = null;
         var do_trans = function(trans_data) {
                 var post_data = {
-                    process_instance_id: $("#pa_ending_probation_ess_list-content #process_instance_id").val(),
-                    task_instance_id: $("#pa_ending_probation_ess_list-content #task_instance_id").val(),
-                    process_define_id: $("#pa_ending_probation_ess_list-content #process_define_id").val(),
-                    next_tdid: $("#pa_ending_probation_ess_list-content #next_tdid").val(),
-                    next_user: $("#pa_ending_probation_ess_list-content #next_user_id").val() || $("#select_next_user").val(), //'516cf9a1d26ad4fe48000001', //以后从列表中选出
-                    trans_name: $("#pa_ending_probation_ess_list-content #trans_name").val(), // 转移过来的名称
-                    comment_msg: $("#pa_ending_probation_ess_list-content #comment_msg").val(), // 任务批注 
+                    process_instance_id: $("#pa_terminate_employment_ess_list-content #process_instance_id").val(),
+                    task_instance_id: $("#pa_terminate_employment_ess_list-content #task_instance_id").val(),
+                    process_define_id: $("#pa_terminate_employment_ess_list-content #process_define_id").val(),
+                    next_tdid: $("#pa_terminate_employment_ess_list-content #next_tdid").val(),
+                    next_user: $("#pa_terminate_employment_ess_list-content #next_user_id").val() || $("#select_next_user").val(), //'516cf9a1d26ad4fe48000001', //以后从列表中选出
+                    trans_name: $("#pa_terminate_employment_ess_list-content #trans_name").val(), // 转移过来的名称
+                    comment_msg: $("#pa_terminate_employment_ess_list-content #comment_msg").val(), // 任务批注 
                     attachments: trans_data.attachments || null
                 };
-                var post_url = $("#pa_ending_probation_ess_list-content #task_process_url").val();
-                post_url = post_url.replace('<TASK_ID>', $("#pa_ending_probation_ess_list-content #task_instance_id").val());
+                var post_url = $("#pa_terminate_employment_ess_list-content #task_process_url").val();
+                post_url = post_url.replace('<TASK_ID>', $("#pa_terminate_employment_ess_list-content #task_instance_id").val());
                 $.post(post_url, post_data, function(data) {
                     if (data.code == 'OK') {
                         window.location = '#todo';
@@ -28,10 +28,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 })
             }
             // Extends Backbone.View
-        var PAEndingProbationESSView = Backbone.View.extend({
+        var PATerminationEmploymentESSView = Backbone.View.extend({
             // The View Constructor
             initialize: function() {
-                this.template = Handlebars.compile($("#psh_pa_ending_probation_ess_view").html());
+                this.template = Handlebars.compile($("#psh_pa_terminate_employment_ess_view").html());
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
                 this.trans_template = Handlebars.compile($("#trans_confirm_view").html());
                 this.bind_events();
@@ -39,10 +39,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
             },
             pre_render: function() {
                 var self = this;
-                $("#pa_ending_probation_ess_list-content").html(self.loading_template({
+                $("#pa_terminate_employment_ess_list-content").html(self.loading_template({
                     info_msg: '数据加载中...请稍候'
                 }));
-                $("#pa_ending_probation_ess_list-content").trigger('create');
+                $("#pa_terminate_employment_ess_list-content").trigger('create');
                 return this;
             },
             // Renders all of the Assessment models on the UI
@@ -58,38 +58,48 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 };
                 paep_id = data[0]._id;
                 var is_self = data[0].people._id == String($("#login_people").val());
+
                 var render_data = {
                     data: data[0],
+                    year: moment(data[0].payroll_stop_date).format('YYYYY'),
+                    month: moment(data[0].payroll_stop_date).format('MM'),
                     view_status: self.view_status,
-                    is_self: is_self
+                    is_self: is_self,
                 };
                 render_data = _.extend(render_data, self.data);
                 if (self.view_mode == 'trans') {
-                    $("#pa_ending_probation_ess_list #pa_name").html('数据处理人');
+                    $("#pa_terminate_employment_ess_list #pa_name").html('数据处理人');
 
-                    $("#pa_ending_probation_ess_list-content").html(self.trans_template(self.trans_data));
+                    $("#pa_terminate_employment_ess_list-content").html(self.trans_template(self.trans_data));
                     if (self.trans_data.next_td.node_type == 'END') {
                         do_trans(self.trans_data);
                     }
                 } else {
-                    $("#pa_ending_probation_ess_list-content").html(self.template(render_data));
+                    $("#pa_terminate_employment_ess_list-content").html(self.template(render_data));
 
                 }
-                $("#pa_ending_probation_ess_list-content").trigger('create');
+                $("#pa_terminate_employment_ess_list-content").trigger('create');
                 return this;
 
             },
             bind_events: function() {
                 var self = this;
 
-                $("#pa_ending_probation_ess_list").on('click', '#btn_save', function(event) { //数据保存接口
+                $("#pa_terminate_employment_ess_list").on('click', '#btn_save', function(event) { //数据保存接口
                     event.preventDefault();
                     paep_id = paep_id || self.collection.models[0].attributes._id;
-                    self.collection.models[0].attributes.ending_probation_date = moment($("#pa_ending_probation_ess_list #actual_ending_probation_date").val());
-                    self.collection.models[0].attributes.self_evaluation = $("#pa_ending_probation_ess_list #self_evaluation").val();
+                    if (String($("#pa_terminate_employment_ess_list #month").val()).length == 1) {
+                        var month = '0' + String($("#pa_terminate_employment_ess_list #month").val());
+                    }else{
+                        var month =String($("#pa_terminate_employment_ess_list #month").val());
+
+                    }
+                    self.collection.models[0].attributes.payroll_stop_date = String($("#pa_terminate_employment_ess_list #year").val()) + month;
+                    // self.collection.models[0].attributes.self_evaluation = $("#pa_terminate_employment_ess_list #self_evaluation").val();
+                    // self.collection.models[0].attributes.validFrom = $("#pa_terminate_employment_ess_list #leaveDate").val();
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
-                            self.collection.url = '/admin/pa/wf/ending_probation_hr/bb/' + paep_id;
+                            self.collection.url = '/admin/pa/wf/termination_employment/bb/' + paep_id;
                             self.collection.fetch().done(function() {
                                 alert("数据保存成功!");
                                 self.render();
@@ -98,14 +108,29 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                         },
                         error: function(model, xhr, options) {}
                     });
-                }).on('change', "input", function(event) {
+                }).on('change', "#self_evaluation", function(event) {
                     event.preventDefault();
-                    var ending_probation_date = moment($(this).val());
                     paep_id = paep_id || self.collection.models[0].attributes._id;
-                    self.collection.models[0].attributes.ending_probation_date = moment($("#actual_ending_probation_date").val());
+                    self.collection.models[0].attributes.self_evaluation = $("#pa_terminate_employment_ess_list #self_evaluation").val();
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
-                            self.collection.url = '/admin/pa/wf/ending_probation_hr/bb/' + paep_id;
+                            self.collection.url = '/admin/pa/wf/termination_employment/bb/' + paep_id;
+                            self.collection.fetch().done(function() {
+                                self.render();
+                            })
+
+                        },
+                        error: function(model, xhr, options) {}
+                    });
+
+                }).on('change', "#leaveDate", function(event) {
+                    event.preventDefault();
+                    var leaveDate = moment($(this).val());
+                    paep_id = paep_id || self.collection.models[0].attributes._id;
+                    self.collection.models[0].attributes.validFrom = $("#pa_terminate_employment_ess_list #leaveDate").val();
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.collection.url = '/admin/pa/wf/termination_employment/bb/' + paep_id;
                             self.collection.fetch().done(function() {
                                 self.render();
                             })
@@ -116,12 +141,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
 
                 }).on('change', "#self_evaluation", function(event) {
                     event.preventDefault();
-                    var self_evaluation = $("#self_evaluation").val();
+                    var self_evaluation = $("#pa_terminate_employment_ess_list #self_evaluation").val();
                     paep_id = paep_id || self.collection.models[0].attributes._id;
                     self.collection.models[0].attributes.self_evaluation = self_evaluation;
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
-                            self.collection.url = '/admin/pa/wf/ending_probation_hr/bb/' + paep_id;
+                            self.collection.url = '/admin/pa/wf/termination_employment/bb/' + paep_id;
                             self.collection.fetch().done(function() {
                                 self.render();
                             })
@@ -144,17 +169,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 }).on('click', '.do_trans', function(event) {
                     event.preventDefault();
                     var $this = $(this);
-                    if ($("#pa_ending_probation_ess_list-content #ti_comment").val() == '') {
+                    if ($("#pa_terminate_employment_ess_list-content #ti_comment").val() == '') {
                         alert('请填写审批意见！');
                         return;
                     }
                     $(this).attr('disabled', true)
                     $.mobile.loading("show");
-                    var process_define_id = $("#pa_ending_probation_ess_list-content #process_define_id").val();
-                    var task_define_id = $("#pa_ending_probation_ess_list-content #task_define_id").val();
-                    var process_instance_id = $("#pa_ending_probation_ess_list-content #process_instance_id").val();
-                    var task_process_url = $("#pa_ending_probation_ess_list-content #task_process_url").val();
-                    var task_instance_id = $("#pa_ending_probation_ess_list-content #task_instance_id").val();
+                    var process_define_id = $("#pa_terminate_employment_ess_list-content #process_define_id").val();
+                    var task_define_id = $("#pa_terminate_employment_ess_list-content #task_define_id").val();
+                    var process_instance_id = $("#pa_terminate_employment_ess_list-content #process_instance_id").val();
+                    var task_process_url = $("#pa_terminate_employment_ess_list-content #task_process_url").val();
+                    var task_instance_id = $("#pa_terminate_employment_ess_list-content #task_instance_id").val();
 
                     var direction = $this.data('direction');
                     var target_id = $this.data('target_id');
@@ -170,7 +195,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                             task_process_url: task_process_url,
                             next_tdname: task_name,
                             trans_name: name,
-                            ti_comment: $("#pa_ending_probation_ess_list-content #ti_comment").val(),
+                            ti_comment: $("#pa_terminate_employment_ess_list-content #ti_comment").val(),
                             task_instance_id: task_instance_id,
                             next_tdid: target_id,
                             direction: direction,
@@ -191,7 +216,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                             task_process_url: task_process_url,
                             next_tdname: task_name,
                             trans_name: name,
-                            ti_comment: $("#pa_ending_probation_ess_list-content #ti_comment").val(),
+                            ti_comment: $("#pa_terminate_employment_ess_list-content #ti_comment").val(),
                             task_instance_id: task_instance_id,
                             next_tdid: target_id,
                             direction: direction,
@@ -208,7 +233,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     }
                 }).on('click', '#btn_ok', function(e) {
                     $.mobile.loading("show");
-                    if ($("#pa_ending_probation_ess_list-content #next_user_name").val() || $("#pa_ending_probation_ess_list-content #select_next_user").val()) {
+                    if ($("#pa_terminate_employment_ess_list-content #next_user_name").val() || $("#pa_terminate_employment_ess_list-content #select_next_user").val()) {
                         $("#btn_ok").attr("disabled", "disabled");
                         if (!self.view_mode) {
                             do_trans(self.trans_data);
@@ -240,6 +265,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
         });
 
         // Returns the View class
-        return PAEndingProbationESSView;
+        return PATerminationEmploymentESSView;
 
     });

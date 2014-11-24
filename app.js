@@ -205,27 +205,27 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
     };
     //自定义的多关键字搜索 -> 返回true代表当前行需要隐藏， 返回false代表当前行显示出来
     $.mobile.filterable.prototype.options.filterCallback = function(index, searchValue) {
-      // console.log(index, searchValue);
-      var $this = $(this),
-        filtertext = $this.data('filtertext') || $this.text() || '';
+        // console.log(index, searchValue);
+        var $this = $(this),
+          filtertext = $this.data('filtertext') || $this.text() || '';
 
-      if (searchValue) {
-        searchValue = searchValue.split(' ');
-        var found_flag = true;
-        for (var i = 0; i < searchValue.length; i++) { //循环字段， 取每次的交集
-          var tmp_regexp = /./;
-          tmp_regexp.compile(searchValue[i]);
-          found_flag = found_flag && tmp_regexp.test(filtertext);
+        if (searchValue) {
+          searchValue = searchValue.split(' ');
+          var found_flag = true;
+          for (var i = 0; i < searchValue.length; i++) { //循环字段， 取每次的交集
+            var tmp_regexp = /./;
+            tmp_regexp.compile(searchValue[i]);
+            found_flag = found_flag && tmp_regexp.test(filtertext);
+          };
+          // console.log(filtertext, searchValue, found_flag);
+          return !found_flag;
         };
-        // console.log(filtertext, searchValue, found_flag);
-        return !found_flag;
-      };
-      return false; //没有过滤条件，全都显示
-    }
-    //config for ajax file upload in jquery mobile
-    // $.ajaxEnvironment = function(settings, block) {
-    //   var originalSettings = $.ajaxSetup();
-    //   var restoredSettings = {};
+        return false; //没有过滤条件，全都显示
+      }
+      //config for ajax file upload in jquery mobile
+      // $.ajaxEnvironment = function(settings, block) {
+      //   var originalSettings = $.ajaxSetup();
+      //   var restoredSettings = {};
 
     //   $.each(settings, function(key) {
     //     restoredSettings[key] = originalSettings[key];
@@ -273,7 +273,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
     };
     $.mobile.initializePage();
     console.debug('$.mobile.initializePage() --DONE!')
-    // // Instantiates a new Backbone.js Mobile Router
+      // // Instantiates a new Backbone.js Mobile Router
     this.router = new Mobile();
     console.info('app message: backbone MAIN router started!');
     window.setTimeout(function() {
@@ -287,17 +287,20 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
     window.alert = function(msg, cb) { //默认的alert框的替换
       console.log('message: alert->', msg);
       $("#my_alert").html(msg.replace(/\n/g, '<br>')).popup('open');
+
+      $("#my_alert").show();
       window.setTimeout(function() {
         $("#my_alert").popup('close');
         if (cb && typeof cb == 'function') {
           cb();
         };
-      }, 3000);
+      }, 30000);
 
     }
     window.my_confirm = function(msg, cb_cancel, cb_ok) { //默认的confirm框的替换
 
       $("#my_confirm #confirm_msg").html(msg.replace(/\n/g, '<br>'))
+      $("#my_confirm").show();
       $("#my_confirm").popup('open');
       $("#my_confirm").off('click');
       $("#my_confirm")

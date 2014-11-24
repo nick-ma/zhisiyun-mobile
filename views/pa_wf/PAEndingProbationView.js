@@ -209,7 +209,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     window.location.reload();
                 }).on('click', '#btn_wf_start_userchat', function(event) {
                     event.preventDefault();
-                    var people = $(this).data("people") || self.collection.models[0].attributes.data.people._id;
+                    var people = $(this).data("people") || self.collection.models[0].attributes.people._id;
                     var url = "im://userchat/" + people;
                     window.location.href = url;
                 }).on('click', 'img', function(event) {
