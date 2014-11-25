@@ -6,21 +6,25 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         "../collections/PAEndingProbationCollection",
         //人员离职
         "../collections/PATerminationEmploymentCollection",
+        "../collections/PAMoveCollection",
         "../models/PAEndingProbation",
         "../models/PATerminationEmployment",
+        "../models/PAMoveModel",
         "../views/pa_wf/PAEndingProbationView",
         "../views/pa_wf/PAEndingProbationESSView",
         "../views/pa_wf/PATerminationEmploymentESSView",
         "../views/pa_wf/PATerminationEmploymentView",
+        "../views/pa_wf/PAMoveView",
 
         "async", "pull-to-refresh"
     ],
     function($, Backbone, Handlebars, LZString,
-        PAEndingProbationCollection, PATerminationEmploymentCollection, PAEndingProbation, PATerminationEmployment,
+        PAEndingProbationCollection, PATerminationEmploymentCollection, PAMoveCollection, PAEndingProbation, PATerminationEmployment,
+        PAMoveModel,
         PAEndingProbationView,
         PAEndingProbationESSView,
         PATerminationEmploymentESSView,
-        PATerminationEmploymentView, async
+        PATerminationEmploymentView,PAMoveView, async
     ) {
 
         var PARouter = Backbone.Router.extend({
@@ -40,6 +44,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 "godo17/:task_id_or_process_instance_id/:type": "pa_terminate_employment_ess", // 流程启动后的界面 或者 流程查看
                 //人员离职hr流程
                 "godo18/:task_id_or_process_instance_id/:type": "pa_terminate_employment_hr", // 流程启动后的界面 或者 流程查看
+                //人员平调hr流程
+                "godo19/:task_id_or_process_instance_id/:type": "pa_move_hr", // 流程启动后的界面 或者 流程查看
 
             },
 
@@ -495,7 +501,146 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
                 }
             },
+            pa_move_hr: function(_id, type) { //人员离职HR
+                var self = this;
+                $("body").pagecontainer("change", "#pa_move_hr_list", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.PAMoveView.pre_render();
+                if (type == 'view') { //流程查看
+                    var process_instance_id = _id;
+                    async.series({
+                        wf_data: function(cb) {
+                            var obj = {
+                                process_instance_id: process_instance_id,
+                            }
+                            $.post('/admin/pa/wf/move/wf_process_data_4m', obj, function(data) {
+                                if (data) {
+                                    self.PAMoveView.data = data;
 
+                                    cb(null, data.wf_data._id)
+
+                                } else {
+                                    cb(null, null)
+                                }
+                            })
+                        },
+                        par_data: function(cb) {
+                            $.get('/admin/pa/par/get_par_by_pae_code?pae_code=Z4', function(data) {
+                                if (data.code == 'OK') {
+                                    self.PAMoveView.par_data = data.data;
+
+                                    cb(null, data.data)
+
+                                } else {
+                                    cb(null, null)
+                                }
+                            })
+                        }
+                    }, function(err, data) {
+                        self.pa_move_hr.url = '/admin/pa/wf/move/bb/' + data.wf_data;
+                        self.pa_move_hr.fetch().done(function() {
+                            self.PAMoveView.view_status = type;
+                            self.PAMoveView.render();
+                            $.mobile.loading('hide');
+
+                        })
+                    })
+                } else { //流程编辑
+                    var type = "edit";
+                    var task_id = _id.split("-")[0];
+                    var pd_id = _id.split("-")[1];
+                    var pd_code = _id.split("-")[2];
+                    $.get('/admin/pm/assessment_instance/summary/edit_m/' + task_id, function(data) {
+                        if (data.code == "OK") {
+                            if (data.msg.task_state != 'FINISHED') {
+                                var type = "edit";
+
+                                // var task_id = _id; //流程任务处理，则是任务ID，否则，是流程实例ID；
+                                async.series({
+                                    wf_data: function(cb) {
+                                        $.get('/admin/pa/wf/move/edit_4m/' + task_id, function(data) {
+                                            self.PAMoveView.data = data;
+                                            if (data) {
+                                                cb(null, data.paep._id)
+
+                                            } else {
+                                                cb(null, null)
+                                            }
+                                        })
+                                    },
+                                    par_data: function(cb) {
+                                        $.get('/admin/pa/par/get_par_by_pae_code?pae_code=Z4', function(data) {
+                                            if (data.code == 'OK') {
+                                                self.PAMoveView.par_data = data.data;
+
+                                                cb(null, data.data)
+
+                                            } else {
+                                                cb(null, null)
+                                            }
+                                        })
+                                    }
+                                }, function(err, data) {
+                                    // self.pa_terminate_employment.url = '/admin/pa/wf/ending_probation_hr/bb';
+                                    self.pa_move_hr.url = '/admin/pa/wf/move/bb/' + data.wf_data;
+                                    self.pa_move_hr.fetch().done(function() {
+                                        self.PAMoveView.view_status = type;
+                                        self.PAMoveView.render();
+                                        $.mobile.loading('hide');
+
+                                    })
+                                })
+                            } else {
+                                var type = "view";
+                                var process_instance_id = data.msg.process_instance;
+                                async.series({
+                                    wf_data: function(cb) {
+                                        var obj = {
+                                            process_instance_id: process_instance_id,
+                                        }
+                                        $.post('/admin/pa/wf/move/wf_process_data_4m', obj, function(data) {
+                                            self.PAMoveView.data = data;
+                                            if (data) {
+                                                cb(null, data.wf_data._id)
+
+                                            } else {
+                                                cb(null, null)
+                                            }
+                                        })
+                                    },
+                                    par_data: function(cb) {
+                                        $.get('/admin/pa/par/get_par_by_pae_code?pae_code=Z4', function(data) {
+                                            if (data.code == 'OK') {
+                                                self.PAMoveView.par_data = data.data;
+
+                                                cb(null, data.data)
+
+                                            } else {
+                                                cb(null, null)
+                                            }
+                                        })
+                                    }
+                                }, function(err, data) {
+                                    self.pa_move_hr.url = '/admin/pa/wf/pa_move_hr/bb/' + data.wf_data;
+                                    self.pa_move_hr.fetch().done(function() {
+                                        self.PAMoveView.view_status = type;
+                                        self.PAMoveView.render();
+                                        $.mobile.loading('hide');
+
+                                    })
+                                })
+                            }
+
+                        } else {
+                            alert(data.code)
+                        }
+                    })
+
+                }
+            },
             init_views: function() {
                 var self = this;
                 this.PAEndingProbationView = new PAEndingProbationView({
@@ -514,6 +659,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                     el: "#pa_terminate_employment_hr_list-content",
                     collection: self.pa_terminate_employment
                 });
+                this.PAMoveView = new PAMoveView({
+                    el: "#pa_move_hr_list-content",
+                    collection: self.pa_move_hr
+                });
 
             },
             init_models: function() {
@@ -522,6 +671,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             init_collections: function() {
                 this.pa_ending_probation = new PAEndingProbationCollection(); //人员转正
                 this.pa_terminate_employment = new PATerminationEmploymentCollection(); //人员离职
+                this.pa_move_hr = new PAMoveCollection(); //人员平调
 
             },
 

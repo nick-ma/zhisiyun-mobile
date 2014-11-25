@@ -2613,6 +2613,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return select_arr.join('')
 
       });
+       Handlebars.registerHelper('i18n_convert', function(data) { //人员离职原因
+        return data["zh"]
+      });
     })();
 
     // Returns the Router class
