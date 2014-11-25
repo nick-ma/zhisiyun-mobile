@@ -631,47 +631,63 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     var ti_id = op_id.split("-")[0];
                     var pd_id = op_id.split("-")[1];
                     var pd_code = op_id.split("-")[2];
-                    async.parallel({
-                        data1: function(cb) {
-                            async.waterfall([
+                    $.get('/admin/pm/assessment_instance/summary/edit_m/' + ti_id, function(data) {
+                        if (data.code == "OK") {
+                            if (data.msg.task_state != 'FINISHED') {
+                                var type = "edit";
 
-                                function(cb) {
-                                    $.get('/admin/tm/beyond_work/wf_task/' + ti_id, function(data) {
-                                        if (data) {
-                                            self.singleHrAttendanceResultChangeView.wf_data = data;
-                                            cb(null, data)
-                                        } else {
-                                            cb(null, null);
-                                        }
-                                    })
+                                async.parallel({
+                                    data1: function(cb) {
+                                        async.waterfall([
 
-                                },
-                                function(wf_data, cb) {
-                                    var attendance_id = wf_data.ti.process_instance.collection_id;
-                                    $.get('/admin/tm/tm_wf/get_hr_collection_data/' + attendance_id, function(data) {
-                                        if (data) {
-                                            self.singleHrAttendanceResultChangeView.attendance = data;
-                                            cb(null, data)
-                                        } else {
-                                            cb(null, null);
-                                        }
-                                    })
-                                },
+                                            function(cb) {
+                                                $.get('/admin/tm/beyond_work/wf_task/' + ti_id, function(data) {
+                                                    if (data) {
+                                                        self.singleHrAttendanceResultChangeView.wf_data = data;
+                                                        cb(null, data)
+                                                    } else {
+                                                        cb(null, null);
+                                                    }
+                                                })
 
-                            ], cb);
+                                            },
+                                            function(wf_data, cb) {
+                                                var attendance_id = wf_data.ti.process_instance.collection_id;
+                                                $.get('/admin/tm/tm_wf/get_hr_collection_data/' + attendance_id, function(data) {
+                                                    if (data) {
+                                                        self.singleHrAttendanceResultChangeView.attendance = data;
+                                                        cb(null, data)
+                                                    } else {
+                                                        cb(null, null);
+                                                    }
+                                                })
+                                            },
+
+                                        ], cb);
+                                    }
+                                }, function(err, ret) {
+                                    self.singleHrAttendanceResultChangeView.view_mode = 'deal_with';
+                                    self.singleHrAttendanceResultChangeView.render();
+                                    //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                                    $(".ui-flipswitch a").each(function() {
+                                        $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                                    });
+                                    $("body").pagecontainer("change", "#wf_attendance_batch", {
+                                        reverse: false,
+                                        changeHash: false,
+                                    });
+                                })
+                            } else {
+                                var type = "view";
+                                var process_instance_id = data.msg.process_instance;
+                                window.location.href = "#godo11/" + process_instance_id + "/view";
+                            }
+
+                        } else {
+                            alert(data.code)
                         }
-                    }, function(err, ret) {
-                        self.singleHrAttendanceResultChangeView.view_mode = 'deal_with';
-                        self.singleHrAttendanceResultChangeView.render();
-                        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
-                        $(".ui-flipswitch a").each(function() {
-                            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
-                        });
-                        $("body").pagecontainer("change", "#wf_attendance_batch", {
-                            reverse: false,
-                            changeHash: false,
-                        });
                     })
+
                 }
 
             },

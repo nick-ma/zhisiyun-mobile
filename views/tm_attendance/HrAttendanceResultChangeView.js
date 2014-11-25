@@ -57,7 +57,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var attendance = self.attendance;
 				var bool = false;
 				var arr_change = [];
-
 				if (self.view_mode) {
 					if (self.view_mode == 'trans') {
 						$("#wf_attendance_batch_title").html('数据处理人');
@@ -271,7 +270,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				})
 				$("#personal_wf_attend_batch-content").on('click', '#btn_wf_start_userchat', function(event) {
 						event.preventDefault();
-						var url = "im://userchat/" + self.attendance.people;
+						var url = "im://userchat/" + self.attendance.people._id;
 						console.log(url);
 						window.location.href = url;
 					}).on('click', '#btn_upload_attachment', function(event) {

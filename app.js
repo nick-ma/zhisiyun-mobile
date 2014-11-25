@@ -294,7 +294,7 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
         if (cb && typeof cb == 'function') {
           cb();
         };
-      }, 30000);
+      }, 3000);
 
     }
     window.my_confirm = function(msg, cb_cancel, cb_ok) { //默认的confirm框的替换

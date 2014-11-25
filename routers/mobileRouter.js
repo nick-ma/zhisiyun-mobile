@@ -2552,7 +2552,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           select_arr.push('<select id="year" style="margin: 0px;" data-mini="true" disabled>')
 
         }
-        for (var i = 1; i < years.length;i++) {
+        for (var i = 1; i < years.length; i++) {
           if (i == String(date).substring(0, 4)) {
             select_arr.push('<option value ="' + years[i] + '" selected>' + years[i] + '年</option>')
           } else {
@@ -2585,9 +2585,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           select_arr.push('<select id="month" style="margin: 0px;" data-mini="true" disabled>')
 
         }
-        console.log(date);
         for (var i = 1; i <= 12; i++) {
-          console.log(Number(String(date).substring(4)));
           if (Number(i) == Number(String(date).substring(4))) {
             select_arr.push('<option value ="' + i + '" selected>' + months[i] + '</option>')
           } else {
@@ -2596,6 +2594,22 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           }
         }
         select_arr.push('</select>');
+        return select_arr.join('')
+
+      });
+      Handlebars.registerHelper('par_select', function(data, id) { //人员离职原因
+        var select_arr = [];
+        if (data.length > 0) {
+          _.each(data, function(x) {
+            if (x._id == String(id)) {
+              select_arr.push('<option value ="' + x._id + '" selected>' + x.pa_reason_name["zh"] + '</option>')
+            } else {
+              select_arr.push('<option value ="' + x._id + '" >' + x.pa_reason_name["zh"] + '</option>')
+
+            }
+          })
+        }
+
         return select_arr.join('')
 
       });
