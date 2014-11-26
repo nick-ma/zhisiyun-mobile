@@ -2,22 +2,22 @@
 // =============================================================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../models/PAMoveModel"],
-    function($, _, Backbone, Handlebars, moment, PAMoveModel) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../models/PADemotionModel"],
+    function($, _, Backbone, Handlebars, moment, PADemotionModel) {
         var paep_id = null;
         var do_trans = function(trans_data) {
                 var post_data = {
-                    process_instance_id: $("#pa_move_hr_list-content #process_instance_id").val(),
-                    task_instance_id: $("#pa_move_hr_list-content #task_instance_id").val(),
-                    process_define_id: $("#pa_move_hr_list-content #process_define_id").val(),
-                    next_tdid: $("#pa_move_hr_list-content #next_tdid").val(),
-                    next_user: $("#pa_move_hr_list-content #next_user_id").val() || $("#select_next_user").val(), //'516cf9a1d26ad4fe48000001', //以后从列表中选出
-                    trans_name: $("#pa_move_hr_list-content #trans_name").val(), // 转移过来的名称
-                    comment_msg: $("#pa_move_hr_list-content #comment_msg").val(), // 任务批注 
+                    process_instance_id: $("#pa_demotion_hr_list-content #process_instance_id").val(),
+                    task_instance_id: $("#pa_demotion_hr_list-content #task_instance_id").val(),
+                    process_define_id: $("#pa_demotion_hr_list-content #process_define_id").val(),
+                    next_tdid: $("#pa_demotion_hr_list-content #next_tdid").val(),
+                    next_user: $("#pa_demotion_hr_list-content #next_user_id").val() || $("#select_next_user").val(), //'516cf9a1d26ad4fe48000001', //以后从列表中选出
+                    trans_name: $("#pa_demotion_hr_list-content #trans_name").val(), // 转移过来的名称
+                    comment_msg: $("#pa_demotion_hr_list-content #comment_msg").val(), // 任务批注 
                     attachments: trans_data.attachments || null
                 };
-                var post_url = $("#pa_move_hr_list-content #task_process_url").val();
-                post_url = post_url.replace('<TASK_ID>', $("#pa_move_hr_list-content #task_instance_id").val());
+                var post_url = $("#pa_demotion_hr_list-content #task_process_url").val();
+                post_url = post_url.replace('<TASK_ID>', $("#pa_demotion_hr_list-content #task_instance_id").val());
                 $.post(post_url, post_data, function(data) {
                     if (data.code == 'OK') {
                         window.location = '#todo';
@@ -28,10 +28,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 })
             }
             // Extends Backbone.View
-        var PAMoveView = Backbone.View.extend({
+        var PADemotionView = Backbone.View.extend({
             // The View Constructor
             initialize: function() {
-                this.template = Handlebars.compile($("#psh_pa_move_hr_view").html());
+                this.template = Handlebars.compile($("#psh_pa_demotion_hr_view").html());
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
                 this.trans_template = Handlebars.compile($("#trans_confirm_view").html());
                 this.bind_events();
@@ -39,10 +39,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
             },
             pre_render: function() {
                 var self = this;
-                $("#pa_move_hr_list-content").html(self.loading_template({
+                $("#pa_demotion_hr_list-content").html(self.loading_template({
                     info_msg: '数据加载中...请稍候'
                 }));
-                $("#pa_move_hr_list-content").trigger('create');
+                $("#pa_demotion_hr_list-content").trigger('create');
                 return this;
             },
             // Renders all of the Assessment models on the UI
@@ -67,33 +67,33 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 };
                 render_data = _.extend(render_data, self.data);
                 if (self.view_mode == 'trans') {
-                    $("#pa_move_hr_list #pa_name").html('数据处理人');
+                    $("#pa_demotion_hr_list #pa_name").html('数据处理人');
 
-                    $("#pa_move_hr_list-content").html(self.trans_template(self.trans_data));
+                    $("#pa_demotion_hr_list-content").html(self.trans_template(self.trans_data));
                     if (self.trans_data.next_td.node_type == 'END') {
                         do_trans(self.trans_data);
                     }
                 } else {
-                    $("#pa_move_hr_list-content").html(self.template(render_data));
+                    $("#pa_demotion_hr_list-content").html(self.template(render_data));
 
                 }
-                $("#pa_move_hr_list-content").trigger('create');
+                $("#pa_demotion_hr_list-content").trigger('create');
                 return this;
 
             },
             bind_events: function() {
                 var self = this;
 
-                $("#pa_move_hr_list").on('click', '#btn_save', function(event) { //数据保存接口
+                $("#pa_demotion_hr_list").on('click', '#btn_save', function(event) { //数据保存接口
                     event.preventDefault();
                     paep_id = paep_id || self.collection.models[0].attributes._id;
                     var data_clone = _.clone(self.collection.models[0].attributes);
-                    self.collection.models[0].attributes.par = data_clone.par._id;
+                    self.collection.models[0].attributes.par = data_clone.par ? data_clone.par._id : null;
                     self.collection.models[0].attributes.src_position = data_clone.src_position._id;
                     self.collection.models[0].attributes.dest_position = data_clone.dest_position._id;
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
-                            self.collection.url = '/admin/pa/wf/move/bb/' + paep_id;
+                            self.collection.url = '/admin/pa/wf/demotion/bb/' + paep_id;
                             self.collection.fetch().done(function() {
                                 alert("数据保存成功!");
                                 self.render();
@@ -105,10 +105,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 }).on('change', "#self_evaluation", function(event) {
                     event.preventDefault();
                     paep_id = paep_id || self.collection.models[0].attributes._id;
-                    self.collection.models[0].attributes.self_evaluation = $("#pa_move_hr_list #self_evaluation").val();
+                    self.collection.models[0].attributes.self_evaluation = $("#pa_demotion_hr_list #self_evaluation").val();
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
-                            self.collection.url = '/admin/pa/wf/move/bb/' + paep_id;
+                            self.collection.url = '/admin/pa/wf/demotion/bb/' + paep_id;
                             self.collection.fetch().done(function() {
                                 self.render();
                             })
@@ -121,10 +121,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     event.preventDefault();
                     var leaveDate = moment($(this).val());
                     paep_id = paep_id || self.collection.models[0].attributes._id;
-                    self.collection.models[0].attributes.validFrom = $("#pa_move_hr_list #leaveDate").val();
+                    self.collection.models[0].attributes.validFrom = $("#pa_demotion_hr_list #leaveDate").val();
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
-                            self.collection.url = '/admin/pa/wf/move/bb/' + paep_id;
+                            self.collection.url = '/admin/pa/wf/demotion/bb/' + paep_id;
                             self.collection.fetch().done(function() {
                                 self.render();
                             })
@@ -135,12 +135,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
 
                 }).on('change', "#self_evaluation", function(event) {
                     event.preventDefault();
-                    var self_evaluation = $("#pa_move_hr_list #self_evaluation").val();
+                    var self_evaluation = $("#pa_demotion_hr_list #self_evaluation").val();
                     paep_id = paep_id || self.collection.models[0].attributes._id;
                     self.collection.models[0].attributes.self_evaluation = self_evaluation;
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
-                            self.collection.url = '/admin/pa/wf/move/bb/' + paep_id;
+                            self.collection.url = '/admin/pa/wf/demotion/bb/' + paep_id;
                             self.collection.fetch().done(function() {
                                 self.render();
                             })
@@ -157,7 +157,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     self.collection.models[0].attributes.par = par;
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
-                            self.collection.url = '/admin/pa/wf/move/bb/' + paep_id;
+                            self.collection.url = '/admin/pa/wf/demotion/bb/' + paep_id;
                             self.collection.fetch().done(function() {
                                 self.render();
                             })
@@ -180,17 +180,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 }).on('click', '.do_trans', function(event) {
                     event.preventDefault();
                     var $this = $(this);
-                    if ($("#pa_move_hr_list-content #ti_comment").val() == '') {
+                    if ($("#pa_demotion_hr_list-content #ti_comment").val() == '') {
                         alert('请填写审批意见！');
                         return;
                     }
                     $(this).attr('disabled', true)
                     $.mobile.loading("show");
-                    var process_define_id = $("#pa_move_hr_list-content #process_define_id").val();
-                    var task_define_id = $("#pa_move_hr_list-content #task_define_id").val();
-                    var process_instance_id = $("#pa_move_hr_list-content #process_instance_id").val();
-                    var task_process_url = $("#pa_move_hr_list-content #task_process_url").val();
-                    var task_instance_id = $("#pa_move_hr_list-content #task_instance_id").val();
+                    var process_define_id = $("#pa_demotion_hr_list-content #process_define_id").val();
+                    var task_define_id = $("#pa_demotion_hr_list-content #task_define_id").val();
+                    var process_instance_id = $("#pa_demotion_hr_list-content #process_instance_id").val();
+                    var task_process_url = $("#pa_demotion_hr_list-content #task_process_url").val();
+                    var task_instance_id = $("#pa_demotion_hr_list-content #task_instance_id").val();
 
                     var direction = $this.data('direction');
                     var target_id = $this.data('target_id');
@@ -206,14 +206,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                             task_process_url: task_process_url,
                             next_tdname: task_name,
                             trans_name: name,
-                            ti_comment: $("#pa_move_hr_list-content #ti_comment").val(),
+                            ti_comment: $("#pa_demotion_hr_list-content #ti_comment").val(),
                             task_instance_id: task_instance_id,
                             next_tdid: target_id,
                             direction: direction,
                             attachments: self.data.attachments,
                             people_id: $("#people_id").val() || self.collection.models[0].attributes.people._id,
-                            position_id: $("#pa_move_hr_list-content #dest_position_superior").val(),
-                            roles_type: $("#pa_move_hr_list-content #roles_type").val(),
+                            position_id: $("#pa_demotion_hr_list-content #dest_position_superior").val(),
+                            roles_type: $("#pa_demotion_hr_list-content #roles_type").val(),
 
 
                         }, function(data) {
@@ -233,14 +233,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                             task_process_url: task_process_url,
                             next_tdname: task_name,
                             trans_name: name,
-                            ti_comment: $("#pa_move_hr_list-content #ti_comment").val(),
+                            ti_comment: $("#pa_demotion_hr_list-content #ti_comment").val(),
                             task_instance_id: task_instance_id,
                             next_tdid: target_id,
                             direction: direction,
                             attachments: self.data.attachments,
                             people_id: $("#people_id").val() || self.collection.models[0].attributes.people._id,
-                            position_id: $("#pa_move_hr_list-content #dest_position_superior").val(),
-                            roles_type: $("#pa_move_hr_list-content #roles_type").val(),
+                            position_id: $("#pa_demotion_hr_list-content #dest_position_superior").val(),
+                            roles_type: $("#pa_demotion_hr_list-content #roles_type").val(),
 
                         }, function(data) {
 
@@ -254,7 +254,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     }
                 }).on('click', '#btn_ok', function(e) {
                     $.mobile.loading("show");
-                    if ($("#pa_move_hr_list-content #next_user_name").val() || $("#pa_move_hr_list-content #select_next_user").val()) {
+                    if ($("#pa_demotion_hr_list-content #next_user_name").val() || $("#pa_demotion_hr_list-content #select_next_user").val()) {
                         $("#btn_ok").attr("disabled", "disabled");
                         if (!self.view_mode) {
                             do_trans(self.trans_data);
@@ -286,6 +286,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
         });
 
         // Returns the View class
-        return PAMoveView;
+        return PADemotionView;
 
     });
