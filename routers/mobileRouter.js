@@ -2614,7 +2614,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
       });
        Handlebars.registerHelper('i18n_convert', function(data) { //人员离职原因
-        return data["zh"]
+        return data?data["zh"]:''
       });
     })();
 
