@@ -59,6 +59,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             people: self.people,
                             people_name: self.people_name,
                             content: '新建的记事本',
+                            source_people: null,
+                            source_people_name: '',
                             createDate: new Date(),
                             lastModified: new Date(),
                         };
