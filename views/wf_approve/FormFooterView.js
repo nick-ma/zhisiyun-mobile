@@ -350,6 +350,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             // console.log(data);
                             if (data.code == 'OK') {
                                 alert(data.msg);
+                                // $("body").pagecontainer("change", "#wf_my_workflow_form", {
+                                //     reverse: false,
+                                //     changeHash: false,
+                                // });
+                                $("#form_header").show();
+                                $("#form_body").show();
+                                $("#form_footer").show();
+                                $("#confirm_trans").hide();
                                 window.location.href = '#todo';
                             } else {
                                 alert(data.msg);
