@@ -2553,7 +2553,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         }
         for (var i = 1; i < years.length; i++) {
-          if (i == String(date).substring(0, 4)) {
+          if (years[i] == String(date).substring(0, 4)) {
             select_arr.push('<option value ="' + years[i] + '" selected>' + years[i] + '年</option>')
           } else {
             select_arr.push('<option value ="' + years[i] + '" >' + years[i] + '年</option>')
@@ -2586,7 +2586,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         }
         for (var i = 1; i <= 12; i++) {
-          if (Number(i) == Number(String(date).substring(4))) {
+          if (Number(i) == Number(moment(date).format("MM"))) {
             select_arr.push('<option value ="' + i + '" selected>' + months[i] + '</option>')
           } else {
             select_arr.push('<option value ="' + i + '" >' + months[i] + '</option>')
