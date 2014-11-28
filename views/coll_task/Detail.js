@@ -324,6 +324,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
 
                     })
+                    .on('click', '.btn_do_ct_checkout', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        var $this = $(this);
+                        var cr_id = $this.data('cr_id');
+                        var syscmd_url = 'cmd://app/checkout/coll_task/' + self.model.get('_id') + '/' + cr_id;
+                        // console.log(syscmd_url);
+                        window.location.href = syscmd_url; //向app外壳发送消息，等待上钩
+
+                    })
                     .on('click', '.toggle_p_task', function(event) {
                         event.preventDefault();
                         if (self.show_p_task) {
@@ -426,14 +436,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                                         });
                                     }, 1000);
                                 },
-                                error:function() {
+                                error: function() {
                                     setTimeout(function() {
                                         alert('任务删除失败');
                                     }, 100);
                                 },
                             });
                         })
-                        
+
                     })
                     .on('click', '#btn-colltask_detail-complete', function(event) {
                         event.preventDefault();
