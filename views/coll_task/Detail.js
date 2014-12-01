@@ -55,7 +55,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                     self.model.set(JSON.parse(localStorage.getItem('comment_model_back')).model);
                     localStorage.removeItem('comment_model_back');
                     self.model.save().done(function() {
-                        self.render();
+                        self.model.fetch().done(function() {
+                            self.render();
+                        })
                     })
                     return;
                 };
@@ -402,9 +404,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                             scores_comment = self.model.attributes.scores_comment[type][index] || '';
                         };
                         _.each(self.ctsl.tsl, function(x) {
-                            options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
-                        })
-                        //生成下拉框
+                                options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
+                            })
+                            //生成下拉框
                         $sel_ct_score_level.html(options.join('')).trigger('change');
                         $ct_score_comment.val(scores_comment);
                         $("#do_ct_score_popup #btn_do_ct_score").data('type', type).data('index', index);
@@ -462,9 +464,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                             scores_level = self.model.attributes.scores_level['th'] || '';
                             scores_comment = self.model.attributes.scores_comment['th'] || '';
                             _.each(self.ctsl.tsl, function(x) {
-                                options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
-                            })
-                            //生成下拉框
+                                    options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
+                                })
+                                //生成下拉框
                             $sel_ct_score_level.html(options.join('')).trigger('change');
                             $ct_score_comment.val(scores_comment);
                             $("#do_ct_score_popup #btn_do_ct_score").data('type', 'th');
@@ -487,34 +489,34 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment",
                         } else {
                             my_confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！', null, function() {
 
-                                self.model.set('isfinished', false);
-                                self.model.set('score', 0);
-                                self.model.attributes.scores.th = 0;
-                                for (var i = 0; i < self.model.attributes.scores.tms.length; i++) {
-                                    self.model.attributes.scores.tms[i] = 0;
-                                };
-                                for (var i = 0; i < self.model.attributes.scores.ntms.length; i++) {
-                                    self.model.attributes.scores.ntms[i] = 0;
-                                };
-                                self.model.attributes.scores_comment.th = '';
-                                for (var i = 0; i < self.model.attributes.scores_comment.tms.length; i++) {
-                                    self.model.attributes.scores_comment.tms[i] = '';
-                                };
-                                for (var i = 0; i < self.model.attributes.scores_comment.ntms.length; i++) {
-                                    self.model.attributes.scores_comment.ntms[i] = '';
-                                };
-                                self.model.attributes.final_judgement = ''; //清空评定内容。
-                                // alert('任务已重新打开');
-                                self.model.save().done(function() {
-                                    self.model.fetch().done(function() {
-                                        self.render();
-                                        setTimeout(function() {
-                                            alert('任务已重新打开')
-                                        }, 100)
+                                    self.model.set('isfinished', false);
+                                    self.model.set('score', 0);
+                                    self.model.attributes.scores.th = 0;
+                                    for (var i = 0; i < self.model.attributes.scores.tms.length; i++) {
+                                        self.model.attributes.scores.tms[i] = 0;
+                                    };
+                                    for (var i = 0; i < self.model.attributes.scores.ntms.length; i++) {
+                                        self.model.attributes.scores.ntms[i] = 0;
+                                    };
+                                    self.model.attributes.scores_comment.th = '';
+                                    for (var i = 0; i < self.model.attributes.scores_comment.tms.length; i++) {
+                                        self.model.attributes.scores_comment.tms[i] = '';
+                                    };
+                                    for (var i = 0; i < self.model.attributes.scores_comment.ntms.length; i++) {
+                                        self.model.attributes.scores_comment.ntms[i] = '';
+                                    };
+                                    self.model.attributes.final_judgement = ''; //清空评定内容。
+                                    // alert('任务已重新打开');
+                                    self.model.save().done(function() {
+                                        self.model.fetch().done(function() {
+                                            self.render();
+                                            setTimeout(function() {
+                                                alert('任务已重新打开')
+                                            }, 100)
+                                        })
                                     })
                                 })
-                            })
-                            // if (confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！')) {
+                                // if (confirm('即将重新打开本任务。\n警告：一旦重新打开任务，之前所有的评分、评语、最终评定内容以及技能得分都将清空！')) {
 
                             // };
 

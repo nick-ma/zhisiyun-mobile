@@ -63,7 +63,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                     self.model.set(JSON.parse(localStorage.getItem('comment_model_back')).model);
                     localStorage.removeItem('comment_model_back');
                     self.model.save().done(function() {
-                        self.render();
+                        self.model.fetch().done(function() {
+                            self.render();
+                        })
                     })
                     return;
                 };
@@ -426,9 +428,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                             scores_comment = self.model.attributes.scores_comment[type][index] || '';
                         };
                         _.each(self.cpsl.psl, function(x) {
-                            options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
-                        })
-                        //生成下拉框
+                                options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
+                            })
+                            //生成下拉框
                         $sel_cp_score_level.html(options.join('')).trigger('change');
                         $cp_score_comment.val(scores_comment);
                         $("#do_cp_score_popup #btn_do_cp_score").data('type', type).data('index', index);
@@ -469,9 +471,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                             scores_level = self.model.attributes.scores_level['th'] || '';
                             scores_comment = self.model.attributes.scores_comment['th'] || '';
                             _.each(self.cpsl.psl, function(x) {
-                                options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
-                            })
-                            //生成下拉框
+                                    options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
+                                })
+                                //生成下拉框
                             $sel_cp_score_level.html(options.join('')).trigger('change');
                             $cp_score_comment.val(scores_comment);
                             $("#do_cp_score_popup #btn_do_cp_score").data('type', 'pm');
@@ -671,9 +673,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                             cb(null, data);
                         })
                         self.last_cp_id = self.model.get('_id')
-                        // } else {
-                        // cb(null, null);
-                        // };
+                            // } else {
+                            // cb(null, null);
+                            // };
                     }
                 ], function(err, result) {
                     //进行过滤的操作 
@@ -722,11 +724,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                         $(x).find('span').html(ts_count[$(x).data('state')] || 0);
                     })
                     tmp = _.sortBy(tmp, function(x) {
-                        return -new Date(x.createDate); //按创建时间倒序排
-                    })
-                    // rendered = self.template_colltask({
-                    //     coll_tasks: tmp
-                    // })
+                            return -new Date(x.createDate); //按创建时间倒序排
+                        })
+                        // rendered = self.template_colltask({
+                        //     coll_tasks: tmp
+                        // })
 
                     self.render_data.coll_tasks = tmp;
                     rendered = self.template_basic(self.render_data)
