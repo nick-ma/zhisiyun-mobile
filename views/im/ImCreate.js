@@ -328,9 +328,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             return false
                         };
 
-                        if (confirm('确定发送通知吗?\n发送成功将跳转到列表！')) {
+                        my_confirm('确定发送通知吗?\n发送成功将跳转到列表!', null, function() {
                             do_save(self, 'T');
-                        }
+                        })
+
+
+
                     }).on('click', '#btn_upload_attachment', function(event) {
                         //转到上传图片的页面
                         // var leave = self.model.get('leave');

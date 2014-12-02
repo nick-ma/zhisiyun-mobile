@@ -140,14 +140,32 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     };
                     self.model.set('is_sub_submit', "C");
                     self.model.set('comment', wr_comment);
-                    if (confirm('确定提交吗 ？\n提交成功将转到列表')) {
+                    // if (confirm('确定提交吗 ？\n提交成功将转到列表')) {
+                    //     $.mobile.loading("show");
+                    //     self.model.save().done(function() {
+                    //         $.mobile.loading("hide");
+                    //         alert('提交成功');
+                    //         window.location.href = localStorage.getItem('wr_detail_back_url')
+                    //     })
+                    // }
+
+
+                    my_confirm('确定提交吗 ？\n提交成功将转到列表', null, function() {
+
                         $.mobile.loading("show");
                         self.model.save().done(function() {
                             $.mobile.loading("hide");
-                            alert('提交成功');
-                            window.location.href = localStorage.getItem('wr_detail_back_url')
+                            setTimeout(function() {
+                                alert('提交成功', function() {
+                                    window.location.href = localStorage.getItem('wr_detail_back_url')
+                                });
+                            }, 1000);
                         })
-                    }
+
+                    })
+
+
+
                 }).on('click', '#btn_wr_ok_sub', function(event) {
                     event.preventDefault();
 
@@ -165,14 +183,29 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     };
                     self.model.set('is_sub_submit', "T")
                     self.model.set('comment', wr_comment);
-                    if (confirm('确定提交吗 ？\n提交成功将转到列表')) {
+                    // if (confirm('确定提交吗 ？\n提交成功将转到列表')) {
+                    //     $.mobile.loading("show");
+                    //     self.model.save().done(function() {
+                    //         $.mobile.loading("hide");
+                    //         alert('提交成功');
+                    //         window.location.href = localStorage.getItem('wr_detail_back_url')
+                    //     })
+                    // }
+
+
+                    my_confirm('确定提交吗 ？\n提交成功将转到列表', null, function() {
+
                         $.mobile.loading("show");
                         self.model.save().done(function() {
                             $.mobile.loading("hide");
-                            alert('提交成功');
-                            window.location.href = localStorage.getItem('wr_detail_back_url')
+                            setTimeout(function() {
+                                alert('提交成功', function() {
+                                    window.location.href = localStorage.getItem('wr_detail_back_url')
+                                });
+                            }, 1000);
                         })
-                    }
+
+                    })
                 }).on('click', '#view_task_list', function(event) {
                     event.preventDefault();
                     $.mobile.loading("show");
@@ -259,12 +292,28 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                     self.model.set('select_people', self.select_pp);
                     self.model.set('is_sub_submit', "Z");
                     self.model.set('comment', wr_comment)
-                    self.model.save().done(function() {
-                        alert('提交成功');
-                        window.location.href = localStorage.getItem('wr_detail_back_url')
-                        // self.model.fetch().done(function() {
-                        //     self.render();
+                        // self.model.save().done(function() {
+                        //     alert('提交成功');
+                        //     window.location.href = localStorage.getItem('wr_detail_back_url')
+                        //         // self.model.fetch().done(function() {
+                        //         //     self.render();
+                        //         // })
                         // })
+
+
+
+                    my_confirm('确定提交吗 ？\n提交成功将转到列表', null, function() {
+
+                        $.mobile.loading("show");
+                        self.model.save().done(function() {
+                            $.mobile.loading("hide");
+                            setTimeout(function() {
+                                alert('提交成功', function() {
+                                    window.location.href = localStorage.getItem('wr_detail_back_url')
+                                });
+                            }, 1000);
+                        })
+
                     })
 
                 }).on('click', '#btn_wr_to_pp', function(event) {

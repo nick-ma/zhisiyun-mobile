@@ -44,15 +44,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var self = this;
                 $("#show_skill_config-content").on('click', '#delete_skill', function(event) {
                     event.preventDefault();
-                    if (confirm('确认删除此技能吗？')) {
+                    var $this = $(this);
+                    my_confirm('确认删除此技能吗？', null, function() {
                         self.model.set('type', 'D')
-                        self.model.set('skill_id', $(this).attr("skill_id"))
+                        self.model.set('skill_id', $this.attr("skill_id"))
                         self.model.save().done(function() {
                             self.model.fetch().done(function() {
                                 self.render();
                             })
+
                         })
-                    }
+                    })
+
                 })
                 $("#show_skill_recommend").on('keyup', '#filter_skill', function(event) {
                     event.preventDefault();

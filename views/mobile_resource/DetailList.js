@@ -118,17 +118,33 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 })
             }).on('click', '#btn-ct-delete', function(event) {
                 event.preventDefault();
-                if (confirm('确认删除本次会议室预定吗？\n删除成功后将跳转到预定界面！')) {
+                // if (confirm('确认删除本次会议室预定吗？\n删除成功后将跳转到预定界面！')) {
+                //     self.model.destroy({
+                //         success: function() {
+                //             window.location.href = '#mobile_resource';
+                //         },
+                //         error: function(model, xhr, options) {
+                //             alert('会议室预定删除失败!')
+                //         }
+                //     });
+
+                // };
+
+                my_confirm('确认删除本次会议室预定吗？\n删除成功后将跳转到预定界面！', null, function() {
                     self.model.destroy({
                         success: function() {
                             window.location.href = '#mobile_resource';
                         },
                         error: function(model, xhr, options) {
-                            alert('会议室预定删除失败!')
+                            setTimeout(function() {
+                                alert('会议室预定删除失败!')
+                            }, 1000);
                         }
                     });
+                })
 
-                };
+
+
             }).on('click', '#show_peoples', function(event) {
                 event.preventDefault();
                 self.model_view = '1'

@@ -188,20 +188,48 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 event.preventDefault();
                 var qt_id = $(this).data('qt_id');
                 var qti = self.collection.get(qt_id);
-                if (confirm('确定删除吗 ？')) {
+                // if (confirm('确定删除吗 ？')) {
+                //     $.mobile.loading("show");
+                //     qti.url = "/admin/pm/questionnair_template/common_bb/" + qt_id
+                //     qti.destroy({
+                //         success: function() {
+                //             $.mobile.loading("hide");
+                //             alert('删除成功!')
+                //             self.collection.fetch().done(function() {
+                //                 self.render();
+                //             })
+
+                //         }
+                //     });
+                // }
+
+                my_confirm('确定删除吗 ?', null, function() {
                     $.mobile.loading("show");
                     qti.url = "/admin/pm/questionnair_template/common_bb/" + qt_id
                     qti.destroy({
                         success: function() {
                             $.mobile.loading("hide");
-                            alert('删除成功!')
-                            self.collection.fetch().done(function() {
-                                self.render();
-                            })
+                            setTimeout(function() {
+                                alert('删除成功', function() {
+                                    self.collection.fetch().done(function() {
+                                        self.render();
+                                    })
+                                });
+                            }, 1000);
+                        },
+                        error: function() {
+                            $.mobile.loading("hide");
+                            setTimeout(function() {
+                                alert('删除失败');
+                            }, 100);
+                        },
 
-                        }
                     });
-                }
+
+                })
+
+
+
             }).on('click', '.btn_clone', function(event) {
                 event.preventDefault();
                 var qt_id = $(this).data('qt_id');
@@ -211,19 +239,45 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 qti.set('frequency_of_usage', 0);
                 delete qti.id;
                 delete qti.attributes._id;
-                if (confirm('确定克隆吗 ？')) {
+                // if (confirm('确定克隆吗 ？')) {
+                //     $.mobile.loading("show");
+                //     qti.save(qti.attributes, {
+                //         success: function(model, response, options) {
+                //             $.mobile.loading("hide");
+                //             alert('克隆成功!');
+                //             self.collection.fetch().done(function() {
+                //                 self.render();
+                //             })
+                //         }
+                //     })
+
+                // }
+
+                my_confirm('确定克隆吗 ?', null, function() {
                     $.mobile.loading("show");
                     qti.save(qti.attributes, {
                         success: function(model, response, options) {
                             $.mobile.loading("hide");
-                            alert('克隆成功!');
-                            self.collection.fetch().done(function() {
-                                self.render();
-                            })
-                        }
+                            setTimeout(function() {
+                                alert('克隆成功', function() {
+                                    self.collection.fetch().done(function() {
+                                        self.render();
+                                    })
+                                });
+                            }, 1000);
+                        },
+                        error: function() {
+                            $.mobile.loading("hide");
+                            setTimeout(function() {
+                                alert('删除失败');
+                            }, 100);
+                        },
                     })
 
-                }
+                })
+
+
+
             }).on('click', '.btn_result', function(event) {
                 event.preventDefault();
                 var qt_id = $(this).data('qt_id');

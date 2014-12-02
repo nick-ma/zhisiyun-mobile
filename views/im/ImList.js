@@ -77,7 +77,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.render()
                     }).on('click', '#im_ceate', function(event) {
                         event.preventDefault();
-                        if (confirm('确定新建通知 ？')) {
+                        my_confirm('确定新建通知 ?', null, function() {
                             $.mobile.loading("show");
                             $.post('/admin/im/bb/' + null, {
                                 msg_theme: '新建通知',
@@ -87,8 +87,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                 $.mobile.loading("hide");
 
                             })
+                        })
 
-                        };
                     }).on('click', '.open-left-panel', function(event) {
                         event.preventDefault();
                         $("#show_im-left-panel").panel("open");
