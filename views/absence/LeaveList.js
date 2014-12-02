@@ -254,7 +254,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.month = parseInt($(this).val()) + 1;
                 self.render()
             }).on('click', '#crate_leave', function(event) {
-                if (confirm('确定启动请假流程 ？')) {
+                my_confirm('确定启动请假流程?', null, function() {
                     $.mobile.loading("show");
                     $.post('/admin/tm/wf_leave_of_absence/bb/' + null, {
 
@@ -263,7 +263,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         window.location.href = "#leave_form_t/" + data.ti._id + '/T';
 
                     })
-                };
+                })
             }).on('click', '.open-left-panel', function(event) {
                 event.preventDefault();
                 $("#leave_list-left-panel").panel("open");
@@ -297,17 +297,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 if (self.mode_view == '0') {
                     window.location.href = '#leave_form_p/' + process_define + '/L'
                 } else if (self.mode_view == '3') {
-                    if (confirm('确定启动消假流程!')) {
+                    my_confirm('确定启动消假流程 ?', null, function() {
                         $.mobile.loading("show");
                         $.post('/admin/tm/wf_back_after_leave_of_absence/bb/' + null, {
                             leave_id: leave_id
                         }, function(data) {
-                            $.mobile.loading("hide");
-                            window.location.href = "#back_leave_form_t/" + data.ti._id + '/T';
+                            if (data) {
+                                $.mobile.loading("hide");
+                                window.location.href = '#back_leave_form_t/' + data.ti._id + '/T'
+                            };
 
                         })
 
-                    };
+                    })
+
+
+
                 } else if (self.mode_view == '4') {
                     window.location.href = '#back_leave_form_p/' + process_define + '/L'
                 }

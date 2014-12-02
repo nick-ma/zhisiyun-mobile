@@ -104,7 +104,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 if (people_selected.length == 0) {
                     alert("请选择要删除的数据！");
                 } else {
-                    if (confirm('确认删除吗？\n删除成功后将返回发布界面')) {
+                    // if (confirm('确认删除吗？\n删除成功后将返回发布界面')) {
+                    //     $.mobile.loading("show");
+                    //     $.post('/admin/pm/questionnair_template/qt_delete', {
+                    //         qi_id: JSON.stringify(people_selected)
+                    //     }, function(data) {
+                    //         if (data.code == 'OK') {
+                    //             self.model_view = '0';
+                    //             self.render();
+                    //             $.mobile.loading("hide");
+                    //         };
+
+                    //     })
+
+                    // }
+
+                    my_confirm('确认删除吗？\n删除成功后将返回发布界面', null, function() {
                         $.mobile.loading("show");
                         $.post('/admin/pm/questionnair_template/qt_delete', {
                             qi_id: JSON.stringify(people_selected)
@@ -116,8 +131,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                             };
 
                         })
+                    })
 
-                    }
+
+
                 }
             }).on('click', '.ui-icon-check', function(event) {
                 event.preventDefault();
@@ -158,7 +175,34 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     alert('请选择发布对象！')
                     return false;
                 };
-                if (confirm('确认发布吗？\n发布成功将转到模版管理！')) {
+                // if (confirm('确认发布吗？\n发布成功将转到模版管理！')) {
+                //     var url = '/admin/pm/questionnair_template/common_release';
+
+                //     var pps = _.map(self.model.get('select_pps'), function(pp) {
+                //         return pp._id
+                //     })
+
+                //     var post_data = {
+                //         qt_id: self.model.get('_id'),
+                //         recycling_days: days,
+                //         user_ids: pps.join(',')
+                //     };
+                //     $.mobile.loading("show");
+
+                //     $.post(url, post_data, function(data) {
+                //         if (data.code == 'OK') {
+                //             $.mobile.loading("hide");
+                //             alert('问卷发布成功！')
+                //             window.location.href = localStorage.getItem('qt_issue_back_url')
+                //         };
+                //     }).fail(function() {
+                //         $.mobile.loading("hide");
+                //         alert('问卷发布失败！')
+                //     });
+                // }
+
+
+                my_confirm('确认发布吗？\n发布成功将转到模版管理！', null, function() {
                     var url = '/admin/pm/questionnair_template/common_release';
 
                     var pps = _.map(self.model.get('select_pps'), function(pp) {
@@ -175,14 +219,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     $.post(url, post_data, function(data) {
                         if (data.code == 'OK') {
                             $.mobile.loading("hide");
-                            alert('问卷发布成功！')
-                            window.location.href = localStorage.getItem('qt_issue_back_url')
+                            setTimeout(function() {
+                                alert('问卷发布成功！', function() {
+                                    window.location.href = localStorage.getItem('qt_issue_back_url')
+                                });
+                            }, 1000);
+
                         };
                     }).fail(function() {
                         $.mobile.loading("hide");
-                        alert('问卷发布失败！')
+                        setTimeout(function() {
+                            alert('问卷发布失败！');
+                        }, 100);
                     });
-                }
+                })
+
 
 
             }).on('click', '#btn-quesetionnaire_template_issue_left-back', function(event) {
