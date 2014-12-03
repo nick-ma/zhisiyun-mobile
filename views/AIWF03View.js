@@ -596,7 +596,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                 ai_sub.attributes.qualitative_pis.items.push(bd_item);
                             }
                         } else {
-                            if (confirm(ai_sub.attributes.people_name + '已经存在分解项，是否强行覆盖？')) {
+                            // if (confirm(ai_sub.attributes.people_name + '已经存在分解项，是否强行覆盖？')) {
+                            my_confirm(ai_sub.attributes.people_name + '已经存在分解项，是否强行覆盖？', null, function() {
                                 if (self.pi_type == '1') { //定量
                                     if (found1.pi_source == '3' || found1.pi_source == '4') {
                                         alert("指标来源为【公司】,不能覆盖!");
@@ -655,7 +656,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                         }
                                     }
                                 }
-                            };
+                            });
                         }
                         ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
                         ai_sub.save().done(next);
@@ -884,7 +885,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 event.preventDefault();
                 var $this = $(this);
 
-                if (confirm('确认删除吗？')) {
+                // if (confirm('确认删除吗？')) {
+                my_confirm("确认删除吗？", null, function() {
                     if ($this.data('type') == '1') { //定量
                         var pi = _.find(self.ai.attributes.quantitative_pis.items, function(x) {
                             return x.pi == $this.data('up_id');
@@ -908,11 +910,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     });
 
                     self.ai.save().done(function() {
-                        alert('删除成功!');
-                        self.view_mode = '';
-                        self.render();
+                        setTimeout(function() {
+                            alert('删除成功!');
+                            self.view_mode = '';
+                            self.render();
+                        }, 1000);
                     })
-                }
+                })
             })
 
             $("#ai_wf1-footer").on('click', '#btn-ai_wf1-prev', function(event) {
@@ -1047,7 +1051,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     //查看界面
                     if (self.mode) {
                         this.template = Handlebars.compile($("#assessment_dl_pi_detail_view2").html());
-                    }else{
+                    } else {
                         this.template = Handlebars.compile($("#assessment_dl_pi_detail_view").html());
                     }
                     $("#ai_wf1-content").html(self.template(self.item_obj));
@@ -1059,10 +1063,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     //查看界面
                     if (self.mode) {
                         this.template = Handlebars.compile($("#assessment_dx_pi_detail_view2").html());
-                    }else{
+                    } else {
                         this.template = Handlebars.compile($("#assessment_dx_pi_detail_view").html());
                     }
-                    
+
                     $("#ai_wf1-content").html(self.template(self.item_obj));
                     $("#ai_wf1-content").trigger('create');
                 } else if (self.view_mode == 'ai_pi_comment') {

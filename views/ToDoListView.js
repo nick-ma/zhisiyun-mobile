@@ -332,7 +332,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                     var $this = $(this);
                     var up_id = $this.data('up_id');
 
-                    if (confirm('确认以“' + pd.attributes.process_name + '”做为名称来启动流程吗？')) {
+                    // if (confirm('确认以“' + pd.attributes.process_name + '”做为名称来启动流程吗？')) {
+                    my_confirm('确认以“' + pd.attributes.process_name + '”做为名称来启动流程吗？', null, function() {
                         $this.attr('disabled', true);
 
                         var start_url = '/admin/wf/universal/start';
@@ -353,7 +354,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                             .always(function() {
                                 $this.attr('disabled', false);
                             });
-                    };
+                    });
                 })
         }
     });

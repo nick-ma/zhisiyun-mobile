@@ -114,13 +114,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/ContactM
                     })
                     .on('click', '#btn_clib_add_contact', function(event) {
                         event.preventDefault();
-                        self.contacts_data = _.filter(self.c_contacts.models,function(x){
+                        self.contacts_data = _.filter(self.c_contacts.models, function(x) {
                             return x.attributes.is_show;
                         });
                         if (self.contacts_data.length) {
                             self.view_mode = 'contact_lib';
                             self.render();
-                        }else{
+                        } else {
                             alert('联系人库中没有记录!');
                         }
                     })
@@ -137,9 +137,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/ContactM
                             self.contacts_data = _.filter(self.c_contacts.models, function(x) {
                                 return x.attributes[field] == value && x.attributes.is_show;
                             })
-                            if (self.contacts_data.length && confirm('在联系人库中匹配到' + self.contacts_data.length + '条记录,是否应用?')) {
-                                self.view_mode = 'contact_lib';
-                                self.render();
+                            if (self.contacts_data.length) {
+                                my_confirm('在联系人库中匹配到' + self.contacts_data.length + '条记录,是否应用?', null, function() {
+                                    self.view_mode = 'contact_lib';
+                                    self.render();
+                                })
                             }
                         }
                         var contacts = self.model.get('contacts')

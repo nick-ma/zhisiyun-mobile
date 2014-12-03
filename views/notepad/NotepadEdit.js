@@ -76,7 +76,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                         })
 
                         if (pls.length) {
-                            $('#btn-send-ok').attr('disabled',true);
+                            $('#btn-send-ok').attr('disabled', true);
                             async.times(pls.length, function(n, next) {
                                 var p = pls[n];
 
@@ -96,16 +96,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                                     next(null, null);
                                 })
                             }, function(err, results) {
-                                _.each(pls,function(x){
+                                _.each(pls, function(x) {
                                     var rp = {};
                                     rp.people = x.people;
                                     rp.people_name = x.people_name;
                                     self.model.attributes.r_peoples.push(rp);
                                 })
-                                self.model.save().done(function(){
+                                self.model.save().done(function() {
                                     alert('转发成功!');
                                     window.location.href = '#np_list';
-                                    $('#btn-send-ok').attr('disabled',false);
+                                    $('#btn-send-ok').attr('disabled', false);
                                 })
                                 $("#np_edit-left-panel").panel("close");
                             })
@@ -143,14 +143,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                         $("#np_edit-left-panel").panel("open");
                     })
                     .on('click', '#btn-cancel', function(event) {
-                        if (confirm("确认删除吗？一旦删除将无法恢复！")) {
+                        // if (confirm("确认删除吗？一旦删除将无法恢复！")) {
+                        my_confirm("确认删除吗？", null, function() {
                             self.model.destroy({
                                 success: function() {
-                                    alert('删除成功!');
-                                    window.location.href = '#np_list';
+                                    setTimeout(function() {
+                                        alert('删除成功!',function(){
+                                            window.location.href = '#np_list';
+                                        });
+                                    }, 1000);
                                 }
                             });
-                        };
+                        });
                     })
                     .on('click', '#btn_upload_attachment', function(event) {
                         //转到上传图片的页面
