@@ -354,11 +354,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                 //     reverse: false,
                                 //     changeHash: false,
                                 // });
+                                window.location.href = '#todo';
                                 $("#form_header").show();
                                 $("#form_body").show();
                                 $("#form_footer").show();
                                 $("#confirm_trans").hide();
-                                window.location.href = '#todo';
                             } else {
                                 alert(data.msg);
                             };

@@ -200,7 +200,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             changeHash: false,
                         });
                     } else {
-                        window.location.href = "#godo1_view/" + self.wf_data.attributes.ti.process_instance._id;
+                        window.location.href = "#godo1_view/" + self.wf_data.attributes.process_instance;
                     }
                 })
             },
@@ -333,7 +333,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             changeHash: false,
                         });
                     } else {
-                        window.location.href = "#godo3_view/" + self.wf_data.attributes.ti.process_instance._id;
+                        window.location.href = "#godo3_view/" + self.wf_data.attributes.process_instance;
                     }
                 })
             },
