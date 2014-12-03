@@ -215,7 +215,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     };
                 })
                 if (bl) {
-                    if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
+                    // if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
+                    //     var score1 = 0; //分类总分
+                    //     _.each(self.model.attributes.items, function(x) {
+                    //         var score2 = 0; //题目总分
+                    //         _.each(x.qtis, function(xx) {
+                    //             score2 += parseFloat(xx.score);
+                    //         });
+                    //         x.score = parseFloat(score2 / x.qtis.length);
+                    //         score1 += parseFloat(x.score);
+                    //     });
+                    //     self.model.attributes.score = parseFloat(score1 / self.model.attributes.items.length);
+                    //     self.model.attributes.status = '1';
+                    //     self.model.save(self.model.attributes, {
+                    //         success: function(model, response, options) {
+                    //             window.location = '#qt_manage';
+                    //         }
+                    //     })
+                    // }
+
+
+                    my_confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理', null, function() {
                         var score1 = 0; //分类总分
                         _.each(self.model.attributes.items, function(x) {
                             var score2 = 0; //题目总分
@@ -232,7 +252,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                 window.location = '#qt_manage';
                             }
                         })
-                    }
+
+
+                    })
+
+
+
                 };
             }).on('click', '#btn-submit_option_common-save', function(event) {
                 event.preventDefault();
@@ -244,14 +269,26 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     };
                 })
                 if (bool) {
-                    if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
+                    // if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
+                    //     self.model.attributes.status = '1';
+                    //     self.model.save(self.model.attributes, {
+                    //         success: function(model, response, options) {
+                    //             window.location = '#qt_manage';
+                    //         }
+                    //     })
+                    // }
+
+                    my_confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理', null, function() {
                         self.model.attributes.status = '1';
                         self.model.save(self.model.attributes, {
                             success: function(model, response, options) {
                                 window.location = '#qt_manage';
                             }
                         })
-                    }
+
+
+                    })
+
                 } else {
                     alert("所有题目必须全部填写!");
                     return false;
@@ -268,14 +305,25 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     };
                 })
                 if (bool) {
-                    if (confirm('确认提交吗?')) {
+                    // if (confirm('确认提交吗?')) {
+                    //     self.model.attributes.status = '1';
+                    //     self.model.save(self.model.attributes, {
+                    //         success: function(model, response, options) {
+                    //             window.location = '#quesetionnair_template';
+                    //         }
+                    //     })
+                    // }
+
+                    my_confirm('确认提交吗?', null, function() {
                         self.model.attributes.status = '1';
                         self.model.save(self.model.attributes, {
                             success: function(model, response, options) {
                                 window.location = '#quesetionnair_template';
                             }
                         })
-                    }
+
+                    })
+
                 } else {
                     alert("所有题目必须全部填写!");
                     return false;
@@ -304,7 +352,31 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 });
                 if (valid) {
                     //算分
-                    if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
+                    // if (confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理')) {
+                    //     _.each(self.model.attributes.test_items, function(x) {
+                    //         _.each(x.qtis, function(xx) {
+                    //             var bool = true;
+                    //             _.each(xx.qti_options, function(xxx) {
+                    //                 if (xxx.is_answer != xxx.result) {
+                    //                     bool = false;
+                    //                 }
+                    //             });
+                    //             if (bool) {
+                    //                 xx.score = xx.qti_score_value;
+                    //                 x.score += xx.score;
+                    //             }
+                    //         });
+                    //         self.model.attributes.score += x.score;
+                    //     });
+                    //     self.model.attributes.status = '1';
+                    //     self.model.save(self.model.attributes, {
+                    //         success: function(model, response, options) {
+                    //             window.location = '#qt_manage';
+                    //         }
+                    //     })
+                    // };
+
+                    my_confirm('确认提交吗?' + '\n' + '提交完成后，将跳转到问卷评分管理', null, function() {
                         _.each(self.model.attributes.test_items, function(x) {
                             _.each(x.qtis, function(xx) {
                                 var bool = true;
@@ -326,7 +398,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                 window.location = '#qt_manage';
                             }
                         })
-                    };
+
+                    })
+
                 } else {
                     alert("所有题目必须全部填写!");
                     return false;

@@ -2,12 +2,12 @@
 define(["jquery", "underscore", "backbone", "handlebars"],
     function($, _, Backbone, Handlebars) {
         function sort_02(items) {
-            var sorts = _.sortBy(items, function(ls) {
-                return ls.show_time
-            })
-            return sorts
-        }
-        // Extends Backbone.View
+                var sorts = _.sortBy(items, function(ls) {
+                    return ls.show_time
+                })
+                return sorts
+            }
+            // Extends Backbone.View
         var WorkReportListView = Backbone.View.extend({
 
             initialize: function() {
@@ -60,7 +60,7 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                 } else if (self.filter_mode == '2') {
                     var maps = _.compact(_.map(self.sub_items, function(wr) {
                         var f_d = _.find(wr.comments, function(ct) {
-                            return ct.people == self.people_id && !ct.is_submit
+                            return ct.people == self.people_id && !ct.is_submit && wr.people._id != self.people_id
                         })
                         if (f_d) {
                             return wr

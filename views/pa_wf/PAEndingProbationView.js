@@ -65,6 +65,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                     is_self: is_self
                 };
                 render_data = _.extend(render_data, self.data);
+                console.log(render_data);
                 if (self.view_mode == 'trans') {
                     $("#pa_ending_probation-list #pa_name").html('数据处理人');
 

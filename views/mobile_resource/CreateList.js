@@ -174,7 +174,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
 
 
 
-                if (confirm('确认保存吗？\n保存成功后将跳转到会议室预定界面！')) {
+                // if (confirm('确认保存吗？\n保存成功后将跳转到会议室预定界面！')) {
+                //     $.mobile.loading("show");
+                //     $this.attr('disabled', true)
+                //     self.model.save(self.model.attributes, {
+                //         success: function(model, response, options) {
+                //             $.mobile.loading("hide");
+                //             window.location.href = '#mobile_resource';
+                //             $this.removeAttr('disabled')
+                //         },
+                //         error: function(model, xhr, options) {
+                //             $.mobile.loading("hide");
+                //             alert('会议室预定保存失败!')
+                //             $this.removeaAttr('disabled')
+                //         }
+                //     })
+                // }
+                my_confirm('确认保存吗？\n保存成功后将跳转到预定界面！', null, function() {
                     $.mobile.loading("show");
                     $this.attr('disabled', true)
                     self.model.save(self.model.attributes, {
@@ -185,11 +201,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                         },
                         error: function(model, xhr, options) {
                             $.mobile.loading("hide");
-                            alert('会议室预定保存失败!')
+                            setTimeout(function() {
+                                alert('会议室预定保存失败!')
+                            }, 1000);
                             $this.removeaAttr('disabled')
                         }
                     })
-                }
+                })
+
+
+
             }).on('click', '#show_peoples', function(event) {
                 event.preventDefault();
                 self.model_view = '1'
