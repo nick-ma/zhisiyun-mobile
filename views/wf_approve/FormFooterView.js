@@ -221,10 +221,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     })
                     .on('click', '#btn_remove_rel_pi', function(event) {
                         event.preventDefault();
-                        if (confirm('确认要删除吗?')) {
+                        // if (confirm('确认要删除吗?')) {
+                        my_confirm("确认删除吗？", null, function() {
                             pi.attributes.related_pis = [];
                             self.render();
-                        }
+                        });
                     })
                     .on('click', '#btn_open_cc_user', function(event) {
                         event.preventDefault();
@@ -234,10 +235,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     })
                     .on('click', '#btn_remove_cc_user', function(event) {
                         event.preventDefault();
-                        if (confirm('确认要删除吗?')) {
+                        // if (confirm('确认要删除吗?')) {
+                        my_confirm("确认删除吗？", null, function() {
                             pi.attributes.cc_users = [];
                             self.render();
-                        }
+                        });
                     })
                     .on('click', '.btn_view_ref_pi', function(event) {
                         event.preventDefault();
@@ -254,16 +256,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         event.preventDefault();
                         var $this = $(this);
                         var pi_id = $this.data('pi_id');
-                        if (pi_id && confirm("确定删除本流程吗？")) {
-                            var related_pis = pi.get('related_pis');
-                            var found = _.find(related_pis, function(x) {
-                                return x._id == pi_id
-                            })
-                            if (found) {
-                                related_pis.splice(related_pis.indexOf(found), 1);
-                            };
-                            pi.set('related_pis', related_pis);
-                            ff_v.render();
+                        if (pi_id) {
+                            my_confirm("确定删除本流程吗？", null, function() {
+                                var related_pis = pi.get('related_pis');
+                                var found = _.find(related_pis, function(x) {
+                                    return x._id == pi_id
+                                })
+                                if (found) {
+                                    related_pis.splice(related_pis.indexOf(found), 1);
+                                };
+                                pi.set('related_pis', related_pis);
+                                ff_v.render();
+                            });
                         };
                     })
                     .on('click', '#btn_open_attachments', function(event) {
@@ -282,32 +286,35 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     })
                     .on('click', '#btn_remove_attachments', function(event) {
                         event.preventDefault();
-                        if (confirm('确认要删除吗?')) {
+                        // if (confirm('确认要删除吗?')) {
+                        my_confirm("确认要删除吗?", null, function() {
                             pi.attributes.attachments = [];
                             self.render();
-                        }
+                        })
                     })
                     .on('click', '.btn_remove_attachment', function(event) {
                         event.preventDefault();
                         var $this = $(this);
                         var file_id = $this.data('id');
-                        if (file_id && confirm("确定删除附件吗？")) {
-                            var found = _.find(pi.attributes.attachments, function(x) {
-                                return x._id == file_id;
-                            })
-                            if (found) {
-                                pi.attributes.attachments.splice(pi.attributes.attachments.indexOf(found), 1);
-                                pi.save().done(function() {
-                                    $.post('/gridfs/delete/', {
-                                        file_id: file_id
-                                    }, function(data) {
-                                        self.render();
-                                        show_notify_msg('附件删除成功', 'OK');
-                                    })
-                                }).fail(function() {
-                                    show_notify_msg('附件删除失败', 'ERR');
+                        if (file_id) {
+                            my_confirm("确认要删除附件吗?", null, function() {
+                                var found = _.find(pi.attributes.attachments, function(x) {
+                                    return x._id == file_id;
                                 })
-                            };
+                                if (found) {
+                                    pi.attributes.attachments.splice(pi.attributes.attachments.indexOf(found), 1);
+                                    pi.save().done(function() {
+                                        $.post('/gridfs/delete/', {
+                                            file_id: file_id
+                                        }, function(data) {
+                                            self.render();
+                                            show_notify_msg('附件删除成功', 'OK');
+                                        })
+                                    }).fail(function() {
+                                        show_notify_msg('附件删除失败', 'ERR');
+                                    })
+                                };
+                            });
                             // console.log(found);
                         };
                     })
@@ -354,11 +361,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                 //     reverse: false,
                                 //     changeHash: false,
                                 // });
+                                window.location.href = '#todo';
                                 $("#form_header").show();
                                 $("#form_body").show();
                                 $("#form_footer").show();
                                 $("#confirm_trans").hide();
-                                window.location.href = '#todo';
                             } else {
                                 alert(data.msg);
                             };
