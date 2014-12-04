@@ -135,7 +135,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                     changeHash: false,
                 });
                 //隐藏返回按钮，只有从待办进的时候才显示
-                $("#btn-mwf-back").attr("style","display:none");
+                // $("#btn-mwf-back").attr("style","display:none");
                 $.mobile.loading("show");
 
                 $.get('/admin/wf/universal/handle_form_4m/' + task_id, function(data) {
@@ -215,7 +215,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                     reverse: false,
                     changeHash: false,
                 });
-                $("#btn-mwf-back").attr("style","display:block");
+                // $("#btn-mwf-back").attr("style","display:block");
                 $.mobile.loading("show");
 
                 async.parallel({
