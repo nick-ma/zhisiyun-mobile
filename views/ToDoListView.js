@@ -352,6 +352,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                                 alert('流程启动失败：' + data);
                             })
                             .always(function() {
+                                self.view_mode = '3';
                                 $this.attr('disabled', false);
                             });
                     });
