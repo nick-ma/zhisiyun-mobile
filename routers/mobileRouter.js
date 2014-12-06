@@ -49,6 +49,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./quesetionnairetemplateRouter",
     "./notepadRouter",
     "./PARouter",
+    "./pay_adjustment",
+
+
     //其他jquery插件
     "async", "moment", "sprintf", "highcharts",
 
@@ -86,6 +89,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     quesetionnairetemplateRouter,
     NotepadRouter,
     PARouter,
+    PayAdjustment,
     async, moment
 
 
@@ -124,6 +128,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new quesetionnairetemplateRouter();
         new NotepadRouter();
         new PARouter();
+        new PayAdjustment();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -2613,8 +2618,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return select_arr.join('')
 
       });
-       Handlebars.registerHelper('i18n_convert', function(data) { //人员离职原因
-        return data?data["zh"]:''
+      Handlebars.registerHelper('i18n_convert', function(data) { //人员离职原因
+        return data ? data["zh"] : ''
       });
     })();
 
