@@ -89,6 +89,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo12_view/:op_id": "go_view12", //绩效总结
                 "godo13_view/:op_id": "go_view13", //绩效面谈
                 "godo14_view/:op_id": "go_view14", //绩效申诉
+                "godo15_view/:op_id": "go_view15", //单人挑衅
+                "godo16_view/:op_id": "go_view16", //多人挑衅
 
             },
             todo_list: function() { //我的待办
@@ -1013,6 +1015,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             go_view14: function(op_id) {
                 window.location.href = "#godo14/" + op_id + "/view";
+            },
+            go_view15: function(op_id) {
+                // 单人请假查看
+                window.location.href = "#adjustment_single_form/" + op_id + '/T';
+            },
+            go_view16: function(op_id) {
+                // 批量请假查看
+                window.location.href = "#adjustment_bulk_form/" + op_id + '/T';
             },
             init_views: function() {
                 var self = this;
