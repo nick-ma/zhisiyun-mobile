@@ -114,7 +114,27 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             if (self.model_view == '0') {
 
-                rendered_data = self.adjustment_single_edit_template(self.model.attributes);
+                var obj = self.model.attributes;
+                obj.reason_types = [{
+                    name: '转正',
+                    value: 'A'
+                }, {
+                    name: '岗位变动',
+                    value: 'B'
+                }, {
+                    name: '计划内调薪',
+                    value: 'C'
+                }, {
+                    name: '计划外调薪',
+                    value: 'D'
+                }, {
+                    name: '合同续签',
+                    value: 'E'
+                }, {
+                    name: '其它',
+                    value: 'F'
+                }]
+                rendered_data = self.adjustment_single_edit_template(obj);
 
             } else if (self.model_view == '1') {
                 rendered_data = self.template(self.trans_data);
@@ -178,6 +198,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             }).on('change', '#effective_date', function(event) {
                 event.preventDefault();
                 self.model.get('adjustment_single').effective_date = moment($(this).val()).format('YYYY-MM')
+            }).on('change', '#reason_type', function(event) {
+                event.preventDefault();
+                self.model.get('adjustment_single').reason_type = $(this).val();
             }).on('click', '.do_trans', function(event) {
                 event.preventDefault();
                 var adjustment_single = self.model.get('adjustment_single');
@@ -186,20 +209,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var bool = false;
                 if (adjustment_single.adds.length) {
                     _.each(adjustment_single.adds, function(add) {
-                        if (add.ratio_value == '' || add.ratio_value == null) {
+                        var ratio_value = add.ratio_value;
+                        var add_value = add.add_value;
+                        if ((ratio_value == '' || ratio_value == null) && ratio_value != 0) {
                             bool = true;
-                            return;
                         };
-                        if (add.add_value == '' || add.add_value == null) {
+                        if ((add_value == '' || add_value == null) && add_value != 0) {
                             bool = true;
-                            return;
                         };
                     })
                 } else {
                     alert('请添加调薪项！')
                     return false;
                 }
-
                 if (bool) {
                     alert('调薪比例/固定值不能为空！')
                     return false;
@@ -295,20 +317,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var bool = false;
                 if (adjustment_single.adds.length) {
                     _.each(adjustment_single.adds, function(add) {
-                        if (add.ratio_value == '' || add.ratio_value == null) {
+                        var ratio_value = add.ratio_value;
+                        var add_value = add.add_value;
+                        if ((ratio_value == '' || ratio_value == null) && ratio_value != 0) {
                             bool = true;
-                            return;
                         };
-                        if (add.add_value == '' || add.add_value == null) {
+                        if ((add_value == '' || add_value == null) && add_value != 0) {
                             bool = true;
-                            return;
                         };
                     })
                 } else {
                     alert('请添加调薪项！')
                     return false;
                 }
-
                 if (bool) {
                     alert('调薪比例/固定值不能为空！')
                     return false;

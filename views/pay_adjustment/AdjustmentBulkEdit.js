@@ -144,8 +144,30 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             if (self.model_view == '0') {
 
-                rendered_data = self.adjustment_bulk_edit_template(self.model.attributes);
-                // var adjustment_bulk = self.model.get('adjustment_bulk');
+
+                var obj = self.model.attributes;
+                obj.reason_types = [{
+                    name: '转正',
+                    value: 'A'
+                }, {
+                    name: '岗位变动',
+                    value: 'B'
+                }, {
+                    name: '计划内调薪',
+                    value: 'C'
+                }, {
+                    name: '计划外调薪',
+                    value: 'D'
+                }, {
+                    name: '合同续签',
+                    value: 'E'
+                }, {
+                    name: '其它',
+                    value: 'F'
+                }]
+
+
+                rendered_data = self.adjustment_bulk_edit_template(obj);
 
                 if (!self.people_data && adjustment_bulk.pri_value) {
                     get_pri_data(self, adjustment_bulk.pri_value.pri)

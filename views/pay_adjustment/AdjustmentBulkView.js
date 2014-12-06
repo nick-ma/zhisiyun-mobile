@@ -5,7 +5,6 @@
 define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], function($, _, Backbone, Handlebars, async, moment) {
 
     Handlebars.registerHelper('is_bluk_pay', function(obj, data, options) {
-
         var f_d = _.find(obj.last_items, function(it) {
             var p_id = it.pic._id ? it.pic._id : it.pic;
             return p_id == String(data)
@@ -16,6 +15,35 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             return options.inverse(this);
         };
     });
+
+
+    Handlebars.registerHelper('find_reason_types', function(obj) {
+        var reason_types = [{
+            name: '转正',
+            value: 'A'
+        }, {
+            name: '岗位变动',
+            value: 'B'
+        }, {
+            name: '计划内调薪',
+            value: 'C'
+        }, {
+            name: '计划外调薪',
+            value: 'D'
+        }, {
+            name: '合同续签',
+            value: 'E'
+        }, {
+            name: '其它',
+            value: 'F'
+        }]
+
+        var f_d = _.find(reason_types, function(ps) {
+            return ps.value == obj
+        })
+        return f_d ? f_d.name : ''
+    });
+
 
 
     var do_trans = function(trans_data) {
