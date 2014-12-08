@@ -1,0 +1,98 @@
+// CountNumber router
+// ====================
+
+define(["jquery", "backbone", "handlebars", "lzstring", "async",
+        "../collections/CountNumberDefineCollection", //报数定义
+        "../collections/CountNumberInstanceCollection", //报数实例
+        "../collections/PeopleCollection",
+        "../models/CountNumberDefineModel",
+        "../models/CountNumberInstanceModel",
+        "../views/count_number/CountNumberDefineListView",
+    ],
+    function($, Backbone, Handlebars, LZString, async,
+        CountNumberDefineCollection, //报数定义
+        CountNumberInstanceCollection, //报数实例
+        PeopleCollection,
+        CountNumberDefineModel, //报数定义
+        CountNumberInstanceModel, //报数实例
+        CountNumberDefineListView //报数定义
+    ) {
+
+        var CountNumberRouter = Backbone.Router.extend({
+            initialize: function() {
+                var self = this;
+                self.init_models();
+                self.init_collections();
+                self.init_views();
+                self.init_data();
+                // self.bind_events();
+                console.info('app message: CountNumber router initialized');
+            },
+            routes: {
+                "count_number_list": "count_number_list", //人才培养计划列表
+
+            },
+            count_number_list: function() { //我的培养计划列表
+                var self = this;
+                $("body").pagecontainer("change", "#my_count_number", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.CountNumberDefineListView.pre_render();
+                var people = $("#login_people").val();
+                self.CountNumberDefineListView.people = people;
+                self.CountNumberDefineListView.collection.fetch().done(function() {
+                    self.CountNumberDefineListView.render();
+                    $.mobile.loading("hide");
+                });
+
+
+            },
+
+            init_views: function() {
+                var self = this;
+                self.CountNumberDefineListView = new CountNumberDefineListView({ //报数定义
+                    el: "#my_count_number-content",
+                    collection: self.cndCollection
+                });
+            },
+            init_models: function() {
+                var self = this;
+                self.cndModel = new CountNumberDefineModel(); //报数定义
+                self.cniModel = new CountNumberInstanceModel(); //报数实例
+
+
+            },
+            init_collections: function() {
+                var self = this;
+                self.cndCollection = new CountNumberDefineCollection(); //报数定义
+                self.cniCollection = new CountNumberInstanceCollection(); //报数实例
+                this.c_people = new PeopleCollection();
+
+            },
+            init_data: function() { //初始化的时候，先从local storage里面恢复数据，如果localstorage里面没有，则去服务器fetch
+                var self = this;
+                self.load_data(self.c_people, 'people');
+            },
+            load_data: function(col_obj, col_name) { //加载数据
+                $.mobile.loading("show");
+                var login_people = $("#login_people").val();
+                var cn = col_name
+                var local_data = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(cn)) || null)
+                    // var local_data = localStorage.getItem(cn);
+                if (local_data) {
+                    col_obj.reset(local_data);
+                    col_obj.trigger('sync');
+                    $.mobile.loading("hide");
+                } else {
+                    col_obj.fetch().done(function() {
+                        localStorage.setItem(cn, LZString.compressToUTF16(JSON.stringify(col_obj)));
+                        $.mobile.loading("hide");
+                    })
+                };
+            },
+        });
+
+        return CountNumberRouter;
+    })

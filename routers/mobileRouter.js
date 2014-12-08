@@ -50,6 +50,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "./notepadRouter",
     "./PARouter",
     "./pay_adjustment",
+    "./countnumberRouter", //报数模块
 
 
     //其他jquery插件
@@ -90,6 +91,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     NotepadRouter,
     PARouter,
     PayAdjustment,
+    CountNumber,
     async, moment
 
 
@@ -129,6 +131,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         new NotepadRouter();
         new PARouter();
         new PayAdjustment();
+        new CountNumber();
         // Tells Backbone to start watching for hashchange events
         Backbone.history.start();
       },
@@ -2620,6 +2623,20 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       Handlebars.registerHelper('i18n_convert', function(data) { //人员离职原因
         return data ? data["zh"] : ''
+      });
+      Handlebars.registerHelper('frequency', function(state) {//报数频率
+        var temp_obj = {
+          '1H': '1小时',
+          '2H': '2小时',
+          '4H': '4小时',
+          'D': '日',
+          'W': '周',
+          'M': '月',
+          'Q': '季',
+          'Y': '年'
+        }
+        var val = temp_obj[state] ? temp_obj[state] : '';
+        return '<span class="label label-warning" style="border-radius:10px">' + val + '</span>'
       });
     })();
 
