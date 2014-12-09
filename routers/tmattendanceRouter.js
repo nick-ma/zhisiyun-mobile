@@ -268,9 +268,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 // $("#personal_wf_beyond_of_work-content2").find("textarea").attr("disabled", true);
 
                 $("#wf_work_of_travel_title2").html("出差流程查看")
-                // $("#personal_wf_beyond_of_work-content2").find("button").attr("disabled", true);
-                // $("#personal_wf_beyond_of_work-content2").find("input").attr("disabled", true);
-                // $("#personal_wf_beyond_of_work-content2").find("a").attr("disabled", true);
+                    // $("#personal_wf_beyond_of_work-content2").find("button").attr("disabled", true);
+                    // $("#personal_wf_beyond_of_work-content2").find("input").attr("disabled", true);
+                    // $("#personal_wf_beyond_of_work-content2").find("a").attr("disabled", true);
                 $("#personal_wf_beyond_of_work-content2").find("select").attr("disabled", true);
                 $.mobile.loading("hide");
 
@@ -675,15 +675,22 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             $.mobile.loading("show");
             self.WorkPlanView.pre_render();
             var login_people = $("#login_people").val();
-            this.work_plan_m.url = '/admin/tm/workplan/pep_bb?people=' + login_people;
-            this.work_plan_m.fetch().done(function() {
-                self.work_plan_c.remove(self.work_plan_m);
-                self.work_plan_c.push(self.work_plan_m);
-                self.WorkPlanView.work_plan =  self.work_plan_c;
-                console.log(self.WorkPlanView)
-                self.WorkPlanView.render();
-                $.mobile.loading("hide");
+            var current_month = moment().format("YYYY-MM");
+            // this.work_plan_m.fetch().done(function() {
+            //     self.work_plan_c.remove(self.work_plan_m);
+            //     self.work_plan_c.push(self.work_plan_m);
+            //     self.WorkPlanView.work_plan =  self.work_plan_c;
+            //     self.WorkPlanView.render();
+            //     $.mobile.loading("hide");
 
+            // })
+            var url = '/admin/tm/workplan/pep_bb2?people=' + login_people + '&month=' + current_month;
+            $.get(url, function(data) {
+                if (data) {
+                    self.WorkPlanView.work_plan = data;
+                    self.WorkPlanView.render();
+                    $.mobile.loading("hide");
+                }
             })
         },
         init_views: function() {

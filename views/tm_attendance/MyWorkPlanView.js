@@ -5,6 +5,7 @@
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 	function($, _, Backbone, Handlebars, moment) {
 		var select_month = moment().format("YYYY-MM");
+		var login_people = $("#login_people").val();
 		// Extends Backbone.View
 		var MyWorkPlanView = Backbone.View.extend({
 
@@ -30,9 +31,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				var self = this;
 
 				var obj = {};
-				var filter_data = _.filter(self.work_plan.models[0].toJSON()[0].calendar_data, function(temp) {
-					return moment(temp.job_date).format("YYYY-MM") == String(select_month)
-				})
+				// var filter_data = _.filter(self.work_plan.models[0].toJSON()[0].calendar_data, function(temp) {
+				// 	return moment(temp.job_date).format("YYYY-MM") == String(select_month)
+				// })
+				var filter_data = self.work_plan;
 				obj.plan_data = filter_data;
 				$("#show_my_work_plan-content").html(self.template(obj));
 
@@ -44,18 +46,41 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 				$("#show_my_work_plan-content").on('click', '#last_month', function(event) {
 					event.preventDefault();
 					select_month = moment(select_month).subtract('month', 1).format('YYYY-MM');
-					self.render();
+					var url = '/admin/tm/workplan/pep_bb2?people=' + login_people + '&month=' + select_month;
+					$.get(url, function(data) {
+							if (data) {
+								self.work_plan = data;
+								self.render();
+
+							}
+						})
+						// self.work_plan.models.url = '/admin/tm/workplan/pep_bb?people=' + login_people + '&month=' + select_month;
+						// self.work_plan.fetch().done(function() {
+						// 	self.render();
+						// })
 
 				}).on('click', '#current_month', function(event) {
 					event.preventDefault();
 					select_month = moment().format("YYYY-MM");
-					self.render();
+					var url = '/admin/tm/workplan/pep_bb2?people=' + login_people + '&month=' + select_month;
+					$.get(url, function(data) {
+						if (data) {
+							self.work_plan = data;
+							self.render();
 
+						}
+					})
 				}).on('click', '#next_month', function(event) {
 					event.preventDefault();
 					select_month = moment(select_month).add('month', 1).format('YYYY-MM');
-					self.render();
+					var url = '/admin/tm/workplan/pep_bb2?people=' + login_people + '&month=' + select_month;
+					$.get(url, function(data) {
+						if (data) {
+							self.work_plan = data;
+							self.render();
 
+						}
+					})
 				})
 			}
 		});
