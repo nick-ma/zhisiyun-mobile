@@ -2188,9 +2188,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return moment(start).format("YYYY-MM-DD") + '&rarr;' + moment(end).format("YYYY-MM-DD");
       });
       //我的工作计划
-      Handlebars.registerHelper('bool', function(bool) {
+      Handlebars.registerHelper('bool', function(bool, is_holiday, holiday_data) {
+        if (is_holiday && holiday_data.property == 'h') {
+          bool = true;
+        }
         return bool ? '<span class="label label-warning" style="border-radius:10px">是<span>' : '<span class="label label-info" style="border-radius:10px">否</span>';
       });
+
       Handlebars.registerHelper('week', function(date, work_time) {
         var week = {
           '0': '星期日',
@@ -2624,7 +2628,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('i18n_convert', function(data) { //人员离职原因
         return data ? data["zh"] : ''
       });
-      Handlebars.registerHelper('frequency', function(state) {//报数频率
+      Handlebars.registerHelper('frequency', function(state) { //报数频率
         var temp_obj = {
           '1H': '1小时',
           '2H': '2小时',
