@@ -8,6 +8,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../models/CountNumberDefineModel",
         "../models/CountNumberInstanceModel",
         "../views/count_number/CountNumberDefineListView",
+        "../views/count_number/CountNumberDefineFormView", //报数表单编辑
     ],
     function($, Backbone, Handlebars, LZString, async,
         CountNumberDefineCollection, //报数定义
@@ -15,7 +16,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         PeopleCollection,
         CountNumberDefineModel, //报数定义
         CountNumberInstanceModel, //报数实例
-        CountNumberDefineListView //报数定义
+        CountNumberDefineListView, //报数定义
+        CountNumberDefineFormView //报数定义表单编辑
     ) {
 
         var CountNumberRouter = Backbone.Router.extend({
@@ -29,10 +31,11 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 console.info('app message: CountNumber router initialized');
             },
             routes: {
-                "count_number_list": "count_number_list", //人才培养计划列表
+                "count_number_list": "count_number_list", //报数列表
+                "count_number_define/:_id": "count_number_define", //报数列表
 
             },
-            count_number_list: function() { //我的培养计划列表
+            count_number_list: function() { //我的报数列表
                 var self = this;
                 $("body").pagecontainer("change", "#my_count_number", {
                     reverse: false,
@@ -42,18 +45,50 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.CountNumberDefineListView.pre_render();
                 var people = $("#login_people").val();
                 self.CountNumberDefineListView.people = people;
-                self.CountNumberDefineListView.collection.fetch().done(function() {
-                    self.CountNumberDefineListView.render();
+                async.series({
+                    cni: function(cb) {
+                        self.cniCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                }, function(err, data) {
+                    self.CountNumberDefineListView.instance_data = self.cniCollection.models; //人员数据
+                    self.CountNumberDefineListView.collection.fetch().done(function() {
+                        self.CountNumberDefineListView.render();
+                        $.mobile.loading("hide");
+                    });
+                })
+
+
+
+            },
+
+            count_number_define: function(_id) { //报数定义
+                var self = this;
+                $("body").pagecontainer("change", "#my_count_number_define", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.CountNumberDefineFormView.pre_render();
+                var people = $("#login_people").val();
+                self.CountNumberDefineFormView.people = people;
+                self.CountNumberDefineFormView.collection.url = '/admin/pm/count_number_define/bb/' + _id;
+                self.CountNumberDefineFormView.collection.fetch().done(function() {
+                    console.log(self.CountNumberDefineFormView.collection);
+                    self.CountNumberDefineFormView.render();
                     $.mobile.loading("hide");
                 });
-
-
             },
 
             init_views: function() {
                 var self = this;
                 self.CountNumberDefineListView = new CountNumberDefineListView({ //报数定义
                     el: "#my_count_number-content",
+                    collection: self.cndCollection
+                });
+                self.CountNumberDefineFormView = new CountNumberDefineFormView({ //报数定义表单编辑
+                    el: "#my_count_number_define-content",
                     collection: self.cndCollection
                 });
             },

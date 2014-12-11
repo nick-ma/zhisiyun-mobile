@@ -2642,6 +2642,35 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         var val = temp_obj[state] ? temp_obj[state] : '';
         return '<span class="label label-warning" style="border-radius:10px">' + val + '</span>'
       });
+      Handlebars.registerHelper('option_frequency', function(frequency) {
+        var temp_obj = {
+          '1H': '1小时',
+          '2H': '2小时',
+          '4H': '4小时',
+          'D': '日',
+          'W': '周',
+          'M': '月',
+          'Q': '季',
+          'Y': '年'
+        }
+        var data = [];
+        if (frequency) {
+          for (key in temp_obj) {
+            if (key == String(frequency)) {
+              data.push('<option value ="' + key + '" selected>' + temp_obj[key] + '</option>')
+
+            } else {
+              data.push('<option value ="' + key + '">' + temp_obj[key] + '</option>')
+
+            }
+          }
+        } else {
+          for (key in temp_obj) {
+            data.push('<option value ="' + key + '">' + temp_obj[key] + '</option>')
+          }
+        }
+        return data.join('')
+      });
     })();
 
     // Returns the Router class
