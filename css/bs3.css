@@ -777,3 +777,13 @@ Timeline UI Base
     margin: 0;
     text-align: right;
 }
+/*报数*/
+.collapse_style{
+    border:solid 1.5px beige;
+    border-radius: 20px;
+    width:300px;
+    margin-left: 20px
+}
+.count_button_style{
+    margin-left: 20px
+}

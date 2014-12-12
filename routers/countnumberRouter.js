@@ -5,8 +5,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/CountNumberDefineCollection", //报数定义
         "../collections/CountNumberInstanceCollection", //报数实例
         "../collections/PeopleCollection",
+        "../collections/CountNumberItemCollection", //报数项目
         "../models/CountNumberDefineModel",
         "../models/CountNumberInstanceModel",
+        "../models/CountNumberItemModel", //报数项目
         "../views/count_number/CountNumberDefineListView",
         "../views/count_number/CountNumberDefineFormView", //报数表单编辑
     ],
@@ -14,8 +16,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         CountNumberDefineCollection, //报数定义
         CountNumberInstanceCollection, //报数实例
         PeopleCollection,
+        CountNumberItemCollection,
         CountNumberDefineModel, //报数定义
         CountNumberInstanceModel, //报数实例
+        CountNumberItemModel, //报数项目
         CountNumberDefineListView, //报数定义
         CountNumberDefineFormView //报数定义表单编辑
     ) {
@@ -73,12 +77,29 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.CountNumberDefineFormView.pre_render();
                 var people = $("#login_people").val();
                 self.CountNumberDefineFormView.people = people;
-                self.CountNumberDefineFormView.collection.url = '/admin/pm/count_number_define/bb/' + _id;
-                self.CountNumberDefineFormView.collection.fetch().done(function() {
-                    console.log(self.CountNumberDefineFormView.collection);
-                    self.CountNumberDefineFormView.render();
-                    $.mobile.loading("hide");
-                });
+                async.series({
+                    cni: function(cb) {
+                        self.cnitemCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                }, function(err, data) {
+                    self.CountNumberDefineFormView.item_data = self.cnitemCollection.models; //保护项目数据
+
+                    self.CountNumberDefineFormView.collection.url = '/admin/pm/count_number_define/bb/' + _id;
+                    self.CountNumberDefineFormView.collection.fetch().done(function() {
+                        console.log(self.CountNumberDefineFormView.collection);
+                        self.CountNumberDefineFormView.render();
+                        $.mobile.loading("hide");
+                        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                        $(".ui-flipswitch a").each(function() {
+                            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                        });
+                    });
+                })
+
+
+
             },
 
             init_views: function() {
@@ -91,11 +112,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#my_count_number_define-content",
                     collection: self.cndCollection
                 });
+
+
             },
             init_models: function() {
                 var self = this;
                 self.cndModel = new CountNumberDefineModel(); //报数定义
                 self.cniModel = new CountNumberInstanceModel(); //报数实例
+                self.cnitemModel = new CountNumberInstanceModel(); //报数项目
 
 
             },
@@ -103,6 +127,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 var self = this;
                 self.cndCollection = new CountNumberDefineCollection(); //报数定义
                 self.cniCollection = new CountNumberInstanceCollection(); //报数实例
+                self.cnitemCollection = new CountNumberItemCollection(); //报数项目
                 this.c_people = new PeopleCollection();
 
             },

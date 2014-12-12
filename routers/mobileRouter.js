@@ -2671,6 +2671,107 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         }
         return data.join('')
       });
+      Handlebars.registerHelper('obj_len', function(key, obj) {
+        if (obj[key]) {
+          return obj[key].length
+        } else {
+          return 0
+        }
+      });
+      Handlebars.registerHelper('filter_item_c', function(key, obj) { //报数项目－自己创建的
+        var val = obj[key];
+        var tr_data = [];
+        _.each(val, function(x) {
+          tr_data.push('<div data-role="collapsible" data-collapsed="false" class="collapse_style">');
+          tr_data.push('<h2 class="text-info">' + x.child_item_name + '</h2>');
+          //项目数据编辑
+          //count_item
+          tr_data.push('<div class="ui-grid-a" style="height:55px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="count_number_end" style="margin-top:15px">报数项目:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
+          tr_data.push('<input for="count_number_end" value="' + x.child_item_name + '"></input>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+          //计划值
+          tr_data.push('<div class="ui-grid-a" style="height:55px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="plan_val" style="margin-top:15px">计划值:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
+          tr_data.push('<input for="plan_val" value="' + x.plan_val + '"></input>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+
+          //单位
+          tr_data.push('<div class="ui-grid-a" style="height:55px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="unit" style="margin-top:15px">单位:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
+          tr_data.push('<input for="unit" value="' + x.unit + '"></input>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+          //是否删除
+          tr_data.push('<div class="button-wrap">');
+          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important">删除</button>')
+          tr_data.push('</div>');
+
+          tr_data.push('</div>');
+        })
+        return tr_data.join('')
+      });
+      Handlebars.registerHelper('filter_item_s', function(key, obj) { //报数项目－选择的
+        var val = obj[key];
+        var tr_data = [];
+        _.each(val, function(x) {
+          tr_data.push('<div data-role="collapsible" data-collapsed="false" class="collapse_style">');
+          tr_data.push('<h2 class="text-info">' + x.child_item_name + '</h2>');
+          //项目数据编辑
+          //count_item
+          tr_data.push('<div class="ui-grid-a" style="height:55px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="count_number_end" style="margin-top:15px">报数项目:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+          tr_data.push('<span for="count_number_end" >' + x.child_item_name + '</span>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+          //计划值
+          tr_data.push('<div class="ui-grid-a" style="height:55px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="plan_val" style="margin-top:15px">计划值:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
+          var plan_val = x.plan_val ? x.plan_val : '';
+          tr_data.push('<input for="plan_val" value="' + plan_val + '"></input>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+
+          //单位
+          tr_data.push('<div class="ui-grid-a" style="height:55px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="unit" style="margin-top:15px">单位:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
+          var unit = x.unit ? x.unit : '';
+          tr_data.push('<input for="unit" value="' + unit + '"></input>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+          //是否删除
+          tr_data.push('<div class="button-wrap">');
+          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important">删除</button>')
+          tr_data.push('</div>');
+
+          tr_data.push('</div>');
+        })
+        return tr_data.join('')
+      });
+
+      Handlebars.registerHelper('span', function(value) {
+        return '<span class="label label-warning">' + value + '</span>'
+      });
     })();
 
     // Returns the Router class

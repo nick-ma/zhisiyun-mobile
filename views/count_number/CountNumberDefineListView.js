@@ -79,7 +79,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                 var render_data = {
                     count_number: count_number,
                 }
-                console.log(render_data);
                 $("#my_count_number-content").html(self.template(render_data));
                 $("#my_count_number-content").trigger('create');
                 return this;
@@ -88,7 +87,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
             render_instance: function(select) {
 
                 var self = this;
-                console.log(self);
                 var login_people = $("#login_people").val();
                 if (select == "C") {
                     var count_number = _.map(_.filter(self.instance_data, function(x) {
@@ -117,16 +115,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                 return this;
 
             },
-            render_form_edit: function(data) {
-                var self = this;
-                console.log(data);
-                var render_data = {
-                    define_data: data,
-                }
-                $("#my_count_number-content").html(self.template_define_form(render_data));
-                $("#my_count_number-content").trigger('create');
-                return this;
-            },
             bind_event: function() {
                 var self = this;
                 $("#my_count_number").on('click', '.open-left-panel', function(event) {
@@ -149,9 +137,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                     event.preventDefault();
                     var name = "请输入报数模版名称";
                     my_prompt(name, null, function(data) {
-                        console.log(data);
                         if (name) {
-                            console.log(self.collection.models);
                             var new_count_number = new CountNumberDefineModel({
                                 count_number_name: data,
                                 create_date: new Date(),
@@ -167,8 +153,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
 
                                 var url = '/admin/pm/count_number_define/template_edit/' + up_id;
                                 self.collection.fetch().done(function() {
-                                    var single_instance = self.collection.get(up_id).attributes;
-                                    self.render_form_edit(single_instance);
+                                    window.location.href = "/m#count_number_define/" + up_id;
                                 })
                             });
                         }
@@ -177,8 +162,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                 }).on('click', '#count_number_define_details', function(event) {
                     event.preventDefault();
                     var up_id = $(this).data("up_id");
-                    var single_instance = self.collection.get(up_id).attributes;
-                    self.render_form_edit(single_instance);
+                    // var single_instance = self.collection.get(up_id).attributes;
+                    // self.render_form_edit(single_instance);
+                    window.location.href = "/m#count_number_define/" + up_id;
                 })
 
             },
