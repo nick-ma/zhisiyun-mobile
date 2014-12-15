@@ -2691,7 +2691,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           tr_data.push('<label for="count_number_end" style="margin-top:15px">报数项目:</label>');
           tr_data.push('</div>');
           tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
-          tr_data.push('<input for="count_number_end" value="' + x.child_item_name + '"></input>');
+          tr_data.push('<input class="editable" for="count_number_end" data-up_id="'+x._id+'" data-field="child_item_name" value="' + x.child_item_name + '"></input>');
           tr_data.push('</div>');
           tr_data.push('</div>');
           //计划值
@@ -2700,7 +2700,8 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           tr_data.push('<label for="plan_val" style="margin-top:15px">计划值:</label>');
           tr_data.push('</div>');
           tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
-          tr_data.push('<input for="plan_val" value="' + x.plan_val + '"></input>');
+          var plan_val = x.plan_val ? x.plan_val : '';
+          tr_data.push('<input class="editable" for="plan_val" data-up_id="' + x._id + '" data-field="plan_val" value="' + plan_val + '"></input>');
           tr_data.push('</div>');
           tr_data.push('</div>');
 
@@ -2710,12 +2711,13 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           tr_data.push('<label for="unit" style="margin-top:15px">单位:</label>');
           tr_data.push('</div>');
           tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
-          tr_data.push('<input for="unit" value="' + x.unit + '"></input>');
+          var unit = x.unit ? x.unit : '';
+          tr_data.push('<input class="editable" for="unit" data-up_id="' + x._id + '" data-field="unit" value="' + unit + '"></input>');
           tr_data.push('</div>');
           tr_data.push('</div>');
           //是否删除
           tr_data.push('<div class="button-wrap">');
-          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important">删除</button>')
+          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important btn_remove_row_item" data-up_id="'+x._id+'">删除</button>')
           tr_data.push('</div>');
 
           tr_data.push('</div>');
@@ -2745,7 +2747,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           tr_data.push('</div>');
           tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
           var plan_val = x.plan_val ? x.plan_val : '';
-          tr_data.push('<input for="plan_val" value="' + plan_val + '"></input>');
+          tr_data.push('<input class="editable" for="plan_val" data-up_id="' + x._id + '" data-field="plan_val" value="' + plan_val + '"></input>');
           tr_data.push('</div>');
           tr_data.push('</div>');
 
@@ -2756,12 +2758,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           tr_data.push('</div>');
           tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
           var unit = x.unit ? x.unit : '';
-          tr_data.push('<input for="unit" value="' + unit + '"></input>');
+          tr_data.push('<input class="editable" for="unit" data-up_id="' + x._id + '" data-field="unit" value="' + unit + '"></input>');
           tr_data.push('</div>');
           tr_data.push('</div>');
           //是否删除
           tr_data.push('<div class="button-wrap">');
-          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important">删除</button>')
+          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important btn_remove_row_item" data-up_id="'+x._id+'">删除</button>')
           tr_data.push('</div>');
 
           tr_data.push('</div>');

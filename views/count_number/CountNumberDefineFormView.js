@@ -12,6 +12,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                 this.template = Handlebars.compile($("#psh_count_number_define_form_view").html());
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
                 this.item_template = Handlebars.compile($("#psh_count_number_left_view").html());
+                this.left_template = Handlebars.compile($("#psh_count_number_people_left_view").html());
+
                 this.bind_event();
             },
             pre_render: function() {
@@ -57,14 +59,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
             },
             bind_event: function() {
                 var self = this;
+                var count_arr = count_tools(100);
+
+                function count_tools(num) {
+                    var count_tool = [];
+                    for (var i = num; i > 0; i--) {
+                        count_tool.push(i);
+                    }
+                    return count_tool;
+                }
                 $("#my_count_number_define").on('click', '#btn_select_category', function(event) {
                     event.preventDefault();
                     var data = _.map(self.item_data, function(x) {
                         return x.toJSON()
                     })
 
-                    var render_data={
-                        data:data
+                    var render_data = {
+                        data: data
                     }
                     $("#my_count_number_define-left-panel-content").html(self.item_template(render_data));
                     $("#my_count_number_define-left-panel-content").trigger('create');
@@ -76,21 +87,404 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                     self.collection.fetch().done(function() {
                         window.location = "/m#count_number_list";
                     })
-                })
-                $("#my_count_number_define-left-panel-content")
-                    .on('change', '.goto_sub_assessment', function(event) {
-                        var $this = $(this);
-                        var people = $this.data('up_id');
-                        $("#summary_name").html($this.data('people_name') + '的绩效总结');
-                        self.collection.url = '/admin/pm/assessment_instance/summary/bb?people=' + people;
-                        self.collection.fetch().done(function() {
-                            self.render();
+                }).on('change', '.editable', function(event) {
+                    event.preventDefault();
+                    var $this = $(this);
+                    var item_id = $this.data('up_id');
+                    var field = $this.data("field");
+                    var value = $(this).val();
+                    var single_count_number_defines = self.collection.models[0].attributes;
+                    if (field == 'item_C') {
+                        var item_C = $this.data("item");
+                        var find_item = _.filter(single_count_number_defines.count_item, function(x) {
+                            return x.item_C == String(item_C)
                         })
-                        $("#summary_list-left-panel").panel("close");
+                        if (find_item.length > 0) {
+                            _.each(find_item, function(x) {
+                                x[field] = value;
+                            })
+                        };
+                    } else {
+                        var find_item = _.find(single_count_number_defines.count_item, function(x) {
+                            return x._id == String(item_id)
+                        })
+                        if (find_item) {
+                            find_item[field] = value;
+                        };
 
+                    }
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.render();
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    }); //明细项目编辑
 
+                }).on('change', "#is_accumulate", function(event) {
+                    event.preventDefault();
+                    var count_number_define = self.collection.models[0].attributes;
+                    if ($(this).val() == 'true') {
+                        var bool_val = true;
+                    } else {
+                        var bool_val = false;
+                    }
+                    console.log(bool_val);
+                    count_number_define.is_accumulate = bool_val;
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.render();
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    }); //明细项目编辑
+                }).on('change', "#is_average", function(event) {
+                    event.preventDefault();
+                    var count_number_define = self.collection.models[0].attributes;
+                    if ($(this).val() == 'true') {
+                        var bool_val = true;
+                    } else {
+                        var bool_val = false;
+                    }
+                    count_number_define.is_average = bool_val;
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.render();
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
                     });
+                }).on('change', '#count_number_name', function(event) {
+                    event.preventDefault();
+                    var up_id = $(this).data("up_id");
+                    var count_number_define = self.collection.models[0].attributes;
+                    count_number_define.count_number_name = $(this).val();
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.render();
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    });
+                }).on('change', '#count_number_begin', function(event) {
+                    event.preventDefault();
+                    var up_id = $(this).data("up_id");
+                    var count_number_define = self.collection.models[0].attributes;
+
+                    if (moment($(this).val()).isAfter(moment($("#count_number_end").val()))) {
+                        alert('开始时间不能大于结束时间')
+                    } else if (moment($(this).val()).isAfter(moment(new Date()))) {
+                        alert("开始时间需大于当前时间")
+                    } else {
+                        count_number_define.count_number_begin = $(this).val();
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.render();
+                                console.log('DATA SAVE SUCCESSED');
+                            },
+                            error: function(model, xhr, options) {
+                                console.log('DATA SAVE FAILED');
+                            }
+                        });
+                    }
+
+                }).on('change', '#count_number_end', function(event) {
+                    event.preventDefault();
+                    var count_number_define = self.collection.models[0].attributes;
+                    var up_id = $(this).data("up_id");
+                    if (moment($(this).val()).isBefore(moment($("#count_number_begin").val()))) {
+                        alert('结束时间不能小于开始时间');
+                    } else {
+                        count_number_define.count_number_end = $(this).val();
+                        self.collection.models[0].save(self.collection.models[0].attributes, {
+                            success: function(model, response, options) {
+                                self.render();
+                                console.log('DATA SAVE SUCCESSED');
+                            },
+                            error: function(model, xhr, options) {
+                                console.log('DATA SAVE FAILED');
+                            }
+                        });
+                    }
+
+                }).on('change', '#count_number_frequency', function(event) {
+                    event.preventDefault();
+                    var up_id = $(this).data("up_id");
+                    var count_number_define = self.collection.models[0].attributes;
+
+                    count_number_define.count_number_frequency = $(this).val();
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.render();
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    });
+
+
+                }).on('click', ".btn_remove_row", function(event) { //删除报数项目明细
+                    event.preventDefault();
+                    var item = $(this).data("item");
+                    var type = $(this).data("type");
+                    console.log(item);
+                    console.log(type);
+                    var count_number_define = self.collection.models[0].attributes;
+
+                    count_number_define.count_item = _.filter(count_number_define.count_item, function(x) {
+                        if (type == 'C') {
+                            return x.item_C != String(item)
+
+                        } else if (type == 'S') {
+                            return x.item.item_category_name != String(item)
+
+                        }
+                    })
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.fetch(self.collection.models[0].attributes._id);
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    });
+
+                }).on('click', ".btn_remove_row_item", function(event) { //删除报数项目
+                    event.preventDefault();
+                    var up_id = $(this).data("up_id");
+                    var count_number_define = self.collection.models[0].attributes;
+                    count_number_define.count_item = _.filter(count_number_define.count_item, function(x) {
+                        return x._id != String(up_id)
+                    })
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.fetch(self.collection.models[0].attributes._id);
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    });
+
+                }).on('click', "#btn_add_category", function(event) {
+                    event.preventDefault();
+                    var count_number_define = self.collection.models[0].attributes;
+                    count_number_define.count_item.push({
+                        item_C: '新建项目类别' + count_arr.pop(),
+                        item_type: 'C',
+                        child_item_name: '新建项目' + count_arr.pop()
+                    });
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.fetch(self.collection.models[0].attributes._id);
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    });
+                }).on('click', ".btn_add_row", function(event) {
+                    event.preventDefault();
+                    var item_C = $(this).data("item");
+                    var count_number_define = self.collection.models[0].attributes;
+                    count_number_define.count_item.push({
+                        item_C: item_C,
+                        item_type: 'C',
+                        child_item_name: '新建项目' + count_arr.pop()
+                    });
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.fetch(self.collection.models[0].attributes._id);
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    });
+                }).on('click', '.count_number_people', function(event) {
+                    event.preventDefault();
+                    $.mobile.loading("show");
+                    var field = $(this).data("field");
+                    console.log(field);
+                    var count_number_define = self.collection.models[0].attributes;
+                    // self.peoples = _.filter(self.c_people, function(x) {
+                    //     return x.attributes.myteama;
+                    // })
+                    var rendered = {
+                        people: [],
+                    };
+                    _.each(self.c_people, function(x) {
+                        rendered.people.push(x.attributes);
+                    });
+
+                    $("#my_count_number_define-left-panel2").html(self.left_template(rendered));
+                    $("#my_count_number_define-left-panel2").trigger('create');
+                    $("#my_count_number_define-left-panel2").panel("open");
+                    $.mobile.loading("hide");
+                    var $container = $("#my_count_number_define");
+                    if (field == "operator") {
+                        var count_number_operator = count_number_define.count_number_operator;
+                        console.log(count_number_operator);
+                        _.each(count_number_operator, function(x) {
+                            $container.find("#rd-" + x._id).attr('checked', true);
+                        })
+                    } else if (field == "notify") {
+                        var count_number_notify = count_number_define.count_number_notify;
+                        _.each(count_number_notify, function(x) {
+                            $container.find("#rd-" + x._id).attr('checked', true);
+                        })
+                    } else if (field == "copy") {
+                        var count_number_copy = count_number_define.count_number_copy;
+                        _.each(count_number_copy, function(x) {
+                            $container.find("#rd-" + x._id).attr('checked', true);
+                        })
+                    }
+                    $("#my_count_number_define-left-panel2").data("field", field);
+                    window.setTimeout(function() {
+                        if ($("#my_count_number_define-left-panel2 input:checked").length && $("#my_count_number_define-left-panel2 input:checked").offset().top > 75) {
+                            $.mobile.silentScroll($("#my_count_number_define-left-panel2 input:checked").offset().top - 95)
+                        }
+                    }, 1000);
+
+
+                }).on('click', '#btn_submit', function(event) { //发布报数模版
+                    event.preventDefault();
+                    event.stopPropagation();
+                    var $this = $(this);
+                    var up_id = $(this).data("up_id");
+                    var msg = "确认发布该报数模版吗？一旦发布将不能再次编辑！";
+                    my_confirm(msg, null, function() {
+                        var count_number_define = self.collection.models[0].attributes;
+                        if (count_number_define.count_number_operator.length > 0 && count_number_define.count_item.length > 0) {
+                            var url = '/admin/pm/count_number_instance/create_count_number_instance/' + up_id
+                            $.post(url, function(data) {
+                                if (data.code == 'OK') {
+                                    alert("报数模版发布成功")
+                                    $this.attr("disabled", true);
+                                    count_number_define.is_save = true;
+                                    self.collection.models[0].save(count_number_define, {
+                                        success: function(model, response, options) {
+                                            self.fetch(up_id);
+                                            window.location = "/m#count_number_list";
+                                        },
+                                        error: function(model, xhr, options) {
+                                            alert("报数模版发布失败")
+                                        }
+                                    });
+                                } else {
+                                    alert("报数模版发布失败");
+
+                                }
+                            })
+                        } else {
+                            alert('请先添加报数执行人或者报数项目再发布！')
+                        }
+                    })
+
+                })
+                $("#my_count_number_define-left-panel").on("panelclose", function(event) {
+                    event.preventDefault();
+                    var count_item = [],
+                        exist_item = [];
+                    var count_number_define = _.clone(self.collection.models[0].attributes);
+
+                    _.each(count_number_define.count_item, function(x) {
+                        if (x.item) {
+                            exist_item.push(String(x.child_item))
+                            return x.item._id;
+                        }
+                    })
+                    _.each($("#my_count_number_define input[class='item_select']:checked"), function(x) {
+                        var $this = $(x);
+                        if (!~exist_item.indexOf(String($this.val()))) {
+                            count_item.push({
+                                item: $this.data("item"),
+                                child_item_name: $this.data("item_name"),
+                                child_item: $this.val(),
+                                item_type: 'S',
+                                unit: $this.data("unit"),
+                                item_category_name: $this.data("item_category_name")
+                            })
+                        }
+                    });
+                    console.log(count_item);
+                    _.each(count_item, function(x) {
+                        self.collection.models[0].attributes.count_item.push(x);
+                    })
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.fetch(self.collection.models[0].attributes._id);
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    });
+                })
+                $("#my_count_number_define-left-panel2").on("panelclose", function(event) { //-人员面板关闭
+                    event.preventDefault();
+                    var field = $(this).data("field");
+                    var count_number_define = self.collection.models[0].attributes;
+                    var field_data;
+                    field_data = _.map($("#my_count_number_define input[class='count_number_people']:checked"), function(x) {
+                        var $this = $(x);
+                        return {
+                            _id: $this.val(),
+                            people_name: $this.data("people_name"),
+                            position_name: $this.data("position_name"),
+                            ou_name: $this.data("ou_name"),
+                            company_name: $this.data("company_name"),
+                            superiors: $this.data("superiors")
+                        }
+                    })
+                    console.log(field);
+                    console.log(field_data);
+                    if (field == 'operator') {
+                        count_number_define.count_number_operator = field_data;
+                        var exist_notify = _.map(count_number_define.count_number_notify, function(x) {
+                            return String(x._id)
+                        })
+                        _.each(field_data, function(x) {
+                            if (!~exist_notify.indexOf(x.superiors)) {
+                                count_number_define.count_number_notify.push(x.superiors);
+                                exist_notify.push(x.superiors);
+                            }
+                        })
+                    } else if (field == 'notify') {
+                        count_number_define.count_number_notify = field_data;
+                    } else if (field == 'copy') {
+                        count_number_define.count_number_copy = field_data;
+                    }
+                    console.log(count_number_define.count_number_operator);
+                    self.collection.models[0].save(self.collection.models[0].attributes, {
+                        success: function(model, response, options) {
+                            self.fetch(self.collection.models[0].attributes._id);
+                            console.log('DATA SAVE SUCCESSED');
+                        },
+                        error: function(model, xhr, options) {
+                            console.log('DATA SAVE FAILED');
+                        }
+                    });
+                })
             },
+            fetch: function(up_id) {
+                var self = this;
+                self.collection.url = '/admin/pm/count_number_define/bb/' + up_id;
+                self.collection.fetch().done(function() {
+                    self.render();
+                })
+            }
+
 
         });
 

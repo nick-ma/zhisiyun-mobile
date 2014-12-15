@@ -83,8 +83,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             cb(null, self)
                         });
                     },
+                    c_people:function(cb){
+                        self.c_people.fetch().done(function() {
+                            cb(null, self)
+                        }); 
+                    }
                 }, function(err, data) {
                     self.CountNumberDefineFormView.item_data = self.cnitemCollection.models; //保护项目数据
+                    self.CountNumberDefineFormView.c_people = self.c_people.models; //保护项目数据
 
                     self.CountNumberDefineFormView.collection.url = '/admin/pm/count_number_define/bb/' + _id;
                     self.CountNumberDefineFormView.collection.fetch().done(function() {
