@@ -26,6 +26,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
             this.mode = '2';
             this.search_term = ''; //过滤条件
             this.date_offset = 30; //过滤条件
+            this.filter_mode = 'myself';
         },
         pre_render: function() {
             var self = this;
@@ -51,6 +52,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
 
             if (self.view_mode == '1') {
                 $("#btn-todo-back").show();
+                $("#yiban").hide();
                 $("#todo_name").html("待办事项");
                 $("#todo_select").attr("style", "display:none");
                 $("#todo_free_select").attr("style", "display:none");
@@ -63,18 +65,38 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                 $("#todo_list-content").html(self.template(rendered_data));
             } else if (self.view_mode == '2') {
                 $("#btn-todo-back").hide();
+                $("#yiban").show();
                 $("#todo_name").html("");
                 $("#todo_select").attr("style", "display:block");
                 $("#todo_free_select").attr("style", "display:none");
                 $("#todo_title").attr("style", "padding: 0px;");
-                var rendered_data = {
-                    todos: _.map(self.tfList.models, function(x) {
-                        return x.toJSON();
-                    })
+                var rendered_data;
+                if (self.filter_mode == 'myself') {
+                    rendered_data = {
+                        todos: _.map(self.tfList.models, function(x) {
+                            return x.toJSON();
+                        })
+                    }
+                } else {
+                    rendered_data = {
+                        todos: _.map(self.tfoList.models, function(x) {
+                            return x.toJSON();
+                        })
+                    }
                 }
+
                 $("#todo_list-content").html(self.template2(rendered_data));
+                // 设定顶部过滤按钮的样式
+                if (self.filter_mode == 'myself') {
+                    $("#btn_filter_myself").addClass('ui-btn-active');
+                    $("#btn_filter_others").removeClass('ui-btn-active');
+                } else {
+                    $("#btn_filter_myself").removeClass('ui-btn-active');
+                    $("#btn_filter_others").addClass('ui-btn-active');
+                };
             } else if (self.view_mode == '3') {
                 $("#btn-todo-back").hide();
+                $("#yiban").hide();
                 $("#todo_name").html("发起流程");
                 $("#todo_select").attr("style", "display:none");
                 $("#todo_free_select").attr("style", "display:none");
@@ -87,58 +109,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                 $("#todo_list-content").html(self.template3(render_data));
             } else if (self.view_mode == '4') {
                 $("#btn-todo-back").hide();
+                $("#yiban").hide();
                 $("#todo_name").html("");
                 $("#todo_select").attr("style", "display:none");
                 $("#todo_free_select").attr("style", "display:block");
                 $("#todo_title").attr("style", "padding: 0px;");
 
-                // self.mode = $("#todo_list input[type=radio][name=wf_approve_view_mode]:checked").val() || '1';
-
                 var models4render = [];
                 var render_mode = '';
                 var render_data;
-
-                // console.log(tmp);
-                //根据条件进行过滤
-                // if (self.search_term) {
-                //     var st = /./;
-                //     st.compile(self.search_term);
-                //     tmp = _.filter(tmp, function(x) {
-                //         return st.test(x.name);
-                //     })
-                // };
-                // var dm1 = _.filter(tmp, function(x) {
-                //     return x.state == 'START' && x.current_handler._id == login_people;
-                // });
-
-                // var dm3 = _.filter(tmp, function(x) {
-                //     return x.creator._id == login_people;
-                // })
-                // var dm4 = _.filter(tmp, function(x) {
-                //     return x.state == 'END' && x.op == '通过' && !!_.find(x.cc_people, function(y) {
-                //         return y == login_people;
-                //     })
-                // })
-                // var ts_count = {
-                //     '1': dm1.length,
-                //     '2': dm2.length,
-                //     '3': dm3.length,
-                //     '4': dm4.length,
-                // };
-                // 整理前端需要渲染的数据
-                // if (self.mode == '1') { //待办任务
-                //     render_mode = 'todo';
-                //     models4render = dm1;
-                // } else if (self.mode == '2') { //已办任务
-                //     render_mode = 'done';
-                //     models4render = dm2;
-                // } else if (self.mode == '3') { //我发起的流程
-                //     render_mode = 'mywf';
-                //     models4render = dm3
-                // } else if (self.mode == '4') { //我发起的流程
-                //     render_mode = 'ccwf';
-                //     models4render = dm4
-                // }
 
                 render_mode = 'done';
                 models4render = dm2;
@@ -155,6 +134,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
             } else {
                 $("#todo_name").html("选择人员");
                 $("#btn-todo-back").hide();
+                $("#yiban").hide();
                 $("#todo_select").attr("style", "display:none");
                 $("#todo_title").attr("style", "");
                 var render_data = pd.toJSON();
@@ -192,49 +172,20 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                 .on('change', '#todo_date_offset', function(event) {
                     var $this = $(this);
 
-                    // if (self.view_mode == '2') {
-                        self.tfList.date_offset = $this.val();
-                        self.tfList.fetch().done(function() {
+                    self.tfList.date_offset = $this.val();
+                    self.tfList.fetch().done(function() {
+                        self.tfoList.date_offset = $this.val();
+                        self.tfoList.fetch().done(function() {
                             self.render();
                         })
-                    // } else {
-                    //     self.c_wf_approve.date_offset = $this.val();
-                    //     self.c_wf_approve.fetch().done(function() {
-                    //         self.render();
-                    //     })
-                    // }
-
-                    // async.parallel({
-                    //     data1: function(cb) {
-                    //         self.tfList.date_offset = $this.val();
-                    //         self.tfList.collection.fetch().done(function() {
-                    //             cb(null, null);
-                    //         });
-                    //     },
-                    //     data2: function(cb) {
-                    //         self.c_wf_approve.date_offset = $this.val();
-                    //         self.c_wf_approve.fetch().done(function() {
-                    //             cb(null, null);
-                    //         });
-                    //     }
-                    // }, function(err, ret) {
-                    //     self.render();
-                    // });
+                    })
                 })
                 .on('change', '#todo_free_date_offset', function(event) {
                     var $this = $(this);
-
-                    // if (self.view_mode == '2') {
-                    //     self.tfList.date_offset = $this.val();
-                    //     self.tfList.fetch().done(function() {
-                    //         self.render();
-                    //     })
-                    // } else {
-                        self.c_wf_approve.date_offset = $this.val();
-                        self.c_wf_approve.fetch().done(function() {
-                            self.render();
-                        })
-                    // }
+                    self.c_wf_approve.date_offset = $this.val();
+                    self.c_wf_approve.fetch().done(function() {
+                        self.render();
+                    })
                 })
                 .on('click', '#btn-wf_approve-add', function(event) { //新建一个流程
                     event.preventDefault();
@@ -255,59 +206,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                         alert("必须输入标题才启动报批流程");
                     };
                 })
-                // .on('change', '#wf_approve_view_mode', function(event) {
-                //     event.preventDefault();
-                //     self.mode = this.value;
-                //     self.render();
-                // })
-                // .on('click', '.open-left-panel', function(event) {
-                //     event.preventDefault();
-                //     $("#todo-left-panel").panel("open");
-                // })
-                // .on('swiperight', function(event) { //向右滑动，打开左边的面板
-                //     $("#todo-left-panel").panel("open");
-                // })
-                // .on('click', '#btn-wf_approve-refresh', function(event) {
-                //     event.preventDefault();
-                //     $.mobile.loading("show");
-                //     self.c_wf_approve.fetch().done(function() {
-                //         $.mobile.loading("hide");
-                //         $("#todo-left-panel").panel("close");
-                //     });
-                // })
-                // .on('change', '#todo-left-panel input[name=wf_approve_view_mode]', function(event) {
-                //     event.preventDefault();
-                //     var $this = $(this);
-                //     self.mode = $this.val();
-                //     self.render();
-                //     $("#todo-left-panel").panel("close");
-                //     // console.log($this.val());
-                // })
-                // .on('change', '#todo-left-panel select', function(event) {
-                //     event.preventDefault();
-                //     var $this = $(this);
-                //     var field = $this.data("field");
-                //     var value = $this.val();
-                //     self[field] = value;
-                //     if (field == 'date_offset') { //需要重新获取数据
-                //         $.mobile.loading("show");
-                //         self.c_wf_approve.date_offset = value;
-                //         self.c_wf_approve.fetch().done(function() {
-                //             $.mobile.loading("hide");
-                //             self.render();
-                //         })
-                //     } else {
-                //         self.render();
-                //     };
-                //     // $("#todo-left-panel").panel("close");
-                //     // console.log($this.val());
-                // })
-                // .on('change', '#cf_wf_approve_name', function(event) {
-                //     event.preventDefault();
-                //     var $this = $(this);
-                //     self.search_term = $this.val();
-                //     self.render();
-                // });
+                .on('click', '#btn_filter_myself', function(event) {
+                    event.preventDefault();
+                    self.filter_mode = 'myself';
+                    self.render();
+                })
+                .on('click', '#btn_filter_others', function(event) {
+                    event.preventDefault();
+                    self.filter_mode = 'others';
+                    self.render();
+                });
             $("#todo_list-content")
                 .on('click', '.start_form', function(event) {
                     event.preventDefault();
