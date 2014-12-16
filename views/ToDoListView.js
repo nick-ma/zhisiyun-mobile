@@ -53,6 +53,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
             if (self.view_mode == '1') {
                 $("#btn-todo-back").show();
                 $("#yiban").hide();
+                $("#space_tr").attr("style", "height:0em;");
                 $("#todo_name").html("待办事项");
                 $("#todo_select").attr("style", "display:none");
                 $("#todo_free_select").attr("style", "display:none");
@@ -66,6 +67,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
             } else if (self.view_mode == '2') {
                 $("#btn-todo-back").hide();
                 $("#yiban").show();
+                $("#space_tr").attr("style", "height:2.5em;");
                 $("#todo_name").html("");
                 $("#todo_select").attr("style", "display:block");
                 $("#todo_free_select").attr("style", "display:none");
@@ -97,6 +99,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
             } else if (self.view_mode == '3') {
                 $("#btn-todo-back").hide();
                 $("#yiban").hide();
+                $("#space_tr").attr("style", "height:0em;");
                 $("#todo_name").html("发起流程");
                 $("#todo_select").attr("style", "display:none");
                 $("#todo_free_select").attr("style", "display:none");
@@ -110,6 +113,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
             } else if (self.view_mode == '4') {
                 $("#btn-todo-back").hide();
                 $("#yiban").hide();
+                $("#space_tr").attr("style", "height:0em;");
                 $("#todo_name").html("");
                 $("#todo_select").attr("style", "display:none");
                 $("#todo_free_select").attr("style", "display:block");
@@ -135,6 +139,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../models/WFApproveMo
                 $("#todo_name").html("选择人员");
                 $("#btn-todo-back").hide();
                 $("#yiban").hide();
+                $("#space_tr").attr("style", "height:0em;");
                 $("#todo_select").attr("style", "display:none");
                 $("#todo_title").attr("style", "");
                 var render_data = pd.toJSON();
