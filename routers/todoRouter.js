@@ -17,6 +17,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../collections/MYPICollection",
         "../collections/AISubCollection",
         "../collections/TaskFinishedListCollection",
+        "../collections/TaskFinishedOthersListCollection",
         "../collections/WFMyWorkflowCollection",
         "../collections/WFApproveCollection",
 
@@ -41,6 +42,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         MYPICollection,
         AISubCollection,
         TaskFinishedListCollection,
+        TaskFinishedOthersListCollection,
         WFMyWorkflowCollection,
         WFApproveCollection,
 
@@ -127,8 +129,14 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                             cb(null, null);
                         });
                     },
+                    data5: function(cb) {
+                        self.tfoList.fetch().done(function() {
+                            cb(null, null);
+                        });
+                    },
                 }, function(err, ret) {
                     self.todoListView.tfList = self.tfList;
+                    self.todoListView.tfoList = self.tfoList;
                     self.todoListView.c_wf_my_workflow = self.c_wf_my_workflow;
                     self.todoListView.c_wf_approve = self.c_wf_approve;
                     self.todoListView.render();
@@ -1090,6 +1098,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 self.myPICollection = new MYPICollection();
                 self.aiSubCollection = new AISubCollection();
                 self.tfList = new TaskFinishedListCollection();
+                self.tfoList = new TaskFinishedOthersListCollection();
                 self.c_wf_approve = new WFApproveCollection(); //全体相关的流程
                 self.c_wf_my_workflow = new WFMyWorkflowCollection(); //我的相关的流程
             },
