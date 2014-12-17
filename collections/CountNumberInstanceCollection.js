@@ -2,7 +2,7 @@
 // =============================
 
 // Includes file dependencies
-define(["jquery", "backbone", "models/CountNumberDefineModel"], function($, Backbone, CountNumberDefineModel) {
+define(["jquery", "backbone", "models/CountNumberInstanceModel"], function($, Backbone, CountNumberInstanceModel) {
 
     // Extends Backbone.Router
     var Collection = Backbone.Collection.extend({
@@ -15,7 +15,7 @@ define(["jquery", "backbone", "models/CountNumberDefineModel"], function($, Back
             return '/admin/pm/count_number_instance/bb';
         },
         // Sets the Collection model property to be a Assessment Model
-        model: CountNumberDefineModel,
+        model: CountNumberInstanceModel,
     });
     // Returns the Model class
     return Collection;

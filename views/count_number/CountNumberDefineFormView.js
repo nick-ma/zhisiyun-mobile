@@ -26,7 +26,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
             },
 
             // Renders all of the CountNumberDefineList on the UI
-            render: function(select) {
+            render: function() {
 
                 var self = this;
                 var login_people = $("#login_people").val();
@@ -47,13 +47,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                 temp_model.attributes.filter_item_C = filter_item_C;
                 temp_model.attributes.filter_item_C_key = _.keys(filter_item_C);
                 var render_data = JSON.parse(JSON.stringify(temp_model.attributes));
-
+                render_data.ui_select = self.ui_select;
                 $("#my_count_number_define-content").html(self.template(render_data));
                 $("#my_count_number_define-content").trigger('create');
                 //把 a 换成 span， 避免点那个滑块的时候页面跳走。
                 $(".ui-flipswitch a").each(function() {
                     $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
                 });
+                if (self.ui_select != "A") {
+                    _.each($("#my_count_number_define-content").find("input"), function(x) {
+                        $(x).attr("disabled", true);
+                    })
+                    _.each($("#my_count_number_define-content").find("button"), function(x) {
+                        $(x).attr("disabled", true);
+                    })
+                    _.each($("#my_count_number_define-content").find("a"), function(x) {
+                        $(x).data("field", null);
+                    })
+                }
                 return this;
 
             },
