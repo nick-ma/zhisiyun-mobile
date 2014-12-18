@@ -781,8 +781,8 @@ Timeline UI Base
 .collapse_style{
     border:solid 1.5px beige;
     border-radius: 20px;
-    width:300px;
-    margin-left: 20px
+    width:280px;
+    margin-left: 10px
 }
 .count_button_style{
     margin-left: 20px

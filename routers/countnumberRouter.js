@@ -13,6 +13,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         "../views/count_number/CountNumberDefineFormView", //报数表单编辑
         "../views/count_number/CountNumberCommitFormView", //报数提交
         "../views/count_number/CountNumberReportFormView", //报数提交
+        "../views/count_number/CountNumberTeamReportFormView", //团队报表
     ],
     function($, Backbone, Handlebars, LZString, async,
         CountNumberDefineCollection, //报数定义
@@ -25,7 +26,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
         CountNumberDefineListView, //报数定义
         CountNumberDefineFormView, //报数定义表单编辑
         CountNumberCommitFormView,
-        CountNumberReportFormView //个人历史报数
+        CountNumberReportFormView, //个人历史报数
+        CountNumberTeamReportFormView //团队报数
     ) {
 
         var CountNumberRouter = Backbone.Router.extend({
@@ -43,6 +45,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "count_number_define/:_id/:ui_select": "count_number_define", //报数列表
                 "count_number_commit/:_id": "count_number_commit", //报数提交
                 "count_number_report/:report_type/:_id": "count_number_report", //个人历史报数
+                "count_number_report_all": "count_number_report_all", //报数报表
 
             },
             count_number_list: function() { //我的报数列表
@@ -149,7 +152,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 })
 
             },
-            count_number_report: function(report_type,_id) { //报数提交
+            count_number_report: function(report_type, _id) { //报数提交
                 var self = this;
                 $("body").pagecontainer("change", "#my_count_number_report", {
                     reverse: false,
@@ -179,6 +182,37 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 })
 
             },
+            count_number_report_all: function() { //报数报表
+                var self = this;
+                $("body").pagecontainer("change", "#myteam_count_number_report", {
+                    reverse: false,
+                    changeHash: false,
+                });
+                $.mobile.loading("show");
+                self.CountNumberTeamReportFormView.pre_render();
+                var people = $("#login_people").val();
+                self.CountNumberTeamReportFormView.people = people;
+                async.series({
+                    cnd: function(cb) {
+                        self.cniCollection.fetch().done(function() {
+                            cb(null, self)
+                        });
+                    },
+                }, function(err, data) {
+                    self.CountNumberTeamReportFormView.instance_data = self.cniCollection.models; //报数实例数据
+                    self.CountNumberTeamReportFormView.collection.url = '/admin/pm/count_number_define/bb';
+                    self.CountNumberTeamReportFormView.collection.fetch().done(function() {
+                        self.CountNumberTeamReportFormView.render();
+                        $.mobile.loading("hide");
+                        //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                        $(".ui-flipswitch a").each(function() {
+                            $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                        });
+                    });
+                })
+
+            },
+
             init_views: function() {
                 var self = this;
                 self.CountNumberDefineListView = new CountNumberDefineListView({ //报数定义
@@ -197,7 +231,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                     el: "#my_report_list_container-content",
                     collection: self.cniCollection
                 });
-
+                self.CountNumberTeamReportFormView = new CountNumberTeamReportFormView({ //报数报表
+                    el: "#myteam_count_number_report-content",
+                    collection: self.cndCollection
+                });
 
             },
             init_models: function() {

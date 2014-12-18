@@ -4,71 +4,15 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "highcharts", "../../models/CountNumberDefineModel"],
     function($, _, Backbone, Handlebars, Highcharts, CountNumberDefineModel) {
-        var basic_column = function(content, categories_data, series_data, up_id, count_instance) {
-                var chart = new Highcharts.Chart({
-                    chart: {
-                        type: 'column',
-                        renderTo: content,
-                    },
-                    title: {
-                        text: '',
-                        floating: true
-                    },
-                    exporting: {
-                        enabled: false
-                    },
-                    xAxis: {
-                        categories: categories_data
-                    },
-                    yAxis: {
-                        min: 0,
-                        title: {
-                            text: ''
-                        }
-                    },
-                    credits: {
-                        enabled: true,
-                        style: {
-                            cursor: 'default',
-                            color: '#909090',
-                            fontSize: '11px'
-                        },
-                        href: '',
-                        text: 'www.zhisiyun.com'
-                    },
-                    tooltip: {
-                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y} </b></td></tr>',
-                        footerFormat: '</table>',
-                        shared: true,
-                        useHTML: true
-                    },
-                    plotOptions: {
-                        column: {
-                            cursor: 'pointer',
-                            point: {
-                                // events: {
-                                //     click: function() {
-                                //         var point_item = this.series.name;
-                                //         var category = this.category;
-                                //         init_list(up_id, count_instance, category, point_item);
-                                //     }
-                                // }
-                            },
-                            pointPadding: 0.2,
-                            borderWidth: 0
-                        }
-                    },
-                    series: series_data
-                });
-            }
-            // Extends Backbone.View
+
+        // Extends Backbone.View
         var CountNumberReportFormView = Backbone.View.extend({
 
             // The View Constructor
             initialize: function() {
                 this.template = Handlebars.compile($("#psh_count_number_personal_report_view").html());
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
+                this.list_template = Handlebars.compile($("#psh_count_number_personal_report2_view").html());
 
                 this.bind_event();
             },
@@ -89,8 +33,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts", "../../m
                 var temp_model = self.collection.models[0].attributes;
                 //画图
                 self.draw_chart(temp_model);
+                var count_instance = _.sortBy(temp_model.count_instance, function(x) {
+                    return x.count_date
+                })
+                count_instance.reverse();
                 var render_data = {
-                    data: temp_model.count_instance
+                    data: count_instance
                 }
                 $("#my_report_list_container-content").html(self.template(render_data));
                 $("#my_report_list_container-content").trigger('create');
@@ -101,6 +49,48 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts", "../../m
                 return this;
 
             },
+            render_list: function(up_id, count_instance, category, child_item_name) {
+
+                var self = this;
+                var login_people = $("#login_people").val();
+                var count_instance = _.clone(self.collection.models[0].attributes.count_instance);
+                var data = [];
+                _.each(count_instance, function(x) {
+                    _.each(x.count_item, function(z) {
+                        if (z.item_type == 'S' && z.item_category_name == String(category)) {
+                            if (z.child_item_name == String(child_item_name)) {
+                                z.count_number_frequency = x.count_number_frequency;
+                                z.count_date = x.count_date;
+                                data.push(z)
+                            }
+                        }
+                        if (z.item_type == 'C' && z.item_C == String(category)) {
+                            if (z.child_item_name == String(child_item_name)) {
+                                z.count_number_frequency = x.count_number_frequency;
+                                z.count_date = x.count_date;
+
+                                data.push(z)
+                            }
+                        }
+                    })
+                })
+                data = _.sortBy(data, function(x) {
+                    return x.count_date
+                })
+                data.reverse();
+                var render_data = {
+                    data: data
+                }
+                $("#my_report_list_container-content").html(self.list_template(render_data));
+                $("#my_report_list_container-content").trigger('create');
+                //把 a 换成 span， 避免点那个滑块的时候页面跳走。
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                });
+                return this;
+
+            },
+
             bind_event: function() {
                 var self = this;
                 $("#my_count_number_report").on('click', '#btn_select_category', function(event) {
@@ -115,7 +105,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts", "../../m
                 }).on('click', '#btn_go_back', function(event) {
                     event.preventDefault();
                     var up_id = $(this).data("up_id");
-                    self.collection.url = '/admin/pm/count_number_define/bb';
+                    self.collection.url = '/admin/pm/count_number_instance/bb';
                     self.collection.fetch().done(function() {
                         window.location = "/m#count_number_list";
                     })
@@ -129,6 +119,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts", "../../m
                 })
             },
             draw_chart: function(data) {
+                var self = this;
                 var count_instance = data.count_instance;
                 var parent_titles = [];
                 var line_parent_datas = [];
@@ -225,12 +216,72 @@ define(["jquery", "underscore", "backbone", "handlebars", "highcharts", "../../m
                 });
                 if (parent_titles.length > 0 && line_parent_datas.length > 0) {
                     var up_id = data._id;
-                    basic_column('my_report_data', parent_titles, line_parent_datas, up_id, count_instance);
+                    self.basic_column('my_report_data', parent_titles, line_parent_datas, up_id, count_instance);
 
                 } else {
-                    $('#my_report_data').html("<div style='text-align:center;margin-top: 200px;color:blue;font-size:4em'>暂无汇总数据</div>")
+                    $('#my_report_data').html("<div style='text-align:center;margin-top: 200px;color:blue;font-size:2em'>暂无汇总数据</div>")
                 }
 
+            },
+            basic_column: function(content, categories_data, series_data, up_id, count_instance) {
+                var self = this;
+                var chart = new Highcharts.Chart({
+                    chart: {
+                        type: 'column',
+                        renderTo: content,
+                    },
+                    title: {
+                        text: '',
+                        floating: true
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        categories: categories_data
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: ''
+                        }
+                    },
+                    credits: {
+                        enabled: true,
+                        style: {
+                            cursor: 'default',
+                            color: '#909090',
+                            fontSize: '11px'
+                        },
+                        href: '',
+                        text: 'www.zhisiyun.com'
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y} </b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            cursor: 'pointer',
+                            point: {
+                                events: {
+                                    click: function() {
+                                        var point_item = this.series.name;
+                                        var category = this.category;
+                                        self.render_list(up_id, count_instance, category, point_item)
+
+                                    }
+                                }
+                            },
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: series_data
+                });
             }
 
 

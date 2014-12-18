@@ -94,10 +94,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                 }).on('click', '#btn_go_back', function(event) {
                     event.preventDefault();
                     var up_id = $(this).data("up_id");
-                    self.collection.url = '/admin/pm/count_number_define/bb';
-                    self.collection.fetch().done(function() {
-                        window.location = "/m#count_number_list";
-                    })
+                    var href = localStorage.getItem("btn_go_back_href");
+                    if (href) {
+                        localStorage.removeItem("btn_go_back_href");
+                        window.location = href;
+                    } else {
+                        self.collection.url = '/admin/pm/count_number_define/bb';
+                        self.collection.fetch().done(function() {
+                            window.location = "/m#count_number_list";
+                        })
+                    }
+
                 }).on('change', '.editable', function(event) {
                     event.preventDefault();
                     var $this = $(this);
@@ -142,7 +149,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                     } else {
                         var bool_val = false;
                     }
-                    console.log(bool_val);
                     count_number_define.is_accumulate = bool_val;
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
