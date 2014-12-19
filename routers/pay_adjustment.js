@@ -116,7 +116,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 changeHash: false,
             });
 
-            console.log(ti_id)
 
             $.mobile.loading("show");
             self.adjustmentbulkView.pre_render();
@@ -124,7 +123,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
             self.adjustment_bulk.id = ti_id;
             self.adjustment_bulk.fetch().done(function(data) {
-                 console.log(data)
                 if (data.task_state && data.task_state == 'FINISHED') {
                     window.location = "#adjustment_bulk_form/" + data.process_instance + '/F';
                 } else {

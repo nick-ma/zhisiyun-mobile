@@ -116,7 +116,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             //     self.model.set('attachments', _.flatten([attachments, adjustment_single.attis], true))
             //     localStorage.removeItem('upload_model_back'); //用完删掉
             // };
-
+            console.log(self.obj)
             var rendered_data = '';
             rendered_data = self.adjustment_single_view_list(self.obj);
             $('#adjustment_single_view #adjustment_single_back').attr('href', self.obj.type == 'T' ? '#todo' : '#adjustment_list')
