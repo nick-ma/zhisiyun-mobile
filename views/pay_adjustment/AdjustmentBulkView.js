@@ -189,6 +189,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             // };
 
             var rendered_data = '';
+   
 
             rendered_data = self.adjustment_bulk_view_template(self.obj);
 
@@ -532,47 +533,47 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             })
 
 
-            $("#panel-pri_items_detail").on("panelclose", function(event, ui) {
-                var pri_name = $("#panel-pri_items_detail input[type=radio]:checked").val();
-                var pri_id = $("#panel-pri_items_detail input[type=radio]:checked").attr('id');
-                var adjustment_bulk = self.model.get('adjustment_bulk');
+            // $("#panel-pri_items_detail").on("panelclose", function(event, ui) {
+            //     var pri_name = $("#panel-pri_items_detail input[type=radio]:checked").val();
+            //     var pri_id = $("#panel-pri_items_detail input[type=radio]:checked").attr('id');
+            //     var adjustment_bulk = self.model.get('adjustment_bulk');
 
-                if (!adjustment_bulk.pri_value) {
-                    adjustment_bulk.pri_value = {
-                        pri: '',
-                        pri_name: ''
-                    }
-                };
-                adjustment_bulk.pri_value.pri = pri_id;
-                adjustment_bulk.pri_value.pri_name = pri_name;
+            //     if (!adjustment_bulk.pri_value) {
+            //         adjustment_bulk.pri_value = {
+            //             pri: '',
+            //             pri_name: ''
+            //         }
+            //     };
+            //     adjustment_bulk.pri_value.pri = pri_id;
+            //     adjustment_bulk.pri_value.pri_name = pri_name;
 
-                get_pri_data(self, pri_id);
-            });
-
-
-            $("#panel-add_pris_detail").on("panelclose", function(event, ui) {
-                var adds = _.compact(_.map($("#panel-add_pris_detail input[type=checkbox]:checked"), function(x) {
-                    var obj = {
-                        pic: x.id,
-                        pic_name: x.name,
-                        ratio_value: 0, //百分比值
-                    }
-                    return obj
-                }));
-                _.each(self.model.get('adjustment_bulk').last_items, function(add) {
-                    var f_d = _.find(adds, function(as) {
-                        return as.pic == add.pic
-                    })
-                    if (f_d) {
-                        f_d.ratio_value = parseInt(add.ratio_value);
-                    };
-                })
-                self.model.get('adjustment_bulk').last_items = adds;
-                self.render();
+            //     get_pri_data(self, pri_id);
+            // });
 
 
+            // $("#panel-add_pris_detail").on("panelclose", function(event, ui) {
+            //     var adds = _.compact(_.map($("#panel-add_pris_detail input[type=checkbox]:checked"), function(x) {
+            //         var obj = {
+            //             pic: x.id,
+            //             pic_name: x.name,
+            //             ratio_value: 0, //百分比值
+            //         }
+            //         return obj
+            //     }));
+            //     _.each(self.model.get('adjustment_bulk').last_items, function(add) {
+            //         var f_d = _.find(adds, function(as) {
+            //             return as.pic == add.pic
+            //         })
+            //         if (f_d) {
+            //             f_d.ratio_value = parseInt(add.ratio_value);
+            //         };
+            //     })
+            //     self.model.get('adjustment_bulk').last_items = adds;
+            //     self.render();
 
-            });
+
+
+            // });
 
 
 

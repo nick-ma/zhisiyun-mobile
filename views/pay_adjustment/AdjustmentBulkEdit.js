@@ -42,33 +42,84 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         })
     }
 
+    function forcechange(x) {
+        var f_x = parseFloat(x);
+        if (isNaN(f_x)) {
+            return false;
+        }
+        var f_x = Math.round(x * 100) / 100;
+        return f_x;
+    }
+
+
 
     function get_pri_data(self, pri_id) {
         var adjustment_bulk = self.model.get('adjustment_bulk');
         var peopels = _.map(adjustment_bulk.peoples, function(pp) {
             return pp._id
         })
+        var low_val = adjustment_bulk.low_val;
+        var hight_val = adjustment_bulk.hight_val;
         $.get("/admin/py/payroll_adjustbulk/get_data_by_pri/" + peopels + '/' + pri_id, function(data) {
             if (data.code = 'OK') {
                 self.people_data = data.data;
                 var ratio_value = adjustment_bulk.pri_value ? adjustment_bulk.pri_value.ratio_value : 0;
                 var nums = []
-                _.each(data.data, function(pd) {
-                    if (pd) {
-                        nums.push(parseInt(pd.pri.amount))
+                    // _.each(data.data, function(pd) {
+                    //     if (pd) {
+                    //         nums.push(parseInt(pd.pri.amount))
+                    //     };
+                    //     // })
+                    // var sum = _.reduce(nums, function(memo, num) {
+                    //     return memo + num;
+                    // }, 0);
+
+                // if (ratio_value) {
+                //     adjustment_bulk.total_val = sum * ratio_value * 0.01
+                // } else {
+                //     adjustment_bulk.total_val = sum
+                // }
+                // console.log(adjustment_bulk)
+                // if (hight_val) {
+                //     if (parseFloat(hight_val) < val) {
+                //         val = hight_val;
+                //     };
+                // }
+
+
+                _.each(self.people_data, function(pd) {
+                    var val = 0;
+                    if (ratio_value) {
+                        val = forcechange(pd.pri.amount * ratio_value * 0.01);
+                    } else {
+                        val = parseFloat(pd.pri.amount)
+                    }
+                    if (low_val || low_val == 0) {
+                        if (parseFloat(low_val) > val) {
+                            val = parseFloat(low_val);
+                        };
                     };
+                    if (hight_val || hight_val == 0) {
+                        if (parseFloat(hight_val) < val) {
+                            val = parseFloat(hight_val);
+                        };
+                    }
+
+                    adjustment_bulk.items.push({
+                        people: pd.people._id,
+                        people_name: pd.people.firstname + pd.people.lastname,
+                        val: val
+                    })
+
+                    nums.push(val);
+
+
                 })
+
                 var sum = _.reduce(nums, function(memo, num) {
                     return memo + num;
                 }, 0);
-
-                if (ratio_value) {
-                    adjustment_bulk.total_val = sum * ratio_value * 0.01
-                } else {
-                    adjustment_bulk.total_val = sum
-                }
-
-
+                adjustment_bulk.total_val = sum
 
                 self.render();
             };
@@ -76,7 +127,44 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
     }
 
 
+    function assembly_data(self) {
+        var adjustment_bulk = self.model.get('adjustment_bulk');
+        var low_val = adjustment_bulk.low_val;
+        var hight_val = adjustment_bulk.hight_val;
+        var ratio_value = adjustment_bulk.pri_value ? adjustment_bulk.pri_value.ratio_value : 0;
+        var nums = [];
+        _.each(self.people_data, function(pd) {
+            var val = 0;
+            if (ratio_value) {
+                val = forcechange(pd.pri.amount * ratio_value * 0.01);
+            } else {
+                val = parseFloat(pd.pri.amount)
+            }
+            if (low_val || low_val == 0) {
+                if (parseFloat(low_val) > val) {
+                    val = parseFloat(low_val);
+                };
+            };
+            if (hight_val || hight_val == 0) {
+                if (parseFloat(hight_val) < val) {
+                    val = parseFloat(hight_val);
+                };
+            }
+            adjustment_bulk.items.push({
+                people: pd.people._id,
+                people_name: pd.people.firstname + pd.people.lastname,
+                val: val
+            })
+            nums.push(val);
+        })
 
+        var sum = _.reduce(nums, function(memo, num) {
+            return memo + num;
+        }, 0);
+        adjustment_bulk.total_val = sum
+
+        self.render();
+    }
     var AdjustmentbulkView = Backbone.View.extend({
         // The View Constructor
         initialize: function() {
@@ -116,6 +204,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             //     localStorage.removeItem('to_do_back_url');
             // }
             //附件数据
+
             if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
                 adjustment_bulk = JSON.parse(localStorage.getItem('upload_model_back')).model;
                 if (_.isUndefined(adjustment_bulk.attis)) {
@@ -169,11 +258,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
                 rendered_data = self.adjustment_bulk_edit_template(obj);
 
-                if (!self.people_data && adjustment_bulk.pri_value) {
+                if (!self.people_data && adjustment_bulk.pri_value && adjustment_bulk.pri_value.pri) {
                     get_pri_data(self, adjustment_bulk.pri_value.pri)
                 };
-
-
             } else if (self.model_view == '1') {
                 rendered_data = self.template(self.trans_data);
                 if (self.trans_data.next_td.node_type == 'END') {
@@ -185,6 +272,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             $("#adjustment_bulk_edit-content").html(rendered_data);
             $("#adjustment_bulk_edit-content").trigger('create');
+
+
+            var obj = self.model.attributes;
+            var readable_fields = obj.ti.task_define.readable_fields;
+            $(readable_fields).attr('disabled', true)
+
+            $(readable_fields).removeAttr('id'); //去掉a标签中的onclick事件
+
+
+
             return self;
         },
         bind_event: function() {
@@ -209,66 +306,31 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 $("#panel-add_pris_detail").panel('open').trigger("updatelayout");
             }).on('change', '#ratio_value', function(event) { //幅度 
                 event.preventDefault();
-                var value_num = $(this).val();
+                var ratio_value = parseFloat($(this).val());
+                self.model.get('adjustment_bulk').pri_value.ratio_value = ratio_value;
+                assembly_data(self)
 
-                self.model.get('adjustment_bulk').pri_value.ratio_value = value_num;
-                var nums = []
-                _.each(self.people_data, function(pd) {
-                    if (pd) {
-                        nums.push(parseInt(pd.pri.amount))
-                    };
-                })
-                var sum = _.reduce(nums, function(memo, num) {
-                    return memo + num;
-                }, 0);
-                self.model.get('adjustment_bulk').total_val = value_num * sum * 0.01;
-                self.render();
             }).on('change', '#low_val', function(event) { //  最小
                 event.preventDefault();
                 var low_val = $(this).val();
-                self.model.get('adjustment_bulk').low_val = low_val;
-                var ratio_value = self.model.get('adjustment_bulk').pri_value.ratio_value;
-                var sum = 0;
-                _.each(self.people_data, function(pd) {
-                    var val = 0;
-                    if (ratio_value) {
-                        val = parseFloat(pd.pri.amount * ratio_value * 0.01).toFixed(2)
-                    } else {
-                        val = parseFloat(pd.pri.amount)
-                    }
-                    if (low_val) {
-                        if (parseFloat(low_val) > val) {
-                            val = low_val;
-                        };
-                    };
-                    sum += parseFloat(val);
-                })
-                self.model.get('adjustment_bulk').total_val = sum;
-                self.render();
+                var adjustment_bulk = self.model.get('adjustment_bulk');
+                adjustment_bulk.low_val = parseFloat(low_val);
+                if (adjustment_bulk.low_val > adjustment_bulk.hight_val && adjustment_bulk.hight_val) {
+                    adjustment_bulk.low_val = adjustment_bulk.hight_val
+                    alert('最小值不能大于最大值！')
+                };
+                assembly_data(self)
             }).on('change', '#hight_val', function(event) { // 最大 
                 event.preventDefault();
                 var hight_val = $(this).val();
-                self.model.get('adjustment_bulk').hight_val = hight_val;
-                var ratio_value = self.model.get('adjustment_bulk').pri_value.ratio_value;
-                var sum = 0;
-                _.each(self.people_data, function(pd) {
-                    var val = 0;
-                    if (ratio_value) {
-                        val = parseFloat(pd.pri.amount * ratio_value * 0.01).toFixed(2)
-                    } else {
-                        val = parseFloat(pd.pri.amount)
-                    }
-                    if (hight_val) {
-                        if (parseFloat(hight_val) < val) {
-                            val = hight_val;
-                        };
-                    }
-                    sum += parseFloat(val);
-                })
-                self.model.get('adjustment_bulk').total_val = sum;
+                var adjustment_bulk = self.model.get('adjustment_bulk');
+                adjustment_bulk.hight_val = parseFloat(hight_val);
+                if (adjustment_bulk.low_val > adjustment_bulk.hight_val && adjustment_bulk.low_val) {
+                    adjustment_bulk.hight_val = adjustment_bulk.low_val
+                    alert('最大值不能小于最小值！')
+                };
+                assembly_data(self)
 
-
-                self.render();
             }).on('change', '#fixed_value', function(event) { // 固定
                 event.preventDefault();
                 var value_num = $(this).val();
@@ -280,6 +342,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 event.preventDefault();
                 self.model.get('adjustment_bulk').checked_val = $(this).val();
                 self.model.get('adjustment_bulk').total_val = 0;
+
+                if ($(this).val() == 'P') {
+                    self.model.get('adjustment_bulk').pri_value = {};
+                    self.model.get('adjustment_bulk').items = [];
+                } else {
+                    self.model.get('adjustment_bulk').fixed_value = 0;
+                }
                 self.render();
             }).on('change', '#effective_date', function(event) {
                 event.preventDefault();
@@ -295,16 +364,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 _.each(self.people_data, function(pd) {
                     var val = 0;
                     if (ratio_value) {
-                        val = parseFloat(pd.pri.amount * ratio_value * 0.01).toFixed(2)
+                        val = forcechange(pd.pri.amount * ratio_value * 0.01)
                     } else {
                         val = parseFloat(pd.pri.amount)
                     }
-                    if (low_val) {
+                    if (low_val || low_val == 0) {
                         if (parseFloat(low_val) > val) {
                             val = low_val;
                         };
                     };
-                    if (hight_val) {
+                    if (hight_val || hight_val == 0) {
                         if (parseFloat(hight_val) < val) {
                             val = hight_val;
                         };
@@ -334,16 +403,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 _.each(self.people_data, function(pd) {
                     var val = 0;
                     if (ratio_value) {
-                        val = parseFloat(pd.pri.amount * ratio_value * 0.01).toFixed(2)
+                        val = forcechange(pd.pri.amount * ratio_value * 0.01);
                     } else {
                         val = parseFloat(pd.pri.amount)
                     }
-                    if (low_val) {
+                    if (low_val || low_val == 0) {
                         if (parseFloat(low_val) > val) {
                             val = low_val;
                         };
                     };
-                    if (hight_val) {
+                    if (hight_val || hight_val == 0) {
                         if (parseFloat(hight_val) < val) {
                             val = hight_val;
                         };
@@ -476,16 +545,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 _.each(self.people_data, function(pd) {
                     var val = 0;
                     if (ratio_value) {
-                        val = parseFloat(pd.pri.amount * ratio_value * 0.01).toFixed(2)
+                        val = forcechange(pd.pri.amount * ratio_value * 0.01)
                     } else {
                         val = parseFloat(pd.pri.amount)
                     }
-                    if (low_val) {
+                    if (low_val || low_val == 0) {
                         if (parseFloat(low_val) > val) {
                             val = low_val;
                         };
                     };
-                    if (hight_val) {
+                    if (hight_val || hight_val == 0) {
                         if (parseFloat(hight_val) < val) {
                             val = hight_val;
                         };
@@ -562,8 +631,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 };
                 adjustment_bulk.pri_value.pri = pri_id;
                 adjustment_bulk.pri_value.pri_name = pri_name;
-
-                get_pri_data(self, pri_id);
+                if (pri_id) {
+                    get_pri_data(self, pri_id);
+                };
             });
 
 
