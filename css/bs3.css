@@ -782,8 +782,10 @@ Timeline UI Base
     border:solid 1.5px beige;
     border-radius: 20px;
     width:280px;
-    margin-left: 10px
+    margin-left: 10px;
+    margin:0px auto;
 }
 .count_button_style{
-    margin-left: 20px
+    margin-left: 20px;
+    margin:0px auto;
 }

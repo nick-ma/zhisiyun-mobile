@@ -6,6 +6,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
     function($, _, Backbone, Handlebars, CountNumberDefineModel) {
         var temp_cache = {};
 
+        function send_msg(up_id, tag, people, count_data, cb) {
+            var post_data = {
+                up_id: up_id,
+                tag: tag,
+                people: people,
+                count_data: count_data
+            }
+            $.post('/admin/pm/count_number_define/send_msg', post_data, function(data) {
+                if (data) {
+                    cb();
+                } else {
+                    cb();
+                }
+            })
+        }
+
         function find_count_item(count_number_define, item_id) {
                 var found = _.find(count_number_define, function(x) {
                     return x._id == String(item_id)
@@ -145,7 +161,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                                     if (time_distance > 1) {
                                         temp_cache.count_date = new Date(); //取当前时间
                                         instance_attr.count_instance.push(_.clone(temp_cache));
-                                        save_data()
+                                        send_msg(define_id, 'commit', $("#login_people_name").val(), temp_cache, function() {
+                                            save_data();
+                                        })
                                     } else {
                                         alert("距离上一次报数时间不足1小时,请" + (1 - time_distance) + "小时后再报数。")
                                     }
@@ -156,7 +174,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                                     if (time_distance > 2) {
                                         temp_cache.count_date = new Date(); //取当前时间
                                         instance_attr.count_instance.push(_.clone(temp_cache));
-                                        save_data()
+                                        send_msg(define_id, 'commit', $("#login_people_name").val(), temp_cache, function() {
+                                            save_data();
+                                        })
 
                                     } else {
                                         alert("距离上一次报数时间不足2小时,请" + (2 - time_distance) + "小时后再报数。")
@@ -167,7 +187,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                                     if (time_distance > 4) {
                                         temp_cache.count_date = new Date(); //取当前时间
                                         instance_attr.count_instance.push(_.clone(temp_cache));
-                                        save_data()
+                                        send_msg(define_id, 'commit', $("#login_people_name").val(), temp_cache, function() {
+                                            save_data();
+                                        })
 
                                     } else {
                                         alert("距离上一次报数时间不足4小时,请" + (4 - time_distance) + "小时后再报数。")
@@ -193,13 +215,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                                     } else {
                                         temp_count_item.push(x);
                                     }
+
+                                })
+                                send_msg(define_id, 'update', $("#login_people_name").val(), temp_cache, function() {
+                                    save_data();
                                 })
                             } else {
                                 temp_cache.count_date = count_date;
                                 instance_attr.count_instance.push(_.clone(temp_cache));
-
+                                send_msg(define_id, 'commit', $("#login_people_name").val(), temp_cache, function() {
+                                    save_data();
+                                })
                             }
-                            save_data();
+
 
                         }
                     } else {
@@ -215,7 +243,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                             temp_arr.push(_.clone(temp_cache));
                             instance_attr.count_instance = temp_arr;
                         }
-                        save_data();
+                        send_msg(define_id, 'commit', $("#login_people_name").val(), temp_cache, function() {
+                            save_data();
+                        })
                     }
 
                     function save_data() {

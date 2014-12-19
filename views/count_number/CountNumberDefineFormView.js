@@ -2,9 +2,22 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNumberDefineModel"],
-    function($, _, Backbone, Handlebars, CountNumberDefineModel) {
-        // Extends Backbone.View
+define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models/CountNumberDefineModel"],
+    function($, _, Backbone, Handlebars, async, CountNumberDefineModel) {
+        function send_msg(up_id, tag, cb) {
+                var post_data = {
+                    up_id: up_id,
+                    tag: tag
+                }
+                $.post('/admin/pm/count_number_define/send_msg', post_data, function(data) {
+                    if (data) {
+                        cb();
+                    } else {
+                        cb();
+                    }
+                })
+            }
+            // Extends Backbone.View
         var CountNumberDefineFormView = Backbone.View.extend({
 
             // The View Constructor
@@ -253,8 +266,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                     event.preventDefault();
                     var item = $(this).data("item");
                     var type = $(this).data("type");
-                    console.log(item);
-                    console.log(type);
                     var count_number_define = self.collection.models[0].attributes;
 
                     count_number_define.count_item = _.filter(count_number_define.count_item, function(x) {
@@ -386,18 +397,34 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                             var url = '/admin/pm/count_number_instance/create_count_number_instance/' + up_id
                             $.post(url, function(data) {
                                 if (data.code == 'OK') {
-                                    alert("报数模版发布成功")
                                     $this.attr("disabled", true);
+                                    alert("报数模版发布成功");
                                     count_number_define.is_save = true;
-                                    self.collection.models[0].save(count_number_define, {
-                                        success: function(model, response, options) {
-                                            self.fetch(up_id);
-                                            window.location = "/m#count_number_list";
-                                        },
-                                        error: function(model, xhr, options) {
-                                            alert("报数模版发布失败")
+                                    async.parallel({
+                                        send_msg: function(cb) {
+                                            send_msg(up_id, "submit", function() {
+                                                cb(null, "OK");
+                                            })
                                         }
-                                    });
+                                    }, function(err, data) {
+                                        self.collection.models[0].save(count_number_define, {
+                                            success: function(model, response, options) {
+                                                setTimeout(function() {
+                                                    self.collection.url = "/admin/pm/count_number_define/bb";
+                                                    self.collection.fetch().done(function() {
+                                                        window.location = "/m#count_number_list";
+
+                                                    })
+                                                }, 1000);
+                                            },
+                                            error: function(model, xhr, options) {
+                                                setTimeout(function() {
+                                                    alert("报数模版发布失败");
+                                                }, 1000);
+                                            }
+                                        });
+                                    })
+
                                 } else {
                                     alert("报数模版发布失败");
 
@@ -434,7 +461,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                             })
                         }
                     });
-                    console.log(count_item);
                     _.each(count_item, function(x) {
                         self.collection.models[0].attributes.count_item.push(x);
                     })
@@ -464,8 +490,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                             superiors: $this.data("superiors")
                         }
                     })
-                    console.log(field);
-                    console.log(field_data);
                     if (field == 'operator') {
                         count_number_define.count_number_operator = field_data;
                         var exist_notify = _.map(count_number_define.count_number_notify, function(x) {
@@ -482,7 +506,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                     } else if (field == 'copy') {
                         count_number_define.count_number_copy = field_data;
                     }
-                    console.log(count_number_define.count_number_operator);
                     self.collection.models[0].save(self.collection.models[0].attributes, {
                         success: function(model, response, options) {
                             self.fetch(self.collection.models[0].attributes._id);

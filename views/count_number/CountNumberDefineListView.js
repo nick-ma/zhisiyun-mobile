@@ -5,7 +5,21 @@
 define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models/CountNumberDefineModel"],
     function($, _, Backbone, Handlebars, async, CountNumberDefineModel) {
         var ui_select = "A";
-        // Extends Backbone.View
+
+        function send_msg(up_id, tag, cb) {
+                var post_data = {
+                    up_id: up_id,
+                    tag: tag
+                }
+                $.post('/admin/pm/count_number_define/send_msg', function(data) {
+                    if (data) {
+                        cb();
+                    } else {
+                        cb();
+                    }
+                })
+            }
+            // Extends Backbone.View
         var CountNumberDefineList = Backbone.View.extend({
 
             // The View Constructor
@@ -185,7 +199,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models
                             success: function() {
                                 setTimeout(function() {
                                     alert('报数模版删除成功');
-                                    self.render(ui_select);
+                                    send_msg(up_id, "delete", function() {
+                                        self.render(ui_select);
+                                    })
                                 }, 1000);
                             }
                         });
@@ -202,8 +218,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models
                             success: function(model, response, options) {
                                 setTimeout(function() {
                                     alert('报数模版终止成功');
-                                    self.collection.fetch().done(function() {
-                                        self.render(ui_select);
+                                    send_msg(up_id, "stop", function() {
+                                        self.collection.fetch().done(function() {
+                                            self.render(ui_select);
+                                        })
                                     })
                                 }, 1000);
                             },
@@ -235,8 +253,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models
                                         success: function(model, response, options) {
                                             setTimeout(function() {
                                                 alert('报数模版发布成功');
-                                                self.collection.fetch().done(function() {
-                                                    self.render(ui_select);
+                                                send_msg(up_id, "submit", function() {
+                                                    self.collection.fetch().done(function() {
+                                                        self.render(ui_select);
+                                                    })
                                                 })
                                             }, 1000);
                                         },
@@ -285,6 +305,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models
                             success: function(model, response, options) {
                                 setTimeout(function() {
                                     alert('报数模版克隆成功');
+                                    self.collection.url = "/admin/pm/count_number_define/bb";
                                     self.collection.fetch().done(function() {
                                         self.render(ui_select);
                                     })
@@ -366,7 +387,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models
                                                         count_number_define.attributes.is_stop = true;
                                                         count_number_define.save(count_number_define.attributes, {
                                                             success: function(model, response, options) {
-                                                                cb(null, "OK");
+                                                                send_msg(up_id, "stop", function() {
+                                                                    cb(null, "OK");
+                                                                })
 
                                                             },
                                                             error: function(model, xhr, options) {
