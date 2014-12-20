@@ -71,7 +71,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                     return c.count_date
                 })
                 var last_sort_item = sortCountInstance[sortCountInstance.length - 1];
-                self.set_latest_item(last_sort_item.count_item);
+                if (last_sort_item) {
+                    self.set_latest_item(last_sort_item.count_item);
+                }
                 if (last_sort_item) {
                     if (!!~["1H", "2H", "3H"].indexOf(String(temp_model.attributes.count_number_frequency))) {
                         temp_model.attributes.latest_count_date = new Date();
