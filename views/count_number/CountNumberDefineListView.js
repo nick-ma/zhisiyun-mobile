@@ -171,7 +171,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models
 
                                 var url = '/admin/pm/count_number_define/template_edit/' + up_id;
                                 self.collection.fetch().done(function() {
-                                    window.location.href = "/m#count_number_define/" + up_id;
+                                    window.location.href = "/m#count_number_define/" + up_id + "/A";
                                 })
                             });
                         }
@@ -200,7 +200,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models
                                 setTimeout(function() {
                                     alert('报数模版删除成功');
                                     send_msg(up_id, "delete", function() {
-                                        self.render(ui_select);
+                                        self.collection.url = "/admin/pm/count_number_define/bb";
+                                        self.collection.fetch().done(function() {
+                                            self.render(ui_select);
+                                        })
                                     })
                                 }, 1000);
                             }
