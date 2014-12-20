@@ -2852,10 +2852,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             tr_data.push('</div>');
 
           }
-          var found_count_item = _.find(last_sort_item.count_item, function(y) {
-            return x.child_item_name == String(y.child_item_name) && (x.item_C == String(y.item_C) || x.item_category_name == String(y.item_category_name))
+          if (last_sort_item) {
+            var found_count_item = _.find(last_sort_item.count_item, function(y) {
+              return x.child_item_name == String(y.child_item_name) && (x.item_C == String(y.item_C) || x.item_category_name == String(y.item_category_name))
 
-          })
+            })
+          } else {
+            found_count_item = null;
+          }
+
           if (found_count_item) {
             var plan_val_or_count_number = found_count_item.count_number ? found_count_item.count_number : '';
             var comment = found_count_item.comment ? found_count_item.comment : ''
@@ -2972,10 +2977,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             tr_data.push('</div>');
 
           }
-          var found_count_item = _.find(last_sort_item.count_item, function(y) {
-            return x.child_item_name == String(y.child_item_name) && (x.item_C == String(y.item_C) || x.item_category_name == String(y.item_category_name))
+          if (last_sort_item) {
+            var found_count_item = _.find(last_sort_item.count_item, function(y) {
+              return x.child_item_name == String(y.child_item_name) && (x.item_C == String(y.item_C) || x.item_category_name == String(y.item_category_name))
 
-          })
+            })
+          } else {
+            var found_count_item = null
+          }
+
 
           if (found_count_item) {
             var plan_val_or_count_number = found_count_item.count_number ? found_count_item.count_number : '';
