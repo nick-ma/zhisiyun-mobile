@@ -88,6 +88,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                         })
                         if (found_count_item) {
                             found_count_item.count_number = y.count_number;
+                            found_count_item.comment = y.comment;
 
                         }
                     })
