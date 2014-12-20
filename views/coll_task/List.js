@@ -423,7 +423,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "lz
                             })
                         }
                     }, function(err, result) {
-                        console.log(result);
+                        // console.log(result);
                         self.collection.set(self.cts_diff.models, {
                             remove: false //只增加和修改，不删除
                         });
@@ -459,7 +459,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "lz
             save_cts_to_localStorage: function() {
                 var self = this;
                 var tmp = _.map(self.collection.toJSON(), function(x) {
-                    return _.pick(x, '_id task_name cp cp_name creator th tms ntms start end isfinished lastModified comments attachments urgency importance skills pi scores need_accept did_accepted final_judge_people final_judgement'.split(' '));
+                    return _.pick(x, '_id task_name cp cp_name creator th tms ntms start end allday isfinished lastModified comments attachments urgency importance skills pi scores need_accept did_accepted final_judge_people final_judgement'.split(' '));
                 });
                 // console.log(tmp);
                 localStorage.setItem('cts', LZString.compressToUTF16(JSON.stringify(tmp)));
