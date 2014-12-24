@@ -98,12 +98,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                     temp_model.attributes.latest_count_date = new Date();
                 }
                 var filter_item_C = _.groupBy(_.filter(count_item, function(x) {
-                    return x.item_type == 'C'
+                    return x.item_type == 'C' && x.is_selected
                 }), function(g) {
                     return g.item_C
                 })
                 var filter_item_S = _.groupBy(_.filter(count_item, function(x) {
-                    return x.item_type == 'S'
+                    return x.item_type == 'S' && x.is_selected
                 }), function(g) {
                     return g.item_category_name
                 })
@@ -318,30 +318,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "../../models/CountNum
                     event.preventDefault();
                     var count_item = [],
                         exist_item = [];
-                    var count_number_define = _.clone(self.collection.models[0].attributes);
 
-                    _.each(count_number_define.count_item, function(x) {
-                        if (x.item) {
-                            exist_item.push(String(x.child_item))
-                            return x.item._id;
-                        }
-                    })
-                    _.each($("#my_count_number_define input[class='item_select']:checked"), function(x) {
+                    var count_number_define = self.collection.models[0].attributes;
+                    _.each($("#my_count_number_instance input[class='item_select']:checked"), function(x) {
                         var $this = $(x);
-                        if (!~exist_item.indexOf(String($this.val()))) {
-                            count_item.push({
-                                item: $this.data("item"),
-                                child_item_name: $this.data("item_name"),
-                                child_item: $this.val(),
-                                item_type: 'S',
-                                unit: $this.data("unit"),
-                                item_category_name: $this.data("item_category_name")
-                            })
+                        var find_item = _.find(count_number_define.count_number_define.count_item, function(x) {
+                            return x._id == String($this.val())
+                        })
+                        if (find_item) {
+                            find_item.is_selected = true;
+
+                        }else{
+                            find_item.is_selected = false;
                         }
                     });
-                    _.each(count_item, function(x) {
-                        self.collection.models[0].attributes.count_item.push(x);
-                    })
+                    self.render();
+
                 })
             },
             fetch: function(up_id) {

@@ -53,8 +53,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "../../models
                             "B": true
                         }
                         var bool = bool_obj[select];
-                        var count_number = _.map(_.filter(self.collection.models, function(x) {
+                        var count_number = _.map(_.sortBy(_.filter(self.collection.models, function(x) {
+                            if (moment(x.attributes.count_number_end).isAfter(moment(new Date())) && !x.attributes.is_stop) {
+                                x.sequence = 1;
+                            } else if (x.attributes.is_stop) {
+                                x.sequence = 2;
+                            } else {
+                                x.sequence = 3;
+                            }
                             return x.attributes.creator == String($("#login_people").val()) && x.attributes.is_save == bool
+                        }), function(s) {
+                            return s.sequence;
                         }), function(x) {
                             if (moment(x.attributes.count_number_end).isBefore(moment(new Date()))) {
                                 x.attributes.is_end = true;
