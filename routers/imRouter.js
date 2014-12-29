@@ -111,7 +111,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 self.peoples = peoples
             })
 
-            $.get('/admin/pm/mobile_resource/bb', function(data) {
+            $.get('/admin/pm/mobile_resource/bb?mr_type=M', function(data) {
                 self.mrs = data
             })
 
