@@ -209,7 +209,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             }).on('click', '#btn_upload_attachment', function(event) {
                 //转到上传图片的页面
                 // var leave = self.model.get('leave');
-                localStorage.removeItem('upload_model_back'); //先清掉
+                localStorage.removeItem('upload_model_back'); 
                 var next_url = '#upload_pic';
                 localStorage.setItem('upload_model', JSON.stringify({
                     model: self.model,
