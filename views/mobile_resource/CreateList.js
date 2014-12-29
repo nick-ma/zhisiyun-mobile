@@ -64,6 +64,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             this.people_select_template = Handlebars.compile($("#im_people_select_view").html());
             this.bind_events();
             this.model_view = '0';
+            this.mr_type = 'M';
             // The render method is called when Mobile Models are added to the Collection
             // this.model.on("sync", this.render, this);
 
@@ -98,7 +99,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             if (self.model_view == '0') {
                 $("#mobile_resource_create #mobile_resource_back").addClass('ui-icon-back').removeClass('ui-icon-check')
                 var obj = self.model.attributes;
-                obj.mrs = self.mrs;
+                obj.mrs = _.filter(self.mrs, function(mr) {
+                    return mr.mr_type == self.mr_type
+                });
+                obj.mr_types = [{
+                    name: '会议室资源',
+                    type: 'M'
+
+                }, {
+                    name: '车辆资源',
+                    type: 'C'
+
+                }]
+
+                obj.mr_type = self.mr_type;
+                console.log(self)
                 rendered_data = self.template(obj)
             } else {
                 $("#mobile_resource_create #mobile_resource_back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
@@ -118,7 +133,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             $('#mobile_resource_create').on('change', 'textarea', function(event) {
                 event.preventDefault();
                 self.model.set($(this).data('field'), $(this).val())
-            }).on('change', 'select', function(event) {
+            }).on('change', 'select[name="mobile_resource"]', function(event) {
                 event.preventDefault();
                 show_time_mark(self)
                 self.model.set($(this).data('field'), $(this).val())
@@ -267,6 +282,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 }))
                 window.location.href = next_url;
 
+            }).on('change', 'select[name="mobile_resource_type"]', function(event) {
+                event.preventDefault();
+                self.mr_type = $(this).val();
+                self.render();
+                console.log('================')
             })
         }
 

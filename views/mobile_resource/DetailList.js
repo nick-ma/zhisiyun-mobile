@@ -18,6 +18,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
         };
     });
 
+    Handlebars.registerHelper('rp_type', function(data) {
+        return data == 'M' ? '会议室资源' : '车辆资源'
+    });
+
     // Extends Backbone.View
     var MobileDetailView = Backbone.View.extend({
         // The View Constructor
@@ -54,6 +58,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 $("#mobile_resource_detail #mobile_resource_back").addClass('ui-icon-back').removeClass('ui-icon-check')
                 var obj = self.model.attributes;
                 obj.mrs = self.mrs;
+
+
+                obj.mr_types = [{
+                    name: '会议室资源',
+                    type: 'M'
+
+                }, {
+                    name: '车辆资源',
+                    type: 'C'
+
+                }]
+                console.log(obj)
+
                 if (self.login_people == self.model.get('people')) {
                     rendered_data = self.template_edit(obj)
                 } else {
@@ -86,10 +103,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             }).on('click', '#btn-ct-save', function(event) {
                 event.preventDefault();
                 $this = $(this)
-                if (!$('#mobile_resource_detail #mobile_resource').val()) {
-                    alert('请选择会议室资源！会议室用途！会议开始时间，结束时间')
-                    return false
-                };
+                    // if (!$('#mobile_resource_detail #mobile_resource').val()) {
+                    //     alert('请选择会议室资源！会议室用途！会议开始时间，结束时间')
+                    //     return false
+                    // };
                 if (!$('#mobile_resource_detail #meeting_desc').val()) {
                     alert('请填写会议室用途！')
                     return false
