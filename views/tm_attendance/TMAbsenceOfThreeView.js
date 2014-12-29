@@ -87,7 +87,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							}
 							self.render();
 
-
+							$("#show_attendance_result-left-panel").panel("close");
 						})
 
 					})
