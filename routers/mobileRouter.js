@@ -2189,8 +2189,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       //我的工作计划
       Handlebars.registerHelper('bool', function(bool, is_holiday, holiday_data) {
-        if (is_holiday && holiday_data.property == 'h') {
-          bool = true;
+        if (is_holiday && holiday_data) {
+          if (holiday_data.property == 'h') {
+            bool = true;
+          }
         }
         return bool ? '<span class="label label-warning" style="border-radius:10px">是<span>' : '<span class="label label-info" style="border-radius:10px">否</span>';
       });
