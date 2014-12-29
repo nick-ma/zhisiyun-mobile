@@ -146,19 +146,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 $this = $(this)
                 var mobile_resource = $('#mobile_resource_create #mobile_resource').val();
                 self.model.set('mobile_resource', mobile_resource)
-                if (!$('#mobile_resource_create #mobile_resource').val()) {
-                    alert('请选择会议室资源！会议室用途！会议开始时间，结束时间')
-                    return false
-                };
+                    // if (!$('#mobile_resource_create #mobile_resource').val()) {
+                    //     alert('请选择会议室资源！会议室用途！会议开始时间，结束时间')
+                    //     return false
+                    // };
                 if (!$('#mobile_resource_create #meeting_desc').val()) {
-                    alert('请填写会议室用途！')
+                    alert('请填写用途！')
                     return false
                 };
                 var start = $('#mobile_resource_create #start').val();
                 var end = $('#mobile_resource_create #end').val();
 
                 if (!start) {
-                    alert('请选择会议开始时间！')
+                    alert('请选择开始时间！')
                     return false
                 };
                 if (!end) {
@@ -217,7 +217,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                         error: function(model, xhr, options) {
                             $.mobile.loading("hide");
                             setTimeout(function() {
-                                alert('会议室预定保存失败!')
+                                alert('资源预定保存失败!')
                             }, 1000);
                             $this.removeaAttr('disabled')
                         }
@@ -286,7 +286,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 event.preventDefault();
                 self.mr_type = $(this).val();
                 self.render();
-                console.log('================')
             })
         }
 

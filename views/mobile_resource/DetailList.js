@@ -108,7 +108,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                     //     return false
                     // };
                 if (!$('#mobile_resource_detail #meeting_desc').val()) {
-                    alert('请填写会议室用途！')
+                    alert('请填写用途！')
                     return false
                 };
                 // if (!$('#mobile_resource_detail #start').val()) {
@@ -124,12 +124,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 self.model.save(self.model.attributes, {
                     success: function(model, response, options) {
                         $.mobile.loading("hide");
-                        alert('会议室预定保存成功!')
+                        alert('资源预定保存成功!')
                         $this.removeAttr('disabled')
                     },
                     error: function(model, xhr, options) {
                         $.mobile.loading("hide");
-                        alert('会议室预定保存失败!')
+                        alert('资源预定保存失败!')
                         $this.removeaAttr('disabled')
                     }
                 })
@@ -147,7 +147,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
 
                 // };
 
-                my_confirm('确认删除本次会议室预定吗？\n删除成功后将跳转到预定界面！', null, function() {
+                my_confirm('确认删除本次资源预定吗？\n删除成功后将跳转到预定界面！', null, function() {
                     self.model.destroy({
                         success: function() {
                             window.location.href = '#mobile_resource';
