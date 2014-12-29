@@ -6,7 +6,7 @@ define(["jquery", "backbone", "moment"], function($, Backbone, moment) {
         idAttribute: "_id",
         rootUrl: '/admin/pm/coll_task/bb',
         url: function() {
-            return this.rootUrl + '/' + this.id;
+            return this.rootUrl + '/' + this.id + '?ts=' + (new Date()).getTime();
         },
         validate: function(attrs, options) {
 
