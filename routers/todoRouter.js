@@ -370,15 +370,20 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                             },
                             function(wf_data, cb) {
-                                var attendance_id = wf_data.ti.process_instance.collection_id;
-                                $.get('/admin/tm/tm_wf/get_collection_data/' + attendance_id, function(data) {
-                                    if (data) {
-                                        self.singleAttendanceResultChangeView.attendance = data;
-                                        cb(null, data)
-                                    } else {
-                                        cb(null, null);
-                                    }
-                                })
+                                if (wf_data.task_state != 'FINISHED') {
+                                    var attendance_id = wf_data.ti.process_instance.collection_id;
+                                    $.get('/admin/tm/tm_wf/get_collection_data/' + attendance_id, function(data) {
+                                        if (data) {
+                                            self.singleAttendanceResultChangeView.attendance = data;
+                                            cb(null, data)
+                                        } else {
+                                            cb(null, null);
+                                        }
+                                    })
+                                } else {
+                                    window.location = '/m#godo4_view/' + self.singleAttendanceResultChangeView.wf_data.process_instance
+                                }
+
                             },
                             function(data, cb) {
                                 var people = data.people;
