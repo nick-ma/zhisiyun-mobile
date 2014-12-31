@@ -93,23 +93,21 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                 var fa;
                 var self = this;
 
-                // fa = self.c_wf_approve.get(fa_id);
-                // if (fa) {
-                //     self.wfapproveEditView.model = fa;
-                //     self.wfapproveEditView.render();
 
-                // } else {
                 fa = new WFApproveModel({
                     _id: fa_id
                 });
                 fa.fetch().done(function() {
+                    if (fa.attributes.state == 'END') {
+                        window.location.href = 'm#wf_approve_detail/' + fa_id
+                    } else {
                         self.c_wf_approve.push(fa); //放到collection里面
                         self.wfapproveEditView.model = fa;
                         self.wfapproveEditView.render();
-                    })
-                    // };
 
-                // console.log(fa_id, p_task, ct);
+                    }
+                })
+
 
             },
 
@@ -150,60 +148,67 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                             fetch_data(task_id, cb);
                         }
                     }, function(err, result) {
-                        self.ti = result.wf_data.ti;
-                        self.pi.set(result.wf_data.ti.process_instance);
+                        if (result.wf_data.ti.task_state == 'FINISHED') {
+                            window.location.href = 'm#handle_form_view/' + result.wf_data.ti.process_instance._id
+                        } else {
 
-                        self.td = result.wf_data.td;
-                        self.tts = result.wf_data.tts;
-                        self.pd = result.wf_data.pd;
-                        self.history_tasks = result.wf_data.history_tasks;
-                        self.flowchart_data = result.wf_data.flowchart_data;
-                        self.attachments = result.wf_data.attachments;
-                        self.ref_pis = result.ref_pis_data;
-                        self.users_data = result.peoples_data;
-                        // 处理数据－start
-                        var tmp = [];
-                        tmp.push(_.find(self.flowchart_data, function(x) {
-                            return x.node_type == 'START'
-                        }))
-                        tmp = tmp.concat(_.sortBy(_.filter(self.flowchart_data, function(x) {
-                            return x.node_type == "TASK"
-                        }), function(x) {
-                            return x.sequence;
-                        }));
-                        tmp.push(_.find(self.flowchart_data, function(x) {
-                            return x.node_type == 'END'
-                        }))
-                        self.flowchart_data = tmp;
 
-                        // 处理数据－end
-                        self.fh_v.pi = self.pi;
-                        self.fh_v.ti = self.ti;
-                        self.fb_v.pi = self.pi;
-                        self.fb_v.td = self.td;
-                        self.ff_v.pi = self.pi;
-                        self.ff_v.ti = self.ti;
-                        self.ff_v.pd = self.pd;
-                        self.ff_v.td = self.td;
-                        self.ff_v.tts = self.tts;
-                        self.ff_v.history_tasks = self.history_tasks;
-                        self.ff_v.flowchart_data = self.flowchart_data;
-                        self.ff_v.attachments = self.attachments;
-                        self.ff_v.supreme_leader = data.supreme_leader;
-                        self.ff_v.ref_pis = self.ref_pis;
-                        self.ff_v.users = self.users_data;
-                        self.pi.fetch().done(function() {
-                            self.fh_v.render();
-                            self.fb_v.render();
-                            self.ff_v.render();
+                            self.ti = result.wf_data.ti;
+                            self.pi.set(result.wf_data.ti.process_instance);
 
-                            // $("#form_header").show();
-                            // $("#form_body").show();
-                            // $("#form_footer").show();
-                            // $("#confirm_trans").hide();
+                            self.td = result.wf_data.td;
+                            self.tts = result.wf_data.tts;
+                            self.pd = result.wf_data.pd;
+                            self.history_tasks = result.wf_data.history_tasks;
+                            self.flowchart_data = result.wf_data.flowchart_data;
+                            self.attachments = result.wf_data.attachments;
+                            self.ref_pis = result.ref_pis_data;
+                            self.users_data = result.peoples_data;
+                            // 处理数据－start
+                            var tmp = [];
+                            tmp.push(_.find(self.flowchart_data, function(x) {
+                                return x.node_type == 'START'
+                            }))
+                            tmp = tmp.concat(_.sortBy(_.filter(self.flowchart_data, function(x) {
+                                return x.node_type == "TASK"
+                            }), function(x) {
+                                return x.sequence;
+                            }));
+                            tmp.push(_.find(self.flowchart_data, function(x) {
+                                return x.node_type == 'END'
+                            }))
+                            self.flowchart_data = tmp;
 
-                            $.mobile.loading("hide");
-                        })
+                            // 处理数据－end
+                            self.fh_v.pi = self.pi;
+                            self.fh_v.ti = self.ti;
+                            self.fb_v.pi = self.pi;
+                            self.fb_v.td = self.td;
+                            self.ff_v.pi = self.pi;
+                            self.ff_v.ti = self.ti;
+                            self.ff_v.pd = self.pd;
+                            self.ff_v.td = self.td;
+                            self.ff_v.tts = self.tts;
+                            self.ff_v.history_tasks = self.history_tasks;
+                            self.ff_v.flowchart_data = self.flowchart_data;
+                            self.ff_v.attachments = self.attachments;
+                            self.ff_v.supreme_leader = data.supreme_leader;
+                            self.ff_v.ref_pis = self.ref_pis;
+                            self.ff_v.users = self.users_data;
+                            self.pi.fetch().done(function() {
+                                self.fh_v.render();
+                                self.fb_v.render();
+                                self.ff_v.render();
+
+                                // $("#form_header").show();
+                                // $("#form_body").show();
+                                // $("#form_footer").show();
+                                // $("#confirm_trans").hide();
+
+                                $.mobile.loading("hide");
+                            })
+
+                        }
                     })
                 })
             },
@@ -281,7 +286,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                 self.fh_v = new FormHeaderView();
                 self.fb_v = new FormBodyView();
                 self.ff_v = new FormFooterView();
-                
+
                 self.fh_vv = new FormHeaderVView();
                 self.fb_vv = new FormBodyVView();
                 self.ff_vv = new FormFooterVView();
