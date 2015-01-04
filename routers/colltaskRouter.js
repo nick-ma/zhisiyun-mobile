@@ -41,12 +41,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
 
             //--------协作任务--------//
             colltask: function() {
-                // colltasklistView.
-                // if (!this.c_colltask.models.length) {
-                //     this.c_colltask.fetch();
-                // } else {
-                //     this.collTaskListView.render();
-                // };
                 localStorage.setItem('colltask_detail_back_url', window.location.href);
                 var self = this;
                 $("body").pagecontainer("change", "#colltask", {
