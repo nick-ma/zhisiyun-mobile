@@ -2,8 +2,10 @@
 // =================
 
 // Includes file dependencies
-define(["jquery", "underscore", "backbone", "handlebars", "moment"],
-    function($, _, Backbone, Handlebars, moment) {
+define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "lzstring",
+        "../../collections/CollTasksDiff", "../../collections/CollTasksRemain",
+    ],
+    function($, _, Backbone, Handlebars, moment, async, LZString, CollTasksDiff, CollTasksRemain) {
 
         // Extends Backbone.View
         var CollTaskListView = Backbone.View.extend({
@@ -21,7 +23,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 self.importance = ''; //过滤条件
                 self.urgency = ''; //过滤条件
                 self.search_term = ''; //过滤条件
-                self.date_offset = 30; //过滤条件
+                self.ct_date_offset = 90; //过滤条件
+                self.cts_diff = new CollTasksDiff();
+                self.cts_remain = new CollTasksRemain();
                 this.bind_event();
             },
 
@@ -29,6 +33,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             render: function() {
 
                 var self = this;
+                // update select box
+                // if (localStorage.getItem('ct_date_offset') != self.ct_date_offset) {
+                //     $("#fc_date_offset").val(localStorage.getItem('ct_date_offset') || self.ct_date_offset);
+                //     $("#fc_date_offset").trigger('change');
+                //     return;
+                // };
+
                 self.mode = $("#colltask_view_mode").val() || 'all_task';
                 // console.log(self.state);
                 // localStorage.setItem('ct_render_mode', mode); //通过local storage来保存状态
@@ -189,13 +200,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
                     // })
                     _.each($("#colltask .btn-colltask-change_state"), function(x) {
-                        $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
-                    })
-                    // _.each(render_data.cts_finished, function(x) {
-                    //     x.sub_task_num = _.filter(tmp, function(y) {
-                    //         return y.p_task == x._id
-                    //     }).length;
-                    // });
+                            $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
+                        })
+                        // _.each(render_data.cts_finished, function(x) {
+                        //     x.sub_task_num = _.filter(tmp, function(y) {
+                        //         return y.p_task == x._id
+                        //     }).length;
+                        // });
                 } else if (render_mode == 'project') {
                     render_data = {
                         projects: [],
@@ -230,9 +241,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
                     // })
                     _.each($("#colltask .btn-colltask-change_state"), function(x) {
-                        $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
-                    })
-                    // console.log(render_data.projects);
+                            $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
+                        })
+                        // console.log(render_data.projects);
                 } else if (render_mode == 'pi') {
                     render_data = {
                         pis: [],
@@ -265,9 +276,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     //     $(x).find('span').html(ts_count[$(x).data('state')] || 0);
                     // })
                     _.each($("#colltask .btn-colltask-change_state"), function(x) {
-                        $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
-                    })
-                    // console.log(render_data.pis);
+                            $(x).find('.colltask_state_num').html(ts_count[$(x).data('state')] || 0);
+                        })
+                        // console.log(render_data.pis);
                 } else if (render_mode == 'skills') {
                     render_data = {
                         skills: [],
@@ -278,17 +289,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         return x.skills.length;
                     })
                     _.each(skill_tasks, function(x) {
-                        if (x.isfinished) {
-                            x.state = '3';
-                        } else if (!x.end || moment(x.end).endOf('day').toDate() >= new Date()) {
-                            x.state = '1';
-                        } else {
-                            x.state = '2';
-                        };
-                    })
-                    // skill_tasks = _.filter(skill_tasks, function(x) {
-                    //     return x.state == self.state;
-                    // })
+                            if (x.isfinished) {
+                                x.state = '3';
+                            } else if (!x.end || moment(x.end).endOf('day').toDate() >= new Date()) {
+                                x.state = '1';
+                            } else {
+                                x.state = '2';
+                            };
+                        })
+                        // skill_tasks = _.filter(skill_tasks, function(x) {
+                        //     return x.state == self.state;
+                        // })
                     _.each(_.filter(skill_tasks, function(x) {
                         return x.state == self.state;
                     }), function(x) {
@@ -343,33 +354,38 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             $("#colltask-left-panel").panel("close");
                         });
                     })
-                // .on('change', '#colltask-left-panel input[name=colltask_state]', function(event) {
-                //     event.preventDefault();
-                //     var $this = $(this);
-                //     self.state = $this.val();
-                //     self.render();
-                //     $("#colltask-left-panel").panel("close");
-                //     // console.log($this.val());
-                // })
-                .on('change', '#colltask-left-panel select', function(event) {
-                    event.preventDefault();
-                    var $this = $(this);
-                    var field = $this.data("field");
-                    var value = $this.val();
-                    self[field] = value;
-                    if (field == 'date_offset') { //需要重新获取数据
-                        $.mobile.loading("show");
-                        self.collection.date_offset = value;
-                        self.collection.fetch().done(function() {
-                            $.mobile.loading("hide");
+                    // .on('change', '#colltask-left-panel input[name=colltask_state]', function(event) {
+                    //     event.preventDefault();
+                    //     var $this = $(this);
+                    //     self.state = $this.val();
+                    //     self.render();
+                    //     $("#colltask-left-panel").panel("close");
+                    //     // console.log($this.val());
+                    // })
+                    .on('change', '#colltask-left-panel select', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var field = $this.data("field");
+                        var value = $this.val();
+                        self[field] = value;
+                        if (field == 'date_offset') { //需要重新获取数据
+                            $.mobile.loading("show");
+                            // console.log(self.ct_date_offset , value);
+                            if (self.ct_date_offset != value) {
+                                self.ct_date_offset = value;
+                                self.fetch_cts(function() {
+                                    $.mobile.loading("hide");
+                                    self.render();
+                                });
+                            };
+
+
+                        } else {
                             self.render();
-                        })
-                    } else {
-                        self.render();
-                    };
-                    // $("#colltask-left-panel").panel("close");
-                    // console.log($this.val());
-                })
+                        };
+                        // $("#colltask-left-panel").panel("close");
+                        // console.log($this.val());
+                    })
                     .on('change', '#cf_task_name', function(event) {
                         event.preventDefault();
                         var $this = $(this);
@@ -383,8 +399,71 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         $('.btn-colltask-change_state').removeClass('ui-btn-active');
                         $this.addClass('ui-btn-active');
                     });
-            }
+            },
+            fetch_cts: function(callback) {
+                var self = this;
+                //检查localStorage
+                var local_cts = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('cts') || '')) || [];
+                if (local_cts.length && self.ct_date_offset == localStorage.getItem('ct_date_offset')) {
+                    self.collection.set(local_cts);
+                    // 判断是否需要差异刷新
+                    async.parallel({
+                        diff: function(cb) {
+                            self.cts_diff.reset(); //清空一下
+                            self.cts_diff.last_fetch_ts = localStorage.getItem('ct_last_fetch_ts');
+                            self.cts_diff.fetch().done(function() {
+                                cb(null, 'OK');
+                            })
+                        },
+                        remain: function(cb) {
+                            self.cts_remain.reset(); //清空一下
+                            self.cts_remain.date_offset = self.ct_date_offset; //按最大的取
+                            self.cts_remain.fetch().done(function() {
+                                cb(null, 'OK');
+                            })
+                        }
+                    }, function(err, result) {
+                        // console.log(result);
+                        self.collection.set(self.cts_diff.models, {
+                            remove: false //只增加和修改，不删除
+                        });
+                        self.collection.set(self.cts_remain.models, {
+                            add: false //不增加
+                        });
+                        self.save_cts_to_localStorage();
+                        localStorage.setItem('ct_last_fetch_ts', (new Date()).getTime());
+                        // cts.trigger('sync');
+                        if (typeof callback == 'function') {
+                            callback();
+                        };
+                    })
 
+                } else { //全部刷新
+                    // if (parseInt(ct_date_offset) > parseInt(ct_date_offset_max)) {
+                    //     ct_date_offset_max = parseInt(ct_date_offset)
+                    //     localStorage.setItem('ct_date_offset_max', ct_date_offset_max);
+                    // };
+                    localStorage.setItem('ct_date_offset', self.ct_date_offset);
+                    self.collection.date_offset = self.ct_date_offset; //这里也应该来做差异更新－－TODO
+                    self.collection.fetch().done(function() {
+                        self.save_cts_to_localStorage()
+                            // localStorage.setItem('ct_date_offset_max', ct_date_offset_max);
+                        localStorage.setItem('ct_last_fetch_ts', (new Date()).getTime());
+                        if (typeof callback == 'function') {
+                            callback();
+                        };
+                    })
+                };
+            },
+            // 保存cts到localStorage -- 只保留列表视图需要用到的字段
+            save_cts_to_localStorage: function() {
+                var self = this;
+                var tmp = _.map(self.collection.toJSON(), function(x) {
+                    return _.pick(x, '_id task_name cp cp_name creator th tms ntms start end allday isfinished lastModified comments attachments urgency importance skills pi scores need_accept did_accepted final_judge_people final_judgement'.split(' '));
+                });
+                // console.log(tmp);
+                localStorage.setItem('cts', LZString.compressToUTF16(JSON.stringify(tmp)));
+            }
         });
 
         // Returns the View class

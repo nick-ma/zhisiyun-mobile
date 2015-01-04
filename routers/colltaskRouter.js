@@ -1,17 +1,19 @@
 // coll task router
 // ====================
 
-define(["jquery", "backbone", "handlebars", "lzstring", "moment",
+define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
         // 协作任务
         "../models/CollTaskModel",
-        "../collections/CollProjectCollection", "../collections/CollTaskCollection","../collections/CollTaskCollection2",
+        "../collections/CollProjectCollection", "../collections/CollTaskCollection", "../collections/CollTaskCollection2",
+        "../collections/CollTasksDiff", "../collections/CollTasksRemain",
         "../views/coll_task/List", "../views/coll_task/List2", "../views/coll_task/Detail", "../views/coll_task/Edit",
         // 协作项目－配套协作任务的
         "../views/coll_project/List",
     ],
-    function($, Backbone, Handlebars, LZString, moment,
+    function($, Backbone, Handlebars, LZString, moment, async,
         CollTaskModel,
         CollProjectCollection, CollTaskCollection, CollTaskCollection2,
+        CollTasksDiff, CollTasksRemain,
         CollTaskListView, CollTaskListView2, CollTaskDetailView, CollTaskEditView,
         CollProjectListView
     ) {
@@ -24,6 +26,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 self.init_views();
                 self.bind_events();
                 self.init_config_data();
+                self.ct_date_offset = 90; //默认取90天
+
                 console.info('app message: colltask router initialized');
                 // Backbone.history.start();
             },
@@ -41,17 +45,37 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
 
             //--------协作任务--------//
             colltask: function() {
+<<<<<<< HEAD
                 localStorage.setItem('colltask_detail_back_url', window.location.href);
+=======
+                // colltasklistView.
+                // if (!this.c_colltask.models.length) {
+                //     this.c_colltask.fetch();
+                // } else {
+                //     this.collTaskListView.render();
+                // };
+>>>>>>> master
                 var self = this;
+
+                self.ct_date_offset = self.collTaskListView.ct_date_offset = localStorage.getItem('ct_date_offset') || 90; //默认取90天
+                // localStorage.setItem('ct_date_offset', self.ct_date_offset); //保存到ls
+                $("#fc_date_offset").val(self.ct_date_offset);
+                $("#fc_date_offset").trigger('change');
+
+                localStorage.setItem('colltask_detail_back_url', window.location.href);
                 $("body").pagecontainer("change", "#colltask", {
                     reverse: false,
                     changeHash: false,
                 });
                 $.mobile.loading("show");
-                self.c_colltask.fetch().done(function() {
+                self.fetch_cts(function() {
                     self.collTaskListView.render();
                     $.mobile.loading("hide");
-                })
+                });
+
+                // self.c_colltask.fetch().done(function() {
+
+                // })
             },
             colltask2: function(people_id) {
                 localStorage.setItem('colltask_detail_back_url', window.location.href);
@@ -208,12 +232,12 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                     el: "#colltask_detail-content",
                 })
                 this.collProjectListView = new CollProjectListView({
-                    el: "#collproject_list-content",
-                    collection: self.c_collproject
-                })
-                // this.collProjectEditView = new CollProjectEditView({
-                //     el: "#collproject_edit-content",
-                // })
+                        el: "#collproject_list-content",
+                        collection: self.c_collproject
+                    })
+                    // this.collProjectEditView = new CollProjectEditView({
+                    //     el: "#collproject_edit-content",
+                    // })
             },
             init_models: function() {
 
@@ -222,7 +246,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 this.c_colltask = new CollTaskCollection(); //协作任务
                 this.c_colltask2 = new CollTaskCollection2(); //下属的协作任务
                 this.c_collproject = new CollProjectCollection(); //协作项目
-
+                this.cts_diff = new CollTasksDiff();
+                this.cts_remain = new CollTasksRemain();
                 // this.c_colltask.on('sync', function(event) { //放到local storage
 
 
@@ -236,6 +261,70 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment",
                 $.get("/admin/pm/coll_task_sl/bb/getdata", function(data) { //评分等级组
                     self.ctsl = _.clone(data);
                 })
+            },
+            fetch_cts: function(callback) {
+                var self = this;
+                //检查localStorage
+                var local_cts = JSON.parse(LZString.decompressFromUTF16(localStorage.getItem('cts') || '')) || [];
+                if (local_cts.length && self.ct_date_offset == localStorage.getItem('ct_date_offset')) {
+                    self.c_colltask.set(local_cts);
+                    // 判断是否需要差异刷新
+                    async.parallel({
+                        diff: function(cb) {
+                            self.cts_diff.reset(); //清空一下
+                            self.cts_diff.last_fetch_ts = localStorage.getItem('ct_last_fetch_ts');
+                            self.cts_diff.fetch().done(function() {
+                                cb(null, 'OK');
+                            })
+                        },
+                        remain: function(cb) {
+                            self.cts_remain.reset(); //清空一下
+                            self.cts_remain.date_offset = self.ct_date_offset; //按最大的取
+                            self.cts_remain.fetch().done(function() {
+                                cb(null, 'OK');
+                            })
+                        }
+                    }, function(err, result) {
+                        // console.log(result);
+                        self.c_colltask.set(self.cts_diff.models, {
+                            remove: false //只增加和修改，不删除
+                        });
+                        self.c_colltask.set(self.cts_remain.models, {
+                            add: false //不增加
+                        });
+                        self.save_cts_to_localStorage();
+                        localStorage.setItem('ct_last_fetch_ts', (new Date()).getTime());
+                        // cts.trigger('sync');
+                        if (typeof callback == 'function') {
+                            callback();
+                        };
+                    })
+
+                } else { //全部刷新
+                    // if (parseInt(ct_date_offset) > parseInt(ct_date_offset_max)) {
+                    //     ct_date_offset_max = parseInt(ct_date_offset)
+                    //     localStorage.setItem('ct_date_offset_max', ct_date_offset_max);
+                    // };
+                    localStorage.setItem('ct_date_offset', self.ct_date_offset);
+                    self.c_colltask.date_offset = self.ct_date_offset; //这里也应该来做差异更新－－TODO
+                    self.c_colltask.fetch().done(function() {
+                        self.save_cts_to_localStorage()
+                            // localStorage.setItem('ct_date_offset_max', ct_date_offset_max);
+                        localStorage.setItem('ct_last_fetch_ts', (new Date()).getTime());
+                        if (typeof callback == 'function') {
+                            callback();
+                        };
+                    })
+                };
+            },
+            // 保存cts到localStorage -- 只保留列表视图需要用到的字段
+            save_cts_to_localStorage: function() {
+                var self = this;
+                var tmp = _.map(self.c_colltask.toJSON(), function(x) {
+                    return _.pick(x, '_id task_name cp cp_name creator th tms ntms start end allday isfinished lastModified comments attachments urgency importance skills pi scores need_accept did_accepted final_judge_people final_judgement'.split(' '));
+                });
+                // console.log(tmp);
+                localStorage.setItem('cts', LZString.compressToUTF16(JSON.stringify(tmp)));
             }
         });
 

@@ -68,6 +68,28 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						event.preventDefault();
 						absence_type = $(this).data("select");
 						self.render();
+					}).on('change', '#attendance_data', function(event) {
+						event.preventDefault();
+						var month = $(this).val();
+						$.get('/admin/tm/beyond_work/wf_three_data_4_m?month=' + month, function(data) {
+							if (data) {
+								var temp_arr = [],
+									wf_data = [];
+								//取掉重复掉流程实例
+								_.each(data, function(temp) {
+									if (!~temp_arr.indexOf(String(temp.pi_id))) {
+										wf_data.push(temp)
+									}
+									temp_arr.push(temp.pi_id)
+								})
+								self.wf_data = wf_data;
+
+							}
+							self.render();
+
+							$("#show_attendance_result-left-panel").panel("close");
+						})
+
 					})
 					.on('click', '#btn_wf_add', function(event) {
 						event.preventDefault();
@@ -86,24 +108,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							'C': '确定申请公干流程?'
 						}
 						my_confirm(temp_obj2[type], null, function() {
-							$.mobile.loading("show");
-							$("#btn_wf_add").attr("disabled", "disabled");
-							$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
-								var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
-								console.log(goto_url);
-								window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
-								$.mobile.loading("hide");
+								$.mobile.loading("show");
+								$("#btn_wf_add").attr("disabled", "disabled");
+								$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
+									var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+									console.log(goto_url);
+									window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
+									$.mobile.loading("hide");
 
+								})
 							})
-						})
-						// if (confirm(temp_obj2[type])) {
-						// 	$.mobile.loading("show");
-						// 	$("#btn_wf_add").attr("disabled", "disabled");
-						// 	$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
-						// 		var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
-						// 		console.log(goto_url);
-						// 		window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
-						// 		$.mobile.loading("hide");
+							// if (confirm(temp_obj2[type])) {
+							// 	$.mobile.loading("show");
+							// 	$("#btn_wf_add").attr("disabled", "disabled");
+							// 	$.post('/admin/tm/beyond_work/wf_create', obj, function(data) {
+							// 		var goto_url = (data.ti._id + '-' + data.pd._id + '-') + (data.pd ? data.pd.process_code : '');
+							// 		console.log(goto_url);
+							// 		window.location.href = '/m' + temp_obj[type] + goto_url + '/' + 1;
+							// 		$.mobile.loading("hide");
 
 						// 	})
 						// }
@@ -118,22 +140,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					})
 					.on('click', '#btn-show_my_work_plan_view', function(event) {
 						event.preventDefault();
-						window.location = '#work_plan'
+						window.location = '#work_plan';
 						$("#show_attendance_result-left-panel").panel("close");
 					})
 					.on('click', '#btn-show_attendance_result-change_view', function(event) {
 						event.preventDefault();
-						window.location = '#attendance'
+						window.location = '#attendance';
 						$("#show_attendance_result-left-panel").panel("close");
 					})
 					.on('click', '#btn-show_card_record-change_view', function(event) {
 						event.preventDefault();
-						window.location = '#card_record'
+						window.location = '#card_record';
 						$("#show_attendance_result-left-panel").panel("close");
 					})
 					.on('click', '#btn-show_beyond_of_work_report-change_view', function(event) {
 						event.preventDefault();
-						window.location = '#attend_report'
+						window.location = '#attend_report';
 						$("#show_attendance_result-left-panel").panel("close");
 					}).on('click', '#wf_three_details', function(event) {
 						event.preventDefault();

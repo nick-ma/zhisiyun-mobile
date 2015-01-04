@@ -2189,8 +2189,10 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       });
       //我的工作计划
       Handlebars.registerHelper('bool', function(bool, is_holiday, holiday_data) {
-        if (is_holiday && holiday_data.property == 'h') {
-          bool = true;
+        if (is_holiday && holiday_data) {
+          if (holiday_data.property == 'h') {
+            bool = true;
+          }
         }
         return bool ? '<span class="label label-warning" style="border-radius:10px">是<span>' : '<span class="label label-info" style="border-radius:10px">否</span>';
       });
@@ -2691,7 +2693,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           tr_data.push('<label for="count_number_end" style="margin-top:15px">报数项目:</label>');
           tr_data.push('</div>');
           tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
-          tr_data.push('<input class="editable" for="count_number_end" data-up_id="'+x._id+'" data-field="child_item_name" value="' + x.child_item_name + '"></input>');
+          tr_data.push('<input class="editable" for="count_number_end" data-up_id="' + x._id + '" data-field="child_item_name" value="' + x.child_item_name + '"></input>');
           tr_data.push('</div>');
           tr_data.push('</div>');
           //计划值
@@ -2717,7 +2719,7 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           tr_data.push('</div>');
           //是否删除
           tr_data.push('<div class="button-wrap">');
-          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important btn_remove_row_item" data-up_id="'+x._id+'">删除</button>')
+          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important btn_remove_row_item" data-up_id="' + x._id + '">删除</button>')
           tr_data.push('</div>');
 
           tr_data.push('</div>');
@@ -2763,7 +2765,259 @@ define(["jquery", "backbone", "handlebars", "lzstring",
           tr_data.push('</div>');
           //是否删除
           tr_data.push('<div class="button-wrap">');
-          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important btn_remove_row_item" data-up_id="'+x._id+'">删除</button>')
+          tr_data.push('<button class="ui-shadow ui-btn ui-corner-all btn-important btn_remove_row_item" data-up_id="' + x._id + '">删除</button>')
+          tr_data.push('</div>');
+
+          tr_data.push('</div>');
+        })
+        return tr_data.join('')
+      });
+      Handlebars.registerHelper('filter_item_c_c', function(key, obj, _id, count_instance, is_accumulate, is_average) { //报数项目－自己创建的(提交报数)
+        var val = obj[key];
+        var tr_data = [];
+        //将最近一次报数存进去当成默认值。
+        var sortCountInstance = _.sortBy(count_instance, function(c) {
+          return c.count_date
+        })
+        var last_sort_item = sortCountInstance[sortCountInstance.length - 1];
+
+        function parse2num(number) {
+          if (String(number).indexOf('.') != -1) {
+            return parseFloat(number).toFixed(2)
+          } else {
+            if (_.isNaN(number)) {
+              return 0
+            }
+            return Number(number);
+          }
+        }
+
+        _.each(val, function(x) {
+          tr_data.push('<div data-role="collapsible" data-collapsed="false" class="collapse_style">');
+          tr_data.push('<h2 class="text-info">' + x.child_item_name + '</h2>');
+          //count_item
+          tr_data.push('<div class="ui-grid-a" style="height:35px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="child_item_name" style="margin-top:15px">报数项目:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+          tr_data.push('<span for="child_item_name" >' + x.child_item_name + '</span>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+
+          //单位
+          tr_data.push('<div class="ui-grid-a" style="height:35px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="unit" style="margin-top:15px">单位:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+          var unit = x.unit ? x.unit : '';
+          tr_data.push('<span for="unit" >' + unit + '</span>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+
+          //报数累计
+          var accumulate_num = 0,
+            accumulate_len = count_instance ? count_instance.length : 0;
+          _.each(count_instance, function(c) {
+            var find_count_item = _.find(c.count_item, function(i) {
+              return i.child_item_name == String(x.child_item_name)
+            })
+            if (find_count_item) {
+              accumulate_num += Number(find_count_item.count_number);
+            } else {
+              accumulate_len--;
+            }
+          })
+
+
+          if (is_accumulate) {
+            tr_data.push('<div class="ui-grid-a" style="height:35px">');
+            tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+            tr_data.push('<label for="is_accumulate" style="margin-top:15px">累计值:</label>');
+            tr_data.push('</div>');
+            tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+            tr_data.push('<span for="is_accumulate" >' + parse2num(accumulate_num) + '</span>');
+            tr_data.push('</div>');
+            tr_data.push('</div>');
+
+          }
+          if (is_average) {
+            //报数平均值
+            tr_data.push('<div class="ui-grid-a" style="height:35px">');
+            tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+            tr_data.push('<label for="is_average" style="margin-top:15px">平均值:</label>');
+            tr_data.push('</div>');
+            tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+            tr_data.push('<span for="is_average" >' + parse2num(accumulate_num / accumulate_len) + '</span>');
+            tr_data.push('</div>');
+            tr_data.push('</div>');
+
+          }
+          if (last_sort_item) {
+            var found_count_item = _.find(last_sort_item.count_item, function(y) {
+              return x.child_item_name == String(y.child_item_name) && (x.item_C == String(y.item_C) || x.item_category_name == String(y.item_category_name))
+
+            })
+          } else {
+            found_count_item = null;
+          }
+
+          if (found_count_item) {
+            var plan_val_or_count_number = found_count_item.count_number ? found_count_item.count_number : '';
+            var comment = found_count_item.comment ? found_count_item.comment : ''
+          } else {
+            var plan_val_or_count_number = '';
+            var comment = '';
+          }
+          //我的报数
+
+          tr_data.push('<div class="ui-grid-a" style="height:55px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="plan_val" style="margin-top:15px">我的报数:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
+          tr_data.push('<input placeholder="我的报数" class="editable" for="count_number" data-ele_type="input" data-up_id="' + x._id + '" data-field="count_number" value="' + plan_val_or_count_number + '"></input>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+          //我的备注
+          // tr_data.push('<div class="ui-grid-a" style="height:35px">');
+          // tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          // tr_data.push('<label for="plan_val" style="margin-top:15px">备注:</label>');
+          // tr_data.push('</div>');
+          // tr_data.push('</div>');
+
+          tr_data.push('<div class="ui-grid-a" >');
+          tr_data.push('<div class="ui-block-a" style="width:100%;vertical-align:middle;">');
+          // var comment = x.comment ? x.comment : '';
+          tr_data.push('<textarea class="editable" placeholder="备注" for="comment" data-ele_type="textarea" data-up_id="' + x._id + '" data-field="comment" value="' + comment + '">' + comment + '</textarea>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+
+          tr_data.push('</div>');
+        })
+        return tr_data.join('')
+      });
+      Handlebars.registerHelper('filter_item_s_c', function(key, obj, _id, count_instance, is_accumulate, is_average) { //报数项目－选择的(提交报数)
+        var val = obj[key];
+        var tr_data = [];
+        //将最近一次报数存进去当成默认值。
+        var sortCountInstance = _.sortBy(count_instance, function(c) {
+          return c.count_date
+        })
+
+        var last_sort_item = sortCountInstance[sortCountInstance.length - 1];
+
+        function parse2num(number) {
+          if (String(number).indexOf('.') != -1) {
+            return parseFloat(number).toFixed(2)
+          } else {
+            if (_.isNaN(number)) {
+              return 0
+            }
+            return Number(number);
+          }
+        }
+        _.each(val, function(x) {
+          tr_data.push('<div data-role="collapsible" data-collapsed="false" class="collapse_style">');
+          tr_data.push('<h2 class="text-info">' + x.child_item_name + '</h2>');
+          //count_item
+          tr_data.push('<div class="ui-grid-a" style="height:35px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="count_number_end" style="margin-top:15px">报数项目:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+          tr_data.push('<span for="count_number_end" >' + x.child_item_name + '</span>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+
+          //单位
+          tr_data.push('<div class="ui-grid-a" style="height:35px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="unit" style="margin-top:15px">单位:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+          var unit = x.unit ? x.unit : '';
+          tr_data.push('<span for="unit" >' + unit + '</span>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+          //是否累计和平均
+
+          //报数累计
+          var accumulate_num = 0,
+            accumulate_len = count_instance ? count_instance.length : 0;
+          _.each(count_instance, function(c) {
+            var find_count_item = _.find(c.count_item, function(i) {
+              return i.child_item_name == String(x.child_item_name)
+            })
+            if (find_count_item) {
+              accumulate_num += Number(find_count_item.count_number);
+            } else {
+              accumulate_len--;
+            }
+          })
+          if (is_accumulate) {
+            tr_data.push('<div class="ui-grid-a" style="height:35px">');
+            tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+            tr_data.push('<label for="is_accumulate" style="margin-top:15px">累计值:</label>');
+            tr_data.push('</div>');
+            tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+            tr_data.push('<span for="is_accumulate" >' + parse2num(accumulate_num) + '</span>');
+            tr_data.push('</div>');
+            tr_data.push('</div>');
+
+          }
+          if (is_average) {
+            //报数平均值
+            tr_data.push('<div class="ui-grid-a" style="height:35px">');
+            tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+            tr_data.push('<label for="is_average" style="margin-top:15px">平均值:</label>');
+            tr_data.push('</div>');
+            tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;margin-top:15px">');
+            tr_data.push('<span for="is_average" >' + parse2num(accumulate_num / accumulate_len) + '</span>');
+            tr_data.push('</div>');
+            tr_data.push('</div>');
+
+          }
+          if (last_sort_item) {
+            var found_count_item = _.find(last_sort_item.count_item, function(y) {
+              return x.child_item_name == String(y.child_item_name) && (x.item_C == String(y.item_C) || x.item_category_name == String(y.item_category_name))
+
+            })
+          } else {
+            var found_count_item = null
+          }
+
+
+          if (found_count_item) {
+            var plan_val_or_count_number = found_count_item.count_number ? found_count_item.count_number : '';
+            var comment = found_count_item.comment ? found_count_item.comment : ''
+          } else {
+            var plan_val_or_count_number = '';
+            var comment = '';
+          }
+          //我的报数
+          tr_data.push('<div class="ui-grid-a" style="height:55px">');
+          tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          tr_data.push('<label for="plan_val" style="margin-top:15px">我的报数:</label>');
+          tr_data.push('</div>');
+          tr_data.push('<div class="ui-block-b" style="width:60%;vertical-align:middle;">');
+          // var plan_val_or_count_number = x.count_number ? x.count_number : '';
+          tr_data.push('<input placeholder="我的报数" class="editable" data-ele_type="input" for="count_number" data-up_id="' + x._id + '" data-field="count_number" value="' + plan_val_or_count_number + '"></input>');
+          tr_data.push('</div>');
+          tr_data.push('</div>');
+          //我的备注
+          // tr_data.push('<div class="ui-grid-a" style="height:35px">');
+          // tr_data.push('<div class="ui-block-a" style="width:30%;vertical-align:middle;">');
+          // tr_data.push('<label for="plan_val" style="margin-top:15px">备注:</label>');
+          // tr_data.push('</div>');
+          // tr_data.push('</div>');
+
+          tr_data.push('<div class="ui-grid-a" >');
+          tr_data.push('<div class="ui-block-a" style="width:100%;vertical-align:middle;">');
+          // var comment = x.comment ? x.comment : '';
+          tr_data.push('<textarea  class="editable" data-ele_type="textarea" placeholder="备注" for="comment" data-up_id="' + x._id + '" data-field="comment" value="' + comment + '">' + comment + '</textarea>');
+          tr_data.push('</div>');
           tr_data.push('</div>');
 
           tr_data.push('</div>');
@@ -2774,6 +3028,26 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('span', function(value) {
         return '<span class="label label-warning">' + value + '</span>'
       });
+
+      Handlebars.registerHelper('item_category', function(type, name1, name2) {
+        if (type == "S") {
+          return name1;
+        } else if (type == "C") {
+          return name2;
+        }
+
+      });
+      Handlebars.registerHelper('count_number_date', function(frequency, date) {
+        if (!!~["1H", "2H", "4H"].indexOf(String(frequency))) {
+          return moment(date).format("YYYY-MM-DD HH:mm"); //col 1
+
+        } else {
+          return moment(date).format("YYYY-MM-DD"); //col 1
+
+        }
+
+      });
+
     })();
 
     // Returns the Router class

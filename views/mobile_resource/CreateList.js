@@ -64,6 +64,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             this.people_select_template = Handlebars.compile($("#im_people_select_view").html());
             this.bind_events();
             this.model_view = '0';
+            this.mr_type = 'M';
             // The render method is called when Mobile Models are added to the Collection
             // this.model.on("sync", this.render, this);
 
@@ -98,7 +99,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             if (self.model_view == '0') {
                 $("#mobile_resource_create #mobile_resource_back").addClass('ui-icon-back').removeClass('ui-icon-check')
                 var obj = self.model.attributes;
-                obj.mrs = self.mrs;
+                obj.mrs = _.filter(self.mrs, function(mr) {
+                    return mr.mr_type == self.mr_type
+                });
+                obj.mr_types = [{
+                    name: '会议室资源',
+                    type: 'M'
+
+                }, {
+                    name: '车辆资源',
+                    type: 'C'
+
+                }]
+
+                obj.mr_type = self.mr_type;
+                console.log(self)
                 rendered_data = self.template(obj)
             } else {
                 $("#mobile_resource_create #mobile_resource_back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
@@ -118,7 +133,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             $('#mobile_resource_create').on('change', 'textarea', function(event) {
                 event.preventDefault();
                 self.model.set($(this).data('field'), $(this).val())
-            }).on('change', 'select', function(event) {
+            }).on('change', 'select[name="mobile_resource"]', function(event) {
                 event.preventDefault();
                 show_time_mark(self)
                 self.model.set($(this).data('field'), $(this).val())
@@ -131,19 +146,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 $this = $(this)
                 var mobile_resource = $('#mobile_resource_create #mobile_resource').val();
                 self.model.set('mobile_resource', mobile_resource)
-                if (!$('#mobile_resource_create #mobile_resource').val()) {
-                    alert('请选择会议室资源！会议室用途！会议开始时间，结束时间')
-                    return false
-                };
+                    // if (!$('#mobile_resource_create #mobile_resource').val()) {
+                    //     alert('请选择会议室资源！会议室用途！会议开始时间，结束时间')
+                    //     return false
+                    // };
                 if (!$('#mobile_resource_create #meeting_desc').val()) {
-                    alert('请填写会议室用途！')
+                    alert('请填写用途！')
                     return false
                 };
                 var start = $('#mobile_resource_create #start').val();
                 var end = $('#mobile_resource_create #end').val();
 
                 if (!start) {
-                    alert('请选择会议开始时间！')
+                    alert('请选择开始时间！')
                     return false
                 };
                 if (!end) {
@@ -202,7 +217,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                         error: function(model, xhr, options) {
                             $.mobile.loading("hide");
                             setTimeout(function() {
-                                alert('会议室预定保存失败!')
+                                alert('资源预定保存失败!')
                             }, 1000);
                             $this.removeaAttr('disabled')
                         }
@@ -267,6 +282,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 }))
                 window.location.href = next_url;
 
+            }).on('change', 'select[name="mobile_resource_type"]', function(event) {
+                event.preventDefault();
+                self.mr_type = $(this).val();
+                self.render();
             })
         }
 

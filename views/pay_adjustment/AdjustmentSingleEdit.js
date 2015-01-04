@@ -147,6 +147,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
             $("#adjustment_single_edit-content").html(rendered_data);
             $("#adjustment_single_edit-content").trigger('create');
+
+            var obj = self.model.attributes;
+            var readable_fields = obj.ti.task_define.readable_fields;
+            $(readable_fields).attr('disabled', true)
+            $(readable_fields).removeAttr('id'); //去掉a标签中的onclick事件
+
             return self;
         },
         bind_event: function() {

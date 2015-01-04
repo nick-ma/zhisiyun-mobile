@@ -18,6 +18,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
         };
     });
 
+    Handlebars.registerHelper('rp_type', function(data) {
+        return data == 'M' ? '会议室资源' : '车辆资源'
+    });
+
     // Extends Backbone.View
     var MobileDetailView = Backbone.View.extend({
         // The View Constructor
@@ -54,6 +58,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 $("#mobile_resource_detail #mobile_resource_back").addClass('ui-icon-back').removeClass('ui-icon-check')
                 var obj = self.model.attributes;
                 obj.mrs = self.mrs;
+
+
+                obj.mr_types = [{
+                    name: '会议室资源',
+                    type: 'M'
+
+                }, {
+                    name: '车辆资源',
+                    type: 'C'
+
+                }]
+                console.log(obj)
+
                 if (self.login_people == self.model.get('people')) {
                     rendered_data = self.template_edit(obj)
                 } else {
@@ -86,12 +103,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             }).on('click', '#btn-ct-save', function(event) {
                 event.preventDefault();
                 $this = $(this)
-                if (!$('#mobile_resource_detail #mobile_resource').val()) {
-                    alert('请选择会议室资源！会议室用途！会议开始时间，结束时间')
-                    return false
-                };
+                    // if (!$('#mobile_resource_detail #mobile_resource').val()) {
+                    //     alert('请选择会议室资源！会议室用途！会议开始时间，结束时间')
+                    //     return false
+                    // };
                 if (!$('#mobile_resource_detail #meeting_desc').val()) {
-                    alert('请填写会议室用途！')
+                    alert('请填写用途！')
                     return false
                 };
                 // if (!$('#mobile_resource_detail #start').val()) {
@@ -107,12 +124,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
                 self.model.save(self.model.attributes, {
                     success: function(model, response, options) {
                         $.mobile.loading("hide");
-                        alert('会议室预定保存成功!')
+                        alert('资源预定保存成功!')
                         $this.removeAttr('disabled')
                     },
                     error: function(model, xhr, options) {
                         $.mobile.loading("hide");
-                        alert('会议室预定保存失败!')
+                        alert('资源预定保存失败!')
                         $this.removeaAttr('disabled')
                     }
                 })
@@ -130,7 +147,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
 
                 // };
 
-                my_confirm('确认删除本次会议室预定吗？\n删除成功后将跳转到预定界面！', null, function() {
+                my_confirm('确认删除本次资源预定吗？\n删除成功后将跳转到预定界面！', null, function() {
                     self.model.destroy({
                         success: function() {
                             window.location.href = '#mobile_resource';
@@ -192,7 +209,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "jqmcal", "f
             }).on('click', '#btn_upload_attachment', function(event) {
                 //转到上传图片的页面
                 // var leave = self.model.get('leave');
-                localStorage.removeItem('upload_model_back'); //先清掉
+                localStorage.removeItem('upload_model_back'); 
                 var next_url = '#upload_pic';
                 localStorage.setItem('upload_model', JSON.stringify({
                     model: self.model,

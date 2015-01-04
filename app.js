@@ -323,9 +323,12 @@ require(["jquery", "underscore", "backbone", "routers/mobileRouter", "lzstring",
           };
         });
     }
-    window.my_prompt = function(msg, cb_cancel, cb_ok) { //默认的prompt框的替换
+    window.my_prompt = function(msg, val, cb_cancel, cb_ok) { //默认的prompt框的替换
 
-      $("#my_prompt #prompt_msg").html(msg.replace(/\n/g, '<br>'))
+      $("#my_prompt #prompt_msg").html(msg.replace(/\n/g, '<br>'));
+      if (val) {
+        $("#my_prompt #cb_msg").val(val);
+      }
       $("#my_prompt").show();
       $("#my_prompt").popup('open');
       $("#my_prompt").off('click');
