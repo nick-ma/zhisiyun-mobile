@@ -157,7 +157,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             $.mobile.loading("hide");
                             setTimeout(function() {
                                 alert('提交成功', function() {
-                                    window.location.href = localStorage.getItem('wr_detail_back_url')
+                                    if (localStorage.getItem('wr_detail_back_url')) {
+                                        window.location.href = localStorage.getItem('wr_detail_back_url')
+                                    } else {
+                                        window.location.href = '#wrlist'
+                                    }
+                                    // window.location.href = localStorage.getItem('wr_detail_back_url')
                                 });
                             }, 1000);
                         })
@@ -200,7 +205,12 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             $.mobile.loading("hide");
                             setTimeout(function() {
                                 alert('提交成功', function() {
-                                    window.location.href = localStorage.getItem('wr_detail_back_url')
+                                    if (localStorage.getItem('wr_detail_back_url')) {
+                                        window.location.href = localStorage.getItem('wr_detail_back_url')
+                                    } else {
+                                        window.location.href = '#wrlist'
+                                    }
+                                    // window.location.href = localStorage.getItem('wr_detail_back_url')
                                 });
                             }, 1000);
                         })
@@ -309,7 +319,11 @@ define(["jquery", "underscore", "backbone", "handlebars"],
                             $.mobile.loading("hide");
                             setTimeout(function() {
                                 alert('提交成功', function() {
-                                    window.location.href = localStorage.getItem('wr_detail_back_url')
+                                    if (localStorage.getItem('wr_detail_back_url')) {
+                                        window.location.href = localStorage.getItem('wr_detail_back_url')
+                                    } else {
+                                        window.location.href = '#wrlist'
+                                    }
                                 });
                             }, 1000);
                         })
