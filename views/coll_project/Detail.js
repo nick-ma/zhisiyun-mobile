@@ -467,9 +467,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                                 scores_comment = '',
                                 options = [];
                             // console.log(type, index);
-                            score = self.model.attributes.scores['th'] || 0;
-                            scores_level = self.model.attributes.scores_level['th'] || '';
-                            scores_comment = self.model.attributes.scores_comment['th'] || '';
+                            score = self.model.attributes.scores['pm'] || 0;
+                            scores_level = self.model.attributes.scores_level['pm'] || '';
+                            scores_comment = self.model.attributes.scores_comment['pm'] || '';
                             _.each(self.cpsl.psl, function(x) {
                                     options.push('<option value="' + x.score + '" ' + ((score == x.score) ? 'selected' : '') + '>' + x.name + '</option>');
                                 })
@@ -511,6 +511,13 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async", "..
                                 };
                                 for (var i = 0; i < self.model.attributes.scores_comment.npms.length; i++) {
                                     self.model.attributes.scores_comment.npms[i] = '';
+                                };
+                                self.model.attributes.scores_level.pm = '';
+                                for (var i = 0; i < self.model.attributes.scores_level.pms.length; i++) {
+                                    self.model.attributes.scores_level.pms[i] = '';
+                                };
+                                for (var i = 0; i < self.model.attributes.scores_level.npms.length; i++) {
+                                    self.model.attributes.scores_level.npms[i] = '';
                                 };
                                 self.model.attributes.final_judgement = ''; //清空评定内容。
                                 self.model.save().done(function() {
