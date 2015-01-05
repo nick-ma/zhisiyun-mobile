@@ -45,7 +45,6 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
 
             //--------协作任务--------//
             colltask: function() {
-
                 localStorage.setItem('colltask_detail_back_url', window.location.href);
 
                 var self = this;

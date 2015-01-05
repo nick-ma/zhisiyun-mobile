@@ -6,7 +6,7 @@ define(["jquery", "backbone"], function($, Backbone) {
         idAttribute: "_id",
         rootUrl: '/admin/pm/assessment_instance/bb2_4m',
         url: function() {
-            return this.rootUrl + '/' + this.id;
+            return this.rootUrl + '/' + this.id + '?ts=' + (new Date()).getTime();
         },
     });
 
