@@ -285,7 +285,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         })
                         if (!!superior) {
                             var superior_superior = _.find(self.peoples_data, function(p) {
-                                return p.position._id == superior.position.position_indirect_superior || p.parttime_positions.indexOf(superior.position.position_indirect_superior) != -1;
+                                // return p.position._id == superior.position.position_indirect_superior || p.parttime_positions.indexOf(superior.position.position_indirect_superior) != -1;
+                                return p.position._id == superior.position.position_direct_superior || p.parttime_positions.indexOf(superior.position.position_direct_superior) != -1;
                             })
                         }
 
@@ -601,7 +602,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                 if (!!superior) {
                     superior_superior = _.find(self.peoples_data, function(p) {
-                        return p.position && p.position._id == superior.position.position_indirect_superior;
+                        // return p.position && p.position._id == superior.position.position_indirect_superior;
+                        return p.position && p.position._id == superior.position.position_direct_superior || p.parttime_positions.indexOf(superior.position.position_direct_superior) != -1;
                     })
                     if (!superior_superior) {
                         superior_superior = _.find(self.peoples_data, function(p) {
