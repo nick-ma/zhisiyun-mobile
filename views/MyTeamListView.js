@@ -35,12 +35,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 _.each(tmp, function(x) {
                     if (x.myteam) {
                         count.myteam++;
-                    } else if (x.myteam2) {
+                    }
+                    if (x.myteam2) {
                         count.myteam2++;
-                    } else if (x.myteama && x._id != $("#login_people").val()) {
+                    }
+                    if (x.myteama && !x.myteam && !x.myteam2 && x._id != $("#login_people").val()) {
                         count.myteama++;
                     };
                 })
+
                 // count.myteama = count.myteama; //去掉那些
                 // if (count.myteama < 0) {
                 //     count.myteama = 0;
@@ -59,9 +62,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 // })
 
                 _.each($("#myteam_list .btn-myteam-change_state"), function(x) {
-                    $(x).find('.myteam_state_num').html(count[$(x).data('view_filter')] || 0);
-                })
-
+                        $(x).find('.myteam_state_num').html(count[$(x).data('view_filter')] || 0);
+                    })
+                    // console.log(self.view_filter, people);
                 $("#myteam_list-content").html(self.template({
                     people: people
                 }));
@@ -91,10 +94,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     .on('click', '#btn_refresh_people', function(event) {
                         event.preventDefault();
                         $.mobile.loading("show");
-                        self.collection.fetch().done(function() {
+                        self.collection.fetch({
+                            reset: true
+                        }).done(function() {
                             $.mobile.loading("hide");
                             self.render();
-                            localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.collection)));
+                            localStorage.setItem('people', LZString.compressToUTF16(JSON.stringify(self.collection.toJSON())));
                         })
                     })
                     .on('click', '.btn-myteam-change_state', function(event) {
