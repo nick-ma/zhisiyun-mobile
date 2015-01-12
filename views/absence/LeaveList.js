@@ -116,8 +116,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     })
                     $(x).find('span').html(filters.length || 0);
                 } else if (state == '4') {
+                    console.log('111111')
                     var url = ' /admin/tm/wf_back_after_leave_of_absence/bb';
                     $.get(url, function(data) {
+                        console.log(data)
                         self.banck_leaves = data.leaves;
                         self.absences = data.absences;
                         $(x).find('span').html(data.leaves.length || 0);
@@ -220,6 +222,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     leaves: sort_02(filters)
                 });
             } else if (self.mode_view == '4') {
+                console.log('======')
+                console.log(self.banck_leaves)
                 var items = []
                 _.each(self.banck_leaves, function(bl) {
                     var f_d = _.find(self.absences, function(ls) {
@@ -323,6 +327,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.render();
                 $('.btn-leave-change_state').removeClass('ui-btn-active');
                 $this.addClass('ui-btn-active');
+                if (self.mode_view == '4' && !self.banck_leaves) {
+                    var url = ' /admin/tm/wf_back_after_leave_of_absence/bb';
+                    $.get(url, function(data) {
+                        console.log(data)
+                        self.banck_leaves = data.leaves;
+                        self.absences = data.absences;
+                        self.render();
+                    });
+                } else {
+                    self.render();
+                }
+
             })
         },
 
