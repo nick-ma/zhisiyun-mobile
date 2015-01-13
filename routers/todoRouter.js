@@ -386,7 +386,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
 
                             },
                             function(data, cb) {
-                                var people = data.people;
+                                var people = data.people._id;
                                 self.singleAttendanceResultChangeView.people = people;
                                 async.parallel({
                                     model: function(cb) {
