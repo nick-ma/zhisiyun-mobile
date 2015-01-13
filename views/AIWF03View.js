@@ -538,7 +538,26 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                 weight: $('#weight_' + ai_id).val(),
                                 unit: $('#unit_' + ai_id).val(),
                                 pi_name: item.pi_name ? item.pi_name : '',
+                                comments: [],
                             };
+
+                            var content = $('#comment_' + ai_id).val();
+                            if (content) {
+                                //添加沟通与记录
+                                var people = _.find(peoples_data, function(x) {
+                                    return x._id == $("#login_people").val();
+                                })
+                                var comment = {};
+                                comment.comment = content;
+                                comment.creator = people._id;
+                                comment.createDate = moment();
+                                if (people) {
+                                    comment.people_name = people.people_name;
+                                    comment.position_name = people.position.position_name;
+                                    comment.avatar = people.avatar;
+                                }
+                                bd_item.comments.push(comment);
+                            }
 
                             if (!!item.ol) {
                                 bd_item.ol = item.ol;
@@ -595,6 +614,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
 
                                 ai_sub.attributes.qualitative_pis.items.push(bd_item);
                             }
+                            ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
+                            ai_sub.save().done(next);
                         } else {
                             // if (confirm(ai_sub.attributes.people_name + '已经存在分解项，是否强行覆盖？')) {
                             my_confirm(ai_sub.attributes.people_name + '已经存在分解项，是否强行覆盖？', null, function() {
@@ -623,6 +644,26 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                         found1.target_value = $('#target_value_' + ai_id).val();
                                         found1.weight = $('#weight_' + ai_id).val();
                                         found1.unit = $('#unit_' + ai_id).val();
+
+                                        var content = $('#comment_' + ai_id).val();
+                                        if (content) {
+                                            //添加沟通与记录
+                                            var people = _.find(peoples_data, function(x) {
+                                                return x._id == $("#login_people").val();
+                                            })
+                                            var comment = {};
+                                            comment.comment = content;
+                                            comment.creator = people._id;
+                                            comment.createDate = moment();
+                                            if (people) {
+                                                comment.people_name = people.people_name;
+                                                comment.position_name = people.position.position_name;
+                                                comment.avatar = people.avatar;
+                                            }
+                                            found1.comments.push(comment);
+                                        }
+                                        ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
+                                        ai_sub.save().done(next);
                                     }
                                 } else {
                                     if (found2.pi_source == '3' || found2.pi_source == '4') {
@@ -632,6 +673,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                         found2.target_value = $('#target_value_' + ai_id).val();
                                         found2.weight = $('#weight_' + ai_id).val();
                                         found2.unit = $('#unit_' + ai_id).val();
+
+                                        var content = $('#comment_' + ai_id).val();
+                                        if (content) {
+                                            //添加沟通与记录
+                                            var people = _.find(peoples_data, function(x) {
+                                                return x._id == $("#login_people").val();
+                                            })
+                                            var comment = {};
+                                            comment.comment = content;
+                                            comment.creator = people._id;
+                                            comment.createDate = moment();
+                                            if (people) {
+                                                comment.people_name = people.people_name;
+                                                comment.position_name = people.position.position_name;
+                                                comment.avatar = people.avatar;
+                                            }
+                                            found2.comments.push(comment);
+                                        }
 
                                         found2.grade_way = item.grade_way;
 
@@ -654,12 +713,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                                 found2.grade_group = self.ai.attributes.qualitative_pis.grade_group ? self.ai.attributes.qualitative_pis.grade_group : null;
                                             }
                                         }
+                                        ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
+                                        ai_sub.save().done(next);
                                     }
                                 }
                             });
                         }
-                        ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
-                        ai_sub.save().done(next);
+                        // ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
+                        // ai_sub.save().done(next);
                     }, function(err, ret) {
                         // alert('保存成功!');
                         $('#btn_ai_wf1_cancel').trigger('click');

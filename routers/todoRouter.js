@@ -285,6 +285,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                                     self.ai_super.period = ai.attributes.period;
                                     self.ai_super.position = ai.attributes.position;
 
+                                    self.aiSubCollection.people = ai.attributes.people;
                                     self.aiSubCollection.period = ai.attributes.period;
                                     self.aiSubCollection.position = ai.attributes.position;
 
