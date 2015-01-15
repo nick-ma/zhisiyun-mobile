@@ -73,6 +73,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo9/:op_id/:type": "go_do9",
                 "godo11/:op_id/:type": "go_do11",
                 "godofree/:op_id/:type": "go_dofree",
+
+                "godowork_report/:op_id/:type": "go_work_report",
                 // "prev_ai/:period/:people/:position": "prev_ai",
                 // "super_ai/:period/:position": "super_ai",
                 "prev_ai": "prev_ai",
@@ -145,6 +147,10 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             go_do0: function(op_id, type) {
                 window.location.href = "#handle_form/" + op_id;
+            },
+            go_work_report: function(op_id, type) {
+                localStorage.setItem('wr_detail_back_url', '#todo');
+                window.location.href = '#wrdetail/' + op_id
             },
             go_do1: function(op_id, type) {
                 var self = this;
