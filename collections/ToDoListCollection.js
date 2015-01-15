@@ -12,7 +12,7 @@ define(["jquery", "backbone", "models/ToDoModel"], function($, Backbone, ToDoMod
 
         },
         url: function() {
-            return '/admin/wf/todo_list_bb';
+            return '/admin/wf/todo_list_bb?ts=' + (new Date()).getTime();
         },
         // Sets the Collection model property to be a Task Model
         model: ToDoModel,

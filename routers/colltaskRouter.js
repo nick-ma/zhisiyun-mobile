@@ -45,12 +45,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
 
             //--------协作任务--------//
             colltask: function() {
-                // colltasklistView.
-                // if (!this.c_colltask.models.length) {
-                //     this.c_colltask.fetch();
-                // } else {
-                //     this.collTaskListView.render();
-                // };
+                localStorage.setItem('colltask_detail_back_url', window.location.href);
+
                 var self = this;
 
                 self.ct_date_offset = self.collTaskListView.ct_date_offset = localStorage.getItem('ct_date_offset') || 90; //默认取90天
