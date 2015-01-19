@@ -137,6 +137,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 if (items[0].balance) {
                     var filter_001s = _.filter(items[0].balance.data, function(dt) {
                         var end_date = moment(dt.end_date).format('YYYY-MM-DD')
+                        return dt.absence_code == '001'
+                    })
+
+                    var filter_001_nums = _.filter(items[0].balance.data, function(dt) {
+                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
                         return dt.absence_code == '001' && (end_date == current_date || end_date > current_date)
                     })
 
@@ -177,7 +182,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 rendered_data = self.balance_template({
                     '001_bs': sort(filter_001s),
                     '002_bs': sort(maps),
-                    '001_num': calculate(filter_001s),
+                    '001_num': calculate(filter_001_nums),
                     '002_num': calculate_02(maps)
                 });
 
