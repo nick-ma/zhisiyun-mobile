@@ -6,13 +6,18 @@ define(["jquery", "backbone", "handlebars", "lzstring",
     "../views/im/ImList",
     "../views/im/ImEdit",
     "../views/im/ImCreate",
+    //按照新的表结构调整
+    "../collections/NotificationCollection",
+    "../models/NotificationModel",
 
 ], function($, Backbone, Handlebars, LZString,
     ImCollection,
     ImModel,
     ImView,
     ImEditView,
-    ImCreateView
+    ImCreateView,
+    NotificationCollection,
+    NotificationModel
 ) {
     var ImRouter = Backbone.Router.extend({
         initialize: function() {
@@ -58,8 +63,21 @@ define(["jquery", "backbone", "handlebars", "lzstring",
             self.imEditView.pre_render();
             self.im.id = im_id;
             self.im.fetch().done(function() {
-                self.imEditView.render();
-                $.mobile.loading("hide");
+                //标记为已读
+                var pl = _.find(self.im.get('r_peoples'), function(x) {
+                    return x.people.toString() == $('#login_people').val();
+                })
+                if (pl && !pl.mark_read) {
+                    pl.mark_read = true;
+                    pl.read_date = new Date();
+                    self.im.save().done(function() {
+                        self.imEditView.render();
+                        $.mobile.loading("hide");
+                    })
+                } else {
+                    self.imEditView.render();
+                    $.mobile.loading("hide");
+                }
             })
         },
         im_form: function(im_id) {
@@ -99,15 +117,17 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
         },
         init_models: function() {
-            this.im = new ImModel();
+            // this.im = new ImModel();
+            this.im = new NotificationModel();
         },
         init_collections: function() {
-            this.ims = new ImCollection(); //请假数据
-
+            // this.ims = new ImCollection(); //请假数据
+            this.ims = new NotificationCollection();
         },
         init_data: function() {
             var self = this;
-            $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
+            // $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
+            $.get('/admin/masterdata/people_contact/get_contacts?people_id=' + $('#login_people').val(), function(peoples) {
                 self.peoples = peoples
             })
 

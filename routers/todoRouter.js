@@ -73,6 +73,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo9/:op_id/:type": "go_do9",
                 "godo11/:op_id/:type": "go_do11",
                 "godofree/:op_id/:type": "go_dofree",
+                "godonotification/:op_id/:type": "go_donotification",
                 // "prev_ai/:period/:people/:position": "prev_ai",
                 // "super_ai/:period/:position": "super_ai",
                 "prev_ai": "prev_ai",
@@ -722,6 +723,9 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
             },
             go_dofree: function(op_id, type) {
                 window.location.href = '#wf_approve_edit/' + op_id;
+            },
+            go_donotification: function(op_id, type) {
+                window.location.href = '#im_view_S/' + op_id;
             },
             // prev_ai: function(period, people, position) {
             prev_ai: function() {

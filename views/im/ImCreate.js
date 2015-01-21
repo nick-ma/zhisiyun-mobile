@@ -1,8 +1,3 @@
-// CollTask List View
-// =================
-
-// Includes file dependencies
-
 define(["jquery", "underscore", "backbone", "handlebars", "moment"],
     function($, _, Backbone, Handlebars, moment) {
 
@@ -94,6 +89,17 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             self.model.set('r_users', _.compact(_.pluck(self.model.get('r_users'), '_id')));
             self.model.set('attachments', imgs);
 
+            var comment = $("#comment").val();
+            var current_task = _.find(self.model.get('tasks'), function(x) {
+                return x.task_no == self.model.get('current_task_no');
+            })
+            if (current_task) {
+                current_task.comment = comment;
+            };
+            _.each(self.model.get('tasks'), function(x) {
+                x.people = x.people._id ? x.people._id : x.people;
+            })
+
             self.model.save(self.model.attributes, {
                 success: function(model, response, options) {
                     // fetch_im(im_id)
@@ -119,7 +125,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
         }
 
+        function do_save2(self, cb) {
+            $.mobile.loading("show");
+            var comment = $("#comment").val();
+            var current_task = _.find(self.model.get('tasks'), function(x) {
+                return x.task_no == self.model.get('current_task_no');
+            })
+            if (current_task) {
+                current_task.comment = comment;
+            };
+            _.each(self.model.get('tasks'), function(x) {
+                x.people = x.people._id ? x.people._id : x.people;
+            })
 
+            self.model.save().done(cb);
+
+        }
 
         function show_time_mark(self) {
             self.free_times = [];
@@ -162,6 +183,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 this.template_im_create = Handlebars.compile($("#im_create_view").html());
                 this.loading_template = Handlebars.compile($("#loading_template_view").html());
                 this.people_select_template = Handlebars.compile($("#im_people_select_view").html());
+                this.people_select_template1 = Handlebars.compile($("#tmp_next_user_view1").html());
 
                 // The render method is called when CollTask Models are added to the Collection
                 this.bind_event();
@@ -181,11 +203,22 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 var rendered_data = '';
 
                 //附件数据
-                if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
-                    var img_obj = JSON.parse(localStorage.getItem('upload_model_back')).model;
-                    self.model.set('attachments', img_obj.attachments)
-                    localStorage.removeItem('upload_model_back'); //用完删掉
-                };
+                // if (localStorage.getItem('upload_model_back')) { //有从上传页面发回来的数据
+                //     var img_obj = JSON.parse(localStorage.getItem('upload_model_back')).model;
+                //     self.model.set('attachments', img_obj.attachments)
+                //     localStorage.removeItem('upload_model_back'); //用完删掉
+                // };
+                //附件
+                var upload = JSON.parse(localStorage.getItem('upload_model_back') || null);
+                localStorage.removeItem('upload_model_back'); //获取完之后，删掉，避免后面重复使用。
+                if (upload && upload.model) {
+                    var atta = {};
+                    _.each(upload.model.attachments, function(x) {
+                        atta.file = x;
+                        atta.people = self.people;
+                        self.model.attributes.attachments.push(atta);
+                    })
+                }
 
                 if (self.model_view == '0') {
                     $("#im_create_list #btn-create_list-back").addClass('ui-icon-back').removeClass('ui-icon-check')
@@ -193,15 +226,43 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var obj = self.model.attributes;
                     obj.mrs = self.mrs;
                     rendered_data = self.template_im_create(obj)
-                } else {
+                } else if (self.model_view == '1') {
                     $("#im_create_list #btn-create_list-back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
                     rendered_data = self.people_select_template({
                         people: self.peoples
                     })
+                    // self.model_view = '0';
+                } else {
+                    $("#im_create_list #btn-create_list-back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
+                    rendered_data = self.people_select_template1({
+                        people: self.peoples
+                    })
+                    // self.model_view = '0';
                 }
                 $("#im_create_list-content").html(rendered_data);
                 $("#im_create_list-content").trigger('create');
 
+                if (self.model_view == '0') {
+                    if (self.model.get('creator') == self.people) { //创建人
+                        $("#btn-nf-back").hide();
+                        $("#btn-nf-submit").show();
+                    } else {
+                        $("#btn-nf-back").show();
+                        $("#btn-nf-submit").hide();
+                    }
+
+                    if (self.model.get('current_handler') != self.people) { //不是当前办理人
+                        var btns = ['#btn-nf-save', '#btn-nf-ok', '#btn-nf-back', '#btn-nf-submit', '#btn_upload_attachment', '#people_select', '#comment_div'];
+                        for (var i = 0; i < btns.length; i++) {
+                            $(btns[i]).hide();
+                        };
+
+                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people'];
+                        for (var i = 0; i < elements.length; i++) {
+                            $(elements[i]).attr("disabled", true);
+                        }
+                    }
+                }
 
                 if (self.model.get('mobile_resource')) {
                     $('#im_create_list #m_address').attr('disabled', true)
@@ -223,6 +284,31 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         self.render();
                         $.mobile.loading("hide");
                         // })
+                    })
+                    .on('click', '#btn-nf-submit', function(event) {
+                        if (self.model.get('r_peoples').length == 0) {
+                            alert('请选择发送对象!')
+                            return false
+                        };
+                        if (self.model.get('msg_theme') == null || self.model.get('msg_theme') == '') {
+                            alert('主题不能为空!')
+                            return false
+                        };
+                        if (self.model.get('msg_body') == null || self.model.get('msg_body') == '') {
+                            alert('发送内容不能为空!')
+                            return false
+                        };
+                        if (self.model.get('comment') == null || self.model.get('comment') == '') {
+                            alert('审批意见不能为空!')
+                            return false
+                        };
+
+                        $.mobile.loading("show");
+                        do_save2(self, function() {
+                            self.model_view = '2';
+                            self.render();
+                            $.mobile.loading("hide");
+                        });
                     }).on('click', '#btn-create_list-back', function(event) {
                         event.preventDefault();
                         if (self.model_view == '1') {
@@ -233,24 +319,43 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                 })
                                 if (f_d) {
                                     return {
-                                        _id: f_d.user,
-                                        people_name: f_d.people_name
+                                        people: f_d._id,
+                                        people_name: f_d.people_name,
+                                        mark_read: false,
+                                        mark_delete: false,
                                     };
                                 } else {
                                     return null
                                 }
                             }));
-                            self.model.set('r_users', people_selected)
+                            self.model.set('r_peoples', people_selected)
                             self.render();
+                        } else if (self.model_view == '2') { //提交下一环节
+                            var next_user = $("input[name='next_user1']:checked").val();
+                            if (next_user) {
+                                my_confirm('确定提交流程吗?', null, function() {
+                                    var url = '/wxapp/005/' + self.model.get('_id') + '/approve';
+                                    var post_data = {
+                                        current_task_no: self.model.get('current_task_no'),
+                                        next_people: next_user,
+                                    };
+                                    $.post(url, post_data, function(data) {
+                                        // do_save(self, 'T');
+                                        window.location.href = '/m#im_list';
+                                    })
+                                });
+                            } else {
+                                alert('请选择人员!');
+                            }
                         } else {
-                            window.location.href = '#im_list'
+                            window.location.href = '#im_list';
                         }
 
                     }).on('change', 'input,textarea', function(event) {
                         event.preventDefault();
                         var field = $(this).data('field');
                         var val = $(this).val();
-                        self.model.set(field, val)
+                        self.model.set(field, val);
                     }).on('change', '.is_check', function(event) {
                         event.preventDefault();
                         var field = $(this).data('field');
@@ -297,25 +402,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             self.model.set('time_zone_e', times(current_date).zone)
                         }
                         show_time_mark(self);
-                    }).on('click', '#btn-save', function(event) {
+                    }).on('click', '#btn-nf-save', function(event) {
                         event.preventDefault();
-                        self.model.set('is_send', false);
-                        if (self.model.get('msg_theme') == null || self.model.get('msg_theme') == '') {
-                            alert('主题不能为空!')
-                            return false
-                        };
-                        if (self.model.get('msg_body') == null || self.model.get('msg_body') == '') {
-                            alert('发送内容不能为空!')
-                            return false
-                        };
-
-
+                        // self.model.set('is_send', false);
+                        // if (self.model.get('msg_theme') == null || self.model.get('msg_theme') == '') {
+                        //     alert('主题不能为空!')
+                        //     return false
+                        // };
+                        // if (self.model.get('msg_body') == null || self.model.get('msg_body') == '') {
+                        //     alert('发送内容不能为空!')
+                        //     return false
+                        // };
 
                         do_save(self, 'S');
-                    }).on('click', '#btn-save_send', function(event) {
+                    }).on('click', '#btn-nf-ok', function(event) {
                         event.preventDefault();
-                        self.model.set('is_send', true);
-                        if (self.model.get('r_users').length == 0) {
+                        // self.model.set('is_send', true);
+                        if (self.model.get('r_peoples').length == 0) {
                             alert('请选择发送对象!')
                             return false
                         };
@@ -327,25 +430,52 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             alert('发送内容不能为空!')
                             return false
                         };
+                        if (self.model.get('comment') == null || self.model.get('comment') == '') {
+                            alert('审批意见不能为空!')
+                            return false
+                        };
 
                         my_confirm('确定发送通知吗?\n发送成功将跳转到列表!', null, function() {
-                            do_save(self, 'T');
+                            do_save2(self, function() {
+                                var url = '/wxapp/005/' + self.model.get('_id') + '/approve_done';
+                                var post_data = {
+                                    current_task_no: self.model.get('current_task_no'),
+                                };
+                                $.post(url, post_data, function(data) {
+                                    // do_save(self, 'T');
+                                    window.location.href = '/m#im_list';
+                                })
+                            })
                         })
-
-
+                    }).on('click', '#btn-nf-back', function(event) {
+                        event.preventDefault();
+                        my_confirm('确定驳回通知吗?', null, function() {
+                            do_save2(self, function() {
+                                var url = '/wxapp/005/' + self.model.get('_id') + '/reject';
+                                var post_data = {
+                                    current_task_no: self.model.get('current_task_no'),
+                                };
+                                $.post(url, post_data, function(data) {
+                                    // do_save(self, 'T');
+                                    window.location.href = '/m#im_list';
+                                })
+                            })
+                        })
 
                     }).on('click', '#btn_upload_attachment', function(event) {
                         //转到上传图片的页面
                         // var leave = self.model.get('leave');
-                        localStorage.removeItem('upload_model_back'); //先清掉
-                        var next_url = '#upload_pic';
-                        localStorage.setItem('upload_model', JSON.stringify({
-                            model: self.model,
-                            field: 'attachments',
-                            back_url: window.location.hash
-                        }))
-                        window.location.href = next_url;
-
+                        do_save2(self, function() {
+                            localStorage.removeItem('upload_model_back'); //先清掉
+                            var next_url = '#upload_pic';
+                            localStorage.setItem('upload_model', JSON.stringify({
+                                model: self.model,
+                                field: 'attachments',
+                                // sub_field: 'file',
+                                back_url: window.location.hash
+                            }))
+                            window.location.href = next_url;
+                        })
                     }).on('click', 'img', function(event) {
                         event.preventDefault();
                         // var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
