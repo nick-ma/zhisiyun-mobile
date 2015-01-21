@@ -116,8 +116,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     })
                     $(x).find('span').html(filters.length || 0);
                 } else if (state == '4') {
+                    console.log('111111')
                     var url = ' /admin/tm/wf_back_after_leave_of_absence/bb';
                     $.get(url, function(data) {
+                        console.log(data)
                         self.banck_leaves = data.leaves;
                         self.absences = data.absences;
                         $(x).find('span').html(data.leaves.length || 0);
@@ -134,6 +136,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var current_date = moment(new Date()).format('YYYY-MM-DD')
                 if (items[0].balance) {
                     var filter_001s = _.filter(items[0].balance.data, function(dt) {
+                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
+                        return dt.absence_code == '001'
+                    })
+
+                    var filter_001_nums = _.filter(items[0].balance.data, function(dt) {
                         var end_date = moment(dt.end_date).format('YYYY-MM-DD')
                         return dt.absence_code == '001' && (end_date == current_date || end_date > current_date)
                     })
@@ -175,7 +182,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 rendered_data = self.balance_template({
                     '001_bs': sort(filter_001s),
                     '002_bs': sort(maps),
-                    '001_num': calculate(filter_001s),
+                    '001_num': calculate(filter_001_nums),
                     '002_num': calculate_02(maps)
                 });
 
@@ -220,6 +227,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     leaves: sort_02(filters)
                 });
             } else if (self.mode_view == '4') {
+                console.log('======')
+                console.log(self.banck_leaves)
                 var items = []
                 _.each(self.banck_leaves, function(bl) {
                     var f_d = _.find(self.absences, function(ls) {
@@ -323,6 +332,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 self.render();
                 $('.btn-leave-change_state').removeClass('ui-btn-active');
                 $this.addClass('ui-btn-active');
+                if (self.mode_view == '4' && !self.banck_leaves) {
+                    var url = ' /admin/tm/wf_back_after_leave_of_absence/bb';
+                    $.get(url, function(data) {
+                        console.log(data)
+                        self.banck_leaves = data.leaves;
+                        self.absences = data.absences;
+                        self.render();
+                    });
+                } else {
+                    self.render();
+                }
+
             })
         },
 

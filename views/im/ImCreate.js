@@ -435,7 +435,64 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             return false
                         };
 
+                        if (self.model.get('is_meeting')) {
+
+                            if (self.model.get('mobile_resource')) {
+
+                                var m_start_date = self.model.get('m_start_date');
+                                var m_end_date = self.model.get('m_end_date');
+                                var s_date = null;
+                                var e_date = null;
+                                if (self.model.get('is_all_day')) {
+                                    s_date = moment(m_start_date).endOf('day').toDate();
+                                    e_date = moment(m_end_date).endOf('day').toDate();
+                                } else {
+                                    s_date = moment(moment(m_start_date).format('YYYY-MM-DD HH:mm')).toDate();
+                                    e_date = moment(moment(m_end_date).format('YYYY-MM-DD HH:mm')).toDate();
+                                }
+
+                                if (e_date < s_date) {
+                                    alert("结束日期不能小于开始日期!")
+                                    return false;
+                                }
+                                var filters = _.filter(self.free_times, function(tt) {
+                                    var tt_start = moment(tt.start).toDate();
+                                    var tt_end = moment(tt.end).toDate();
+                                    var bool = (tt_start < s_date) && (s_date < tt_end)
+                                    var bool_02 = (tt_start < e_date) && (e_date < tt_end)
+                                    var bool_03 = (tt_start >= s_date) && (tt_end <= e_date)
+                                    var bl = (bool || bool_02);
+                                    return (bool || bool_02 || bool_03)
+                                })
+
+                                if (filters.length) {
+                                    alert('请选择空余时间段!')
+                                    return false
+                                };
+                            };
+
+                            if (!self.model.get('m_address')) {
+                                alert('请输入会议地址！');
+                                return false
+                            };
+
+                        };
+
+                        var imgs = []
+                        _.each(self.model.get('attachments'), function(att) {
+                            if (att._id) {
+                                imgs.push(att._id)
+                            } else {
+                                imgs.push(att)
+                            }
+                        })
+
+
+
+                        self.model.set('r_users', _.compact(_.pluck(self.model.get('r_users'), '_id')));
+                        self.model.set('attachments', imgs);
                         my_confirm('确定发送通知吗?\n发送成功将跳转到列表!', null, function() {
+<<<<<<< HEAD
                             do_save2(self, function() {
                                 var url = '/wxapp/005/' + self.model.get('_id') + '/approve_done';
                                 var post_data = {
@@ -460,6 +517,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                     window.location.href = '/m#im_list';
                                 })
                             })
+=======
+                            $.mobile.loading("show");
+                            self.model.save(self.model.attributes, {
+                                success: function(model, response, options) {
+                                    $.mobile.loading("hide");
+                                    window.location.href = '/m#im_list'
+                                },
+                                error: function(model, xhr, options) {
+                                    $.mobile.loading("hide");
+                                    alert('通知发送失败！！')
+
+                                }
+                            })
+
+>>>>>>> master
                         })
 
                     }).on('click', '#btn_upload_attachment', function(event) {

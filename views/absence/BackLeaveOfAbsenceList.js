@@ -429,7 +429,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             $("#backleaveofabsence_list-content").html(rendered_data);
             $("#backleaveofabsence_list-content").trigger('create');
 
-            if (self.people_id == String(leave.people)) {
+            if (self.people_id == String(leave.people._id)) {
                 $("#btn_ims_show").hide();
                 $('absence_type,#leave_reason,#leave_allday,#create_start_date,#create_end_date').removeAttr('disabled');
             } else {

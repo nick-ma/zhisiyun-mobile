@@ -379,38 +379,39 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					window.location.reload();
 				})
 				$("#personal_wf_attend-content").on('click', '#btn_save', function(event) {
-					event.preventDefault();
-					save_form_data(function(data) {
-						alert("数据保存成功");
+						event.preventDefault();
+						save_form_data(function(data) {
+							alert("数据保存成功");
 
+						})
+					}).on('click', '#btn_wf_start_userchat', function(event) {
+						event.preventDefault();
+						var people = self.attendance.people ? self.attendance.people._id : self.attendance.people;
+						var url = "im://userchat/" + people;
+						console.log(url);
+						window.location.href = url;
+					}).on('click', '#btn_upload_attachment', function(event) {
+						save_form_data(function(data) {
+							//转到上传图片的页面
+							localStorage.removeItem('upload_model_back'); //先清掉
+							var next_url = '#upload_pic';
+							localStorage.setItem('upload_model', JSON.stringify({
+								model: self.wf_data,
+								field: 'attachments',
+								back_url: window.location.hash
+							}))
+							window.location.href = next_url;
+						})
+
+
+					}).on('click', 'img', function(event) {
+						event.preventDefault();
+						// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+						var img_view = '<img src="' + this.src + '">';
+						// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+						$("#fullscreen-overlay").html(img_view).fadeIn('fast');
 					})
-				}).on('click', '#btn_wf_start_userchat', function(event) {
-					event.preventDefault();
-					var url = "im://userchat/" + self.attendance.people;
-					console.log(url);
-					window.location.href = url;
-				}).on('click', '#btn_upload_attachment', function(event) {
-					save_form_data(function(data) {
-						//转到上传图片的页面
-						localStorage.removeItem('upload_model_back'); //先清掉
-						var next_url = '#upload_pic';
-						localStorage.setItem('upload_model', JSON.stringify({
-							model: self.wf_data,
-							field: 'attachments',
-							back_url: window.location.hash
-						}))
-						window.location.href = next_url;
-					})
-
-
-				}).on('click', 'img', function(event) {
-					event.preventDefault();
-					// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
-					var img_view = '<img src="' + this.src + '">';
-					// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
-					$("#fullscreen-overlay").html(img_view).fadeIn('fast');
-				})
-				// $("#wf_attendance")
+					// $("#wf_attendance")
 			},
 			get_datas: function() {
 

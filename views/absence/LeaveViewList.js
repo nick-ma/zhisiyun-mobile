@@ -75,6 +75,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 $("#leaveofabsence_name").html('假期累计明细');
 
 
+                console.log(self.obj)
+
+
                 rendered_data = self.leave_details_template(self.obj);
             } else if (self.model_view == '2') {
                 $("#leaveofabsence_name").html('请假明细');
