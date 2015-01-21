@@ -487,12 +487,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             }
                         })
 
-
-
                         self.model.set('r_users', _.compact(_.pluck(self.model.get('r_users'), '_id')));
                         self.model.set('attachments', imgs);
                         my_confirm('确定发送通知吗?\n发送成功将跳转到列表!', null, function() {
-<<<<<<< HEAD
                             do_save2(self, function() {
                                 var url = '/wxapp/005/' + self.model.get('_id') + '/approve_done';
                                 var post_data = {
@@ -517,21 +514,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                                     window.location.href = '/m#im_list';
                                 })
                             })
-=======
-                            $.mobile.loading("show");
-                            self.model.save(self.model.attributes, {
-                                success: function(model, response, options) {
-                                    $.mobile.loading("hide");
-                                    window.location.href = '/m#im_list'
-                                },
-                                error: function(model, xhr, options) {
-                                    $.mobile.loading("hide");
-                                    alert('通知发送失败！！')
-
-                                }
-                            })
-
->>>>>>> master
                         })
 
                     }).on('click', '#btn_upload_attachment', function(event) {
