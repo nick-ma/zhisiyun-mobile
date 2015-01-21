@@ -73,12 +73,8 @@ define(["jquery", "backbone", "handlebars", "lzstring", "async",
                 "godo9/:op_id/:type": "go_do9",
                 "godo11/:op_id/:type": "go_do11",
                 "godofree/:op_id/:type": "go_dofree",
-<<<<<<< HEAD
                 "godonotification/:op_id/:type": "go_donotification",
-=======
-
                 "godowork_report/:op_id/:type": "go_work_report",
->>>>>>> master
                 // "prev_ai/:period/:people/:position": "prev_ai",
                 // "super_ai/:period/:position": "super_ai",
                 "prev_ai": "prev_ai",
