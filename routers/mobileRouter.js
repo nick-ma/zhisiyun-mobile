@@ -3025,6 +3025,32 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         return tr_data.join('')
       });
 
+      Handlebars.registerHelper('nf_status', function(state) {
+        var ret = ['<span class="pull-right label'];
+        if (state == 'START') {
+          ret.push(' label-info">办理中</span>');
+        } else {
+          ret.push(' label-danger">已发送</span>');
+        };
+        ret.push('</span>');
+        return ret.join('');
+      });
+
+      Handlebars.registerHelper('showOP', function(op) {
+        if (!op) {
+          return '';
+        };
+        if (op == '起草') {
+          return '<span class="label label-default">' + op + '</span>';
+        } else if (op == '提交') {
+          return '<span class="label label-success">' + op + '</span>';
+        } else if (op == '驳回') {
+          return '<span class="label label-important">' + op + '</span>';
+        } else if (op == '完成') {
+          return '<span class="label label-info">' + op + '</span>';
+        };
+      });
+
       Handlebars.registerHelper('span', function(value) {
         return '<span class="label label-warning">' + value + '</span>'
       });

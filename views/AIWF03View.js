@@ -582,6 +582,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                 }
 
                                 ai_sub.attributes.quantitative_pis.items.push(bd_item);
+
+                                //把下属返写回ai_data中
+                                var pl = {};
+                                pl.people = ai_sub.attributes.people;
+                                pl.people_name = ai_sub.attributes.people_name;
+                                item.pi_extand_peoples.push(pl);
                             } else {
                                 //自己是否有配置评分标准
                                 var scs = find_sc(pi_f);
@@ -613,6 +619,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                 bd_item.other_weight = ai_sub.attributes.qualitative_pis.other_weight;
 
                                 ai_sub.attributes.qualitative_pis.items.push(bd_item);
+                                //把下属返写回ai_data中
+                                var pl = {};
+                                pl.people = ai_sub.attributes.people;
+                                pl.people_name = ai_sub.attributes.people_name;
+                                item.pi_extand_peoples.push(pl);
                             }
                             ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
                             ai_sub.save().done(next);
@@ -662,6 +673,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                             }
                                             found1.comments.push(comment);
                                         }
+
+                                        //排除掉是之前分解过的，分解过的，已经返写过一次，不需要再此push
+                                        if (found1.pi_source != '2') {
+                                            //把下属返写回ai_data中
+                                            var pl = {};
+                                            pl.people = ai_sub.attributes.people;
+                                            pl.people_name = ai_sub.attributes.people_name;
+                                            item.pi_extand_peoples.push(pl);
+                                        }
+
                                         ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
                                         ai_sub.save().done(next);
                                     }
@@ -713,6 +734,16 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                                                 found2.grade_group = self.ai.attributes.qualitative_pis.grade_group ? self.ai.attributes.qualitative_pis.grade_group : null;
                                             }
                                         }
+
+                                        //排除掉是之前分解过的，分解过的，已经返写过一次，不需要再此push
+                                        if (found2.pi_source != '2') {
+                                            //把下属返写回ai_data中
+                                            var pl = {};
+                                            pl.people = ai_sub.attributes.people;
+                                            pl.people_name = ai_sub.attributes.people_name;
+                                            item.pi_extand_peoples.push(pl);
+                                        }
+
                                         ai_sub.url = '/admin/pm/assessment_instance/bb2_4m2/' + ai_id;
                                         ai_sub.save().done(next);
                                     }
@@ -723,7 +754,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         // ai_sub.save().done(next);
                     }, function(err, ret) {
                         // alert('保存成功!');
-                        $('#btn_ai_wf1_cancel').trigger('click');
+                        self.ai.save().done(function() {
+                            $('#btn_ai_wf1_cancel').trigger('click');
+                        })
                     })
                 } else {
                     alert('请选择要分解的下级数据!');
