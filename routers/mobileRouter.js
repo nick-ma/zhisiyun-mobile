@@ -3028,9 +3028,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('nf_status', function(state) {
         var ret = ['<span class="pull-right label'];
         if (state == 'START') {
-          ret.push(' label-info">办理中</span>');
+          ret.push(' label-danger">办理中</span>');
         } else {
-          ret.push(' label-danger">已发送</span>');
+          ret.push(' label-success">已发送</span>');
         };
         ret.push('</span>');
         return ret.join('');
