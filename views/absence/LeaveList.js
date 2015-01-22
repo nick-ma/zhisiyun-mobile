@@ -135,55 +135,63 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             } else if (self.mode_view == '1') {
                 var current_date = moment(new Date()).format('YYYY-MM-DD')
                 if (items[0].balance) {
-                    var filter_001s = _.filter(items[0].balance.data, function(dt) {
-                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
-                        return dt.absence_code == '001'
-                    })
 
-                    var filter_001_nums = _.filter(items[0].balance.data, function(dt) {
-                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
-                        return dt.absence_code == '001' && (end_date == current_date || end_date > current_date)
+                    var f_ds = _.filter(items[0].balance.data, function(dt) {
+                        var end = new Date(dt.end_date);
+                        var now = new Date();
+                        return dt.absence_code == '001' && now.getTime() <= end.getTime();
                     })
+                    var fds_items = []
+                    _.each(f_ds, function(f_d) {
+                        var dfs = _.filter(items[0].balance.details, function(detail) {
+                            return f_d.year == detail.year && detail.absence_code == '001'
+                        });
+                        fds_items.push(dfs)
+                    })
+                    var num_001 = 0
+                    _.each(_.flatten(fds_items), function(fd) {
+                        num_001 += fd.total_time
+                    })
+                    var items_001s = _.filter(items[0].balance.details, function(detail) {
+                        return detail.absence_code == '001'
+                    });
 
-                    var filter_002s = _.filter(items[0].balance.data, function(dt) {
-                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
+                    var num_005 = 0;
+                    var items_005s = _.filter(items[0].balance.data, function(dt) {
                         return dt.absence_code == '005'
                     })
 
-                    var filter_003s = _.filter(items[0].balance.details, function(dt) {
-                        var end_date = moment(dt.end_date).format('YYYY-MM-DD')
-                        return dt.absence_code == '001'
+
+                    _.each(items_005s, function(it) {
+                        num_005 += it.balance
                     })
 
-                    var maps = _.compact(_.map(items[0].balance.details, function(ft) {
-                        if (ft.absence_code == '005') {
-                            var o = {
-                                absence_code: '005',
-                                total_time: -ft.total_time,
-                                start_date: ft.start_date,
-                                valid_end_date: ft.valid_end_date
-                            }
-                            return o
-                        } else {
-                            return null;
-                        }
-                    }))
-                };
-                _.each(filter_002s, function(ft) {
-                    maps.push({
-                        absence_code: '005',
-                        total_time: ft.init_balance,
-                        start_date: ft.start_date,
-                        valid_end_date: '9999-12-31',
-                        balance: ft.balance,
+                    var detail_005s = _.filter(items[0].balance.details, function(dt) {
+                        return dt.absence_code == '005'
                     })
-                })
+
+
+                    _.each(detail_005s, function(dt) {
+                        num_005 += dt.total_time
+                    })
+
+                    _.each(items_005s, function(it) {
+                        detail_005s.push({
+                            absence_code: '005',
+                            total_time: it.balance,
+                            start_date: it.start_date,
+                            valid_end_date: '9999-12-31',
+                            balance: it.balance,
+                        })
+                    })
+                };
+
 
                 rendered_data = self.balance_template({
-                    '001_bs': sort(filter_001s),
-                    '002_bs': sort(maps),
-                    '001_num': calculate(filter_001_nums),
-                    '002_num': calculate_02(maps)
+                    '001_bs': sort(items_001s),
+                    '002_bs': sort(detail_005s),
+                    '001_num': num_001,
+                    '002_num': num_005
                 });
 
             } else if (self.mode_view == '2') {
