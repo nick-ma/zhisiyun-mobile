@@ -60,12 +60,42 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     };
                     return dd.absence_code == absence_code && bool
                 })
-                var num = 0;
-                _.each(filters, function(ft) {
-                    num += ft.balance
-                })
-                leave.leave_balance = num;
-                $('#leave_balance').html(num + ' 小时')
+
+                var num_001 = 0;
+                if (absence_code == '001') {
+                    _.each(filters, function(f_d) {
+                        var dfs = _.filter(balance.details, function(detail) {
+                            return f_d.year == detail.year && detail.absence_code == '001'
+                        });
+                        _.each(dfs, function(df) {
+                            num_001 += df.total_time
+                        })
+                    })
+
+
+                    leave.leave_balance = num_001;
+                    $('#leave_balance').html(num_001 + ' 小时')
+
+                } else {
+                    var num_005 = 0;
+                    _.each(filters, function(ft) {
+                        num_005 += ft.balance
+                    });
+
+                    var dfs = _.filter(balance.details, function(detail) {
+                        return detail.absence_code == '005'
+                    });
+                    _.each(dfs, function(df) {
+                        num_005 += df.total_time
+                    })
+
+                    leave.leave_balance = num_005;
+                    $('#leave_balance').html(num_005 + ' 小时')
+
+                }
+
+
+
             };
         } else if (absence_code == '003' || absence_code == '002') {
             $("#detail_show,#history").show();
@@ -141,24 +171,24 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
     //取工作时间并且判断是不是上班
     function is_work_on_off(times_configs, time_type, data) {
-        var time = null;
-        _.each(times_configs, function(config) {
-            var f_d = _.find(config.calendar_data, function(dt) {
-                if (time_type == '2') {
-                    return moment(data).isBefore(dt.expire_off) && moment(data).isAfter(dt.expire_on)
-                } else {
-                    return dt.job_date == moment(data).format('YYYY-MM-DD')
-                }
+            var time = null;
+            _.each(times_configs, function(config) {
+                var f_d = _.find(config.calendar_data, function(dt) {
+                    if (time_type == '2') {
+                        return moment(data).isBefore(dt.expire_off) && moment(data).isAfter(dt.expire_on)
+                    } else {
+                        return dt.job_date == moment(data).format('YYYY-MM-DD')
+                    }
+                })
+                if (f_d && f_d.is_job_day) {
+                    time = config.time;
+                    return
+                };
             })
-            if (f_d && f_d.is_job_day) {
-                time = config.time;
-                return
-            };
-        })
 
-        return time
-    }
-    //只获取工作时间
+            return time
+        }
+        //只获取工作时间
     function is_work_on_off_time(times_configs, time_type, data) {
         var time = null;
         _.each(times_configs, function(config) {
@@ -354,7 +384,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
             trans_name: $("#trans_name").val() || trans_data.trans_name, // 转移过来的名称
             comment_msg: $("#comment_msg").val() || trans_data.comment_msg, // 任务批注 
             attachments: trans_data.attachments || []
-            // 任务批注 
+                // 任务批注 
         };
         // console.log(post_data)
         var post_url = $("#task_process_url").val();
