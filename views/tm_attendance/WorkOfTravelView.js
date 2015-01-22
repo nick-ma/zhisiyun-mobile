@@ -9,23 +9,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			times = null;
 
 		function time_parse(start_date) {
-			s_date = start_date.split('T')[0];
-			s_zone = start_date.split('T')[1] || null;
-			var o = {
-				date: s_date,
-				zone: s_zone,
+				s_date = start_date.split('T')[0];
+				s_zone = start_date.split('T')[1] || null;
+				var o = {
+					date: s_date,
+					zone: s_zone,
+				}
+				return o
 			}
-			return o
-		}
-		//判断这天是不是半天
+			//判断这天是不是半天
 		function compare(st_zone, ed_zone, ost_zone, oed_zone) {
-			var bool = false
-			if (st_zone == ost_zone && ed_zone == oed_zone) {
-				return true
+				var bool = false
+				if (st_zone == ost_zone && ed_zone == oed_zone) {
+					return true
+				}
+				return bool;
 			}
-			return bool;
-		}
-		//计算时间
+			//计算时间
 		function calculate_hours(time, start_time, s_hour, end_time, e_hour) {
 			var time_long = null;
 			var s_hour = moment.duration(s_hour);
@@ -220,12 +220,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			post_url = post_url.replace('<TASK_ID>', $("#personal_wf_work_of_travel-content #task_instance_id").val());
 
 			$.post(post_url, post_data, function(data) {
-				if (data.code == 'OK') {
+					if (data.code == 'OK') {
 
-					window.location = '#wf_three';
-				};
-			})
-			// })
+						window.location = '#wf_three';
+					};
+				})
+				// })
 		}
 
 		// Extends Backbone.View
@@ -304,7 +304,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						$("#personal_wf_work_of_travel-content").html(self.template(obj));
 						$("#personal_wf_work_of_travel-content").trigger('create');
 						$("#btn_save").hide();
-						$("#personal_wf_work_of_travel-content #create_start_date,#create_end_date,#hours,#reason").attr("readonly", true);
+						$("#personal_wf_work_of_travel-content #create_start_date,#create_end_date,#hours,#reason,#cost_budget").attr("readonly", true);
 
 						return this;
 					}
@@ -486,54 +486,64 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					window.location.href = url;
 				})
 				$("#wf_work_of_travel").on('click', '#go_back', function(event) {
-					if (self.page_mode == 'detail') {
-						$("#wf_work_of_travel_title").html("出差申请流程");
-						self.page_mode = 'wf_three';
-						if (!self.is_self) {
-							self.render();
+						if (self.page_mode == 'detail') {
+							$("#wf_work_of_travel_title").html("出差申请流程");
+							self.page_mode = 'wf_three';
+							if (!self.is_self) {
+								self.render();
 
-							$("#create_destination_data").parent().remove();
+								$("#create_destination_data").parent().remove();
+							} else {
+								self.render();
+							}
+							//把 a 换成 span， 避免点那个滑块的时候页面跳走。
+							$(".ui-flipswitch a").each(function() {
+								$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+							});
+
+						} else if (self.page_mode == 'wf_three') {
+							window.location.href = "/m#wf_three";
 						} else {
-							self.render();
+							window.location.href = "/m";
 						}
-						//把 a 换成 span， 避免点那个滑块的时候页面跳走。
-						$(".ui-flipswitch a").each(function() {
-							$(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
-						});
+					}).on('click', '#btn_upload_attachment', function(event) {
+						self.wf_data.leave.reason = $("#personal_wf_work_of_travel-content #reason").val();
+						self.wf_data.leave.create_start_date = $("#personal_wf_work_of_travel-content #create_start_date").val();
+						self.wf_data.leave.create_end_date = $("#personal_wf_work_of_travel-content #create_end_date").val();
+						self.wf_data.is_full_day = $("#personal_wf_work_of_travel-content #is_full_day").val() == 'true' ? true : false;
 
-					} else if (self.page_mode == 'wf_three') {
-						window.location.href = "/m#wf_three";
-					} else {
-						window.location.href = "/m";
-					}
-				}).on('click', '#btn_upload_attachment', function(event) {
-					self.wf_data.leave.reason = $("#personal_wf_work_of_travel-content #reason").val();
-					self.wf_data.leave.create_start_date = $("#personal_wf_work_of_travel-content #create_start_date").val();
-					self.wf_data.leave.create_end_date = $("#personal_wf_work_of_travel-content #create_end_date").val();
-					self.wf_data.is_full_day = $("#personal_wf_work_of_travel-content #is_full_day").val() == 'true' ? true : false;
+						//转到上传图片的页面
+						var obj = self.wf_data;
+						save_form_data(obj, function() {
+							localStorage.removeItem('upload_model_back'); //先清掉
+							var next_url = '#upload_pic';
+							localStorage.setItem('upload_model', JSON.stringify({
+								model: self.wf_data,
+								field: 'attachments',
+								back_url: window.location.hash
+							}))
+							window.location.href = next_url;
+						})
 
-					//转到上传图片的页面
-					var obj = self.wf_data;
-					save_form_data(obj, function() {
-						localStorage.removeItem('upload_model_back'); //先清掉
-						var next_url = '#upload_pic';
-						localStorage.setItem('upload_model', JSON.stringify({
-							model: self.wf_data,
-							field: 'attachments',
-							back_url: window.location.hash
-						}))
-						window.location.href = next_url;
+
+					}).on('click', 'img', function(event) {
+						event.preventDefault();
+						// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
+						var img_view = '<img src="' + this.src + '">';
+						// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
+						$("#fullscreen-overlay").html(img_view).fadeIn('fast');
+					}).on('change', '#cost_budget', function(event) {
+						event.preventDefault();
+						var cur_val = Number($(this).val());
+						if (_.isNaN(cur_val)) {
+							alert("请输入数值！");
+							$(this).val('');
+						} else {
+							$(this).val(cur_val);
+							self.wf_data.leave.cost_budget = cur_val;
+						}
 					})
-
-
-				}).on('click', 'img', function(event) {
-					event.preventDefault();
-					// var img_view = '<div class="img_view" style="background-image:url('+this.src+')"></div>';
-					var img_view = '<img src="' + this.src + '">';
-					// img_view += '<a href="'+this.src.replace('get','download')+'" target="_blank">保存到本地</a>';
-					$("#fullscreen-overlay").html(img_view).fadeIn('fast');
-				})
-				// $("#wf_attendance")
+					// $("#wf_attendance")
 			},
 			get_datas: function() {
 
