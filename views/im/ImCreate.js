@@ -305,7 +305,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             $(btns[i]).hide();
                         };
 
-                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people'];
+                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people','#show_peoples'];
                         for (var i = 0; i < elements.length; i++) {
                             $(elements[i]).attr("disabled", true);
                         }
