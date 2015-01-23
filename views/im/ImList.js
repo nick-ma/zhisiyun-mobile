@@ -151,6 +151,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             // $.post('/admin/im/bb/' + null, {
                             $.post('/wxapp/005/bb/' + null, {
                                 msg_theme: '新建通知',
+                                msg_body: '',
                                 im_format: 'plain'
                             }, function(data) {
                                 window.location.href = '#im_view_S/' + data._id
