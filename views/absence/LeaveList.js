@@ -200,6 +200,12 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 };
 
 
+                // detail_005s = _.sortBy(detail_005s, function(ls) {
+                //     var get_time = new Date(ls.start_date);
+                //     return get_time.getTime()
+                // })
+
+
                 rendered_data = self.balance_template({
                     '001_bs': sort(items_001s),
                     '002_bs': sort(detail_005s),
