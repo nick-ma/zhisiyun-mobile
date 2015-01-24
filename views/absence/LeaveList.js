@@ -199,7 +199,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     })
                 };
 
-
                 rendered_data = self.balance_template({
                     '001_bs': sort(items_001s),
                     '002_bs': sort(detail_005s),
