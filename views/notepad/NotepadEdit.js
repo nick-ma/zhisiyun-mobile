@@ -11,6 +11,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                 self.template = Handlebars.compile($("#np_edit_view").html());
                 self.loading_template = Handlebars.compile($("#loading_template_view").html());
                 self.left_template = Handlebars.compile($("#np_edit_left_view").html());
+                self.mode_view = '0';
 
                 self.bind_event();
             },
@@ -40,12 +41,34 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
 
                 $("#np_edit_list-content").html(self.template(self.model.attributes));
                 $("#np_edit_list-content").trigger('create');
-
+                $("#np_content").trigger('change');
+                
                 return this;
             },
             bind_event: function() {
                 var self = this;
                 $("#np_edit_list-content")
+                    .on('change', '#np_tags', function(event) {
+                        var $this = $(this);
+                        var field = $this.data('field');
+                        var value = $this.val();
+
+                        self.model.get(field).push(value);
+                        self.model.attributes.lastModified = new Date();
+                        self.model.save().done(function(){
+                            self.render();
+                        });
+                    })
+                    .on('click', '.remove_tags', function(event) {
+                        var $this = $(this);
+                        var index = $this.data('index');
+
+                        self.model.get('tags').splice(index,1);
+                        self.model.attributes.lastModified = new Date();
+                        self.model.save().done(function(){
+                            self.render();
+                        });
+                    })
                     .on('change', '#np_content', function(event) {
                         var $this = $(this);
                         var field = $this.data('field');
@@ -111,6 +134,23 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "async"],
                             })
                         } else {
                             alert('请选择要转发的人员!')
+                        }
+                    })
+                    .on('change', '#chk_all', function(event) {
+                        event.preventDefault();
+                        var bool = ($(this).attr('data-cacheval') == 'true' ? false : true);
+                        if (bool) {
+                            var set = $(".send_np").each(function() {
+                                $(this).attr('checked', true)
+                                $(this).prev().removeClass('ui-checkbox-off').addClass('ui-checkbox-on')
+                                $(this).attr("data-cacheval", false);
+                            })
+                        } else {
+                            var set = $(".send_np").each(function() {
+                                $(this).attr('checked', false)
+                                $(this).prev().removeClass('ui-checkbox-on').addClass('ui-checkbox-off')
+                                $(this).attr("data-cacheval", true);
+                            })
                         }
                     })
 

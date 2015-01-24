@@ -1123,6 +1123,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
       Handlebars.registerHelper('toISODate', function(date) {
         return (date) ? moment(date).format('YYYY-MM-DD') : '';
       });
+      Handlebars.registerHelper('toISODate2', function(date) {
+        return (date) ? moment(date).format('YY/MM/DD') : '';
+      });
       Handlebars.registerHelper('toISOTime', function(date) {
         return (date) ? moment(date).format('HH:mm') : '';
       });
