@@ -34,29 +34,29 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
                 //根据条件进行过滤
                 if (self.search_term) {
-                    var nps_tmp1 = [];
-                    var nps_tmp2 = [];
+                    // var nps_tmp1 = [];
+                    // var nps_tmp2 = [];
                     var st = /./;
                     st.compile(self.search_term);
-                    nps_tmp1 = _.filter(nps_tmp, function(x) {
-                        return st.test(x.content);
-                    })
+                    // nps_tmp1 = _.filter(nps_tmp, function(x) {
+                    //     return st.test(x.content);
+                    // })
 
-                    nps_tmp2 = _.filter(nps_tmp, function(x) {
+                    nps_tmp = _.filter(nps_tmp, function(x) {
                         var tags_str = '';
                         _.each(x.tags,function(xx){
                             tags_str += xx + ',';
                         })
-                        return st.test(tags_str);
+                        return st.test(tags_str) || st.test(x.content);
                     })
 
-                    var nps_tmp = [];
-                    _.each(nps_tmp1,function(x){
-                        nps_tmp.push(x);
-                    })
-                    _.each(nps_tmp2,function(x){
-                        nps_tmp.push(x);
-                    })
+                    // var nps_tmp = [];
+                    // _.each(nps_tmp1,function(x){
+                    //     nps_tmp.push(x);
+                    // })
+                    // _.each(nps_tmp2,function(x){
+                    //     nps_tmp.push(x);
+                    // })
                 };
 
                 rendered_data.nps = _.sortBy(nps_tmp, function(x) {
