@@ -24,6 +24,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
     });
 
 
+    Handlebars.registerHelper('rp_state', function(date) {
+        var current_time = moment().format('YYYY-MM-DD');
+        var end_time = moment(date).format('YYYY-MM-DD');
+        var str = ''
+        if (end_time < current_time) {
+            str = '<span class="label label-danger">过 期<span>';
+        } else {
+            str = '<span class="label label-success">正 常<span>';
+        }
+        return str
+    });
+
+
     Handlebars.registerHelper('change_type', function(data) {
         return validate(data) ? '收 入' : '支 出';
     });
@@ -185,7 +198,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                         })
                     })
                 };
-
 
                 rendered_data = self.balance_template({
                     '001_bs': sort(items_001s),
