@@ -162,7 +162,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 event.preventDefault();
                 var days = $("#quesetionnaire_template_issue_list-content #days").val();
                 var is_control = $("#quesetionnaire_template_issue_list-content #is_control").val();
-                console.log(is_control)
+
                 if (!days) {
                     alert('请填写回收天数！')
                     return false;
@@ -221,7 +221,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         post_data.is_control = 'on'
                     };
 
-                    console.log(post_data)
                     $.mobile.loading("show");
 
                     $.post(url, post_data, function(data) {
