@@ -161,6 +161,8 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
             }).on('click', '#btn-ssue-save', function(event) {
                 event.preventDefault();
                 var days = $("#quesetionnaire_template_issue_list-content #days").val();
+                var is_control = $("#quesetionnaire_template_issue_list-content #is_control").val();
+                console.log(is_control)
                 if (!days) {
                     alert('请填写回收天数！')
                     return false;
@@ -212,8 +214,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     var post_data = {
                         qt_id: self.model.get('_id'),
                         recycling_days: days,
-                        user_ids: pps.join(',')
+                        user_ids: pps.join(','),
                     };
+
+                    if (is_control == 'true') {
+                        post_data.is_control = 'on'
+                    };
+
+                    console.log(post_data)
                     $.mobile.loading("show");
 
                     $.post(url, post_data, function(data) {
@@ -250,6 +258,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                     self.model_view = '0';
                     self.render();
                 }
+            }).on('change', 'select', function(event) {
+                $(".ui-flipswitch a").each(function() {
+                    $(this).replaceWith("<span class='" + $(this).attr('class') + "'></span>");
+                });
             })
 
 
