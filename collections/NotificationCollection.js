@@ -3,7 +3,7 @@ define(["jquery", "backbone", "models/NotificationModel"], function($, Backbone,
 
     // Extends Backbone.Router
     var Collection = Backbone.Collection.extend({
-        date_offset: 30,
+        date_offset: 365,
         // Sets the Collection model property to be a People Model
         model: NotificationModel,
         url: function() {

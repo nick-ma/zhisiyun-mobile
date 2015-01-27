@@ -272,14 +272,30 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var obj = self.model.attributes;
                     obj.mrs = self.mrs;
                     rendered_data = self.template_im_create(obj)
-                } else if (self.model_view == '1') {
+                } else if (self.model_view == '1') {//到通讯录里选
                     $("#im_create_list #btn-create_list-back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
+                    //把拼音重新组装，以便查询
+                    _.each(self.peoples2,function(x){
+                        var s = '';
+                        _.each(x.pinyin,function(xx){
+                            s += xx.toString() + ',';
+                        })
+                        x.pinyin = s;
+                    })
                     rendered_data = self.people_select_template({
-                            people: self.peoples
+                            people: self.peoples2
                         })
                         // self.model_view = '0';
-                } else {
+                } else {//公司权限里选
                     $("#im_create_list #btn-create_list-back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
+                    //把拼音重新组装，以便查询
+                    _.each(self.peoples,function(x){
+                        var s = '';
+                        _.each(x.pinyin,function(xx){
+                            s += xx.toString() + ',';
+                        })
+                        x.pinyin = s;
+                    })
                     rendered_data = self.people_select_template1({
                             people: self.peoples
                         })
@@ -305,9 +321,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             $(btns[i]).hide();
                         };
 
-                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people','#show_peoples'];
+                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people', '#show_peoples'];
                         for (var i = 0; i < elements.length; i++) {
                             $(elements[i]).attr("disabled", true);
+                        }
+                    }
+
+                    if ((self.model.get('creator') == self.people) && (self.model.get('state') == 'END')) { //如果是创建人，允许修改
+                        var btns = ['#btn-nf-save', '#btn_upload_attachment', '#people_select'];
+                        for (var i = 0; i < btns.length; i++) {
+                            $(btns[i]).show();
+                        };
+
+                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people', '#show_peoples'];
+                        for (var i = 0; i < elements.length; i++) {
+                            $(elements[i]).attr("disabled", false);
                         }
                     }
                 }
