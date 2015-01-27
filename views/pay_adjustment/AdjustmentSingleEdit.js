@@ -4,6 +4,63 @@
 // Includes file dependencies
 define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], function($, _, Backbone, Handlebars, async, moment) {
 
+
+
+    Handlebars.registerHelper('year_select_pay_roll', function(date) { //选择年
+
+        var year = moment().get('year');
+        var years = _.range(year - 1, year + 5);
+
+        var current_year = moment(date).format('YYYY')
+        var select_arr = [];
+
+        select_arr.push('<select id="select_year" class="select_date"  style="margin: 0px;width: 85px;" >')
+
+        for (var i = 1; i < years.length; i++) {
+            if (years[i] == String(current_year)) {
+                select_arr.push('<option value ="' + years[i] + '" selected>' + years[i] + '年</option>')
+            } else {
+                select_arr.push('<option value ="' + years[i] + '" >' + years[i] + '年</option>')
+
+            }
+        }
+        select_arr.push('</select>');
+        return select_arr.join('')
+    });
+    Handlebars.registerHelper('month_select_pay_roll', function(date) { //选择年
+        var months = {
+            '1': '一月',
+            '2': '二月',
+            '3': '三月',
+            '4': '四月',
+            '5': '五月',
+            '6': '六月',
+            '7': '七月',
+            '8': '八月',
+            '9': '九月',
+            '10': '十月',
+            '11': '十一月',
+            '12': '十二月',
+        }
+        var current_year = moment(date).format('MM')
+        var select_arr = [];
+        select_arr.push('<select id="select_month" class="select_date"  style="margin: 0px;width: 85px;">')
+        for (var i = 1; i <= 12; i++) {
+            var num = String(current_year)
+            if (Number(i) == Number(num)) {
+                select_arr.push('<option value ="' + i + '" selected>' + months[i] + '</option>')
+            } else {
+                select_arr.push('<option value ="' + i + '" >' + months[i] + '</option>')
+
+            }
+        }
+        select_arr.push('</select>');
+        return select_arr.join('')
+
+    });
+
+
+
     Handlebars.registerHelper('pay_in', function(obj, data) {
         var f_d = _.find(obj.items, function(it) {
             return it.pri._id == String(data)
@@ -47,6 +104,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 window.location = '#todo';
             };
         })
+    }
+
+
+
+    var get_effective_date = function(self) {
+        var select_year = $('#select_year').val();
+        var select_month = $('#select_month').val();
+        var effective_date = '';
+        if (select_month.length == 1) {
+            effective_date = select_year + '-0' + select_month
+        } else {
+            effective_date = select_year + '-' + select_month
+        }
+        self.model.get('adjustment_single').effective_date = effective_date
+
     }
 
 
@@ -113,8 +185,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
 
 
             if (self.model_view == '0') {
+                var year = moment().get('year');
+                var years = _.range(year - 1, year + 5);
 
                 var obj = self.model.attributes;
+                obj.years = years
                 obj.reason_types = [{
                     name: '转正',
                     value: 'A'
@@ -258,6 +333,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var name = $this.data('name');
                 var roles_type = $this.data('roles_type');
                 var position_form_field = $this.data('position_form_field');
+                get_effective_date(self)
 
                 self.model.id = $("#adjustment_single_edit-content #adjustment_single_id").val();
                 self.model.save().done(function(data1) {
@@ -301,6 +377,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 window.location.href = url;
             }).on('click', '#btn_upload_attachment', function(event) {
                 //转到上传图片的页面
+                get_effective_date(self)
                 var adjustment_single = self.model.get('adjustment_single');
                 localStorage.removeItem('upload_model_back'); //先清掉
                 var next_url = '#upload_pic';
@@ -343,11 +420,15 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 };
 
                 self.model.id = $("#adjustment_single_edit-content #adjustment_single_id").val();
+                get_effective_date(self)
                 self.model.save().done(function(data) {
                     if (data) {
                         alert('数据保存成功！！')
                     };
                 })
+            }).on('change', '.select_date', function(event) {
+                event.preventDefault();
+                get_effective_date(self)
             })
 
 

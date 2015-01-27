@@ -18,6 +18,18 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         };
     });
 
+    var get_effective_date = function(self) {
+        var select_year = $('#select_year').val();
+        var select_month = $('#select_month').val();
+        var effective_date = '';
+        if (select_month.length == 1) {
+            effective_date = select_year + '-0' + select_month
+        } else {
+            effective_date = select_year + '-' + select_month
+        }
+        self.model.get('adjustment_bulk').effective_date = effective_date
+
+    }
 
     var do_trans = function(trans_data) {
         var post_data = {
@@ -475,7 +487,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 var name = $this.data('name');
                 var roles_type = $this.data('roles_type');
                 var position_form_field = $this.data('position_form_field');
-
+                get_effective_date(self)
 
                 self.model.id = $("#adjustment_bulk_edit-content #adjustment_bulk_id").val();
                 self.model.save().done(function(data1) {
@@ -519,6 +531,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                 window.location.href = url;
             }).on('click', '#btn_upload_attachment', function(event) {
                 //转到上传图片的页面
+                get_effective_date(self)
                 var adjustment_bulk = self.model.get('adjustment_bulk');
                 localStorage.removeItem('upload_model_back'); //先清掉
                 var next_url = '#upload_pic';
@@ -596,7 +609,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     return false
                 }
 
-
+                get_effective_date(self)
                 self.model.id = $("#adjustment_bulk_edit-content #adjustment_bulk_id").val();
                 self.model.save().done(function(data) {
                     if (data) {
@@ -615,6 +628,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
                     f_d.ratio_value = ratio_value;
                 };
                 self.render();
+            }).on('change', '.select_date', function(event) {
+                event.preventDefault();
+                get_effective_date(self)
             })
 
 
