@@ -18,61 +18,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async", "moment"], fu
         };
     });
 
-
-    // Handlebars.registerHelper('year_select_pay_roll', function(date) { //选择年
-
-    //     var year = moment().get('year');
-    //     var years = _.range(year - 1, year + 5);
-
-    //     var current_year = moment(date).format('YYYY')
-    //     var select_arr = [];
-
-    //     select_arr.push('<select id="select_year" class="select_date"  style="margin: 0px;width: 85px;" >')
-
-    //     for (var i = 1; i < years.length; i++) {
-    //         if (years[i] == String(current_year)) {
-    //             select_arr.push('<option value ="' + years[i] + '" selected>' + years[i] + '年</option>')
-    //         } else {
-    //             select_arr.push('<option value ="' + years[i] + '" >' + years[i] + '年</option>')
-
-    //         }
-    //     }
-    //     select_arr.push('</select>');
-    //     return select_arr.join('')
-    // });
-    // Handlebars.registerHelper('month_select_pay_roll', function(date) { //选择年
-    //     var months = {
-    //         '1': '一月',
-    //         '2': '二月',
-    //         '3': '三月',
-    //         '4': '四月',
-    //         '5': '五月',
-    //         '6': '六月',
-    //         '7': '七月',
-    //         '8': '八月',
-    //         '9': '九月',
-    //         '10': '十月',
-    //         '11': '十一月',
-    //         '12': '十二月',
-    //     }
-    //     var current_year = moment(date).format('MM')
-    //     var select_arr = [];
-    //     select_arr.push('<select id="select_month" class="select_date"  style="margin: 0px;width: 85px;">')
-    //     for (var i = 1; i <= 12; i++) {
-    //         var num = String(current_year)
-    //         if (Number(i) == Number(num)) {
-    //             select_arr.push('<option value ="' + i + '" selected>' + months[i] + '</option>')
-    //         } else {
-    //             select_arr.push('<option value ="' + i + '" >' + months[i] + '</option>')
-
-    //         }
-    //     }
-    //     select_arr.push('</select>');
-    //     return select_arr.join('')
-
-    // });
-
-
     var get_effective_date = function(self) {
         var select_year = $('#select_year').val();
         var select_month = $('#select_month').val();
