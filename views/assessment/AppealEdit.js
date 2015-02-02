@@ -547,7 +547,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                     }
                     var url = '/admin/pm/assessment_instance/appeal/wf_create';
                     // if (confirm("确认提交审批吗？")) {
-                    my_confirm("确认提交审批吗?", null, function() {
+                    my_confirm("确认发起流程吗?", null, function() {
                         $.mobile.loading("show");
 
                         $.post(url, post_data, function(data, textStatus, xhr) {

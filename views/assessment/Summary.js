@@ -30,8 +30,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
                 var data = _.map(self.collection.models, function(x) {
                     return x.toJSON()
                 })
+                var sort_data = _.sortBy(data, function(x) {
+                    return x.lastModified
+                })
                 var render_data = {
-                    data: data
+                    data: sort_data.reverse()
                 };
                 $("#summary_list-content").html(self.template(render_data));
                 $("#summary_list-content").trigger('create');
@@ -84,10 +87,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment", "../../model
 
 
                     });
-                    $("#summary_list").on('click','.go_back',function(event){
-                        event.preventDefault();
-                        window.location ="/m#assessment_list";
-                    })
+                $("#summary_list").on('click', '.go_back', function(event) {
+                    event.preventDefault();
+                    window.location = "/m#assessment_list";
+                })
             }
 
         });
