@@ -8,7 +8,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
         function sort_im(items) {
             var sorts = _.sortBy(items, function(it) {
-                return it.s_date
+                return it.end
             })
             return sorts.reverse()
         }
@@ -19,6 +19,21 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                 str = '系统通知';
             }
             return str
+        });
+
+        Handlebars.registerHelper('getCount', function(obj) {
+            // var obj = nfs.get(nf_id);
+            var is_read_count = _.filter(obj.r_peoples, function(x) {
+                return x.mark_read
+            })
+            var ret = ['<span class="pull-right label'];
+            ret.push(' label-info">');
+            ret.push(is_read_count.length);
+            ret.push('/');
+            ret.push(obj.r_peoples.length);
+            ret.push('</span>');
+            ret.push('</span>');
+            return ret.join('');
         });
         // Extends Backbone.View
         var ImListView = Backbone.View.extend({
@@ -136,6 +151,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             // $.post('/admin/im/bb/' + null, {
                             $.post('/wxapp/005/bb/' + null, {
                                 msg_theme: '新建通知',
+                                msg_body: '',
                                 im_format: 'plain'
                             }, function(data) {
                                 window.location.href = '#im_view_S/' + data._id

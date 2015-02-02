@@ -193,6 +193,7 @@ define(["jquery", "backbone", "handlebars", "lzstring", "moment", "async",
                             self.ff_v.flowchart_data = self.flowchart_data;
                             self.ff_v.attachments = self.attachments;
                             self.ff_v.supreme_leader = data.supreme_leader;
+                            self.ff_v.first_task_node = data.first_task_node;
                             self.ff_v.ref_pis = self.ref_pis;
                             self.ff_v.users = self.users_data;
                             self.pi.fetch().done(function() {

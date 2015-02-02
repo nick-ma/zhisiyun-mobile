@@ -70,6 +70,12 @@ define(["jquery", "backbone", "handlebars", "lzstring",
                 if (pl && !pl.mark_read) {
                     pl.mark_read = true;
                     pl.read_date = new Date();
+                    _.each(self.im.get('tasks'), function(x) {
+                        x.people = x.people._id ? x.people._id : x.people;
+                    })
+                    _.each(self.im.get('attachments'), function(x) {
+                        x.file = x.file._id ? x.file._id : x.file;
+                    })
                     self.im.save().done(function() {
                         self.imEditView.render();
                         $.mobile.loading("hide");
@@ -92,7 +98,9 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
             self.im.id = im_id;
             self.im.fetch().done(function() {
+                self.imCreateView.model_view = '0';
                 self.imCreateView.peoples = self.peoples
+                self.imCreateView.peoples2 = self.peoples2
                 self.imCreateView.mrs = self.mrs
 
                 self.imCreateView.render();
@@ -126,9 +134,14 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         },
         init_data: function() {
             var self = this;
-            // $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
-            $.get('/admin/masterdata/people_contact/get_contacts?people_id=' + $('#login_people').val(), function(peoples) {
+            //公司权限的peoples
+            $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
+            // $.get('/admin/masterdata/people_contact/get_contacts?people_id=' + $('#login_people').val(), function(peoples) {
                 self.peoples = peoples
+            })
+            //通讯录的peoples
+            $.get('/admin/masterdata/people_contact/get_contacts?people_id=' + $('#login_people').val(), function(peoples) {
+                self.peoples2 = peoples
             })
 
             $.get('/admin/pm/mobile_resource/bb?mr_type=M', function(data) {

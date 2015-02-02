@@ -27,7 +27,106 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
         }
 
 
-        function do_save(self, type) {
+        // function do_save(self, type) {
+
+        //     if (self.model.get('is_meeting')) {
+
+        //         if (self.model.get('mobile_resource')) {
+
+        //             var m_start_date = self.model.get('m_start_date');
+        //             var m_end_date = self.model.get('m_end_date');
+        //             var s_date = null;
+        //             var e_date = null;
+        //             if (self.model.get('is_all_day')) {
+        //                 s_date = moment(m_start_date).endOf('day').toDate();
+        //                 e_date = moment(m_end_date).endOf('day').toDate();
+        //             } else {
+        //                 s_date = moment(moment(m_start_date).format('YYYY-MM-DD HH:mm')).toDate();
+        //                 e_date = moment(moment(m_end_date).format('YYYY-MM-DD HH:mm')).toDate();
+        //             }
+
+        //             if (e_date < s_date) {
+        //                 alert("结束日期不能小于开始日期!")
+        //                 return false;
+        //             }
+        //             var filters = _.filter(self.free_times, function(tt) {
+        //                 var tt_start = moment(tt.start).toDate();
+        //                 var tt_end = moment(tt.end).toDate();
+        //                 var bool = (tt_start < s_date) && (s_date < tt_end)
+        //                 var bool_02 = (tt_start < e_date) && (e_date < tt_end)
+        //                 var bool_03 = (tt_start >= s_date) && (tt_end <= e_date)
+        //                 var bl = (bool || bool_02);
+        //                 return (bool || bool_02 || bool_03)
+        //             })
+
+        //             if (filters.length) {
+        //                 alert('请选择空余时间段!')
+        //                 return false
+        //             };
+        //         };
+
+        //         if (!self.model.get('m_address')) {
+        //             alert('请输入会议地址！');
+        //             return false
+        //         };
+
+        //     };
+
+
+
+        //     $.mobile.loading("show");
+        //     var imgs = []
+        //     _.each(self.model.get('attachments'), function(att) {
+        //         if (att._id) {
+        //             imgs.push(att._id)
+        //         } else {
+        //             imgs.push(att)
+        //         }
+        //     })
+
+
+
+        //     self.model.set('r_users', _.compact(_.pluck(self.model.get('r_users'), '_id')));
+        //     self.model.set('attachments', imgs);
+
+        //     var comment = $("#comment").val();
+        //     var current_task = _.find(self.model.get('tasks'), function(x) {
+        //         return x.task_no == self.model.get('current_task_no');
+        //     })
+        //     if (current_task) {
+        //         current_task.comment = comment;
+        //     };
+        //     _.each(self.model.get('tasks'), function(x) {
+        //         x.people = x.people._id ? x.people._id : x.people;
+        //     })
+
+        //     self.model.save(self.model.attributes, {
+        //         success: function(model, response, options) {
+        //             // fetch_im(im_id)
+        //             var str = (type == 'S' ? '通知保存成功！！' : '通知发送成功！！')
+        //             $.mobile.loading("hide");
+        //             if (type == 'S') {
+        //                 self.model.fetch().done(function() {
+        //                     self.render();
+        //                     alert(str)
+        //                 })
+        //             } else {
+        //                 window.location.href = '/m#im_list'
+        //             }
+
+        //         },
+        //         error: function(model, xhr, options) {
+        //             var str = (type == 'S' ? '通知保存失败！！' : '通知发送失败！！')
+        //             $.mobile.loading("hide");
+        //             alert(str)
+
+        //         }
+        //     })
+
+        // }
+
+        function do_save2(self, cb) {
+            // $.mobile.loading("show");
 
             if (self.model.get('is_meeting')) {
 
@@ -72,23 +171,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
             };
 
-
-
-            $.mobile.loading("show");
-            var imgs = []
-            _.each(self.model.get('attachments'), function(att) {
-                if (att._id) {
-                    imgs.push(att._id)
-                } else {
-                    imgs.push(att)
-                }
-            })
-
-
-
-            self.model.set('r_users', _.compact(_.pluck(self.model.get('r_users'), '_id')));
-            self.model.set('attachments', imgs);
-
             var comment = $("#comment").val();
             var current_task = _.find(self.model.get('tasks'), function(x) {
                 return x.task_no == self.model.get('current_task_no');
@@ -99,45 +181,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
             _.each(self.model.get('tasks'), function(x) {
                 x.people = x.people._id ? x.people._id : x.people;
             })
-
-            self.model.save(self.model.attributes, {
-                success: function(model, response, options) {
-                    // fetch_im(im_id)
-                    var str = (type == 'S' ? '通知保存成功！！' : '通知发送成功！！')
-                    $.mobile.loading("hide");
-                    if (type == 'S') {
-                        self.model.fetch().done(function() {
-                            self.render();
-                            alert(str)
-                        })
-                    } else {
-                        window.location.href = '/m#im_list'
-                    }
-
-                },
-                error: function(model, xhr, options) {
-                    var str = (type == 'S' ? '通知保存失败！！' : '通知发送失败！！')
-                    $.mobile.loading("hide");
-                    alert(str)
-
-                }
+            _.each(self.model.get('attachments'), function(x) {
+                x.file = x.file._id ? x.file._id : x.file;
             })
-
-        }
-
-        function do_save2(self, cb) {
-            $.mobile.loading("show");
-            var comment = $("#comment").val();
-            var current_task = _.find(self.model.get('tasks'), function(x) {
-                return x.task_no == self.model.get('current_task_no');
-            })
-            if (current_task) {
-                current_task.comment = comment;
-            };
-            _.each(self.model.get('tasks'), function(x) {
-                x.people = x.people._id ? x.people._id : x.people;
-            })
-
             self.model.save().done(cb);
 
         }
@@ -226,18 +272,34 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     var obj = self.model.attributes;
                     obj.mrs = self.mrs;
                     rendered_data = self.template_im_create(obj)
-                } else if (self.model_view == '1') {
+                } else if (self.model_view == '1') {//到通讯录里选
                     $("#im_create_list #btn-create_list-back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
+                    //把拼音重新组装，以便查询
+                    _.each(self.peoples2,function(x){
+                        var s = '';
+                        _.each(x.pinyin,function(xx){
+                            s += xx.toString() + ',';
+                        })
+                        x.pinyin = s;
+                    })
                     rendered_data = self.people_select_template({
-                        people: self.peoples
-                    })
-                    // self.model_view = '0';
-                } else {
+                            people: self.peoples2
+                        })
+                        // self.model_view = '0';
+                } else {//公司权限里选
                     $("#im_create_list #btn-create_list-back").removeClass('ui-icon-back').addClass('ui-btn-icon-notext ui-icon-check')
-                    rendered_data = self.people_select_template1({
-                        people: self.peoples
+                    //把拼音重新组装，以便查询
+                    _.each(self.peoples,function(x){
+                        var s = '';
+                        _.each(x.pinyin,function(xx){
+                            s += xx.toString() + ',';
+                        })
+                        x.pinyin = s;
                     })
-                    // self.model_view = '0';
+                    rendered_data = self.people_select_template1({
+                            people: self.peoples
+                        })
+                        // self.model_view = '0';
                 }
                 $("#im_create_list-content").html(rendered_data);
                 $("#im_create_list-content").trigger('create');
@@ -246,20 +308,34 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                     if (self.model.get('creator') == self.people) { //创建人
                         $("#btn-nf-back").hide();
                         $("#btn-nf-submit").show();
+                        $("#btn-nf-remove").show();
                     } else {
                         $("#btn-nf-back").show();
                         $("#btn-nf-submit").hide();
+                        $("#btn-nf-remove").hide();
                     }
 
                     if (self.model.get('current_handler') != self.people) { //不是当前办理人
-                        var btns = ['#btn-nf-save', '#btn-nf-ok', '#btn-nf-back', '#btn-nf-submit', '#btn_upload_attachment', '#people_select', '#comment_div'];
+                        var btns = ['#btn-nf-save', '#btn-nf-ok', '#btn-nf-back', '#btn-nf-submit', '#btn-nf-remove', '#btn_upload_attachment', '#people_select', '#comment_div'];
                         for (var i = 0; i < btns.length; i++) {
                             $(btns[i]).hide();
                         };
 
-                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people'];
+                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people', '#show_peoples'];
                         for (var i = 0; i < elements.length; i++) {
                             $(elements[i]).attr("disabled", true);
+                        }
+                    }
+
+                    if ((self.model.get('creator') == self.people) && (self.model.get('state') == 'END')) { //如果是创建人，允许修改
+                        var btns = ['#btn-nf-save', '#btn_upload_attachment', '#people_select'];
+                        for (var i = 0; i < btns.length; i++) {
+                            $(btns[i]).show();
+                        };
+
+                        var elements = ['#msg_theme', '#msg_body', '#is_meeting', '#is_all_day', '#m_start_date', '#m_end_date', '#mobile_resource', '#m_address', '#m_start_date', '.btn_remove_people', '#show_peoples'];
+                        for (var i = 0; i < elements.length; i++) {
+                            $(elements[i]).attr("disabled", false);
                         }
                     }
                 }
@@ -309,6 +385,19 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             self.render();
                             $.mobile.loading("hide");
                         });
+                    }).on('click', '#btn-nf-remove', function(event) {
+                        event.preventDefault();
+                        var im_id = self.model.get('_id');
+                        if (im_id && confirm('确认删除吗？\n一旦删除将无法恢复！')) {
+                            $.post('/admin/im/del', {
+                                im_id: im_id
+                            }, function(data) {
+                                alert('删除成功!');
+                                window.location.href = '/m#im_list';
+                            }).fail(function() {
+                                alert('删除失败!');
+                            })
+                        }
                     }).on('click', '#btn-create_list-back', function(event) {
                         event.preventDefault();
                         if (self.model_view == '1') {
@@ -414,7 +503,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         //     return false
                         // };
 
-                        do_save(self, 'S');
+                        do_save2(self, function() {
+                            alert('保存成功!');
+                        });
                     }).on('click', '#btn-nf-ok', function(event) {
                         event.preventDefault();
                         // self.model.set('is_send', true);
@@ -430,65 +521,11 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             alert('发送内容不能为空!')
                             return false
                         };
-                        if (self.model.get('comment') == null || self.model.get('comment') == '') {
-                            alert('审批意见不能为空!')
-                            return false
-                        };
+                        // if (self.model.get('comment') == null || self.model.get('comment') == '') {
+                        //     alert('审批意见不能为空!')
+                        //     return false
+                        // };
 
-                        if (self.model.get('is_meeting')) {
-
-                            if (self.model.get('mobile_resource')) {
-
-                                var m_start_date = self.model.get('m_start_date');
-                                var m_end_date = self.model.get('m_end_date');
-                                var s_date = null;
-                                var e_date = null;
-                                if (self.model.get('is_all_day')) {
-                                    s_date = moment(m_start_date).endOf('day').toDate();
-                                    e_date = moment(m_end_date).endOf('day').toDate();
-                                } else {
-                                    s_date = moment(moment(m_start_date).format('YYYY-MM-DD HH:mm')).toDate();
-                                    e_date = moment(moment(m_end_date).format('YYYY-MM-DD HH:mm')).toDate();
-                                }
-
-                                if (e_date < s_date) {
-                                    alert("结束日期不能小于开始日期!")
-                                    return false;
-                                }
-                                var filters = _.filter(self.free_times, function(tt) {
-                                    var tt_start = moment(tt.start).toDate();
-                                    var tt_end = moment(tt.end).toDate();
-                                    var bool = (tt_start < s_date) && (s_date < tt_end)
-                                    var bool_02 = (tt_start < e_date) && (e_date < tt_end)
-                                    var bool_03 = (tt_start >= s_date) && (tt_end <= e_date)
-                                    var bl = (bool || bool_02);
-                                    return (bool || bool_02 || bool_03)
-                                })
-
-                                if (filters.length) {
-                                    alert('请选择空余时间段!')
-                                    return false
-                                };
-                            };
-
-                            if (!self.model.get('m_address')) {
-                                alert('请输入会议地址！');
-                                return false
-                            };
-
-                        };
-
-                        var imgs = []
-                        _.each(self.model.get('attachments'), function(att) {
-                            if (att._id) {
-                                imgs.push(att._id)
-                            } else {
-                                imgs.push(att)
-                            }
-                        })
-
-                        self.model.set('r_users', _.compact(_.pluck(self.model.get('r_users'), '_id')));
-                        self.model.set('attachments', imgs);
                         my_confirm('确定发送通知吗?\n发送成功将跳转到列表!', null, function() {
                             do_save2(self, function() {
                                 var url = '/wxapp/005/' + self.model.get('_id') + '/approve_done';

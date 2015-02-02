@@ -131,6 +131,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                         flowchart_data: self.flowchart_data,
                         attachments: self.attachments,
                         supreme_leader: supreme_leader,
+                        first_task_node: self.first_task_node,
                     };
 
                     // console.log(render_data);
@@ -183,6 +184,26 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             alert('保存成功');
                         }).fail(function() {
                             alert('保存失败');
+                        });
+                    })
+                    .on('click', '.btn_remove_pi', function(event) {
+                        event.preventDefault();
+                        // if (confirm("确实要删除当前流程吗？\n警告：一旦删除将无法恢复！")) {
+                        my_confirm("确实要删除当前流程吗？\n警告：一旦删除将无法恢复！", null, function() {
+                            pi.destroy({
+                                success: function(model, response, options) {
+                                    alert('流程删除成功');
+                                    window.setTimeout(function() {
+                                        var url = '#todo';
+                                        window.location.href = url;
+                                    }, 1000)
+                                },
+                                error: function(model, response, options) {
+                                    // console.log(response);
+                                    // show_notify_msg('流程删除失败:' + response.responseText, 'ERR');
+                                    alert('流程删除失败');
+                                }
+                            })
                         });
                     })
                     .on('click', '.btn_do_trans', function(event) {

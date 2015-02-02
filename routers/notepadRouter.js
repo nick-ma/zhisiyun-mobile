@@ -2,12 +2,14 @@
 define(["jquery", "backbone", "handlebars", "lzstring",
     "../collections/NotepadCollection",
     "../models/NotepadModel",
+    "../models/MemoTagsModel",
     "../views/notepad/NotepadList",
     "../views/notepad/NotepadEdit",
 
 ], function($, Backbone, Handlebars, LZString,
     NotepadCollection,
     NotepadModel,
+    MemoTagsModel,
     NotepadListView,
     NotepadEditView
 ) {
@@ -59,12 +61,17 @@ define(["jquery", "backbone", "handlebars", "lzstring",
 
             self.np.id = np_id;
             self.np.fetch().done(function() {
-                self.npEditView.nps = self.nps;
-                self.npEditView.peoples = self.peoples;
-                self.npEditView.model = self.np;
-                self.npEditView.render();
+                self.mt.people = self.np.get("people");
+                self.mt.fetch().done(function() {
+                    self.npEditView.nps = self.nps;
+                    self.npEditView.peoples = self.peoples;
+                    self.npEditView.model = self.np;
+                    self.npEditView.mt = self.mt;
+                    self.npEditView.mode_view = '0';
+                    self.npEditView.render();
 
-                $.mobile.loading("hide");
+                    $.mobile.loading("hide");
+                })
             })
         },
         init_views: function() {
@@ -82,13 +89,15 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         },
         init_models: function() {
             this.np = new NotepadModel();
+            this.mt = new MemoTagsModel();
         },
         init_collections: function() {
             this.nps = new NotepadCollection();
         },
         init_data: function() {
             var self = this;
-            $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
+            $.get('/admin/masterdata/people_contact/get_contacts', function(peoples) {
+                // $.get('/admin/im/get_peoples/' + self.people, function(peoples) {
                 self.peoples = peoples
             })
         }
