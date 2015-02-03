@@ -145,6 +145,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                 });
                 item[type + '_score'] = parseFloat($this.val());
                 item[type + '_final_score'] = parseFloat(item[type + '_score'] * item[type + '_weight'] / 100);
+                item[type + '_is_grade'] = !!$this.val();
                 //重新计算指标得分
                 self.item_score(item);
                 self.render();
