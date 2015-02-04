@@ -112,7 +112,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "async"], function($, 
                         return item.md_code == self.model.get('result')
                     })
                     obj.desc = f_d;
-                    console.log(obj);
                     rendered_data = self.quesetionnaire_mbti_result_template(obj);
                     //设定列表的返回路径
                     if(self.quesetionnaire_list_back_url){

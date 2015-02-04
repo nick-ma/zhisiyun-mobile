@@ -722,7 +722,7 @@ define(["jquery", "underscore", "async", "backbone", "handlebars", "moment", "..
                 }).on('click', '#btn_wf_appeal_start_userchat', function(event) {
                     event.preventDefault();
                     var people = $(this).data("people") || self.collection.models[0].attributes.ai.people._id;
-                    var url = "im://userchat/" + self.data.ai.people._id;
+                    var url = "im://userchat/" + people;
                     window.location.href = url;
                 }).on('change', '.is_agree', function(event) {
                     event.preventDefault();
