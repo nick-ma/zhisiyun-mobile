@@ -99,7 +99,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 
 					} else if (self.page_mode == 'wf_three') {
 						// window.location.href = "/m#wf_three";
-						window.location.href = self.to_do_back_url;
+						window.location.href = self.to_do_back_url || "/m#wf_three";
 					} else {
 						window.location.href = "/m";
 					}

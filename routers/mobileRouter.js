@@ -3073,7 +3073,49 @@ define(["jquery", "backbone", "handlebars", "lzstring",
         }
 
       });
+      Handlebars.registerHelper('vehicle', function(vehicle) {
+        var arr = {
+          "A": "飞机",
+          "B": "火车",
+          "C": "汽车",
+          "D": "自驾",
+          "E": "公司派车",
+          "F": "飞机+火车",
+          "G": "飞机+汽车",
+          "H": "火车+汽车",
+          "I": "其它"
+        }
 
+        var temp_arr = [];
+        for (key in arr) {
+          if (key == vehicle) {
+            temp_arr.push('<option value="' + key + '" ,selected>' + arr[key] + '</option>');
+          } else {
+            temp_arr.push('<option value="' + key + '" >' + arr[key] + '</option>');
+
+          }
+
+        }
+        return temp_arr.join('')
+
+      });
+      Handlebars.registerHelper('vehicle_obj', function(vehicle) {
+
+        var arr = {
+          "A": "飞机",
+          "B": "火车",
+          "C": "汽车",
+          "D": "自驾",
+          "E": "公司派车",
+          "F": "飞机+火车",
+          "G": "飞机+汽车",
+          "H": "火车+汽车",
+          "I": "其它"
+        }
+
+        return vehicle ? arr[vehicle] : ''
+
+      });
     })();
 
     // Returns the Router class

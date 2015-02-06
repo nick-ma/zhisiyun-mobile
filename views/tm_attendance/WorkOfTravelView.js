@@ -198,6 +198,9 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 			}
 			var post_data = _.extend(obj, wf_data.leave);
 			post_data.reason = $("#reason").val();
+			post_data.vehicle_go = $("#vehicle_go").val();
+			post_data.vehicle_back = $("#vehicle_back").val();
+			console.log(post_data);
 			$.post(url, post_data, function(data) {
 				cb(data)
 			})
@@ -290,6 +293,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 					day_hours = today_time.work_time_hour;
 				}
 				obj.leave.hours = wf_data.leave.hours ? wf_data.leave.hours : day_hours;
+				obj.vehicle_arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 				if (self.view_mode) {
 					if (self.view_mode == 'trans') {
 						$("#wf_attendance_title").html('数据处理人');
@@ -304,7 +308,7 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						$("#personal_wf_work_of_travel-content").html(self.template(obj));
 						$("#personal_wf_work_of_travel-content").trigger('create');
 						$("#btn_save").hide();
-						$("#personal_wf_work_of_travel-content #create_start_date,#create_end_date,#hours,#reason,#cost_budget").attr("readonly", true);
+						$("#personal_wf_work_of_travel-content #create_start_date,#create_end_date,#hours,#reason,#cost_budget,#vehicle_go,#vehicle_back").attr("readonly", true);
 
 						return this;
 					}
@@ -341,7 +345,10 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 						alert('请填写审批意见！');
 						return;
 					}
-
+					if (!self.wf_data.leave.destination || self.wf_data.leave.destination.length < 1) {
+						alert('请选择出差目的地');
+						return;
+					}
 					$(this).attr('disabled', true)
 					$.mobile.loading("show");
 
@@ -542,6 +549,14 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
 							$(this).val(cur_val);
 							self.wf_data.leave.cost_budget = cur_val;
 						}
+					}).on('change', '#vehicle_go', function(event) {
+						event.preventDefault();
+						var vehicle_go = $(this).val();
+						self.wf_data.leave.vehicle_go = vehicle_go;
+					}).on('change', '#vehicle_back', function(event) {
+						event.preventDefault();
+						var vehicle_back = $(this).val();
+						self.wf_data.leave.vehicle_back = vehicle_back;
 					})
 					// $("#wf_attendance")
 			},
