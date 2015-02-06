@@ -303,9 +303,6 @@ define(["jquery", "underscore", "backbone", "handlebars", "moment"],
                             $("#form_table_form-content").html(tmp_form_table_form(render_data));
                             $("#form_table_form-content").trigger('create');
                             $("#form_table_form-content").find(".date_field").attr("type", "date");
-
-                            self.view_mode = '2';
-                            self.render();
                         };
 
                     })
